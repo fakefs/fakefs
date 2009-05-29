@@ -1,6 +1,4 @@
-require 'fileutils'
-
-class FakeFS
+module FakeFS
   module FileUtils
     extend self
 
@@ -43,16 +41,12 @@ class FakeFS
     end
 
     def self.expand_path(path)
-      RealFile.expand_path(path)
+      ::File.expand_path(path)
     end
 
     def self.readlink(path)
       symlink = FileSystem.find(path)
       FileSystem.find(symlink.target).to_s
-    end
-
-    def self.dirname(path)
-      RealFile.dirname(path)
     end
   end
 
@@ -66,6 +60,54 @@ class FakeFS
     end
   end
 
+  module FileSystem
+    extend self
+
+    def fs
+      @fs ||= MockDir.new('.')
+    end
+
+    def clear
+      @fs = nil
+    end
+
+    def find(path)
+      parts = path_parts(path)
+
+      target = parts[0...-1].inject(fs) do |dir, part|
+        dir[part] || {}
+      end
+
+      case parts.last
+      when '*'
+        target.values
+      else
+        target[parts.last]
+      end
+    end
+
+    def add(path, object)
+      parts = path_parts(path)
+
+      d = parts[0...-1].inject(fs) do |dir, part|
+        dir[part] ||= MockDir.new(part, dir)
+      end
+
+      object.name = parts.last
+      object.parent = d
+      d[parts.last] = object
+    end
+
+    def delete(path)
+      if dir = FileSystem.find(path)
+        dir.parent.delete(dir.name)
+      end
+    end
+
+    def path_parts(path)
+      path.split(File::PATH_SEPARATOR)
+    end
+  end
 
   class MockDir < Hash
     attr_accessor :name, :parent
@@ -73,10 +115,6 @@ class FakeFS
     def initialize(name = nil, parent = nil)
       @name = name
       @parent = parent
-    end
-
-    def files
-      values
     end
 
     def entry
@@ -112,62 +150,7 @@ class FakeFS
       entry.send(*args, &block)
     end
   end
-
-  def fs
-    @fs ||= MockDir.new('.')
-  end
-
-  def clear
-    @fs = nil
-  end
-
-  def find(path)
-    parts = path_parts(path)
-
-    target = parts[0...-1].inject(fs) do |dir, part|
-      dir[part] || {}
-    end
-
-    case parts.last
-    when '*'
-      target.values
-    else
-      target[parts.last]
-    end
-  end
-
-  def add(path, object)
-    parts = path_parts(path)
-
-    d = parts[0...-1].inject(fs) do |dir, part|
-      dir[part] ||= MockDir.new(part, dir)
-    end
-
-    object.name = parts.last
-    object.parent = d
-    d[parts.last] = object
-  end
-
-  def delete(path)
-    if dir = FileSystem.find(path)
-      dir.parent.delete(dir.name)
-    end
-  end
-
-  def path_parts(path)
-    path.split(File::PATH_SEPARATOR)
-  end
-
-  def method_missing(*args, &block)
-    fs.send(*args, &block)
-  end
-
-  FileSystem = FakeFS.new('.')
 end
-
-RealFile = File
-RealFileUtils = FileUtils
-RealDir = Dir
 
 Object.class_eval do
   remove_const(:Dir)
