@@ -1,3 +1,9 @@
+require 'fileutils'
+
+RealFile = File
+RealFileUtils = FileUtils
+RealDir = Dir
+
 module FakeFS
   module FileUtils
     extend self
@@ -40,14 +46,61 @@ module FakeFS
       FileSystem.find(path)
     end
 
-    def self.expand_path(path)
-      ::File.expand_path(path)
+    def self.directory?(path)
+      FileSystem.find(path).is_a? MockDir
+    end
+
+    def self.symlink?(path)
+      FileSystem.find(path).is_a? MockSymlink
+    end
+
+    def self.file?(path)
+      FileSystem.find(path).is_a? MockFile
+    end
+
+    def self.expand_path(*args)
+      RealFile.expand_path(*args)
+    end
+
+    def self.basename(*args)
+      RealFile.basename(*args)
+    end
+
+    def self.dirname(path)
+      RealFile.dirname(path)
     end
 
     def self.readlink(path)
       symlink = FileSystem.find(path)
       FileSystem.find(symlink.target).to_s
     end
+
+    def self.open(path, mode)
+      if block_given?
+        yield new(path, mode)
+      else
+        new(path, mode)
+      end
+    end
+
+    attr_reader :path
+    def initialize(path, mode)
+      @path = path
+      @mode = mode
+    end
+
+    def read
+    end
+
+    def puts(content)
+      write(content + "\n")
+    end
+
+    def write(content)
+      FileUtils.mkdir_p(File.dirname(path))
+
+    end
+    alias_method :print, :write
   end
 
   class Dir
@@ -71,6 +124,10 @@ module FakeFS
       @fs = nil
     end
 
+    def files
+      fs.values
+    end
+
     def find(path)
       parts = path_parts(path)
 
@@ -86,7 +143,7 @@ module FakeFS
       end
     end
 
-    def add(path, object)
+    def add(path, object=MockDir.new)
       parts = path_parts(path)
 
       d = parts[0...-1].inject(fs) do |dir, part|
@@ -98,6 +155,27 @@ module FakeFS
       d[parts.last] = object
     end
 
+    # copies directories and files from the real filesystem
+    # into our fake one
+    def clone(path)
+      path    = File.expand_path(path)
+      pattern = File.join(path, '**', '*')
+      files   = RealFile.file?(path) ? [path] : RealDir.glob(pattern)
+
+      files.each do |f|
+        if RealFile.file?(f)
+          FileUtils.mkdir_p(File.dirname(f))
+          File.open(f, 'w') do |f|
+            f.puts RealFile.read(f)
+          end
+        elsif RealFile.directory?(f)
+          FileUtils.mkdir_p(f)
+        elsif RealFile.symlink?(f)
+          FileUtils.ln_s()
+        end
+      end
+    end
+
     def delete(path)
       if dir = FileSystem.find(path)
         dir.parent.delete(dir.name)
@@ -105,7 +183,23 @@ module FakeFS
     end
 
     def path_parts(path)
-      path.split(File::PATH_SEPARATOR)
+      path.split(File::PATH_SEPARATOR).reject { |part| part.empty? }
+    end
+  end
+
+  class MockFile
+    attr_accessor :name, :parent
+    def initialize(name = nil, parent = nil)
+      @name = name
+      @parent = parent
+    end
+
+    def entry
+      self
+    end
+
+    def to_s
+      File.join(parent.to_s, name)
     end
   end
 
@@ -123,7 +217,9 @@ module FakeFS
 
     def to_s
       if parent && parent.to_s != '.'
-        parent.to_s + '/' + name
+        File.join(parent.to_s, name)
+      elsif parent && parent.to_s == '.'
+        "#{File::PATH_SEPARATOR}#{name}"
       else
         name
       end
