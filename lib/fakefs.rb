@@ -87,6 +87,10 @@ module FakeFS
       new(path).read
     end
 
+    def self.readlines(path)
+      read(path).split("\n")
+    end
+
     attr_reader :path
     def initialize(path, mode = nil)
       @path = path

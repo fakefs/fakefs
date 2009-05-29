@@ -79,6 +79,25 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal "Yatta!", File.read(path)
   end
 
+  def test_can_read_with_File_readlines
+    path = '/path/to/file.txt'
+    File.open(path, 'w') do |f|
+      f.puts "Yatta!"
+      f.puts "woot"
+    end
+
+    assert_equal ["Yatta!", "woot"], File.readlines(path)
+  end
+
+  def test_can_read_from_file_objects
+    path = '/path/to/file.txt'
+    File.open(path, 'w') do |f|
+      f.write "Yatta!"
+    end
+
+    assert_equal "Yatta!", File.new(path).read
+  end
+
   def test_knows_files_are_files
     path = '/path/to/file.txt'
     File.open(path, 'w') do |f|
