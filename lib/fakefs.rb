@@ -43,7 +43,7 @@ module FakeFS
     end
 
     def self.exists?(path)
-      FileSystem.find(path)
+      FileSystem.find(path) || false
     end
 
     def self.directory?(path)
@@ -152,7 +152,7 @@ module FakeFS
 
       object.name = parts.last
       object.parent = d
-      d[parts.last] = object
+      d[parts.last] ||= object
     end
 
     # copies directories and files from the real filesystem

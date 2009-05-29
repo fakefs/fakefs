@@ -36,6 +36,13 @@ class FakeFSTest < Test::Unit::TestCase
     assert File.directory?(path)
   end
 
+  def test_doesnt_overwrite_existing_directories
+    FileUtils.mkdir_p(path = "/path/to/dir")
+    assert File.exists?(path)
+    FileUtils.mkdir_p("/path/to")
+    assert File.exists?(path)
+  end
+
   def test_can_create_symlinks
     FileUtils.mkdir_p(target = "/path/to/target")
     FileUtils.ln_s(target, "/path/to/link")
