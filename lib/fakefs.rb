@@ -83,13 +83,19 @@ module FakeFS
       end
     end
 
+    def self.read(path)
+      new(path).read
+    end
+
     attr_reader :path
-    def initialize(path, mode)
+    def initialize(path, mode = nil)
       @path = path
       @mode = mode
+      @file = FileSystem.find(path)
     end
 
     def read
+      @file.content
     end
 
     def puts(content)
@@ -97,8 +103,11 @@ module FakeFS
     end
 
     def write(content)
-      FileUtils.mkdir_p(File.dirname(path))
+      if !File.exists?(@path)
+        @file = FileSystem.add(path, MockFile.new)
+      end
 
+      @file.content += content
     end
     alias_method :print, :write
   end
@@ -188,10 +197,11 @@ module FakeFS
   end
 
   class MockFile
-    attr_accessor :name, :parent
+    attr_accessor :name, :parent, :content
     def initialize(name = nil, parent = nil)
       @name = name
       @parent = parent
+      @content = ''
     end
 
     def entry
