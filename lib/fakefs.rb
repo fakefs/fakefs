@@ -143,6 +143,10 @@ module FakeFS
     def self.[](pattern)
       glob(pattern)
     end
+
+    def self.chdir(dir, &blk)
+      FileSystem.chdir(dir, &blk)
+    end
   end
 
   module FileSystem
@@ -212,6 +216,15 @@ module FakeFS
       if dir = FileSystem.find(path)
         dir.parent.delete(dir.name)
       end
+    end
+
+    def chdir(dir, &blk)
+      raise "you must pass in a block" unless blk
+      @old_fs = @fs
+      @fs = find(dir)
+      blk.call
+    ensure
+      @fs = @old_fs
     end
 
     def path_parts(path)

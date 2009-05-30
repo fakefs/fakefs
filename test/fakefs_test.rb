@@ -145,4 +145,47 @@ class FakeFSTest < Test::Unit::TestCase
     # Unsupported so far. More hackery than I want to work on right now
     # assert_equal ['/path'], Dir['/path*']
   end
+
+  def test_chdir_changes_directories_like_a_boss
+    # I know memes!
+    FileUtils.mkdir_p '/path'
+    assert_equal '.', FileSystem.fs.name
+    assert_equal({}, FileSystem.fs['path'])
+    Dir.chdir '/path' do
+      File.open('foo', 'w'){|f| f.write 'foo'}
+      File.open('foobar', 'w'){|f| f.write 'foo'}
+    end
+
+    assert_equal '.', FileSystem.fs.name
+    assert_equal(['foo', 'foobar'], FileSystem.fs['path'].keys.sort)
+
+    c = nil
+    Dir.chdir '/path' do
+      c = File.open('foo', 'r'){|f| f.read }
+    end
+
+    assert_equal 'foo', c
+
+    assert_raise(RuntimeError, 'no block chdir is not yet supported') do
+      Dir.chdir('/path')
+    end
+  end
+
+  def test_chdir_shouldnt_lose_state_because_of_errors
+    FileUtils.mkdir_p '/path'
+
+    Dir.chdir '/path' do
+      File.open('foo', 'w'){|f| f.write 'foo'}
+      File.open('foobar', 'w'){|f| f.write 'foo'}
+    end
+
+    begin
+      Dir.chdir('/path') do
+        raise Exception
+      end
+    rescue Exception # hardcore
+    end
+
+    assert_equal(['foo', 'foobar'], FileSystem.fs['path'].keys.sort)
+  end
 end
