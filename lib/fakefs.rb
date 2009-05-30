@@ -33,6 +33,20 @@ module FakeFS
         FileSystem.delete(src)
       end
     end
+
+    def chown(user, group, list, options={})
+      list = Array(list)
+      list.each do |f|
+        unless File.exists?(f)
+          raise Errno::ENOENT, f
+        end
+      end
+      list
+    end
+
+    def chown_R(user, group, list, options={})
+      chown(user, group, list, options={})
+    end
   end
 
   class File
@@ -118,7 +132,12 @@ module FakeFS
 
   class Dir
     def self.glob(pattern)
-      FileSystem.find(pattern).map { |entry| entry.to_s}
+      if pattern[-1,1] == '*'
+        blk = proc { |entry| entry.to_s }
+      else
+        blk = proc { |entry| entry[1].parent.to_s }
+      end
+      (FileSystem.find(pattern) || []).map(&blk).uniq.sort
     end
 
     def self.[](pattern)

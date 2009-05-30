@@ -106,4 +106,43 @@ class FakeFSTest < Test::Unit::TestCase
 
     assert File.file?(path)
   end
+
+  def test_can_chown_files
+    good = 'file.txt'
+    bad = 'nofile.txt'
+    File.open(good,'w'){|f| f.write "foo" }
+
+    assert_equal [good], FileUtils.chown('noone', 'nogroup', good, :verbose => true)
+    assert_raises(Errno::ENOENT) do
+      FileUtils.chown('noone', 'nogroup', bad, :verbose => true)
+    end
+
+    assert_equal [good], FileUtils.chown('noone', 'nogroup', good)
+    assert_raises(Errno::ENOENT) do
+      FileUtils.chown('noone', 'nogroup', bad)
+    end
+
+    assert_equal [good], FileUtils.chown('noone', 'nogroup', [good])
+    assert_raises(Errno::ENOENT) do
+      FileUtils.chown('noone', 'nogroup', [good, bad])
+    end
+  end
+
+  def test_can_chown_R_files
+    FileUtils.mkdir_p '/path/'
+    File.open('/path/foo', 'w'){|f| f.write 'foo' }
+    File.open('/path/foobar', 'w'){|f| f.write 'foo' }
+    resp = FileUtils.chown_R('no', 'no', '/path')
+    assert_equal ['/path'], resp
+  end
+
+  def test_dir_globs_paths
+    FileUtils.mkdir_p '/path'
+    File.open('/path/foo', 'w'){|f| f.write 'foo' }
+    File.open('/path/foobar', 'w'){|f| f.write 'foo' }
+    assert_equal  ['/path'], Dir['/path']
+    assert_equal ['/path/foo', '/path/foobar'], Dir['/path/*']
+    # Unsupported so far. More hackery than I want to work on right now
+    # assert_equal ['/path'], Dir['/path*']
+  end
 end
