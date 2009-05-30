@@ -188,4 +188,9 @@ class FakeFSTest < Test::Unit::TestCase
 
     assert_equal(['foo', 'foobar'], FileSystem.fs['path'].keys.sort)
   end
+
+  def test_file_open_defaults_to_read
+    File.open('foo','w'){|f| f.write 'bar' }
+    assert_equal 'bar', File.open('foo'){|f| f.read }
+  end
 end

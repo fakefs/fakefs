@@ -89,7 +89,7 @@ module FakeFS
       FileSystem.find(symlink.target).to_s
     end
 
-    def self.open(path, mode)
+    def self.open(path, mode='r')
       if block_given?
         yield new(path, mode)
       else
