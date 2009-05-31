@@ -259,4 +259,10 @@ class FakeFSTest < Test::Unit::TestCase
     r = File.open('foo','w'){|f| f.write 'bar';  f.flush }
     assert_equal 'foo', r.path
   end
+
+  def test_mv_should_raise_error_on_missing_file
+    assert_raise(Errno::ENOENT) do
+      FileUtils.mv 'blafgag', 'foo'
+    end
+  end
 end

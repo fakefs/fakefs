@@ -32,6 +32,8 @@ module FakeFS
       if target = FileSystem.find(src)
         FileSystem.add(dest, target.entry)
         FileSystem.delete(src)
+      else
+        raise Errno::ENOENT, src
       end
     end
 
