@@ -224,14 +224,15 @@ module FakeFS
     end
 
     def chdir(dir, &blk)
-      raise "you must pass in a block" unless blk
-
       new_dir = find(dir)
-      raise Errno::ENOENT unless new_dir
-      dir_levels.push dir
-      blk.call
+      dir_levels.push dir if blk
+
+      raise Errno::ENOENT, dir unless new_dir
+
+      dir_levels.push dir if !blk
+      blk.call if blk
     ensure
-      dir_levels.pop
+      dir_levels.pop if blk
     end
 
     def path_parts(path)
@@ -245,6 +246,10 @@ module FakeFS
         parts = dir_levels + [path]
         File.expand_path(File.join(*parts))
       end
+    end
+
+    def current_dir
+      find(normalize_path('.'))
     end
   end
 

@@ -165,10 +165,6 @@ class FakeFSTest < Test::Unit::TestCase
     end
 
     assert_equal 'foo', c
-
-    assert_raise(RuntimeError, 'no block chdir is not yet supported') do
-      Dir.chdir('/path')
-    end
   end
 
   def test_chdir_shouldnt_keep_us_from_absolute_paths
@@ -226,7 +222,32 @@ class FakeFSTest < Test::Unit::TestCase
     rescue Exception # hardcore
     end
 
+    Dir.chdir('/path') do
+      begin
+        Dir.chdir('nope'){ }
+      rescue Errno::ENOENT
+      end
+
+      assert_equal ['/path'], FileSystem.dir_levels
+    end
+
     assert_equal(['foo', 'foobar'], FileSystem.fs['path'].keys.sort)
+  end
+
+  def test_chdir_with_no_block_is_awesome
+    FileUtils.mkdir_p '/path'
+    Dir.chdir('/path')
+    FileUtils.mkdir_p 'subdir'
+    assert_equal ['subdir'], FileSystem.current_dir.keys
+    Dir.chdir('subdir')
+    File.open('foo', 'w'){|f| f.write 'foo'}
+    assert_equal ['foo'], FileSystem.current_dir.keys
+
+    assert_raises(Errno::ENOENT) do
+      Dir.chdir('subsubdir')
+    end
+
+    assert_equal ['foo'], FileSystem.current_dir.keys
   end
 
   def test_file_open_defaults_to_read
