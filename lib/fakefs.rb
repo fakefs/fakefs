@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'pathname'
 
 RealFile = File
 RealFileUtils = FileUtils
@@ -240,7 +241,7 @@ module FakeFS
     end
 
     def normalize_path(path)
-      if path[0,1] == '/'
+      if Pathname.new(path).absolute?
         File.expand_path(path)
       else
         parts = dir_levels + [path]
