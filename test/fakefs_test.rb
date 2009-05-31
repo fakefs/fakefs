@@ -278,4 +278,12 @@ class FakeFSTest < Test::Unit::TestCase
     File.open('baz', 'w') {|f| f.write 'quux' }
     assert_equal 'bar', File.open('foo'){|f| f.read }
   end
+
+  def test_cp_r_should_raise_error_on_missing_file
+    # Yes, this error sucks, but it conforms to the original Ruby
+    # method.
+    assert_raise(RuntimeError) do
+      FileUtils.cp_r 'blafgag', 'foo'
+    end
+  end
 end

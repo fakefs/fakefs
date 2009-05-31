@@ -25,6 +25,10 @@ module FakeFS
     def cp_r(src, dest)
       if dir = FileSystem.find(src)
         FileSystem.add(dest, dir.entry.clone)
+      else
+        # This error sucks, but it conforms to the original Ruby
+        # method.
+        raise "unknown file type: #{src}"
       end
     end
 
