@@ -254,4 +254,9 @@ class FakeFSTest < Test::Unit::TestCase
     File.open('foo','w'){|f| f.write 'bar' }
     assert_equal 'bar', File.open('foo'){|f| f.read }
   end
+
+  def test_flush_exists_on_file
+    r = File.open('foo','w'){|f| f.write 'bar';  f.flush }
+    assert_equal 'foo', r.path
+  end
 end

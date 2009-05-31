@@ -129,6 +129,8 @@ module FakeFS
       @file.content += content
     end
     alias_method :print, :write
+
+    def flush; self; end
   end
 
   class Dir
