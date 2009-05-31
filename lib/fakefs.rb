@@ -24,7 +24,7 @@ module FakeFS
 
     def cp_r(src, dest)
       if dir = FileSystem.find(src)
-        FileSystem.add(dest, dir.entry)
+        FileSystem.add(dest, dir.entry.clone)
       end
     end
 

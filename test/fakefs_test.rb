@@ -271,4 +271,11 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.mv 'foo', 'baz'
     assert_equal 'bar', File.open('baz'){|f| f.read }
   end
+
+  def test_cp_r_doesnt_tangle_files_together
+    File.open('foo', 'w') {|f| f.write 'bar' }
+    FileUtils.cp_r('foo', 'baz')
+    File.open('baz', 'w') {|f| f.write 'quux' }
+    assert_equal 'bar', File.open('foo'){|f| f.read }
+  end
 end
