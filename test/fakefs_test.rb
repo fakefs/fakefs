@@ -171,6 +171,46 @@ class FakeFSTest < Test::Unit::TestCase
     end
   end
 
+  def test_chdir_shouldnt_keep_us_from_absolute_paths
+    FileUtils.mkdir_p '/path'
+
+    Dir.chdir '/path' do
+      File.open('foo', 'w'){|f| f.write 'foo'}
+      File.open('/foobar', 'w'){|f| f.write 'foo'}
+    end
+    assert_equal ['foo'], FileSystem.fs['path'].keys.sort
+    assert_equal ['foobar', 'path'], FileSystem.fs.keys.sort
+
+    Dir.chdir '/path' do
+      FileUtils.rm('foo')
+      FileUtils.rm('/foobar')
+    end
+
+    assert_equal [], FileSystem.fs['path'].keys.sort
+    assert_equal ['path'], FileSystem.fs.keys.sort
+  end
+
+  def test_chdir_should_be_nestable
+    FileUtils.mkdir_p '/path/me'
+    Dir.chdir '/path' do
+      File.open('foo', 'w'){|f| f.write 'foo'}
+      Dir.chdir 'me' do
+        File.open('foobar', 'w'){|f| f.write 'foo'}
+      end
+    end
+
+    assert_equal ['foo','me'], FileSystem.fs['path'].keys.sort
+    assert_equal ['foobar'], FileSystem.fs['path']['me'].keys.sort
+  end
+
+  def test_chdir_should_flop_over_and_die_if_the_dir_doesnt_exist
+    assert_raise(Errno::ENOENT) do
+      Dir.chdir('/nope') do
+        1
+      end
+    end
+  end
+
   def test_chdir_shouldnt_lose_state_because_of_errors
     FileUtils.mkdir_p '/path'
 

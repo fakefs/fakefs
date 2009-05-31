@@ -152,11 +152,16 @@ module FakeFS
   module FileSystem
     extend self
 
+    def dir_levels
+      @dir_levels
+    end
+
     def fs
       @fs ||= MockDir.new('.')
     end
 
     def clear
+      @dir_levels = []
       @fs = nil
     end
 
@@ -165,7 +170,7 @@ module FakeFS
     end
 
     def find(path)
-      parts = path_parts(path)
+      parts = path_parts(normalize_path(path))
 
       target = parts[0...-1].inject(fs) do |dir, part|
         dir[part] || {}
@@ -180,7 +185,7 @@ module FakeFS
     end
 
     def add(path, object=MockDir.new)
-      parts = path_parts(path)
+      parts = path_parts(normalize_path(path))
 
       d = parts[0...-1].inject(fs) do |dir, part|
         dir[part] ||= MockDir.new(part, dir)
@@ -220,15 +225,26 @@ module FakeFS
 
     def chdir(dir, &blk)
       raise "you must pass in a block" unless blk
-      @old_fs = @fs
-      @fs = find(dir)
+
+      new_dir = find(dir)
+      raise Errno::ENOENT unless new_dir
+      dir_levels.push dir
       blk.call
     ensure
-      @fs = @old_fs
+      dir_levels.pop
     end
 
     def path_parts(path)
       path.split(File::PATH_SEPARATOR).reject { |part| part.empty? }
+    end
+
+    def normalize_path(path)
+      if path[0,1] == '/'
+        File.expand_path(path)
+      else
+        parts = dir_levels + [path]
+        File.expand_path(File.join(*parts))
+      end
     end
   end
 
