@@ -153,7 +153,7 @@ module FakeFS
     extend self
 
     def dir_levels
-      @dir_levels
+      @dir_levels ||= []
     end
 
     def fs
