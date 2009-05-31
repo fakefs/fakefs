@@ -265,4 +265,10 @@ class FakeFSTest < Test::Unit::TestCase
       FileUtils.mv 'blafgag', 'foo'
     end
   end
+
+  def test_mv_actually_works
+    File.open('foo', 'w') {|f| f.write 'bar' }
+    FileUtils.mv 'foo', 'baz'
+    assert_equal 'bar', File.open('baz'){|f| f.read }
+  end
 end
