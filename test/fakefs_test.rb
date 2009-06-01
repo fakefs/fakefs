@@ -354,6 +354,15 @@ class FakeFSTest < Test::Unit::TestCase
     RealFile.unlink(here('foo')) if RealFile.exists?(here('foo'))
   end
 
+  def test_putting_a_dot_at_end_copies_the_contents
+    FileUtils.mkdir_p 'subdir'
+    Dir.chdir('subdir'){ File.open('foo', 'w'){|f| f.write 'footext' } }
+
+    FileUtils.mkdir_p 'newdir'
+    FileUtils.cp_r 'subdir/.', 'newdir'
+    assert_equal 'footext', File.open('newdir/foo'){|f| f.read }
+  end
+
   def test_file_can_read_from_symlinks
     File.open('first', 'w'){|f| f.write '1'}
     FileUtils.ln_s 'first', 'one'

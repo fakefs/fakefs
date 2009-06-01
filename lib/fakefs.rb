@@ -38,8 +38,14 @@ module FakeFS
         raise Errno::ENOENT, dest
       end
 
+      # This last bit is a total abuse and should be thought hard
+      # about and cleaned up.
       if new_dir
-        new_dir[dir.name] = dir.entry.clone
+        if src[-2..-1] == '/.'
+          dir.values.each{|f| new_dir[f.name] = f }
+        else
+          new_dir[dir.name] = dir.entry.clone
+        end
       else
         FileSystem.add(dest, dir.entry.clone)
       end
