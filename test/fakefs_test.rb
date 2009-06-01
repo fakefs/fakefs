@@ -290,8 +290,9 @@ class FakeFSTest < Test::Unit::TestCase
   def test_clone_clones_normal_files
     def here(fname); File.expand_path(File.dirname(__FILE__)+'/'+fname); end
     RealFile.open(here('foo'), 'w'){|f| f.write 'bar' }
+    assert !File.exists?(here('foo'))
     FileSystem.clone(here('foo'))
-    assert_equal 'bar', File.open('foo'){|f| f.read }
+    assert_equal 'bar', File.open(here('foo')){|f| f.read }
   ensure
     RealFile.unlink(here('foo')) if RealFile.exists?(here('foo'))
   end
