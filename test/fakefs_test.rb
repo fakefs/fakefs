@@ -287,6 +287,26 @@ class FakeFSTest < Test::Unit::TestCase
     end
   end
 
+  def test_cp_r_handles_copying_directories
+    FileUtils.mkdir_p 'subdir'
+    Dir.chdir('subdir'){ File.open('foo', 'w'){|f| f.write 'footext' } }
+
+    FileUtils.mkdir_p 'baz'
+
+    # To a previously uncreated directory
+    FileUtils.cp_r('subdir', 'quux')
+    assert_equal 'footext', File.open('quux/foo'){|f| f.read }
+
+    # To a directory that already exists
+    FileUtils.cp_r('subdir', 'baz')
+    assert_equal 'footext', File.open('baz/subdir/foo'){|f| f.read }
+
+    # To a subdirectory of a directory that does not exist
+    assert_raises(Errno::ENOENT) {
+      FileUtils.cp_r('subdir', 'nope/something')
+    }
+  end
+
   def test_clone_clones_normal_files
     def here(fname); File.expand_path(File.dirname(__FILE__)+'/'+fname); end
     RealFile.open(here('foo'), 'w'){|f| f.write 'bar' }

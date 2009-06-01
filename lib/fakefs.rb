@@ -24,7 +24,15 @@ module FakeFS
 
     def cp_r(src, dest)
       if dir = FileSystem.find(src)
-        FileSystem.add(dest, dir.entry.clone)
+        new_dir = FileSystem.find(dest)
+        if !new_dir
+          if !FileSystem.find(dest+'/../')
+            raise Errno::ENOENT, dest
+          end
+          FileSystem.add(dest, dir.entry.clone)
+        else
+          new_dir[dir.name] = dir.entry.clone
+        end
       else
         # This error sucks, but it conforms to the original Ruby
         # method.
@@ -170,7 +178,7 @@ module FakeFS
     end
 
     def clear
-      @dir_levels = []
+      @dir_levels = nil
       @fs = nil
     end
 
