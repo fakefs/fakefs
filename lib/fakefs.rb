@@ -19,24 +19,29 @@ module FakeFS
     alias_method :rm_rf, :rm
 
     def ln_s(target, path)
+      raise Errno::EEXIST, path if FileSystem.find(path)
       FileSystem.add(path, MockSymlink.new(target))
     end
 
     def cp_r(src, dest)
-      if dir = FileSystem.find(src)
-        new_dir = FileSystem.find(dest)
-        if !new_dir
-          if !FileSystem.find(dest+'/../')
-            raise Errno::ENOENT, dest
-          end
-          FileSystem.add(dest, dir.entry.clone)
-        else
-          new_dir[dir.name] = dir.entry.clone
-        end
+      # This error sucks, but it conforms to the original Ruby
+      # method.
+      raise "unknown file type: #{src}" unless dir = FileSystem.find(src)
+      
+      new_dir = FileSystem.find(dest)
+
+      if new_dir && !File.directory?(dest)
+        raise Errno::EEXIST, dest
+      end
+      
+      if !new_dir && !FileSystem.find(dest+'/../')
+        raise Errno::ENOENT, dest
+      end
+
+      if new_dir
+        new_dir[dir.name] = dir.entry.clone
       else
-        # This error sucks, but it conforms to the original Ruby
-        # method.
-        raise "unknown file type: #{src}"
+        FileSystem.add(dest, dir.entry.clone)
       end
     end
 
@@ -76,7 +81,7 @@ module FakeFS
     end
 
     def self.directory?(path)
-      FileSystem.find(path).is_a? MockDir
+      FileSystem.find(path).entry.is_a? MockDir
     end
 
     def self.symlink?(path)
@@ -84,7 +89,7 @@ module FakeFS
     end
 
     def self.file?(path)
-      FileSystem.find(path).is_a? MockFile
+      FileSystem.find(path).entry.is_a? MockFile
     end
 
     def self.expand_path(*args)

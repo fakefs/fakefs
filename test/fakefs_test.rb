@@ -36,6 +36,12 @@ class FakeFSTest < Test::Unit::TestCase
     assert File.directory?(path)
   end
 
+  def test_knows_symlink_directories_are_directories
+    FileUtils.mkdir_p(path = "/path/to/dir")
+    FileUtils.ln_s path, sympath = '/sympath'
+    assert File.directory?(sympath)
+  end
+  
   def test_doesnt_overwrite_existing_directories
     FileUtils.mkdir_p(path = "/path/to/dir")
     assert File.exists?(path)
@@ -47,6 +53,10 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.mkdir_p(target = "/path/to/target")
     FileUtils.ln_s(target, "/path/to/link")
     assert_kind_of MockSymlink, FileSystem.fs['path']['to']['link']
+
+    assert_raises(Errno::EEXIST) {
+      FileUtils.ln_s(target, '/path/to/link')
+    }
   end
 
   def test_can_follow_symlinks
@@ -107,6 +117,16 @@ class FakeFSTest < Test::Unit::TestCase
     assert File.file?(path)
   end
 
+  def test_knows_symlink_files_are_files
+    path = '/path/to/file.txt'
+    File.open(path, 'w') do |f|
+      f.write "Yatta!"
+    end
+    FileUtils.ln_s path, sympath='/sympath'
+
+    assert File.file?(sympath)
+  end
+  
   def test_can_chown_files
     good = 'file.txt'
     bad = 'nofile.txt'
@@ -307,6 +327,23 @@ class FakeFSTest < Test::Unit::TestCase
     }
   end
 
+  def test_cp_r_only_copies_into_directories
+    FileUtils.mkdir_p 'subdir'
+    Dir.chdir('subdir'){ File.open('foo', 'w'){|f| f.write 'footext' } }
+
+    File.open('bar', 'w') {|f| f.write 'bartext' }
+
+    assert_raises(Errno::EEXIST) do
+      FileUtils.cp_r 'subdir', 'bar'
+    end
+
+    FileUtils.mkdir_p 'otherdir'
+    FileUtils.ln_s 'otherdir', 'symdir'
+
+    FileUtils.cp_r 'subdir', 'symdir'
+    assert_equal 'footext', File.open('symdir/subdir/foo'){|f| f.read }
+  end
+
   def test_clone_clones_normal_files
     def here(fname); File.expand_path(File.dirname(__FILE__)+'/'+fname); end
     RealFile.open(here('foo'), 'w'){|f| f.write 'bar' }
@@ -315,5 +352,17 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal 'bar', File.open(here('foo')){|f| f.read }
   ensure
     RealFile.unlink(here('foo')) if RealFile.exists?(here('foo'))
+  end
+
+  def test_file_can_read_from_symlinks
+    File.open('first', 'w'){|f| f.write '1'}
+    FileUtils.ln_s 'first', 'one'
+    assert_equal '1', File.open('one'){|f| f.read }
+
+    FileUtils.mkdir_p 'subdir'
+    File.open('subdir/nother','w'){|f| f.write 'works' }
+    FileUtils.ln_s 'subdir', 'new'
+    assert_equal 'works', File.open('new/nother'){|f| f.read }
+    
   end
 end
