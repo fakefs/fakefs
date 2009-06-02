@@ -4,6 +4,8 @@ require 'pathname'
 RealFile = File
 RealFileUtils = FileUtils
 RealDir = Dir
+RealFileUtils::Dir = RealDir
+RealFileUtils::File = RealFile
 
 module FakeFS
   module FileUtils
@@ -229,7 +231,8 @@ module FakeFS
     def clone(path)
       path    = File.expand_path(path)
       pattern = File.join(path, '**', '*')
-      files   = RealFile.file?(path) ? [path] : RealDir.glob(pattern)
+      dot_pattern = File.join(path, '**', '.*')
+      files   = RealFile.file?(path) ? [path] : [path] + RealDir.glob([pattern, dot_pattern])
 
       files.each do |f|
         if RealFile.file?(f)

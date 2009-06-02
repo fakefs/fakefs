@@ -345,13 +345,32 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_clone_clones_normal_files
-    def here(fname); File.expand_path(File.dirname(__FILE__)+'/'+fname); end
     RealFile.open(here('foo'), 'w'){|f| f.write 'bar' }
     assert !File.exists?(here('foo'))
     FileSystem.clone(here('foo'))
     assert_equal 'bar', File.open(here('foo')){|f| f.read }
   ensure
     RealFile.unlink(here('foo')) if RealFile.exists?(here('foo'))
+  end
+
+  def test_clone_clones_directories
+    RealFileUtils.mkdir_p(here('subdir'))
+
+    FileSystem.clone(here('subdir'))
+
+    assert File.exists?(here('subdir')), 'subdir was cloned'
+    assert File.directory?(here('subdir')), 'subdir is a directory'
+  ensure
+    RealFileUtils.rm_rf(here('subdir')) if RealFile.exists?(here('subdir'))
+  end
+
+  def test_clone_clones_dot_files
+    RealFileUtils.mkdir_p(here('subdir/.bar'))
+    assert !File.exists?(here('subdir'))
+    FileSystem.clone(here('subdir'))
+    assert_equal ['.bar'], FileSystem.find(here('subdir')).keys
+  ensure
+    RealFileUtils.rm_rf(here('subdir')) if RealFile.exists?(here('subdir'))
   end
 
   def test_putting_a_dot_at_end_copies_the_contents
@@ -373,5 +392,9 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.ln_s 'subdir', 'new'
     assert_equal 'works', File.open('new/nother'){|f| f.read }
     
+  end
+
+  def here(fname)
+    RealFile.expand_path(RealFile.dirname(__FILE__)+'/'+fname)
   end
 end
