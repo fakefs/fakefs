@@ -231,8 +231,7 @@ module FakeFS
     def clone(path)
       path    = File.expand_path(path)
       pattern = File.join(path, '**', '*')
-      dot_pattern = File.join(path, '**', '.*')
-      files   = RealFile.file?(path) ? [path] : [path] + RealDir.glob([pattern, dot_pattern])
+      files   = RealFile.file?(path) ? [path] : [path] + RealDir.glob(pattern, RealFile::FNM_DOTMATCH)
 
       files.each do |f|
         if RealFile.file?(f)

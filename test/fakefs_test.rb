@@ -364,11 +364,13 @@ class FakeFSTest < Test::Unit::TestCase
     RealFileUtils.rm_rf(here('subdir')) if RealFile.exists?(here('subdir'))
   end
 
-  def test_clone_clones_dot_files
-    RealFileUtils.mkdir_p(here('subdir/.bar'))
+  def test_clone_clones_dot_files_even_hard_to_find_ones
+    RealFileUtils.mkdir_p(here('subdir/.bar/baz/.quux/foo'))
     assert !File.exists?(here('subdir'))
+
     FileSystem.clone(here('subdir'))
     assert_equal ['.bar'], FileSystem.find(here('subdir')).keys
+    assert_equal ['foo'], FileSystem.find(here('subdir/.bar/baz/.quux')).keys
   ensure
     RealFileUtils.rm_rf(here('subdir')) if RealFile.exists?(here('subdir'))
   end
