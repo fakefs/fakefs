@@ -25,17 +25,36 @@ module FakeFS
       FileSystem.add(path, MockSymlink.new(target))
     end
 
+    def cp(src, dest)
+      dst_file = FileSystem.find(dest)
+      src_file = FileSystem.find(src)
+
+      if dst_file
+        raise Errno::EEXIST, dest
+      end
+
+      if !src_file
+        raise Errno::ENOENT, src
+      end
+
+      if File.directory? src_file
+        raise Errno::EISDIR, src
+      end
+
+      FileSystem.add(dest, src_file.entry.clone)
+    end
+
     def cp_r(src, dest)
       # This error sucks, but it conforms to the original Ruby
       # method.
       raise "unknown file type: #{src}" unless dir = FileSystem.find(src)
-      
+
       new_dir = FileSystem.find(dest)
 
       if new_dir && !File.directory?(dest)
         raise Errno::EEXIST, dest
       end
-      
+
       if !new_dir && !FileSystem.find(dest+'/../')
         raise Errno::ENOENT, dest
       end
@@ -89,15 +108,27 @@ module FakeFS
     end
 
     def self.directory?(path)
-      FileSystem.find(path).entry.is_a? MockDir
+      if path.respond_to? :entry
+        path.entry.is_a? MockDir
+      else
+        FileSystem.find(path).entry.is_a? MockDir
+      end
     end
 
     def self.symlink?(path)
-      FileSystem.find(path).is_a? MockSymlink
+      if path.respond_to? :entry
+        path.is_a? MockSymlink
+      else
+        FileSystem.find(path).is_a? MockSymlink
+      end
     end
 
     def self.file?(path)
-      FileSystem.find(path).entry.is_a? MockFile
+      if path.respond_to? :entry
+        path.entry.is_a? MockFile
+      else
+        FileSystem.find(path).entry.is_a? MockFile
+      end
     end
 
     def self.expand_path(*args)

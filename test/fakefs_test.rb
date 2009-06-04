@@ -298,6 +298,35 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal 'bar', File.open('baz'){|f| f.read }
   end
 
+  def test_cp_actually_works
+    File.open('foo', 'w') {|f| f.write 'bar' }
+    FileUtils.cp('foo', 'baz')
+    assert_equal 'bar', File.read('baz')
+  end
+
+  def test_cp_fails_on_dest_exists
+    File.open('foo', 'w') {|f| f.write 'bar' }
+    FileUtils.mkdir_p 'baz'
+
+    assert_raise Errno::EEXIST do
+      FileUtils.cp('foo', 'baz')
+    end
+  end
+
+  def test_cp_fails_on_no_source
+    assert_raise Errno::ENOENT do
+      FileUtils.cp('foo', 'baz')
+    end
+  end
+
+  def test_cp_fails_on_directory_copy
+    FileUtils.mkdir_p 'baz'
+
+    assert_raise Errno::EISDIR do
+      FileUtils.cp('baz', 'bar')
+    end
+  end
+
   def test_cp_r_doesnt_tangle_files_together
     File.open('foo', 'w') {|f| f.write 'bar' }
     FileUtils.cp_r('foo', 'baz')
