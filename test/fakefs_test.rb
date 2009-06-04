@@ -41,7 +41,7 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.ln_s path, sympath = '/sympath'
     assert File.directory?(sympath)
   end
-  
+
   def test_doesnt_overwrite_existing_directories
     FileUtils.mkdir_p(path = "/path/to/dir")
     assert File.exists?(path)
@@ -108,6 +108,12 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal "Yatta!", File.new(path).read
   end
 
+  def test_file_read_errors_appropriately
+    assert_raise Errno::ENOENT do
+      File.read('anything')
+    end
+  end
+
   def test_knows_files_are_files
     path = '/path/to/file.txt'
     File.open(path, 'w') do |f|
@@ -126,7 +132,7 @@ class FakeFSTest < Test::Unit::TestCase
 
     assert File.file?(sympath)
   end
-  
+
   def test_can_chown_files
     good = 'file.txt'
     bad = 'nofile.txt'
@@ -393,7 +399,6 @@ class FakeFSTest < Test::Unit::TestCase
     File.open('subdir/nother','w'){|f| f.write 'works' }
     FileUtils.ln_s 'subdir', 'new'
     assert_equal 'works', File.open('new/nother'){|f| f.read }
-    
   end
 
   def here(fname)

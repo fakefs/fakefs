@@ -126,7 +126,12 @@ module FakeFS
     end
 
     def self.read(path)
-      new(path).read
+      file = new(path)
+      if file.exists?
+        file.read
+      else
+        raise Errno::ENOENT
+      end
     end
 
     def self.readlines(path)
@@ -142,6 +147,10 @@ module FakeFS
 
     def read
       @file.content
+    end
+
+    def exists?
+      @file
     end
 
     def puts(content)
