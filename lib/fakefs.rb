@@ -29,10 +29,6 @@ module FakeFS
       dst_file = FileSystem.find(dest)
       src_file = FileSystem.find(src)
 
-      if dst_file
-        raise Errno::EEXIST, dest
-      end
-
       if !src_file
         raise Errno::ENOENT, src
       end
@@ -41,7 +37,12 @@ module FakeFS
         raise Errno::EISDIR, src
       end
 
-      FileSystem.add(dest, src_file.entry.clone)
+      if dst_file and File.directory?(dst_file)
+        FileSystem.add(File.join(dest, src), src_file.entry.clone)
+      else
+        FileSystem.delete(dest)
+        FileSystem.add(dest, src_file.entry.clone)
+      end
     end
 
     def cp_r(src, dest)
