@@ -304,13 +304,20 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal 'bar', File.read('baz')
   end
 
-  def test_cp_fails_on_dest_exists
+  def test_cp_file_into_dir
     File.open('foo', 'w') {|f| f.write 'bar' }
     FileUtils.mkdir_p 'baz'
 
-    assert_raise Errno::EEXIST do
-      FileUtils.cp('foo', 'baz')
-    end
+    FileUtils.cp('foo', 'baz')
+    assert_equal 'bar', File.read('baz/foo')
+  end
+
+  def test_cp_overwrites_dest_file
+    File.open('foo', 'w') {|f| f.write 'FOO' }
+    File.open('bar', 'w') {|f| f.write 'BAR' }
+
+    FileUtils.cp('foo', 'bar')
+    assert_equal 'FOO', File.read('bar')
   end
 
   def test_cp_fails_on_no_source
