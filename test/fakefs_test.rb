@@ -42,6 +42,11 @@ class FakeFSTest < Test::Unit::TestCase
     assert File.directory?(sympath)
   end
 
+  def test_knows_non_existent_directories_arent_directories
+    path = 'does/not/exist/'
+    assert_equal RealFile.directory?(path), File.directory?(path)
+  end
+
   def test_doesnt_overwrite_existing_directories
     FileUtils.mkdir_p(path = "/path/to/dir")
     assert File.exists?(path)

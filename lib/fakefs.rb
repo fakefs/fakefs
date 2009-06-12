@@ -112,7 +112,8 @@ module FakeFS
       if path.respond_to? :entry
         path.entry.is_a? MockDir
       else
-        FileSystem.find(path).entry.is_a? MockDir
+        result = FileSystem.find(path)
+        result ? result.entry.is_a?(MockDir) : false
       end
     end
 
