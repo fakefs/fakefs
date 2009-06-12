@@ -133,6 +133,10 @@ class FakeFSTest < Test::Unit::TestCase
     assert File.file?(sympath)
   end
 
+  def test_knows_non_existent_files_arent_files
+    assert ! File.file?('does/not/exist.txt')
+  end
+
   def test_can_chown_files
     good = 'file.txt'
     bad = 'nofile.txt'
