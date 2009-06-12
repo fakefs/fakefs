@@ -129,7 +129,7 @@ module FakeFS
         path.entry.is_a? MockFile
       else
         result = FileSystem.find(path)
-        result && result.entry.is_a?(MockFile)
+        result ? result.entry.is_a?(MockFile) : false
       end
     end
 
