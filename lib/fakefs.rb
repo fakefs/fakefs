@@ -95,6 +95,10 @@ module FakeFS
     def chown_R(user, group, list, options={})
       chown(user, group, list, options={})
     end
+    
+    def touch(path)
+      FileSystem.add(path, MockFile.new)
+    end
   end
 
   class File

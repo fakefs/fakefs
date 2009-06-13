@@ -445,6 +445,11 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.ln_s 'subdir', 'new'
     assert_equal 'works', File.open('new/nother'){|f| f.read }
   end
+  
+  def test_files_can_be_touched
+    FileUtils.touch(here("file"))
+    assert File.exists?(here("file"))
+  end
 
   def here(fname)
     RealFile.expand_path(RealFile.dirname(__FILE__)+'/'+fname)
