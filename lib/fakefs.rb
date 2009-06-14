@@ -98,15 +98,12 @@ module FakeFS
     
     def touch(list, options={})
       list.each do |f|
-        if f =~ /(.+\/)/
-          dir_path = f.scan(/(.+\/)/)
-          if FileSystem.find(dir_path.to_s)
-            FileSystem.add(f, MockFile.new)
-          else
-            raise Errno::ENOENT, f
-          end
-        else            
+        directory = File.dirname(f)
+        # FIXME this explicit check for '.' shouldn't need to happen
+        if File.exists?(directory) || directory == '.'
           FileSystem.add(f, MockFile.new)
+        else
+          raise Errno::ENOENT, f
         end
       end
     end
