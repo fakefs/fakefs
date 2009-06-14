@@ -96,8 +96,19 @@ module FakeFS
       chown(user, group, list, options={})
     end
     
-    def touch(path)
-      FileSystem.add(path, MockFile.new)
+    def touch(list, options={})
+      list.each do |f|
+        if f =~ /(.+\/)/
+          dir_path = f.scan(/(.+\/)/)
+          if FileSystem.find(dir_path.to_s)
+            FileSystem.add(f, MockFile.new)
+          else
+            raise Errno::ENOENT, f
+          end
+        else            
+          FileSystem.add(f, MockFile.new)
+        end
+      end
     end
   end
 

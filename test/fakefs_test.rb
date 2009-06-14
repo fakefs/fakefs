@@ -447,8 +447,14 @@ class FakeFSTest < Test::Unit::TestCase
   end
   
   def test_files_can_be_touched
-    FileUtils.touch(here("file"))
-    assert File.exists?(here("file"))
+    FileUtils.touch('touched_file')
+    assert File.exists?('touched_file')
+  end
+
+  def test_touch_does_not_work_if_the_dir_path_cannot_be_found
+    assert_raises(Errno::ENOENT) {
+      FileUtils.touch('this/path/should/not/be/here')
+    }
   end
 
   def here(fname)
