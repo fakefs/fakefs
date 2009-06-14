@@ -449,11 +449,20 @@ class FakeFSTest < Test::Unit::TestCase
   def test_files_can_be_touched
     FileUtils.touch('touched_file')
     assert File.exists?('touched_file')
+    list = ['newfile', 'another']
+    FileUtils.touch(list)
+    list.each { |fp| assert(File.exists?(fp)) }
   end
 
   def test_touch_does_not_work_if_the_dir_path_cannot_be_found
     assert_raises(Errno::ENOENT) {
       FileUtils.touch('this/path/should/not/be/here')
+    }
+    FileUtils.mkdir_p('subdir')
+    list = ['subdir/foo', 'nosubdir/bar']
+
+    assert_raises(Errno::ENOENT) {
+      FileUtils.touch(list)
     }
   end
 

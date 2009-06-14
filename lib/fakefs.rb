@@ -97,7 +97,7 @@ module FakeFS
     end
     
     def touch(list, options={})
-      list.each do |f|
+      Array(list).each do |f|
         directory = File.dirname(f)
         # FIXME this explicit check for '.' shouldn't need to happen
         if File.exists?(directory) || directory == '.'
