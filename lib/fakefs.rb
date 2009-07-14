@@ -95,7 +95,7 @@ module FakeFS
     def chown_R(user, group, list, options={})
       chown(user, group, list, options={})
     end
-    
+
     def touch(list, options={})
       Array(list).each do |f|
         directory = File.dirname(f)
@@ -116,8 +116,12 @@ module FakeFS
       parts * PATH_SEPARATOR
     end
 
-    def self.exists?(path)
+    def self.exist?(path)
       FileSystem.find(path) || false
+    end
+
+    class << self
+      alias_method :exists?, :exist?
     end
 
     def self.directory?(path)
