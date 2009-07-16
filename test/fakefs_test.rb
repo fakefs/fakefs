@@ -94,6 +94,14 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal "Yatta!", File.read(path)
   end
 
+  def test_can_write_to_files
+    path = '/path/to/file.txt'
+    File.open(path, 'w') do |f|
+      f << 'Yada Yada'
+    end
+    assert_equal 'Yada Yada', File.read(path)
+  end
+
   def test_can_read_with_File_readlines
     path = '/path/to/file.txt'
     File.open(path, 'w') do |f|
@@ -104,6 +112,16 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal ["Yatta!", "woot"], File.readlines(path)
   end
 
+  def test_File_close_disallows_further_access
+    path = '/path/to/file.txt'
+    file = File.open(path, 'w')
+    file.write 'Yada'
+    file.close
+    assert_raise IOError do
+      file.read
+    end
+  end
+  
   def test_can_read_from_file_objects
     path = '/path/to/file.txt'
     File.open(path, 'w') do |f|
@@ -445,7 +463,7 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.ln_s 'subdir', 'new'
     assert_equal 'works', File.open('new/nother'){|f| f.read }
   end
-  
+
   def test_files_can_be_touched
     FileUtils.touch('touched_file')
     assert File.exists?('touched_file')
