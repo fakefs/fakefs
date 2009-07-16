@@ -193,9 +193,15 @@ module FakeFS
       @path = path
       @mode = mode
       @file = FileSystem.find(path)
+      @open = true
+    end
+
+    def close
+      @open = false
     end
 
     def read
+      raise IOError.new('closed stream') unless @open
       @file.content
     end
 
@@ -208,6 +214,8 @@ module FakeFS
     end
 
     def write(content)
+      raise IOError.new('closed stream') unless @open
+
       if !File.exists?(@path)
         @file = FileSystem.add(path, MockFile.new)
       end
@@ -215,6 +223,7 @@ module FakeFS
       @file.content += content
     end
     alias_method :print, :write
+    alias_method :<<, :write
 
     def flush; self; end
   end
