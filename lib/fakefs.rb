@@ -387,7 +387,7 @@ module FakeFS
     end
 
     def clone(parent)
-      clone = super()
+      clone = Marshal.load(Marshal.dump(self))
       clone.each do |key, value|
         value.parent = parent
       end

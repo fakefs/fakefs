@@ -121,7 +121,7 @@ class FakeFSTest < Test::Unit::TestCase
       file.read
     end
   end
-  
+
   def test_can_read_from_file_objects
     path = '/path/to/file.txt'
     File.open(path, 'w') do |f|
@@ -197,8 +197,10 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.mkdir_p '/path/bar'
     File.open('/path/bar/baz', 'w'){|f| f.write 'foo' }
 
+    FileUtils.cp_r '/path/bar', '/path/bar2'
+
     assert_equal  ['/path'], Dir['/path']
-    assert_equal ['/path/bar', '/path/foo', '/path/foobar'], Dir['/path/*']
+    assert_equal %w( /path/bar /path/bar2 /path/foo /path/foobar ), Dir['/path/*']
 
     assert_equal ['/path/bar/baz'], Dir['/path/bar/*']
 
