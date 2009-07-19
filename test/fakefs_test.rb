@@ -175,8 +175,15 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.mkdir_p '/path'
     File.open('/path/foo', 'w'){|f| f.write 'foo' }
     File.open('/path/foobar', 'w'){|f| f.write 'foo' }
+
+    FileUtils.mkdir_p '/path/bar'
+    File.open('/path/bar/baz', 'w'){|f| f.write 'foo' }
+
     assert_equal  ['/path'], Dir['/path']
-    assert_equal ['/path/foo', '/path/foobar'], Dir['/path/*']
+    assert_equal ['/path/bar', '/path/foo', '/path/foobar'], Dir['/path/*']
+
+    assert_equal ['/path/bar/baz'], Dir['/path/bar/*']
+
     # Unsupported so far. More hackery than I want to work on right now
     # assert_equal ['/path'], Dir['/path*']
   end
@@ -445,7 +452,7 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.ln_s 'subdir', 'new'
     assert_equal 'works', File.open('new/nother'){|f| f.read }
   end
-  
+
   def test_files_can_be_touched
     FileUtils.touch('touched_file')
     assert File.exists?('touched_file')

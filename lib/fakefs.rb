@@ -38,10 +38,10 @@ module FakeFS
       end
 
       if dst_file and File.directory?(dst_file)
-        FileSystem.add(File.join(dest, src), src_file.entry.clone)
+        FileSystem.add(File.join(dest, src), src_file.entry.clone(dest))
       else
         FileSystem.delete(dest)
-        FileSystem.add(dest, src_file.entry.clone)
+        FileSystem.add(dest, src_file.entry.clone(dest))
       end
     end
 
@@ -66,16 +66,16 @@ module FakeFS
         if src[-2..-1] == '/.'
           dir.values.each{|f| new_dir[f.name] = f }
         else
-          new_dir[dir.name] = dir.entry.clone
+          new_dir[dir.name] = dir.entry.clone(new_dir)
         end
       else
-        FileSystem.add(dest, dir.entry.clone)
+        FileSystem.add(dest, dir.entry.clone(dest))
       end
     end
 
     def mv(src, dest)
       if target = FileSystem.find(src)
-        FileSystem.add(dest, target.entry.clone)
+        FileSystem.add(dest, target.entry.clone(dest))
         FileSystem.delete(src)
       else
         raise Errno::ENOENT, src
@@ -350,6 +350,12 @@ module FakeFS
       @content = ''
     end
 
+    def clone(parent)
+      clone = super()
+      clone.parent = parent
+      clone
+    end
+
     def entry
       self
     end
@@ -369,6 +375,14 @@ module FakeFS
 
     def entry
       self
+    end
+
+    def clone(parent)
+      clone = super()
+      clone.each do |key, value|
+        value.parent = parent
+      end
+      clone
     end
 
     def to_s
