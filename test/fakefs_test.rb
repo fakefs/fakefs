@@ -422,6 +422,18 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal 'footext', File.open('symdir/subdir/foo'){|f| f.read }
   end
 
+  def test_cp_r_sets_parent_correctly
+    FileUtils.mkdir_p '/path/foo'
+    File.open('/path/foo/bar', 'w'){|f| f.write 'foo' }
+    File.open('/path/foo/baz', 'w'){|f| f.write 'foo' }
+
+    FileUtils.cp_r '/path/foo', '/path/bar'
+
+    assert File.exists?('/path/bar/baz')
+    FileUtils.rm_rf '/path/bar/baz'
+    assert_equal %w( /path/bar/bar ), Dir['/path/bar/*']
+  end
+
   def test_clone_clones_normal_files
     RealFile.open(here('foo'), 'w'){|f| f.write 'bar' }
     assert !File.exists?(here('foo'))
