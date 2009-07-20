@@ -107,6 +107,12 @@ module FakeFS
         end
       end
     end
+
+    def cd(dir)
+      FileSystem.chdir(dir)
+    end
+
+    alias :chdir :cd
   end
 
   class File
