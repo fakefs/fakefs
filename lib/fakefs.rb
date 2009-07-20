@@ -19,6 +19,7 @@ module FakeFS
       FileSystem.delete(path)
     end
     alias_method :rm_rf, :rm
+    alias_method :rm_r, :rm
 
     def ln_s(target, path)
       raise Errno::EEXIST, path if FileSystem.find(path)
