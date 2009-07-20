@@ -126,6 +126,10 @@ module FakeFS
       !!FileSystem.find(path)
     end
 
+    def self.const_missing(name)
+      RealFile.const_get(name)
+    end
+
     class << self
       alias_method :exists?, :exist?
     end
