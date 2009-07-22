@@ -117,7 +117,7 @@ module FakeFS
     end
 
     def self.exist?(path)
-      FileSystem.find(path) || false
+      !!FileSystem.find(path)
     end
 
     class << self
