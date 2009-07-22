@@ -463,7 +463,7 @@ module FakeFS
 end
 
 def FakeFS
-  return FakeFS unless block_given?
+  return ::FakeFS unless block_given?
   ::FakeFS.activate!
   yield
   ::FakeFS.deactivate!
