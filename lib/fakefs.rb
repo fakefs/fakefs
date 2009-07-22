@@ -111,8 +111,7 @@ module FakeFS
     def cd(dir)
       FileSystem.chdir(dir)
     end
-
-    alias :chdir :cd
+    alias_method :chdir, :cd
   end
 
   class File
