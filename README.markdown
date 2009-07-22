@@ -31,6 +31,12 @@ FakeFS provides a test suite and works with symlinks. It's also strictly a
 test-time dependency: your actual library does not need to use or know about
 FakeFS.
 
+
+Speed?
+------
+http://gist.github.com/150348
+
+
 Authors
 -------
 

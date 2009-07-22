@@ -121,7 +121,7 @@ class FakeFSTest < Test::Unit::TestCase
       file.read
     end
   end
-  
+
   def test_can_read_from_file_objects
     path = '/path/to/file.txt'
     File.open(path, 'w') do |f|
@@ -193,8 +193,17 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.mkdir_p '/path'
     File.open('/path/foo', 'w'){|f| f.write 'foo' }
     File.open('/path/foobar', 'w'){|f| f.write 'foo' }
+
+    FileUtils.mkdir_p '/path/bar'
+    File.open('/path/bar/baz', 'w'){|f| f.write 'foo' }
+
+    FileUtils.cp_r '/path/bar', '/path/bar2'
+
     assert_equal  ['/path'], Dir['/path']
-    assert_equal ['/path/foo', '/path/foobar'], Dir['/path/*']
+    assert_equal %w( /path/bar /path/bar2 /path/foo /path/foobar ), Dir['/path/*']
+
+    assert_equal ['/path/bar/baz'], Dir['/path/bar/*']
+
     # Unsupported so far. More hackery than I want to work on right now
     # assert_equal ['/path'], Dir['/path*']
   end
@@ -411,6 +420,18 @@ class FakeFSTest < Test::Unit::TestCase
 
     FileUtils.cp_r 'subdir', 'symdir'
     assert_equal 'footext', File.open('symdir/subdir/foo'){|f| f.read }
+  end
+
+  def test_cp_r_sets_parent_correctly
+    FileUtils.mkdir_p '/path/foo'
+    File.open('/path/foo/bar', 'w'){|f| f.write 'foo' }
+    File.open('/path/foo/baz', 'w'){|f| f.write 'foo' }
+
+    FileUtils.cp_r '/path/foo', '/path/bar'
+
+    assert File.exists?('/path/bar/baz')
+    FileUtils.rm_rf '/path/bar/baz'
+    assert_equal %w( /path/bar/bar ), Dir['/path/bar/*']
   end
 
   def test_clone_clones_normal_files

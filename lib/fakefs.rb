@@ -19,6 +19,7 @@ module FakeFS
       FileSystem.delete(path)
     end
     alias_method :rm_rf, :rm
+    alias_method :rm_r, :rm
 
     def ln_s(target, path)
       raise Errno::EEXIST, path if FileSystem.find(path)
@@ -38,7 +39,7 @@ module FakeFS
       end
 
       if dst_file and File.directory?(dst_file)
-        FileSystem.add(File.join(dest, src), src_file.entry.clone)
+        FileSystem.add(File.join(dest, src), src_file.entry.clone(dst_file))
       else
         FileSystem.delete(dest)
         FileSystem.add(dest, src_file.entry.clone)
@@ -64,9 +65,9 @@ module FakeFS
       # about and cleaned up.
       if new_dir
         if src[-2..-1] == '/.'
-          dir.values.each{|f| new_dir[f.name] = f }
+          dir.values.each{|f| new_dir[f.name] = f.clone(new_dir) }
         else
-          new_dir[dir.name] = dir.entry.clone
+          new_dir[dir.name] = dir.entry.clone(new_dir)
         end
       else
         FileSystem.add(dest, dir.entry.clone)
@@ -107,6 +108,11 @@ module FakeFS
         end
       end
     end
+
+    def cd(dir)
+      FileSystem.chdir(dir)
+    end
+    alias_method :chdir, :cd
   end
 
   class File
@@ -117,7 +123,7 @@ module FakeFS
     end
 
     def self.exist?(path)
-      FileSystem.find(path) || false
+      !!FileSystem.find(path)
     end
 
     class << self
@@ -353,14 +359,25 @@ module FakeFS
 
   class MockFile
     attr_accessor :name, :parent, :content
+
     def initialize(name = nil, parent = nil)
       @name = name
       @parent = parent
       @content = ''
     end
 
+    def clone(parent = nil)
+      clone = super()
+      clone.parent = parent if parent
+      clone
+    end
+
     def entry
       self
+    end
+
+    def inspect
+      "(MockFile name:#{name.inspect} parent:#{parent.to_s.inspect} size:#{content.size})"
     end
 
     def to_s
@@ -378,6 +395,19 @@ module FakeFS
 
     def entry
       self
+    end
+
+    def inspect
+      "(MockDir name:#{name.inspect} parent:#{parent.to_s.inspect} size:#{size})"
+    end
+
+    def clone(parent = nil)
+      clone = Marshal.load(Marshal.dump(self))
+      clone.each do |key, value|
+        value.parent = clone
+      end
+      clone.parent = parent if parent
+      clone
     end
 
     def to_s
