@@ -1,13 +1,12 @@
 require 'fileutils'
 require 'pathname'
-require 'fakefs/safe'
+require 'fakefs/base'
+require 'fakefs/mock/file'
+require 'fakefs/mock/dir'
+require 'fakefs/mock/symlink'
+require 'fakefs/file_system'
+require 'fakefs/fileutils'
+require 'fakefs/file'
+require 'fakefs/dir'
 
-Object.class_eval do
-  remove_const(:Dir)
-  remove_const(:File)
-  remove_const(:FileUtils)
-end
-
-File = FakeFS::File
-FileUtils = FakeFS::FileUtils
-Dir = FakeFS::Dir
+FakeFS.activate!
