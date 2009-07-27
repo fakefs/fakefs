@@ -1,3 +1,3 @@
 task :default do
-  exec "ruby test/fakefs_test.rb"
+  Dir['test/*_test.rb'].each { |file| require file }
 end
