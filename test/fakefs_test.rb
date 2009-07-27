@@ -312,6 +312,20 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal ['foo'], FileSystem.current_dir.keys
   end
 
+  def test_current_dir_reflected_by_pwd
+    FileUtils.mkdir_p '/path'
+    Dir.chdir('/path')
+
+    assert_equal '/path', Dir.pwd
+    assert_equal '/path', Dir.getwd
+
+    FileUtils.mkdir_p 'subdir'
+    Dir.chdir('subdir')
+
+    assert_equal '/path/subdir', Dir.pwd
+    assert_equal '/path/subdir', Dir.getwd
+  end
+
   def test_file_open_defaults_to_read
     File.open('foo','w'){|f| f.write 'bar' }
     assert_equal 'bar', File.open('foo'){|f| f.read }

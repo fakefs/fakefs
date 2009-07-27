@@ -16,5 +16,13 @@ module FakeFS
     def self.chdir(dir, &blk)
       FileSystem.chdir(dir, &blk)
     end
+
+    def self.pwd
+      FileSystem.current_dir.to_s
+    end
+
+    class << self
+      alias_method :getwd, :pwd
+    end
   end
 end
