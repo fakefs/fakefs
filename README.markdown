@@ -64,5 +64,5 @@ http://gist.github.com/150348
 Authors
 -------
 
-Chris Wanstrath [chris@ozmm.org]
-Pat Nakajima [http://github.com/nakajima]
+* Chris Wanstrath [chris@ozmm.org]
+* Pat Nakajima [http://github.com/nakajima]
