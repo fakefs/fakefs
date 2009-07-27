@@ -9,9 +9,3 @@ require 'fakefs/fileutils'
 require 'fakefs/file'
 require 'fakefs/dir'
 
-def FakeFS
-  return ::FakeFS unless block_given?
-  ::FakeFS.activate!
-  yield
-  ::FakeFS.deactivate!
-end
