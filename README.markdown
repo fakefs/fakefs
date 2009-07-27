@@ -41,3 +41,4 @@ Authors
 -------
 
 Chris Wanstrath [chris@ozmm.org]
+Pat Nakajima [http://github.com/nakajima]
