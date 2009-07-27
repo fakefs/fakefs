@@ -40,7 +40,7 @@ Don't Fake the FS Immediately
     
     FakeFS.activate!
     # your code
-    FakeFS.deactive!
+    FakeFS.deactivate!
     
     # or
     FakeFS do
