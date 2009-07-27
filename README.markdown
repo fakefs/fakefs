@@ -28,24 +28,24 @@ Woot.
 Usage
 -----
 
-require 'fakefs'
+    require 'fakefs'
 
-# That's it.
+    # That's it.
 
 
 Don't Fake the FS Immediately
 -----------------------------
 
-require 'fakefs/safe'
-
-FakeFS.activate!
-# your code
-FakeFS.deactive!
-
-# or
-FakeFS do
-  # your code
-end
+    require 'fakefs/safe'
+    
+    FakeFS.activate!
+    # your code
+    FakeFS.deactive!
+    
+    # or
+    FakeFS do
+      # your code
+    end
 
 
 How is this different than MockFS?
