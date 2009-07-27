@@ -58,7 +58,7 @@ FakeFS.
 
 Speed?
 ------
-http://gist.github.com/150348
+http://gist.github.com/156091
 
 
 Authors
