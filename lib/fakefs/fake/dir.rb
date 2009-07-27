@@ -1,5 +1,5 @@
 module FakeFS
-  class MockDir < Hash
+  class FakeDir < Hash
     attr_accessor :name, :parent
 
     def initialize(name = nil, parent = nil)
@@ -12,7 +12,7 @@ module FakeFS
     end
 
     def inspect
-      "(MockDir name:#{name.inspect} parent:#{parent.to_s.inspect} size:#{size})"
+      "(FakeDir name:#{name.inspect} parent:#{parent.to_s.inspect} size:#{size})"
     end
 
     def clone(parent = nil)

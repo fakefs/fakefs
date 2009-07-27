@@ -3,7 +3,7 @@ module FakeFS
     extend self
 
     def mkdir_p(path)
-      FileSystem.add(path, MockDir.new)
+      FileSystem.add(path, FakeDir.new)
     end
 
     def rm(path)
@@ -14,7 +14,7 @@ module FakeFS
 
     def ln_s(target, path)
       raise Errno::EEXIST, path if FileSystem.find(path)
-      FileSystem.add(path, MockSymlink.new(target))
+      FileSystem.add(path, FakeSymlink.new(target))
     end
 
     def cp(src, dest)
@@ -93,7 +93,7 @@ module FakeFS
         directory = File.dirname(f)
         # FIXME this explicit check for '.' shouldn't need to happen
         if File.exists?(directory) || directory == '.'
-          FileSystem.add(f, MockFile.new)
+          FileSystem.add(f, FakeFile.new)
         else
           raise Errno::ENOENT, f
         end

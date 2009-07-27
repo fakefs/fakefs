@@ -20,27 +20,27 @@ module FakeFS
 
     def self.directory?(path)
       if path.respond_to? :entry
-        path.entry.is_a? MockDir
+        path.entry.is_a? FakeDir
       else
         result = FileSystem.find(path)
-        result ? result.entry.is_a?(MockDir) : false
+        result ? result.entry.is_a?(FakeDir) : false
       end
     end
 
     def self.symlink?(path)
       if path.respond_to? :entry
-        path.is_a? MockSymlink
+        path.is_a? FakeSymlink
       else
-        FileSystem.find(path).is_a? MockSymlink
+        FileSystem.find(path).is_a? FakeSymlink
       end
     end
 
     def self.file?(path)
       if path.respond_to? :entry
-        path.entry.is_a? MockFile
+        path.entry.is_a? FakeFile
       else
         result = FileSystem.find(path)
-        result ? result.entry.is_a?(MockFile) : false
+        result ? result.entry.is_a?(FakeFile) : false
       end
     end
 
@@ -111,7 +111,7 @@ module FakeFS
       raise IOError.new('closed stream') unless @open
 
       if !File.exists?(@path)
-        @file = FileSystem.add(path, MockFile.new)
+        @file = FileSystem.add(path, FakeFile.new)
       end
 
       @file.content += content

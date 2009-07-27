@@ -1,5 +1,5 @@
 module FakeFS
-  class MockSymlink
+  class FakeSymlink
     attr_accessor :name, :target
     alias_method  :to_s, :name
 

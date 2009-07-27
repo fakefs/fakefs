@@ -7,7 +7,7 @@ module FakeFS
     end
 
     def fs
-      @fs ||= MockDir.new('.')
+      @fs ||= FakeDir.new('.')
     end
 
     def clear
@@ -34,11 +34,11 @@ module FakeFS
       end
     end
 
-    def add(path, object=MockDir.new)
+    def add(path, object=FakeDir.new)
       parts = path_parts(normalize_path(path))
 
       d = parts[0...-1].inject(fs) do |dir, part|
-        dir[part] ||= MockDir.new(part, dir)
+        dir[part] ||= FakeDir.new(part, dir)
       end
 
       object.name = parts.last

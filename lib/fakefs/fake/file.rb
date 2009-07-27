@@ -1,5 +1,5 @@
 module FakeFS
-  class MockFile
+  class FakeFile
     attr_accessor :name, :parent, :content
 
     def initialize(name = nil, parent = nil)
@@ -19,7 +19,7 @@ module FakeFS
     end
 
     def inspect
-      "(MockFile name:#{name.inspect} parent:#{parent.to_s.inspect} size:#{content.size})"
+      "(FakeFile name:#{name.inspect} parent:#{parent.to_s.inspect} size:#{content.size})"
     end
 
     def to_s

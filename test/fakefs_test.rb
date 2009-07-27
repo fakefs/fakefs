@@ -23,7 +23,7 @@ class FakeFSTest < Test::Unit::TestCase
 
   def test_can_create_directories
     FileUtils.mkdir_p("/path/to/dir")
-    assert_kind_of MockDir, FileSystem.fs['path']['to']['dir']
+    assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']
   end
 
   def test_knows_directories_exist
@@ -57,7 +57,7 @@ class FakeFSTest < Test::Unit::TestCase
   def test_can_create_symlinks
     FileUtils.mkdir_p(target = "/path/to/target")
     FileUtils.ln_s(target, "/path/to/link")
-    assert_kind_of MockSymlink, FileSystem.fs['path']['to']['link']
+    assert_kind_of FakeSymlink, FileSystem.fs['path']['to']['link']
 
     assert_raises(Errno::EEXIST) {
       FileUtils.ln_s(target, '/path/to/link')
