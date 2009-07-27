@@ -29,7 +29,7 @@ module FakeFS
         raise Errno::EISDIR, src
       end
 
-      if dst_file and File.directory?(dst_file)
+      if dst_file && File.directory?(dst_file)
         FileSystem.add(File.join(dest, src), src_file.entry.clone(dst_file))
       else
         FileSystem.delete(dest)
