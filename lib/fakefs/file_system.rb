@@ -21,16 +21,26 @@ module FakeFS
 
     def find(path)
       parts = path_parts(normalize_path(path))
-
-      target = parts[0...-1].inject(fs) do |dir, part|
-        dir[part] || {}
+      
+      entries = find_recurser(fs, parts).flatten
+      
+      case entries.length
+      when 0 then nil
+      when 1 then entries.first
+      else entries
       end
+    end
 
-      case parts.last
-      when '*'
-        target.values
+    def find_recurser(dir, parts)
+      return [] unless dir.respond_to? :[]
+
+      pattern , *parts = parts
+      matches = dir.reject {|k,v| /\A#{pattern.gsub('*', '.*')}\Z/ !~ k }.values
+
+      if parts.empty? # we're done recursing
+        matches
       else
-        target[parts.last]
+        matches.map{|entry| find_recurser(entry, parts) }
       end
     end
 

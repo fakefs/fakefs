@@ -203,9 +203,11 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal %w( /path/bar /path/bar2 /path/foo /path/foobar ), Dir['/path/*']
 
     assert_equal ['/path/bar/baz'], Dir['/path/bar/*']
+    assert_equal ['/path/foo'], Dir['/path/foo']
 
     # Unsupported so far. More hackery than I want to work on right now
-    # assert_equal ['/path'], Dir['/path*']
+    assert_equal ['/path/foo', '/path/foobar'], Dir['/path/foo*']
+    assert_equal ['/path'], Dir['/path*']
   end
 
   def test_chdir_changes_directories_like_a_boss
