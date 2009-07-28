@@ -1,12 +1,7 @@
 module FakeFS
   class Dir
     def self.glob(pattern)
-      if pattern[-1,1] == '*'
-        blk = proc { |entry| entry.to_s }
-      else
-        blk = proc { |entry| entry[1].parent.to_s }
-      end
-      (FileSystem.find(pattern) || []).map(&blk).uniq.sort
+      [FileSystem.find(pattern) || []].flatten.map{|e| e.to_s}.sort
     end
 
     def self.[](pattern)
