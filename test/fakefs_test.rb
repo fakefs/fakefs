@@ -205,9 +205,20 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal ['/path/bar/baz'], Dir['/path/bar/*']
     assert_equal ['/path/foo'], Dir['/path/foo']
 
-    # Unsupported so far. More hackery than I want to work on right now
-    assert_equal ['/path/foo', '/path/foobar'], Dir['/path/foo*']
     assert_equal ['/path'], Dir['/path*']
+    assert_equal ['/path/foo', '/path/foobar'], Dir['/p*h/foo*']
+    assert_equal ['/path/foo', '/path/foobar'], Dir['/p??h/foo*']
+
+    FileUtils.cp_r '/path', '/otherpath'
+
+    assert_equal %w( /otherpath/foo /otherpath/foobar /path/foo /path/foobar ), Dir['/*/foo*']
+  end
+
+  def test_dir_glob_handles_root
+    FileUtils.mkdir_p '/path'
+
+    # this fails. the root dir should be named '/' but it is '.'
+    #assert_equal ['/'], Dir['/']
   end
 
   def test_chdir_changes_directories_like_a_boss

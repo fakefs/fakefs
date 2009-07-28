@@ -21,6 +21,7 @@ module FakeFS
 
     def find(path)
       parts = path_parts(normalize_path(path))
+      return fs if parts.empty? # '/'
       
       entries = find_recurser(fs, parts).flatten
       
@@ -35,7 +36,7 @@ module FakeFS
       return [] unless dir.respond_to? :[]
 
       pattern , *parts = parts
-      matches = dir.reject {|k,v| /\A#{pattern.gsub('*', '.*')}\Z/ !~ k }.values
+      matches = dir.reject {|k,v| /\A#{pattern.gsub('?','.').gsub('*', '.*')}\Z/ !~ k }.values
 
       if parts.empty? # we're done recursing
         matches
