@@ -32,19 +32,6 @@ module FakeFS
       end
     end
 
-    def find_recurser(dir, parts)
-      return [] unless dir.respond_to? :[]
-
-      pattern , *parts = parts
-      matches = dir.reject {|k,v| /\A#{pattern.gsub('?','.').gsub('*', '.*')}\Z/ !~ k }.values
-
-      if parts.empty? # we're done recursing
-        matches
-      else
-        matches.map{|entry| find_recurser(entry, parts) }
-      end
-    end
-
     def add(path, object=FakeDir.new)
       parts = path_parts(normalize_path(path))
 
@@ -112,5 +99,20 @@ module FakeFS
     def current_dir
       find(normalize_path('.'))
     end
+
+    private
+
+    def find_recurser(dir, parts)
+      return [] unless dir.respond_to? :[]
+
+      pattern , *parts = parts
+      matches = dir.reject {|k,v| /\A#{pattern.gsub('?','.').gsub('*', '.*')}\Z/ !~ k }.values
+
+      if parts.empty? # we're done recursing
+        matches
+      else
+        matches.map{|entry| find_recurser(entry, parts) }
+      end
+    end    
   end
 end
