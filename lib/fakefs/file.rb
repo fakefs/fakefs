@@ -103,8 +103,10 @@ module FakeFS
       @file
     end
 
-    def puts(content)
-      write(content + "\n")
+    def puts(*content)
+      content.flatten.each do |obj|
+        write(obj.to_s + "\n")
+      end
     end
 
     def write(content)

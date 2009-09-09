@@ -105,11 +105,11 @@ class FakeFSTest < Test::Unit::TestCase
   def test_can_read_with_File_readlines
     path = '/path/to/file.txt'
     File.open(path, 'w') do |f|
-      f.puts "Yatta!"
-      f.puts "woot"
+      f.puts "Yatta!", "Gatta!"
+      f.puts ["woot","toot"]
     end
 
-    assert_equal ["Yatta!", "woot"], File.readlines(path)
+    assert_equal %w(Yatta! Gatta! woot toot), File.readlines(path)
   end
 
   def test_File_close_disallows_further_access
