@@ -25,6 +25,11 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.mkdir_p("/path/to/dir")
     assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']
   end
+  
+  def test_can_create_directories_with_mkpath
+    FileUtils.mkpath("/path/to/dir")
+    assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']
+  end
 
   def test_knows_directories_exist
     FileUtils.mkdir_p(path = "/path/to/dir")

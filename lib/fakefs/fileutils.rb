@@ -5,6 +5,7 @@ module FakeFS
     def mkdir_p(path)
       FileSystem.add(path, FakeDir.new)
     end
+    alias_method :mkpath, :mkdir_p
 
     def rm(path)
       FileSystem.delete(path)
