@@ -547,7 +547,7 @@ class FakeFSTest < Test::Unit::TestCase
     }
   end
 
-  def test_close
+  def test_directory_close
     FileUtils.mkdir_p('/this/path/should/be/here')
     dir = Dir.new('/this/path/should/be/here')
     assert dir.close.nil?
@@ -557,7 +557,7 @@ class FakeFSTest < Test::Unit::TestCase
     }
   end
 
-  def test_each
+  def test_directory_each
     test = ['.', '..', '/this/path/should/be/here/file_1', '/this/path/should/be/here/file_2', '/this/path/should/be/here/file_3', '/this/path/should/be/here/file_4', '/this/path/should/be/here/file_5' ]
     
     FileUtils.mkdir_p('/this/path/should/be/here')
@@ -577,12 +577,12 @@ class FakeFSTest < Test::Unit::TestCase
     test.each { |t| assert yielded.include?(t) }
   end
 
-  def test_path
+  def test_directory_path
      FileUtils.mkdir_p('/this/path/should/be/here')
      assert Dir.new('/this/path/should/be/here').path == '/this/path/should/be/here'
   end
 
-  def test_pos
+  def test_directory_pos
     test = ['.', '..', '/this/path/should/be/here/file_1', '/this/path/should/be/here/file_2', '/this/path/should/be/here/file_3', '/this/path/should/be/here/file_4', '/this/path/should/be/here/file_5' ]
     FileUtils.mkdir_p('/this/path/should/be/here')
     test.each do |f|
@@ -604,7 +604,7 @@ class FakeFSTest < Test::Unit::TestCase
     assert dir.pos == 5
   end
 
-  def test_pos_assign
+  def test_directory_pos_assign
     test = ['.', '..', '/this/path/should/be/here/file_1', '/this/path/should/be/here/file_2', '/this/path/should/be/here/file_3', '/this/path/should/be/here/file_4', '/this/path/should/be/here/file_5' ]
     FileUtils.mkdir_p('/this/path/should/be/here')
     test.each do |f|
@@ -618,7 +618,7 @@ class FakeFSTest < Test::Unit::TestCase
     assert dir.pos == 2
   end
 
-  def test_read
+  def test_directory_read
     test = ['.', '..', '/this/path/should/be/here/file_1', '/this/path/should/be/here/file_2', '/this/path/should/be/here/file_3', '/this/path/should/be/here/file_4', '/this/path/should/be/here/file_5' ]
     FileUtils.mkdir_p('/this/path/should/be/here')
     test.each do |f|
@@ -637,7 +637,7 @@ class FakeFSTest < Test::Unit::TestCase
     assert d == '..'
   end
 
-  def test_read_past_length
+  def test_directory_read_past_length
     test = ['.', '..', '/this/path/should/be/here/file_1', '/this/path/should/be/here/file_2', '/this/path/should/be/here/file_3', '/this/path/should/be/here/file_4', '/this/path/should/be/here/file_5' ]
     FileUtils.mkdir_p('/this/path/should/be/here')
     test.each do |f|
@@ -664,7 +664,7 @@ class FakeFSTest < Test::Unit::TestCase
     assert_nil d
   end
  
-  def test_rewind
+  def test_directory_rewind
     test = ['.', '..', '/this/path/should/be/here/file_1', '/this/path/should/be/here/file_2', '/this/path/should/be/here/file_3', '/this/path/should/be/here/file_4', '/this/path/should/be/here/file_5' ]
     FileUtils.mkdir_p('/this/path/should/be/here')
     test.each do |f|
@@ -680,8 +680,8 @@ class FakeFSTest < Test::Unit::TestCase
     assert dir.pos == 0
   end
 
-  def test_seek
-     test = ['.', '..', '/this/path/should/be/here/file_1', '/this/path/should/be/here/file_2', '/this/path/should/be/here/file_3', '/this/path/should/be/here/file_4', '/this/path/should/be/here/file_5' ]
+  def test_directory_seek
+    test = ['.', '..', '/this/path/should/be/here/file_1', '/this/path/should/be/here/file_2', '/this/path/should/be/here/file_3', '/this/path/should/be/here/file_4', '/this/path/should/be/here/file_5' ]
     FileUtils.mkdir_p('/this/path/should/be/here')
     test.each do |f|
       FileUtils.touch(f)
@@ -693,6 +693,109 @@ class FakeFSTest < Test::Unit::TestCase
     puts d
     assert d == '..'
     assert dir.pos == 1
+  end
+
+  def test_directory_class_delete
+    FileUtils.mkdir_p('/this/path/should/be/here')
+    Dir.delete('/this/path/should/be/here')
+    assert File.exists?('/this/path/should/be/here') == false
+  end
+
+  def test_directory_class_delete_does_not_act_on_non_empty_directory
+    test = ['.', '..', '/this/path/should/be/here/file_1', '/this/path/should/be/here/file_2', '/this/path/should/be/here/file_3', '/this/path/should/be/here/file_4', '/this/path/should/be/here/file_5' ]
+    FileUtils.mkdir_p('/this/path/should/be/here')
+    test.each do |f|
+      FileUtils.touch(f)
+    end
+
+    assert_raises(SystemCallError) do 
+      Dir.delete('/this/path/should/be/here')
+    end
+  end
+
+  def test_directory_entries
+    test = ['.', '..', '/this/path/should/be/here/file_1', '/this/path/should/be/here/file_2', '/this/path/should/be/here/file_3', '/this/path/should/be/here/file_4', '/this/path/should/be/here/file_5' ]
+    
+    FileUtils.mkdir_p('/this/path/should/be/here')
+
+    test.each do |f|
+      FileUtils.touch(f)
+    end
+
+    yielded = Dir.entries('/this/path/should/be/here')
+    assert yielded.size == test.size
+    test.each { |t| assert yielded.include?(t) }
+  end
+
+  def test_directory_foreach
+    test = ['.', '..', '/this/path/should/be/here/file_1', '/this/path/should/be/here/file_2', '/this/path/should/be/here/file_3', '/this/path/should/be/here/file_4', '/this/path/should/be/here/file_5' ]
+    
+    FileUtils.mkdir_p('/this/path/should/be/here')
+
+    test.each do |f|
+      FileUtils.touch(f)
+    end
+
+    yielded = []
+    Dir.foreach('/this/path/should/be/here') do |dir|
+      yielded << dir
+    end
+    
+    assert yielded.size == test.size
+    test.each { |t| assert yielded.include?(t) }
+  end
+
+  def test_directory_mkdir
+    Dir.mkdir('/path')
+    assert File.exists?('/path')
+  end
+
+  def test_directory_mkdir_relative
+    FileUtils.mkdir_p('/new/root')
+    FileSystem.chdir('/new/root')
+    Dir.mkdir('path')
+    assert File.exists?('/new/root/path')
+  end
+
+  def test_directory_mkdir_not_recursive
+    assert_raises(Errno::ENOENT) do
+      Dir.mkdir('/path/does/not/exist')
+    end
+  end
+
+  def test_directory_open
+    test = ['.', '..', '/this/path/should/be/here/file_1', '/this/path/should/be/here/file_2', '/this/path/should/be/here/file_3', '/this/path/should/be/here/file_4', '/this/path/should/be/here/file_5' ]
+    
+    FileUtils.mkdir_p('/this/path/should/be/here')
+
+    test.each do |f|
+      FileUtils.touch(f)
+    end
+
+    dir = Dir.open('/this/path/should/be/here')
+    assert dir.path == '/this/path/should/be/here' 
+  end
+
+  def test_directory_open_block
+    test = ['.', '..', '/this/path/should/be/here/file_1', '/this/path/should/be/here/file_2', '/this/path/should/be/here/file_3', '/this/path/should/be/here/file_4', '/this/path/should/be/here/file_5' ]
+    
+    FileUtils.mkdir_p('/this/path/should/be/here')
+
+    test.each do |f|
+      FileUtils.touch(f)
+    end
+
+    yielded = []
+    Dir.open('/this/path/should/be/here') do |dir|
+      yielded << dir
+    end
+    
+    assert yielded.size == test.size
+    test.each { |t| assert yielded.include?(t) }
+  end
+
+  def test_tmpdir
+    assert Dir.tmp_dir == "/tmp"
   end
 
   def here(fname)

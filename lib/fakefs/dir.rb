@@ -65,6 +65,7 @@ module FakeFS
     end
 
     def self.delete(string)
+      raise SystemCallError, "No such file or directory - #{string}" unless FileSystem.find(string).values.empty?
       FileSystem.delete(string) 
     end
 
@@ -82,13 +83,15 @@ module FakeFS
     end
 
     def self.mkdir(string, integer = 0)
+      parent = string.split('/')
+      parent.pop
+      raise Errno::ENOENT, "No such file or directory - #{string}" unless parent.join == "" || FileSystem.find(parent.join('/'))
       FileUtils.mkdir_p(string)
     end
 
     def self.open(string, &block)
       if block_given?
-        d = Dir.new(string).each { |file| yield(file) }
-        d.close
+        Dir.new(string).each { |file| yield(file) }
       else
         Dir.new(string)
       end
