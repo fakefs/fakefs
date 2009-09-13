@@ -39,7 +39,7 @@ module FakeFS
       raise IOError, "closed directory" if @pointer == nil
       n = @contents[@pointer]
       @pointer += 1
-      n.to_s if n
+      n.to_s.gsub(path + '/', '') if n
     end
 
     def rewind
@@ -97,7 +97,7 @@ module FakeFS
       end
     end
 
-    def tmpdir
+    def self.tmpdir
       '/tmp'
     end
 
