@@ -25,6 +25,13 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.mkdir_p("/path/to/dir")
     assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']
   end
+  
+  def test_can_delete_directories
+    FileUtils.mkdir_p("/path/to/dir")
+    FileUtils.rmdir("/path/to/dir")
+    assert File.exists?("/path/to/")
+    assert File.exists?("/path/to/dir") == false
+  end
 
   def test_knows_directories_exist
     FileUtils.mkdir_p(path = "/path/to/dir")
@@ -530,6 +537,10 @@ class FakeFSTest < Test::Unit::TestCase
     assert_raises(Errno::ENOENT) {
       FileUtils.touch(list)
     }
+  end
+
+  def test_extname
+    assert File.extname("test.doc") == ".doc"
   end
 
   # Directory tests

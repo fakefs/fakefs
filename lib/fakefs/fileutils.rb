@@ -6,6 +6,14 @@ module FakeFS
       FileSystem.add(path, FakeDir.new)
     end
 
+    def rmdir(list, options = {})
+      list = [ list ] unless list.is_a?(Array)
+      list.each do |l|
+        raise Errno::ENOENT, l unless FileSystem.find(l)
+        rm(l)
+      end
+    end
+
     def rm(path)
       FileSystem.delete(path)
     end

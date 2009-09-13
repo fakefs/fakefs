@@ -2,6 +2,10 @@ module FakeFS
   class File
     PATH_SEPARATOR = '/'
 
+    def self.extname(path)
+      RealFile.extname(path)
+    end
+
     def self.join(*parts)
       parts * PATH_SEPARATOR
     end
