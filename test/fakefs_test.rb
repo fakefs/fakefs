@@ -532,6 +532,169 @@ class FakeFSTest < Test::Unit::TestCase
     }
   end
 
+  # Directory tests
+  def test_new_directory
+    FileUtils.mkdir_p('/this/path/should/be/here')
+
+    assert_nothing_raised {
+      Dir.new('/this/path/should/be/here')
+    }
+  end
+
+  def test_new_directory_does_not_work_if_dir_path_cannot_be_found
+    assert_raises(Errno::ENOENT) {
+      Dir.new('/this/path/should/not/be/here')
+    }
+  end
+
+  def test_close
+    FileUtils.mkdir_p('/this/path/should/be/here')
+    dir = Dir.new('/this/path/should/be/here')
+    assert dir.close.nil?
+
+    assert_raises(IOError) {
+      dir.each { |dir| dir }
+    }
+  end
+
+  def test_each
+    test = ['.', '..', '/this/path/should/be/here/file_1', '/this/path/should/be/here/file_2', '/this/path/should/be/here/file_3', '/this/path/should/be/here/file_4', '/this/path/should/be/here/file_5' ]
+    
+    FileUtils.mkdir_p('/this/path/should/be/here')
+
+    test.each do |f|
+      FileUtils.touch(f)
+    end
+
+    dir = Dir.new('/this/path/should/be/here')
+
+    yielded = []
+    dir.each do |dir|
+      yielded << dir
+    end
+    
+    assert yielded.size == test.size
+    test.each { |t| assert yielded.include?(t) }
+  end
+
+  def test_path
+     FileUtils.mkdir_p('/this/path/should/be/here')
+     assert Dir.new('/this/path/should/be/here').path == '/this/path/should/be/here'
+  end
+
+  def test_pos
+    test = ['.', '..', '/this/path/should/be/here/file_1', '/this/path/should/be/here/file_2', '/this/path/should/be/here/file_3', '/this/path/should/be/here/file_4', '/this/path/should/be/here/file_5' ]
+    FileUtils.mkdir_p('/this/path/should/be/here')
+    test.each do |f|
+      FileUtils.touch(f)
+    end
+
+    dir = Dir.new('/this/path/should/be/here')
+
+    assert dir.pos == 0
+    dir.read
+    assert dir.pos == 1
+    dir.read
+    assert dir.pos == 2
+    dir.read
+    assert dir.pos == 3
+    dir.read
+    assert dir.pos == 4
+    dir.read
+    assert dir.pos == 5
+  end
+
+  def test_pos_assign
+    test = ['.', '..', '/this/path/should/be/here/file_1', '/this/path/should/be/here/file_2', '/this/path/should/be/here/file_3', '/this/path/should/be/here/file_4', '/this/path/should/be/here/file_5' ]
+    FileUtils.mkdir_p('/this/path/should/be/here')
+    test.each do |f|
+      FileUtils.touch(f)
+    end
+
+    dir = Dir.new('/this/path/should/be/here')
+
+    assert dir.pos == 0
+    dir.pos = 2
+    assert dir.pos == 2
+  end
+
+  def test_read
+    test = ['.', '..', '/this/path/should/be/here/file_1', '/this/path/should/be/here/file_2', '/this/path/should/be/here/file_3', '/this/path/should/be/here/file_4', '/this/path/should/be/here/file_5' ]
+    FileUtils.mkdir_p('/this/path/should/be/here')
+    test.each do |f|
+      FileUtils.touch(f)
+    end
+
+    dir = Dir.new('/this/path/should/be/here')
+
+    assert dir.pos == 0
+    d = dir.read
+    assert dir.pos == 1
+    assert d == '.'
+    
+    d = dir.read
+    assert dir.pos == 2
+    assert d == '..'
+  end
+
+  def test_read_past_length
+    test = ['.', '..', '/this/path/should/be/here/file_1', '/this/path/should/be/here/file_2', '/this/path/should/be/here/file_3', '/this/path/should/be/here/file_4', '/this/path/should/be/here/file_5' ]
+    FileUtils.mkdir_p('/this/path/should/be/here')
+    test.each do |f|
+      FileUtils.touch(f)
+    end
+
+    dir = Dir.new('/this/path/should/be/here')
+
+    d = dir.read
+    assert_not_nil d
+    d = dir.read
+    assert_not_nil d
+    d = dir.read
+    assert_not_nil d
+    d = dir.read
+    assert_not_nil d
+    d = dir.read
+    assert_not_nil d
+    d = dir.read
+    assert_not_nil d
+    d = dir.read
+    assert_not_nil d
+    d = dir.read
+    assert_nil d
+  end
+ 
+  def test_rewind
+    test = ['.', '..', '/this/path/should/be/here/file_1', '/this/path/should/be/here/file_2', '/this/path/should/be/here/file_3', '/this/path/should/be/here/file_4', '/this/path/should/be/here/file_5' ]
+    FileUtils.mkdir_p('/this/path/should/be/here')
+    test.each do |f|
+      FileUtils.touch(f)
+    end
+
+    dir = Dir.new('/this/path/should/be/here')
+
+    d = dir.read
+    d = dir.read
+    assert dir.pos == 2
+    dir.rewind
+    assert dir.pos == 0
+  end
+
+  def test_seek
+     test = ['.', '..', '/this/path/should/be/here/file_1', '/this/path/should/be/here/file_2', '/this/path/should/be/here/file_3', '/this/path/should/be/here/file_4', '/this/path/should/be/here/file_5' ]
+    FileUtils.mkdir_p('/this/path/should/be/here')
+    test.each do |f|
+      FileUtils.touch(f)
+    end
+
+    dir = Dir.new('/this/path/should/be/here')
+
+    d = dir.seek 1
+    puts d
+    assert d == '..'
+    assert dir.pos == 1
+  end
+
   def here(fname)
     RealFile.expand_path(RealFile.dirname(__FILE__)+'/'+fname)
   end
