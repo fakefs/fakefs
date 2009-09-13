@@ -108,7 +108,7 @@ module FakeFS
     class << self
       alias_method :getwd, :pwd
       alias_method :rmdir, :delete
-      alias_method :unline, :delete
+      alias_method :unlink, :delete
     end
   end
 end
