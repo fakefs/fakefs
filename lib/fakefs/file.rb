@@ -65,11 +65,11 @@ module FakeFS
       FileSystem.find(symlink.target).to_s
     end
 
-    def self.open(path, mode='r')
+    def self.open(path, mode='r', perm = 0644)
       if block_given?
-        yield new(path, mode)
+        yield new(path, mode, perm)
       else
-        new(path, mode)
+        new(path, mode, perm)
       end
     end
 
@@ -87,7 +87,7 @@ module FakeFS
     end
 
     attr_reader :path
-    def initialize(path, mode = nil)
+    def initialize(path, mode = nil, perm = nil)
       @path = path
       @mode = mode
       @file = FileSystem.find(path)
