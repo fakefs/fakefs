@@ -65,9 +65,9 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.ln_s(target, "/path/to/link")
     assert_kind_of FakeSymlink, FileSystem.fs['path']['to']['link']
 
-    assert_raises(Errno::EEXIST) {
+    assert_raises(Errno::EEXIST) do
       FileUtils.ln_s(target, '/path/to/link')
-    }
+    end
   end
 
   def test_can_follow_symlinks
@@ -169,9 +169,10 @@ class FakeFSTest < Test::Unit::TestCase
   def test_can_chown_files
     good = 'file.txt'
     bad = 'nofile.txt'
-    File.open(good,'w'){|f| f.write "foo" }
+    File.open(good,'w') { |f| f.write "foo" }
 
-    assert_equal [good], FileUtils.chown('noone', 'nogroup', good, :verbose => true)
+    out = FileUtils.chown('noone', 'nogroup', good, :verbose => true)
+    assert_equal [good], out
     assert_raises(Errno::ENOENT) do
       FileUtils.chown('noone', 'nogroup', bad, :verbose => true)
     end
@@ -189,19 +190,19 @@ class FakeFSTest < Test::Unit::TestCase
 
   def test_can_chown_R_files
     FileUtils.mkdir_p '/path/'
-    File.open('/path/foo', 'w'){|f| f.write 'foo' }
-    File.open('/path/foobar', 'w'){|f| f.write 'foo' }
+    File.open('/path/foo', 'w') { |f| f.write 'foo' }
+    File.open('/path/foobar', 'w') { |f| f.write 'foo' }
     resp = FileUtils.chown_R('no', 'no', '/path')
     assert_equal ['/path'], resp
   end
 
   def test_dir_globs_paths
     FileUtils.mkdir_p '/path'
-    File.open('/path/foo', 'w'){|f| f.write 'foo' }
-    File.open('/path/foobar', 'w'){|f| f.write 'foo' }
+    File.open('/path/foo', 'w') { |f| f.write 'foo' }
+    File.open('/path/foobar', 'w') { |f| f.write 'foo' }
 
     FileUtils.mkdir_p '/path/bar'
-    File.open('/path/bar/baz', 'w'){|f| f.write 'foo' }
+    File.open('/path/bar/baz', 'w') { |f| f.write 'foo' }
 
     FileUtils.cp_r '/path/bar', '/path/bar2'
 
@@ -233,8 +234,8 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal '.', FileSystem.fs.name
     assert_equal({}, FileSystem.fs['path'])
     Dir.chdir '/path' do
-      File.open('foo', 'w'){|f| f.write 'foo'}
-      File.open('foobar', 'w'){|f| f.write 'foo'}
+      File.open('foo', 'w') { |f| f.write 'foo'}
+      File.open('foobar', 'w') { |f| f.write 'foo'}
     end
 
     assert_equal '.', FileSystem.fs.name
@@ -242,7 +243,7 @@ class FakeFSTest < Test::Unit::TestCase
 
     c = nil
     Dir.chdir '/path' do
-      c = File.open('foo', 'r'){|f| f.read }
+      c = File.open('foo', 'r') { |f| f.read }
     end
 
     assert_equal 'foo', c
@@ -252,8 +253,8 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.mkdir_p '/path'
 
     Dir.chdir '/path' do
-      File.open('foo', 'w'){|f| f.write 'foo'}
-      File.open('/foobar', 'w'){|f| f.write 'foo'}
+      File.open('foo', 'w') { |f| f.write 'foo'}
+      File.open('/foobar', 'w') { |f| f.write 'foo'}
     end
     assert_equal ['foo'], FileSystem.fs['path'].keys.sort
     assert_equal ['foobar', 'path'], FileSystem.fs.keys.sort
@@ -270,9 +271,9 @@ class FakeFSTest < Test::Unit::TestCase
   def test_chdir_should_be_nestable
     FileUtils.mkdir_p '/path/me'
     Dir.chdir '/path' do
-      File.open('foo', 'w'){|f| f.write 'foo'}
+      File.open('foo', 'w') { |f| f.write 'foo'}
       Dir.chdir 'me' do
-        File.open('foobar', 'w'){|f| f.write 'foo'}
+        File.open('foobar', 'w') { |f| f.write 'foo'}
       end
     end
 
@@ -292,8 +293,8 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.mkdir_p '/path'
 
     Dir.chdir '/path' do
-      File.open('foo', 'w'){|f| f.write 'foo'}
-      File.open('foobar', 'w'){|f| f.write 'foo'}
+      File.open('foo', 'w') { |f| f.write 'foo'}
+      File.open('foobar', 'w') { |f| f.write 'foo'}
     end
 
     begin
@@ -321,7 +322,7 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.mkdir_p 'subdir'
     assert_equal ['subdir'], FileSystem.current_dir.keys
     Dir.chdir('subdir')
-    File.open('foo', 'w'){|f| f.write 'foo'}
+    File.open('foo', 'w') { |f| f.write 'foo'}
     assert_equal ['foo'], FileSystem.current_dir.keys
 
     assert_raises(Errno::ENOENT) do
@@ -346,12 +347,12 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_file_open_defaults_to_read
-    File.open('foo','w'){|f| f.write 'bar' }
-    assert_equal 'bar', File.open('foo'){|f| f.read }
+    File.open('foo','w') { |f| f.write 'bar' }
+    assert_equal 'bar', File.open('foo') { |f| f.read }
   end
 
   def test_flush_exists_on_file
-    r = File.open('foo','w'){|f| f.write 'bar';  f.flush }
+    r = File.open('foo','w') { |f| f.write 'bar';  f.flush }
     assert_equal 'foo', r.path
   end
 
@@ -362,9 +363,9 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_mv_actually_works
-    File.open('foo', 'w') {|f| f.write 'bar' }
+    File.open('foo', 'w') { |f| f.write 'bar' }
     FileUtils.mv 'foo', 'baz'
-    assert_equal 'bar', File.open('baz'){|f| f.read }
+    assert_equal 'bar', File.open('baz') { |f| f.read }
   end
 
   def test_cp_actually_works
@@ -404,10 +405,10 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_cp_r_doesnt_tangle_files_together
-    File.open('foo', 'w') {|f| f.write 'bar' }
+    File.open('foo', 'w') { |f| f.write 'bar' }
     FileUtils.cp_r('foo', 'baz')
-    File.open('baz', 'w') {|f| f.write 'quux' }
-    assert_equal 'bar', File.open('foo'){|f| f.read }
+    File.open('baz', 'w') { |f| f.write 'quux' }
+    assert_equal 'bar', File.open('foo') { |f| f.read }
   end
 
   def test_cp_r_should_raise_error_on_missing_file
@@ -420,29 +421,29 @@ class FakeFSTest < Test::Unit::TestCase
 
   def test_cp_r_handles_copying_directories
     FileUtils.mkdir_p 'subdir'
-    Dir.chdir('subdir'){ File.open('foo', 'w'){|f| f.write 'footext' } }
+    Dir.chdir('subdir'){ File.open('foo', 'w') { |f| f.write 'footext' } }
 
     FileUtils.mkdir_p 'baz'
 
     # To a previously uncreated directory
     FileUtils.cp_r('subdir', 'quux')
-    assert_equal 'footext', File.open('quux/foo'){|f| f.read }
+    assert_equal 'footext', File.open('quux/foo') { |f| f.read }
 
     # To a directory that already exists
     FileUtils.cp_r('subdir', 'baz')
-    assert_equal 'footext', File.open('baz/subdir/foo'){|f| f.read }
+    assert_equal 'footext', File.open('baz/subdir/foo') { |f| f.read }
 
     # To a subdirectory of a directory that does not exist
-    assert_raises(Errno::ENOENT) {
+    assert_raises(Errno::ENOENT) do
       FileUtils.cp_r('subdir', 'nope/something')
-    }
+    end
   end
 
   def test_cp_r_only_copies_into_directories
     FileUtils.mkdir_p 'subdir'
-    Dir.chdir('subdir'){ File.open('foo', 'w'){|f| f.write 'footext' } }
+    Dir.chdir('subdir') { File.open('foo', 'w') { |f| f.write 'footext' } }
 
-    File.open('bar', 'w') {|f| f.write 'bartext' }
+    File.open('bar', 'w') { |f| f.write 'bartext' }
 
     assert_raises(Errno::EEXIST) do
       FileUtils.cp_r 'subdir', 'bar'
@@ -452,13 +453,13 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.ln_s 'otherdir', 'symdir'
 
     FileUtils.cp_r 'subdir', 'symdir'
-    assert_equal 'footext', File.open('symdir/subdir/foo'){|f| f.read }
+    assert_equal 'footext', File.open('symdir/subdir/foo') { |f| f.read }
   end
 
   def test_cp_r_sets_parent_correctly
     FileUtils.mkdir_p '/path/foo'
-    File.open('/path/foo/bar', 'w'){|f| f.write 'foo' }
-    File.open('/path/foo/baz', 'w'){|f| f.write 'foo' }
+    File.open('/path/foo/bar', 'w') { |f| f.write 'foo' }
+    File.open('/path/foo/baz', 'w') { |f| f.write 'foo' }
 
     FileUtils.cp_r '/path/foo', '/path/bar'
 
@@ -468,10 +469,10 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_clone_clones_normal_files
-    RealFile.open(here('foo'), 'w'){|f| f.write 'bar' }
+    RealFile.open(here('foo'), 'w') { |f| f.write 'bar' }
     assert !File.exists?(here('foo'))
     FileSystem.clone(here('foo'))
-    assert_equal 'bar', File.open(here('foo')){|f| f.read }
+    assert_equal 'bar', File.open(here('foo')) { |f| f.read }
   ensure
     RealFile.unlink(here('foo')) if RealFile.exists?(here('foo'))
   end
@@ -500,22 +501,22 @@ class FakeFSTest < Test::Unit::TestCase
 
   def test_putting_a_dot_at_end_copies_the_contents
     FileUtils.mkdir_p 'subdir'
-    Dir.chdir('subdir'){ File.open('foo', 'w'){|f| f.write 'footext' } }
+    Dir.chdir('subdir') { File.open('foo', 'w') { |f| f.write 'footext' } }
 
     FileUtils.mkdir_p 'newdir'
     FileUtils.cp_r 'subdir/.', 'newdir'
-    assert_equal 'footext', File.open('newdir/foo'){|f| f.read }
+    assert_equal 'footext', File.open('newdir/foo') { |f| f.read }
   end
 
   def test_file_can_read_from_symlinks
-    File.open('first', 'w'){|f| f.write '1'}
+    File.open('first', 'w') { |f| f.write '1'}
     FileUtils.ln_s 'first', 'one'
-    assert_equal '1', File.open('one'){|f| f.read }
+    assert_equal '1', File.open('one') { |f| f.read }
 
     FileUtils.mkdir_p 'subdir'
-    File.open('subdir/nother','w'){|f| f.write 'works' }
+    File.open('subdir/nother','w') { |f| f.write 'works' }
     FileUtils.ln_s 'subdir', 'new'
-    assert_equal 'works', File.open('new/nother'){|f| f.read }
+    assert_equal 'works', File.open('new/nother') { |f| f.read }
   end
 
   def test_files_can_be_touched
@@ -527,15 +528,15 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_touch_does_not_work_if_the_dir_path_cannot_be_found
-    assert_raises(Errno::ENOENT) {
+    assert_raises(Errno::ENOENT) do
       FileUtils.touch('this/path/should/not/be/here')
-    }
+    end
     FileUtils.mkdir_p('subdir')
     list = ['subdir/foo', 'nosubdir/bar']
 
-    assert_raises(Errno::ENOENT) {
+    assert_raises(Errno::ENOENT) do
       FileUtils.touch(list)
-    }
+    end
   end
 
   def test_extname
@@ -546,15 +547,15 @@ class FakeFSTest < Test::Unit::TestCase
   def test_new_directory
     FileUtils.mkdir_p('/this/path/should/be/here')
 
-    assert_nothing_raised {
+    assert_nothing_raised do
       Dir.new('/this/path/should/be/here')
-    }
+    end
   end
 
   def test_new_directory_does_not_work_if_dir_path_cannot_be_found
-    assert_raises(Errno::ENOENT) {
+    assert_raises(Errno::ENOENT) do
       Dir.new('/this/path/should/not/be/here')
-    }
+    end
   end
 
   def test_directory_close
@@ -562,9 +563,9 @@ class FakeFSTest < Test::Unit::TestCase
     dir = Dir.new('/this/path/should/be/here')
     assert dir.close.nil?
 
-    assert_raises(IOError) {
+    assert_raises(IOError) do
       dir.each { |dir| dir }
-    }
+    end
   end
 
   def test_directory_each
@@ -588,8 +589,9 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_directory_path
-     FileUtils.mkdir_p('/this/path/should/be/here')
-     assert Dir.new('/this/path/should/be/here').path == '/this/path/should/be/here'
+    FileUtils.mkdir_p('/this/path/should/be/here')
+    good_path = '/this/path/should/be/here'
+    assert_equal good_path, Dir.new('/this/path/should/be/here').path
   end
 
   def test_directory_pos
