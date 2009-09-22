@@ -21,7 +21,7 @@ module FakeFS
     def rm(path)
       FileSystem.delete(path)
     end
-    
+
     alias_method :rm_rf, :rm
     alias_method :rm_r, :rm
 

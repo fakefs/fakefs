@@ -22,9 +22,9 @@ module FakeFS
     def find(path)
       parts = path_parts(normalize_path(path))
       return fs if parts.empty? # '/'
-      
+
       entries = find_recurser(fs, parts).flatten
-      
+
       case entries.length
       when 0 then nil
       when 1 then entries.first
@@ -113,6 +113,6 @@ module FakeFS
       else
         matches.map{|entry| find_recurser(entry, parts) }
       end
-    end    
+    end
   end
 end

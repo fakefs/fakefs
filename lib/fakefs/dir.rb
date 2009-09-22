@@ -51,7 +51,7 @@ module FakeFS
       @pointer = integer
       @contents[integer]
     end
-   
+
     def self.[](pattern)
       glob(pattern)
     end
@@ -66,7 +66,7 @@ module FakeFS
 
     def self.delete(string)
       raise SystemCallError, "No such file or directory - #{string}" unless FileSystem.find(string).values.empty?
-      FileSystem.delete(string) 
+      FileSystem.delete(string)
     end
 
     def self.entries(dirname)
@@ -77,7 +77,7 @@ module FakeFS
     def self.foreach(dirname, &block)
       Dir.open(dirname) { |file| yield file }
     end
-    
+
     def self.glob(pattern)
       [FileSystem.find(pattern) || []].flatten.map{|e| e.to_s}.sort
     end
