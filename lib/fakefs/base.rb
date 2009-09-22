@@ -31,7 +31,8 @@ end
 def FakeFS
   return ::FakeFS unless block_given?
   ::FakeFS.activate!
-  yield
+  result = yield
   ::FakeFS.deactivate!
+  result
 end
 
