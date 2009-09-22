@@ -5,6 +5,7 @@ module FakeFS
     def mkdir_p(path)
       FileSystem.add(path, FakeDir.new)
     end
+    alias_method :mkpath, :mkdir_p
 
     def rmdir(list, options = {})
       list = [ list ] unless list.is_a?(Array)
