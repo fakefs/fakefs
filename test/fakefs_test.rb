@@ -17,7 +17,6 @@ class FakeFSTest < Test::Unit::TestCase
   def xtest_can_be_initialized_with_an_existing_directory
     fs = FileSystem
     fs.clone(File.expand_path(File.dirname(__FILE__))).inspect
-    puts fs.files.inspect
     assert_equal 1, fs.files.size
   end
 
@@ -25,7 +24,7 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.mkdir_p("/path/to/dir")
     assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']
   end
-  
+
   def test_can_delete_directories
     FileUtils.mkdir_p("/path/to/dir")
     FileUtils.rmdir("/path/to/dir")
@@ -570,7 +569,7 @@ class FakeFSTest < Test::Unit::TestCase
 
   def test_directory_each
     test = ['.', '..', 'file_1', 'file_2', 'file_3', 'file_4', 'file_5' ]
-    
+
     FileUtils.mkdir_p('/this/path/should/be/here')
 
     test.each do |f|
@@ -583,7 +582,7 @@ class FakeFSTest < Test::Unit::TestCase
     dir.each do |dir|
       yielded << dir
     end
-    
+
     assert yielded.size == test.size
     test.each { |t| assert yielded.include?(t) }
   end
@@ -617,7 +616,7 @@ class FakeFSTest < Test::Unit::TestCase
 
   def test_directory_pos_assign
     test = ['.', '..', 'file_1', 'file_2', 'file_3', 'file_4', 'file_5' ]
-    
+
     FileUtils.mkdir_p('/this/path/should/be/here')
     test.each do |f|
       FileUtils.touch("/this/path/should/be/here/#{f}")
@@ -632,7 +631,7 @@ class FakeFSTest < Test::Unit::TestCase
 
   def test_directory_read
     test = ['.', '..', 'file_1', 'file_2', 'file_3', 'file_4', 'file_5' ]
-    
+
     FileUtils.mkdir_p('/this/path/should/be/here')
     test.each do |f|
       FileUtils.touch("/this/path/should/be/here/#{f}")
@@ -644,7 +643,7 @@ class FakeFSTest < Test::Unit::TestCase
     d = dir.read
     assert dir.pos == 1
     assert d == '.'
-    
+
     d = dir.read
     assert dir.pos == 2
     assert d == '..'
@@ -652,7 +651,7 @@ class FakeFSTest < Test::Unit::TestCase
 
   def test_directory_read_past_length
     test = ['.', '..', 'file_1', 'file_2', 'file_3', 'file_4', 'file_5' ]
-    
+
     FileUtils.mkdir_p('/this/path/should/be/here')
     test.each do |f|
       FileUtils.touch("/this/path/should/be/here/#{f}")
@@ -677,10 +676,10 @@ class FakeFSTest < Test::Unit::TestCase
     d = dir.read
     assert_nil d
   end
- 
+
   def test_directory_rewind
     test = ['.', '..', 'file_1', 'file_2', 'file_3', 'file_4', 'file_5' ]
-    
+
     FileUtils.mkdir_p('/this/path/should/be/here')
     test.each do |f|
       FileUtils.touch("/this/path/should/be/here/#{f}")
@@ -697,7 +696,7 @@ class FakeFSTest < Test::Unit::TestCase
 
   def test_directory_seek
     test = ['.', '..', 'file_1', 'file_2', 'file_3', 'file_4', 'file_5' ]
-    
+
     FileUtils.mkdir_p('/this/path/should/be/here')
     test.each do |f|
       FileUtils.touch("/this/path/should/be/here/#{f}")
@@ -706,7 +705,6 @@ class FakeFSTest < Test::Unit::TestCase
     dir = Dir.new('/this/path/should/be/here')
 
     d = dir.seek 1
-    puts d
     assert d == '..'
     assert dir.pos == 1
   end
@@ -719,20 +717,20 @@ class FakeFSTest < Test::Unit::TestCase
 
   def test_directory_class_delete_does_not_act_on_non_empty_directory
     test = ['.', '..', 'file_1', 'file_2', 'file_3', 'file_4', 'file_5' ]
-    
+
     FileUtils.mkdir_p('/this/path/should/be/here')
     test.each do |f|
       FileUtils.touch("/this/path/should/be/here/#{f}")
     end
 
-    assert_raises(SystemCallError) do 
+    assert_raises(SystemCallError) do
       Dir.delete('/this/path/should/be/here')
     end
   end
 
   def test_directory_entries
     test = ['.', '..', 'file_1', 'file_2', 'file_3', 'file_4', 'file_5' ]
-    
+
     FileUtils.mkdir_p('/this/path/should/be/here')
 
     test.each do |f|
@@ -746,7 +744,7 @@ class FakeFSTest < Test::Unit::TestCase
 
   def test_directory_foreach
     test = ['.', '..', 'file_1', 'file_2', 'file_3', 'file_4', 'file_5' ]
-    
+
     FileUtils.mkdir_p('/this/path/should/be/here')
 
     test.each do |f|
@@ -757,7 +755,7 @@ class FakeFSTest < Test::Unit::TestCase
     Dir.foreach('/this/path/should/be/here') do |dir|
       yielded << dir
     end
-    
+
     assert yielded.size == test.size
     test.each { |t| assert yielded.include?(t) }
   end
@@ -782,7 +780,7 @@ class FakeFSTest < Test::Unit::TestCase
 
   def test_directory_open
     test = ['.', '..', 'file_1', 'file_2', 'file_3', 'file_4', 'file_5' ]
-    
+
     FileUtils.mkdir_p('/this/path/should/be/here')
 
     test.each do |f|
@@ -790,12 +788,12 @@ class FakeFSTest < Test::Unit::TestCase
     end
 
     dir = Dir.open('/this/path/should/be/here')
-    assert dir.path == '/this/path/should/be/here' 
+    assert dir.path == '/this/path/should/be/here'
   end
 
   def test_directory_open_block
     test = ['.', '..', 'file_1', 'file_2', 'file_3', 'file_4', 'file_5' ]
-    
+
     FileUtils.mkdir_p('/this/path/should/be/here')
 
     test.each do |f|
@@ -806,7 +804,7 @@ class FakeFSTest < Test::Unit::TestCase
     Dir.open('/this/path/should/be/here') do |dir|
       yielded << dir
     end
-    
+
     assert yielded.size == test.size
     test.each { |t| assert yielded.include?(t) }
   end
