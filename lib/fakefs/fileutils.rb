@@ -30,6 +30,12 @@ module FakeFS
       raise Errno::EEXIST, path if FileSystem.find(path)
       FileSystem.add(path, FakeSymlink.new(target))
     end
+    def ln_sf(target, path)
+      FileSystem.delete(path)
+      FileSystem.add(path, FakeSymlink.new(target))
+    end
+
+    
 
     def cp(src, dest)
       dst_file = FileSystem.find(dest)
