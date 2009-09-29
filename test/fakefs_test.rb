@@ -238,6 +238,20 @@ class FakeFSTest < Test::Unit::TestCase
     assert_nil File.size?("/path/to/file.txt")
   end
 
+  def test_raises_error_on_mtime_if_file_does_not_exist
+    assert_raise Errno::ENOENT do
+      File.mtime('/path/to/file.txt')
+    end
+  end
+
+  def test_can_return_mtime_on_existing_file
+    path = '/path/to/file.txt'
+    File.open(path, 'w') do |f|
+      f << ''
+    end
+    assert File.mtime('/path/to/file.txt').is_a?(Time)
+  end
+
   def test_can_read_with_File_readlines
     path = '/path/to/file.txt'
     File.open(path, 'w') do |f|

@@ -46,6 +46,14 @@ module FakeFS
       alias_method :readable?, :exist?
     end
 
+    def self.mtime(path)
+      if exists?(path)
+        FileSystem.find(path).mtime
+      else
+        raise Errno::ENOENT
+      end
+    end
+
     def self.size(path)
       read(path).length
     end
