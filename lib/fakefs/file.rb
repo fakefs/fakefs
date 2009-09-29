@@ -50,6 +50,10 @@ module FakeFS
       read(path).length
     end
 
+    def self.size?(path)
+      exists?(path) && !size(path).zero?
+    end
+
     def self.const_missing(name)
       RealFile.const_get(name)
     end

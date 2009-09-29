@@ -208,6 +208,23 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal 9, File.size(path)
   end
 
+  def test_can_check_if_file_has_size?
+    path = '/path/to/file.txt'
+    File.open(path, 'w') do |f|
+      f << 'Yada Yada'
+    end
+    assert File.size?(path)
+    assert ! File.size?("/path/to/other.txt")
+  end
+
+  def test_can_check_size?_of_empty_file
+    path = '/path/to/file.txt'
+    File.open(path, 'w') do |f|
+      f << ''
+    end
+    assert ! File.size?("/path/to/file.txt")
+  end
+
   def test_can_read_with_File_readlines
     path = '/path/to/file.txt'
     File.open(path, 'w') do |f|
