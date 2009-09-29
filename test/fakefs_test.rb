@@ -200,6 +200,19 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal 'Yada Yada', File.read(path)
   end
 
+  def test_can_chunk_io_when_reading
+    path = '/path/to/file.txt'
+    File.open(path, 'w') do |f|
+      f << 'Yada Yada'
+    end
+    file = File.new(path, 'r')
+    assert_equal 'Yada', file.read(4)
+    assert_equal ' Yada', file.read(5)
+    assert_equal '', file.read
+    file.rewind
+    assert_equal 'Yada Yada', file.read
+  end
+
   def test_can_get_size_of_files
     path = '/path/to/file.txt'
     File.open(path, 'w') do |f|

@@ -125,7 +125,7 @@ module FakeFS
     def self.readlines(path)
       read(path).split("\n")
     end
-    
+
     def self.link(source, dest)
       if directory?(source)
         raise Errno::EPERM, "Operation not permitted - #{source} or #{dest}"
@@ -134,11 +134,11 @@ module FakeFS
       if !exists?(source)
         raise Errno::ENOENT, "No such file or directory - #{source} or #{dest}"
       end
-      
+
       if exists?(dest)
         raise Errno::EEXIST, "File exists - #{source} or #{dest}"
       end
-      
+
       source = FileSystem.find(source)
       dest = FileSystem.add(dest, source.entry.clone)
       source.link(dest)
@@ -201,6 +201,7 @@ module FakeFS
       @mode = mode
       @file = FileSystem.find(path)
       @open = true
+      @stream = StringIO.new(@file.content) if @file
 
       check_valid_mode
       file_creation_mode? ? create_missing_file : check_file_existence!
@@ -211,11 +212,14 @@ module FakeFS
       @open = false
     end
 
-    def read
+    def read(chunk = nil)
       raise IOError, 'closed stream' unless @open
       raise IOError, 'not opened for reading' if write_only?
+      @stream.read(chunk)
+    end
 
-      @file.content
+    def rewind
+      @stream.rewind
     end
 
     def exists?
