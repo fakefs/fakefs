@@ -94,6 +94,7 @@ class FakeFSTest < Test::Unit::TestCase
     end
 
     assert File.exists?(path)
+    assert File.readable?(path)
   end
 
   def test_file_opens_in_read_only_mode
