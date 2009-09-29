@@ -18,6 +18,10 @@ module FakeFS
       alias_method :exists?, :exist?
     end
 
+    def self.size(path)
+      read(path).length
+    end
+
     def self.const_missing(name)
       RealFile.const_get(name)
     end
