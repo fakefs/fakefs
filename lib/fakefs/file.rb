@@ -123,6 +123,28 @@ module FakeFS
       0
     end
 
+    def self.stat(file)
+      File::Stat.new(file)
+    end
+
+    class Stat
+      def initialize(file)
+        if !File.exists?(file)
+          raise(Errno::ENOENT, "No such file or directory - #{file}")
+        end
+
+        @file = file
+      end
+
+      def symlink?
+        File.symlink?(@file)
+      end
+
+      def directory?
+        File.directory?(@file)
+      end
+    end
+
     attr_reader :path
 
     def initialize(path, mode = READ_ONLY, perm = nil)

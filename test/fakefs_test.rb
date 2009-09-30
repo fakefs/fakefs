@@ -949,6 +949,11 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal "some content", File.read("/bar")
   end
 
+  def test_file_stat_returns_file_stat_object
+    FileUtils.touch("/foo")
+    assert_equal File::Stat, File.stat("/foo").class
+  end
+
   def here(fname)
     RealFile.expand_path(RealFile.dirname(__FILE__)+'/'+fname)
   end
