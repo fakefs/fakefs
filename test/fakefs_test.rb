@@ -146,6 +146,26 @@ class FakeFSTest < Test::Unit::TestCase
     assert File.exists?("foo")
   end
 
+  def test_file_in_write_only_raises_error_when_reading
+    FileUtils.touch("foo")
+
+    f = File.open("foo", "w")
+
+    assert_raises(IOError) do
+      f.read
+    end
+  end
+
+  def test_file_in_append_write_only_raises_error_when_reading
+    FileUtils.touch("foo")
+
+    f = File.open("foo", "a")
+
+    assert_raises(IOError) do
+      f.read
+    end
+  end
+
   def test_can_read_files_once_written
     path = '/path/to/file.txt'
     File.open(path, 'w') do |f|

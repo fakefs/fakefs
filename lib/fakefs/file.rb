@@ -116,7 +116,8 @@ module FakeFS
     end
 
     def read
-      raise IOError.new('closed stream') unless @open
+      raise IOError, 'closed stream' unless @open
+      raise IOError, 'not opened for reading' if write_only?
       @file.content
     end
 
@@ -171,6 +172,10 @@ module FakeFS
       if !File.exists?(@path)
         @file = FileSystem.add(path, FakeFile.new)
       end
+    end
+
+    def write_only?
+      @mode == WRITE_ONLY || @mode == APPEND_WRITE_ONLY
     end
   end
 end
