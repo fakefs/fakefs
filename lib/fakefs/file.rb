@@ -134,7 +134,6 @@ module FakeFS
       raise IOError, 'closed stream' unless @open
       raise IOError, 'not open for writing' if read_only?
 
-      create_missing_file
       @file.content += content
     end
     alias_method :print, :write
