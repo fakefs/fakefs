@@ -2,6 +2,15 @@ module FakeFS
   class File
     PATH_SEPARATOR = '/'
 
+    MODES = [
+      READ_ONLY           = "r",
+      READ_WRITE          = "r+",
+      WRITE_ONLY          = "w",
+      READ_WRITE_TRUNCATE = "w+",
+      APPEND_WRITE_ONLY   = "a",
+      APPEND_READ_WRITE   = "a+"
+    ]
+
     def self.extname(path)
       RealFile.extname(path)
     end
@@ -69,7 +78,7 @@ module FakeFS
       FileSystem.find(symlink.target).to_s
     end
 
-    def self.open(path, mode='r', perm = 0644)
+    def self.open(path, mode=READ_ONLY, perm = 0644)
       if block_given?
         yield new(path, mode, perm)
       else
