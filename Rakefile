@@ -1,6 +1,9 @@
-task :default do
+desc "Run tests"
+task :test do
   Dir['test/**/*_test.rb'].each { |file| require file }
 end
+
+task :default => :test
 
 begin
   require 'jeweler'
