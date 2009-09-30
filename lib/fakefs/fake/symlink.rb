@@ -15,12 +15,14 @@ module FakeFS
       FileSystem.find(target)
     end
 
-    def method_missing(*args, &block)
-      entry.send(*args, &block)
-    end
-
     def respond_to?(method)
       entry.respond_to?(method)
+    end
+  
+  private
+    
+    def method_missing(*args, &block)
+      entry.send(*args, &block)
     end
   end
 end
