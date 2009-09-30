@@ -913,6 +913,41 @@ class FakeFSTest < Test::Unit::TestCase
   def test_tmpdir
     assert Dir.tmpdir == "/tmp"
   end
+  
+  def test_hard_link_creates_file
+    FileUtils.touch("/foo")
+    
+    File.link("/foo", "/bar")
+    assert File.exists?("/bar")
+  end
+  
+  def test_hard_link_with_missing_file_raises_error
+    assert_raises(Errno::ENOENT) do
+      File.link("/foo", "/bar")
+    end
+  end
+  
+  def test_hard_link_with_existing_destination_file
+    FileUtils.touch("/foo")
+    FileUtils.touch("/bar")
+    
+    assert_raises(Errno::EEXIST) do
+      File.link("/foo", "/bar")
+    end
+  end
+  
+  def test_hard_link_returns_0_when_successful
+    FileUtils.touch("/foo")
+    
+    assert_equal 0, File.link("/foo", "/bar")
+  end
+  
+  def test_hard_link_returns_duplicate_file
+    File.open("/foo", "w") { |x| x << "some content" }
+    
+    File.link("/foo", "/bar")
+    assert_equal "some content", File.read("/bar")
+  end
 
   def here(fname)
     RealFile.expand_path(RealFile.dirname(__FILE__)+'/'+fname)

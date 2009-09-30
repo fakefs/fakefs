@@ -114,6 +114,14 @@ module FakeFS
     def self.readlines(path)
       read(path).split("\n")
     end
+    
+    def self.link(source, dest)
+      raise(Errno::ENOENT, "No such file or directory - #{source} or #{dest}") if !File.exists?(source)
+      raise(Errno::EEXIST, "File exists - #{source} or #{dest}")               if  File.exists?(dest)
+      
+      FileUtils.cp(source, dest)
+      0
+    end
 
     attr_reader :path
 
