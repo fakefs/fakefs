@@ -107,6 +107,8 @@ module FakeFS
       @mode = mode
       @file = FileSystem.find(path)
       @open = true
+
+      check_file_existence! if read_only?
     end
 
     def close
@@ -144,6 +146,12 @@ module FakeFS
     def flush; self; end
 
   private
+
+    def check_file_existence!
+      unless @file
+        raise Errno::ENOENT, "No such file or directory - #{@file}"
+      end
+    end
 
     def read_only?
       @mode == READ_ONLY
