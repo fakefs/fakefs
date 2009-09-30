@@ -108,7 +108,7 @@ module FakeFS
       @file = FileSystem.find(path)
       @open = true
 
-      check_file_existence! if !file_creation_mode?
+      file_creation_mode? ? create_missing_file : check_file_existence!
     end
 
     def close
@@ -134,10 +134,7 @@ module FakeFS
       raise IOError, 'closed stream' unless @open
       raise IOError, 'not open for writing' if read_only?
 
-      if !File.exists?(@path)
-        @file = FileSystem.add(path, FakeFile.new)
-      end
-
+      create_missing_file
       @file.content += content
     end
     alias_method :print, :write
@@ -168,6 +165,12 @@ module FakeFS
     def check_mode(mode)
       if !MODES.include?(mode)
         raise ArgumentError, "illegal access mode #{mode}"
+      end
+    end
+
+    def create_missing_file
+      if !File.exists?(@path)
+        @file = FileSystem.add(path, FakeFile.new)
       end
     end
   end

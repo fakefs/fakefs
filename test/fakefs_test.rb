@@ -126,6 +126,26 @@ class FakeFSTest < Test::Unit::TestCase
     end
   end
 
+  def test_creates_files_in_write_only_mode
+    File.open("foo", "w")
+    assert File.exists?("foo")
+  end
+
+  def test_creates_files_in_read_write_truncate_mode
+    File.open("foo", "w+")
+    assert File.exists?("foo")
+  end
+
+  def test_creates_files_in_append_write_only
+    File.open("foo", "a")
+    assert File.exists?("foo")
+  end
+
+  def test_creates_files_in_append_read_write
+    File.open("foo", "a+")
+    assert File.exists?("foo")
+  end
+
   def test_can_read_files_once_written
     path = '/path/to/file.txt'
     File.open(path, 'w') do |f|
