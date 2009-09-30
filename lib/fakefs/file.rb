@@ -123,6 +123,10 @@ module FakeFS
       0
     end
 
+    def self.symlink(source, dest)
+      FileUtils.ln_s(source, dest)
+    end
+
     def self.stat(file)
       File::Stat.new(file)
     end

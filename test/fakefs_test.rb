@@ -618,6 +618,14 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal 'works', File.open('new/nother') { |f| f.read }
   end
 
+  def test_can_symlink_through_file
+    FileUtils.touch("/foo")
+
+    File.symlink("/foo", "/bar")
+
+    assert File.symlink?("/bar")
+  end
+
   def test_files_can_be_touched
     FileUtils.touch('touched_file')
     assert File.exists?('touched_file')
