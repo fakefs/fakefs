@@ -120,6 +120,12 @@ class FakeFSTest < Test::Unit::TestCase
     end
   end
 
+  def test_raises_error_when_cannot_find_file_in_read_write_mode
+    assert_raises(Errno::ENOENT) do
+      File.open("does_not_exist", "r+")
+    end
+  end
+
   def test_can_read_files_once_written
     path = '/path/to/file.txt'
     File.open(path, 'w') do |f|

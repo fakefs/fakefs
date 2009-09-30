@@ -108,7 +108,7 @@ module FakeFS
       @file = FileSystem.find(path)
       @open = true
 
-      check_file_existence! if read_only?
+      check_file_existence! if !file_creation_mode?
     end
 
     def close
@@ -155,6 +155,14 @@ module FakeFS
 
     def read_only?
       @mode == READ_ONLY
+    end
+
+    def file_creation_modes
+      MODES - [READ_ONLY, READ_WRITE]
+    end
+
+    def file_creation_mode?
+      file_creation_modes.include?(@mode)
     end
 
     def check_mode(mode)
