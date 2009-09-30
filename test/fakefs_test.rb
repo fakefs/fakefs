@@ -96,6 +96,16 @@ class FakeFSTest < Test::Unit::TestCase
     assert File.exists?(path)
   end
 
+  def test_file_opens_in_read_only_mode
+    File.open("foo", "w") { |f| f << "foo" }
+
+    f = File.open("foo")
+
+    assert_raises(IOError) do
+      f << "bar"
+    end
+  end
+
   def test_can_read_files_once_written
     path = '/path/to/file.txt'
     File.open(path, 'w') do |f|

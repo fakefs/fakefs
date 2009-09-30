@@ -127,7 +127,8 @@ module FakeFS
     end
 
     def write(content)
-      raise IOError.new('closed stream') unless @open
+      raise IOError, 'closed stream' unless @open
+      raise IOError, 'not open for writing' if read_only?
 
       if !File.exists?(@path)
         @file = FileSystem.add(path, FakeFile.new)
@@ -139,5 +140,11 @@ module FakeFS
     alias_method :<<, :write
 
     def flush; self; end
+
+  private
+
+    def read_only?
+      @mode == READ_ONLY
+    end
   end
 end
