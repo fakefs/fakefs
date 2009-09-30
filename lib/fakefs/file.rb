@@ -109,6 +109,7 @@ module FakeFS
       @open = true
 
       file_creation_mode? ? create_missing_file : check_file_existence!
+      truncate_file if truncation_mode?
     end
 
     def close
@@ -176,6 +177,14 @@ module FakeFS
 
     def write_only?
       @mode == WRITE_ONLY || @mode == APPEND_WRITE_ONLY
+    end
+
+    def truncate_file
+      @file.content = ""
+    end
+
+    def truncation_mode?
+      @mode == READ_WRITE_TRUNCATE || @mode == WRITE_ONLY
     end
   end
 end

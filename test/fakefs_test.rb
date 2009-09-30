@@ -156,6 +156,22 @@ class FakeFSTest < Test::Unit::TestCase
     end
   end
 
+  def test_file_in_write_mode_truncates_existing_file
+    File.open("foo", "w") { |f| f << "contents" }
+
+    f = File.open("foo", "w")
+
+    assert_equal "", File.read("foo")
+  end
+
+  def test_file_in_read_write_truncation_mode_truncates_file
+    File.open("foo", "w") { |f| f << "foo" }
+
+    f = File.open("foo", "w+")
+
+    assert_equal "", File.read("foo")
+  end
+
   def test_file_in_append_write_only_raises_error_when_reading
     FileUtils.touch("foo")
 
