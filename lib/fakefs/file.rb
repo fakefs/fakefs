@@ -11,6 +11,22 @@ module FakeFS
       APPEND_READ_WRITE   = "a+"
     ]
 
+    FILE_CREATION_MODES = MODES - [READ_ONLY, READ_WRITE]
+
+    READ_ONLY_MODES = [
+      READ_ONLY
+    ]
+
+    WRITE_ONLY_MODES = [
+      WRITE_ONLY,
+      APPEND_WRITE_ONLY
+    ]
+
+    TRUNCATION_MODES = [
+      WRITE_ONLY,
+      READ_WRITE_TRUNCATE
+    ]
+
     def self.extname(path)
       RealFile.extname(path)
     end
@@ -100,14 +116,14 @@ module FakeFS
     end
 
     attr_reader :path
-    def initialize(path, mode = READ_ONLY, perm = nil)
-      check_mode(mode)
 
+    def initialize(path, mode = READ_ONLY, perm = nil)
       @path = path
       @mode = mode
       @file = FileSystem.find(path)
       @open = true
 
+      check_valid_mode
       file_creation_mode? ? create_missing_file : check_file_existence!
       truncate_file if truncation_mode?
     end
@@ -119,6 +135,7 @@ module FakeFS
     def read
       raise IOError, 'closed stream' unless @open
       raise IOError, 'not opened for reading' if write_only?
+
       @file.content
     end
 
@@ -151,22 +168,30 @@ module FakeFS
       end
     end
 
-    def read_only?
-      @mode == READ_ONLY
+    def check_valid_mode
+      if !mode_in?(MODES)
+        raise ArgumentError, "illegal access mode #{@mode}"
+      end
     end
 
-    def file_creation_modes
-      MODES - [READ_ONLY, READ_WRITE]
+    def read_only?
+      mode_in? READ_ONLY_MODES
     end
 
     def file_creation_mode?
-      file_creation_modes.include?(@mode)
+      mode_in? FILE_CREATION_MODES
     end
 
-    def check_mode(mode)
-      if !MODES.include?(mode)
-        raise ArgumentError, "illegal access mode #{mode}"
-      end
+    def write_only?
+      mode_in? WRITE_ONLY_MODES
+    end
+
+    def truncation_mode?
+      mode_in? TRUNCATION_MODES
+    end
+
+    def mode_in?(list)
+      list.include?(@mode)
     end
 
     def create_missing_file
@@ -175,16 +200,8 @@ module FakeFS
       end
     end
 
-    def write_only?
-      @mode == WRITE_ONLY || @mode == APPEND_WRITE_ONLY
-    end
-
     def truncate_file
       @file.content = ""
-    end
-
-    def truncation_mode?
-      @mode == READ_WRITE_TRUNCATE || @mode == WRITE_ONLY
     end
   end
 end
