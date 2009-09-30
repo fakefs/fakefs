@@ -106,6 +106,14 @@ class FakeFSTest < Test::Unit::TestCase
     end
   end
 
+  def test_file_opens_in_invalid_mode
+    FileUtils.touch("foo")
+
+    assert_raises(ArgumentError) do
+      File.open("foo", "an_illegal_mode")
+    end
+  end
+
   def test_can_read_files_once_written
     path = '/path/to/file.txt'
     File.open(path, 'w') do |f|

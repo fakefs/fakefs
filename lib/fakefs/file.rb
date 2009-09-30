@@ -100,7 +100,9 @@ module FakeFS
     end
 
     attr_reader :path
-    def initialize(path, mode = nil, perm = nil)
+    def initialize(path, mode = READ_ONLY, perm = nil)
+      check_mode(mode)
+
       @path = path
       @mode = mode
       @file = FileSystem.find(path)
@@ -145,6 +147,12 @@ module FakeFS
 
     def read_only?
       @mode == READ_ONLY
+    end
+
+    def check_mode(mode)
+      if !MODES.include?(mode)
+        raise ArgumentError, "illegal access mode #{mode}"
+      end
     end
   end
 end
