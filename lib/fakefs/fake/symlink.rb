@@ -15,10 +15,14 @@ module FakeFS
       FileSystem.find(target)
     end
 
+    def delete
+      parent.delete(self)
+    end
+
     def respond_to?(method)
       entry.respond_to?(method)
     end
-  
+
   private
     
     def method_missing(*args, &block)

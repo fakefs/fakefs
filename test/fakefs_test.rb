@@ -970,6 +970,96 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal File::Stat, File.stat("/foo").class
   end
 
+  def test_can_delete_file_with_delete
+    FileUtils.touch("/foo")
+
+    File.delete("/foo")
+
+    assert !File.exists?("/foo")
+  end
+
+  def test_can_delete_multiple_files_with_delete
+    FileUtils.touch("/foo")
+    FileUtils.touch("/bar")
+
+    File.delete("/foo", "/bar")
+
+    assert !File.exists?("/foo")
+    assert !File.exists?("/bar")
+  end
+
+  def test_delete_raises_argument_error_with_no_filename_given
+    assert_raises ArgumentError do
+      File.delete
+    end
+  end
+
+  def test_delete_returns_number_one_when_given_one_arg
+    FileUtils.touch("/foo")
+
+    assert_equal 1, File.delete("/foo")
+  end
+
+  def test_delete_returns_number_two_when_given_two_args
+    FileUtils.touch("/foo")
+    FileUtils.touch("/bar")
+
+    assert_equal 2, File.delete("/foo", "/bar")
+  end
+
+  def test_delete_raises_error_when_first_file_does_not_exist
+    assert_raises Errno::ENOENT do
+      File.delete("/foo")
+    end
+  end
+
+  def test_delete_does_not_raise_error_when_second_file_does_not_exist
+    FileUtils.touch("/foo")
+
+    assert_nothing_raised do
+      File.delete("/foo", "/bar")
+    end
+  end
+
+  def test_unlink_is_alias_for_delete
+    assert_equal File.method(:unlink), File.method(:delete)
+  end
+
+  def test_unlink_removes_only_one_file_content
+    File.open("/foo", "w") { |f| f << "some_content" }
+    File.link("/foo", "/bar")
+
+    File.unlink("/bar")
+    File.read("/foo") == "some_content"
+  end
+
+  def test_link_reports_correct_stat_info_after_unlinking
+    File.open("/foo", "w") { |f| f << "some_content" }
+    File.link("/foo", "/bar")
+
+    File.unlink("/bar")
+    assert_equal 1, File.stat("/foo").nlink
+  end
+
+  def test_delete_works_with_symlink
+    FileUtils.touch("/foo")
+    File.symlink("/foo", "/bar")
+
+    File.unlink("/bar")
+
+    assert File.exists?("/foo")
+    assert !File.exists?("/bar")
+  end
+
+  def test_delete_works_with_symlink_source
+    FileUtils.touch("/foo")
+    File.symlink("/foo", "/bar")
+
+    File.unlink("/foo")
+
+    assert !File.exists?("/foo")
+  end
+
   def here(fname)
     RealFile.expand_path(RealFile.dirname(__FILE__)+'/'+fname)
   end

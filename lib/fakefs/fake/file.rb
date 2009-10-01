@@ -15,6 +15,10 @@ module FakeFS
         links << file unless links.include?(file)
         file.inode = self
       end
+
+      def unlink(file)
+        links.delete(file)
+      end
     end
 
     def initialize(name = nil, parent = nil)
@@ -58,6 +62,11 @@ module FakeFS
 
     def to_s
       File.join(parent.to_s, name)
+    end
+
+    def delete
+      inode.unlink(self)
+      parent.delete(self)
     end
   end
 end

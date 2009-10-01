@@ -66,8 +66,8 @@ module FakeFS
     end
 
     def delete(path)
-      if dir = FileSystem.find(path)
-        dir.parent.delete(dir.name)
+      if node = FileSystem.find(path)
+        node.delete
       end
     end
 

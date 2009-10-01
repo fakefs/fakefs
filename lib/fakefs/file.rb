@@ -135,6 +135,24 @@ module FakeFS
       0
     end
 
+    def self.delete(file_name, *additional_file_names)
+      if !exists?(file_name)
+        raise Errno::ENOENT, "No such file or directory - #{file_name}"
+      end
+
+      FileUtils.rm(file_name)
+
+      additional_file_names.each do |file_name|
+        FileUtils.rm(file_name)
+      end
+
+      additional_file_names.size + 1
+    end
+
+    class << self
+      alias_method :unlink, :delete
+    end
+
     def self.symlink(source, dest)
       FileUtils.ln_s(source, dest)
     end
