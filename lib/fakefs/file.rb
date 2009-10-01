@@ -116,10 +116,22 @@ module FakeFS
     end
     
     def self.link(source, dest)
-      raise(Errno::ENOENT, "No such file or directory - #{source} or #{dest}") if !File.exists?(source)
-      raise(Errno::EEXIST, "File exists - #{source} or #{dest}")               if  File.exists?(dest)
+      if directory?(source)
+        raise Errno::EPERM, "Operation not permitted - #{source} or #{dest}"
+      end
+
+      if !exists?(source)
+        raise Errno::ENOENT, "No such file or directory - #{source} or #{dest}"
+      end
       
-      FileUtils.cp(source, dest)
+      if exists?(dest)
+        raise Errno::EEXIST, "File exists - #{source} or #{dest}"
+      end
+      
+      source = FileSystem.find(source)
+      dest = FileSystem.add(dest, source.entry.clone)
+      source.link(dest)
+
       0
     end
 
@@ -146,6 +158,10 @@ module FakeFS
 
       def directory?
         File.directory?(@file)
+      end
+
+      def nlink
+        FileSystem.find(@file).links.size
       end
     end
 

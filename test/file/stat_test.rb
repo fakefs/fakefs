@@ -21,6 +21,10 @@ class FileStatTest < Test::Unit::TestCase
     Dir.mkdir(*args)
   end
 
+  def ln(*args)
+    File.link(*args)
+  end
+
   def test_file_stat_init_with_non_existant_file
     assert_raises(Errno::ENOENT) do
       File::Stat.new("/foo")
@@ -50,5 +54,17 @@ class FileStatTest < Test::Unit::TestCase
     mkdir "/foo"
 
     assert File::Stat.new("/foo").directory?
+  end
+
+  def test_one_file_has_hard_link
+    touch "testfile"
+    assert_equal 1, File.stat("testfile").nlink
+  end
+
+  def test_two_hard_links_show_nlinks_as_two
+    touch "testfile"
+    ln    "testfile", "testfile.bak"
+
+    assert_equal 2, File.stat("testfile").nlink
   end
 end
