@@ -73,23 +73,6 @@ Installation
     $ rip install git://github.com/defunkt/fakefs.git
 
 
-Contributors
-------------
-
-* Chris Wanstrath
-* David Reese
-* Jeff Hodges
-* Jon Yurek
-* Matt Freels
-* Myles Eftos
-* Nick Quaranto
-* Pat Nakajima
-* Rob Sanheim
-* Scott Taylor
-* Tymon Tobolski
-* msassak
-
-
 Meta
 ----
 
