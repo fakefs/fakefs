@@ -4,7 +4,7 @@ FakeFS
 Mocha is great. But when your library is all about manipulating the
 filesystem, you really want to test the behavior and not the implementation.
 
-If you're mocking and stubbing every call to FileUtils or File, you're 
+If you're mocking and stubbing every call to FileUtils or File, you're
 tightly coupling your tests with the implementation.
 
     def test_creates_directory
@@ -51,18 +51,49 @@ Don't Fake the FS Immediately
 How is this different than MockFS?
 ----------------------------------
 
-FakeFS provides a test suite and works with symlinks. It's also strictly a 
+FakeFS provides a test suite and works with symlinks. It's also strictly a
 test-time dependency: your actual library does not need to use or know about
 FakeFS.
 
 
 Speed?
 ------
-http://gist.github.com/156091
+<http://gist.github.com/156091>
 
 
-Authors
--------
+Installation
+------------
 
-* Chris Wanstrath [chris@ozmm.org]
-* Pat Nakajima [http://github.com/nakajima]
+### [Gemcutter](http://gemcutter.org/)
+
+    $ gem install fakefs
+
+### [Rip](http://hellorip.com)
+
+    $ rip install git://github.com/defunkt/fakefs.git
+
+
+Contributors
+------------
+
+* Chris Wanstrath
+* David Reese
+* Jeff Hodges
+* Jon Yurek
+* Matt Freels
+* Myles Eftos
+* Pat Nakajima
+* Rob Sanheim
+* Scott Taylor
+* Tymon Tobolski
+* msassak
+
+
+Meta
+----
+
+* Code: `git clone git://github.com/defunkt/fakefs.git`
+* Docs: <http://defunkt.github.com/fakefs>
+* Bugs: <http://github.com/defunkt/fakefs/issues>
+* Test: <http://runcoderun.com/defunkt/fakefs>
+* Boss: Chris Wanstrath :: <http://github.com/defunkt>
