@@ -4,8 +4,9 @@ require 'test/unit'
 
 class FakeSymlinkTest < Test::Unit::TestCase
   include FakeFS
-  
+
   def test_symlink_has_method_missing_as_private
-    assert FakeSymlink.private_instance_methods.include?("method_missing")
+    methods = FakeSymlink.private_instance_methods.map { |m| m.to_s }
+    assert methods.include?("method_missing")
   end
 end
