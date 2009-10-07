@@ -23,5 +23,5 @@ begin
   end
 rescue LoadError
   puts "Jeweler not available."
-  puts "Install it with: gem install technicalpickles-jeweler"
+  puts "Install it with: gem install jeweler"
 end
