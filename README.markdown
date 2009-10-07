@@ -95,5 +95,7 @@ Meta
 * Code: `git clone git://github.com/defunkt/fakefs.git`
 * Docs: <http://defunkt.github.com/fakefs>
 * Bugs: <http://github.com/defunkt/fakefs/issues>
+* List: <http://groups.google.com/group/fakefs>
 * Test: <http://runcoderun.com/defunkt/fakefs>
+* Gems: <http://gemcutter.org/gems/fakefs>
 * Boss: Chris Wanstrath :: <http://github.com/defunkt>
