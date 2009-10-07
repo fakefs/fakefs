@@ -82,6 +82,7 @@ Contributors
 * Jon Yurek
 * Matt Freels
 * Myles Eftos
+* Nick Quaranto
 * Pat Nakajima
 * Rob Sanheim
 * Scott Taylor
