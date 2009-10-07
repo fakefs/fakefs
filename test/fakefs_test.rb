@@ -96,6 +96,92 @@ class FakeFSTest < Test::Unit::TestCase
     assert File.exists?(path)
   end
 
+  def test_file_opens_in_read_only_mode
+    File.open("foo", "w") { |f| f << "foo" }
+
+    f = File.open("foo")
+
+    assert_raises(IOError) do
+      f << "bar"
+    end
+  end
+
+  def test_file_opens_in_invalid_mode
+    FileUtils.touch("foo")
+
+    assert_raises(ArgumentError) do
+      File.open("foo", "an_illegal_mode")
+    end
+  end
+
+  def test_raises_error_when_cannot_find_file_in_read_mode
+    assert_raises(Errno::ENOENT) do
+      File.open("does_not_exist", "r")
+    end
+  end
+
+  def test_raises_error_when_cannot_find_file_in_read_write_mode
+    assert_raises(Errno::ENOENT) do
+      File.open("does_not_exist", "r+")
+    end
+  end
+
+  def test_creates_files_in_write_only_mode
+    File.open("foo", "w")
+    assert File.exists?("foo")
+  end
+
+  def test_creates_files_in_read_write_truncate_mode
+    File.open("foo", "w+")
+    assert File.exists?("foo")
+  end
+
+  def test_creates_files_in_append_write_only
+    File.open("foo", "a")
+    assert File.exists?("foo")
+  end
+
+  def test_creates_files_in_append_read_write
+    File.open("foo", "a+")
+    assert File.exists?("foo")
+  end
+
+  def test_file_in_write_only_raises_error_when_reading
+    FileUtils.touch("foo")
+
+    f = File.open("foo", "w")
+
+    assert_raises(IOError) do
+      f.read
+    end
+  end
+
+  def test_file_in_write_mode_truncates_existing_file
+    File.open("foo", "w") { |f| f << "contents" }
+
+    f = File.open("foo", "w")
+
+    assert_equal "", File.read("foo")
+  end
+
+  def test_file_in_read_write_truncation_mode_truncates_file
+    File.open("foo", "w") { |f| f << "foo" }
+
+    f = File.open("foo", "w+")
+
+    assert_equal "", File.read("foo")
+  end
+
+  def test_file_in_append_write_only_raises_error_when_reading
+    FileUtils.touch("foo")
+
+    f = File.open("foo", "a")
+
+    assert_raises(IOError) do
+      f.read
+    end
+  end
+
   def test_can_read_files_once_written
     path = '/path/to/file.txt'
     File.open(path, 'w') do |f|
@@ -532,6 +618,14 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal 'works', File.open('new/nother') { |f| f.read }
   end
 
+  def test_can_symlink_through_file
+    FileUtils.touch("/foo")
+
+    File.symlink("/foo", "/bar")
+
+    assert File.symlink?("/bar")
+  end
+
   def test_files_can_be_touched
     FileUtils.touch('touched_file')
     assert File.exists?('touched_file')
@@ -826,6 +920,144 @@ class FakeFSTest < Test::Unit::TestCase
 
   def test_tmpdir
     assert Dir.tmpdir == "/tmp"
+  end
+  
+  def test_hard_link_creates_file
+    FileUtils.touch("/foo")
+    
+    File.link("/foo", "/bar")
+    assert File.exists?("/bar")
+  end
+  
+  def test_hard_link_with_missing_file_raises_error
+    assert_raises(Errno::ENOENT) do
+      File.link("/foo", "/bar")
+    end
+  end
+  
+  def test_hard_link_with_existing_destination_file
+    FileUtils.touch("/foo")
+    FileUtils.touch("/bar")
+    
+    assert_raises(Errno::EEXIST) do
+      File.link("/foo", "/bar")
+    end
+  end
+  
+  def test_hard_link_returns_0_when_successful
+    FileUtils.touch("/foo")
+    
+    assert_equal 0, File.link("/foo", "/bar")
+  end
+  
+  def test_hard_link_returns_duplicate_file
+    File.open("/foo", "w") { |x| x << "some content" }
+    
+    File.link("/foo", "/bar")
+    assert_equal "some content", File.read("/bar")
+  end
+
+  def test_hard_link_with_directory_raises_error
+    Dir.mkdir "/foo"
+
+    assert_raises(Errno::EPERM) do
+      File.link("/foo", "/bar")
+    end
+  end
+
+  def test_file_stat_returns_file_stat_object
+    FileUtils.touch("/foo")
+    assert_equal File::Stat, File.stat("/foo").class
+  end
+
+  def test_can_delete_file_with_delete
+    FileUtils.touch("/foo")
+
+    File.delete("/foo")
+
+    assert !File.exists?("/foo")
+  end
+
+  def test_can_delete_multiple_files_with_delete
+    FileUtils.touch("/foo")
+    FileUtils.touch("/bar")
+
+    File.delete("/foo", "/bar")
+
+    assert !File.exists?("/foo")
+    assert !File.exists?("/bar")
+  end
+
+  def test_delete_raises_argument_error_with_no_filename_given
+    assert_raises ArgumentError do
+      File.delete
+    end
+  end
+
+  def test_delete_returns_number_one_when_given_one_arg
+    FileUtils.touch("/foo")
+
+    assert_equal 1, File.delete("/foo")
+  end
+
+  def test_delete_returns_number_two_when_given_two_args
+    FileUtils.touch("/foo")
+    FileUtils.touch("/bar")
+
+    assert_equal 2, File.delete("/foo", "/bar")
+  end
+
+  def test_delete_raises_error_when_first_file_does_not_exist
+    assert_raises Errno::ENOENT do
+      File.delete("/foo")
+    end
+  end
+
+  def test_delete_does_not_raise_error_when_second_file_does_not_exist
+    FileUtils.touch("/foo")
+
+    assert_nothing_raised do
+      File.delete("/foo", "/bar")
+    end
+  end
+
+  def test_unlink_is_alias_for_delete
+    assert_equal File.method(:unlink), File.method(:delete)
+  end
+
+  def test_unlink_removes_only_one_file_content
+    File.open("/foo", "w") { |f| f << "some_content" }
+    File.link("/foo", "/bar")
+
+    File.unlink("/bar")
+    File.read("/foo") == "some_content"
+  end
+
+  def test_link_reports_correct_stat_info_after_unlinking
+    File.open("/foo", "w") { |f| f << "some_content" }
+    File.link("/foo", "/bar")
+
+    File.unlink("/bar")
+    assert_equal 1, File.stat("/foo").nlink
+  end
+
+  def test_delete_works_with_symlink
+    FileUtils.touch("/foo")
+    File.symlink("/foo", "/bar")
+
+    File.unlink("/bar")
+
+    assert File.exists?("/foo")
+    assert !File.exists?("/bar")
+  end
+
+  def test_delete_works_with_symlink_source
+    FileUtils.touch("/foo")
+    File.symlink("/foo", "/bar")
+
+    File.unlink("/foo")
+
+    assert !File.exists?("/foo")
   end
 
   def here(fname)

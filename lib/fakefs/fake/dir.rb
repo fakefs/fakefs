@@ -33,5 +33,13 @@ module FakeFS
         name
       end
     end
+
+    def delete(node = self)
+      if node == self
+        parent.delete(self)
+      else
+        super(node.name)
+      end
+    end
   end
 end

@@ -54,7 +54,7 @@ module FakeFS
       files.each do |f|
         if RealFile.file?(f)
           FileUtils.mkdir_p(File.dirname(f))
-          File.open(f, 'w') do |g|
+          File.open(f, File::WRITE_ONLY) do |g|
             g.print RealFile.open(f){|h| h.read }
           end
         elsif RealFile.directory?(f)
@@ -66,8 +66,8 @@ module FakeFS
     end
 
     def delete(path)
-      if dir = FileSystem.find(path)
-        dir.parent.delete(dir.name)
+      if node = FileSystem.find(path)
+        node.delete
       end
     end
 
