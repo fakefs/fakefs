@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <title>README.markdown</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="../css/reset.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" />
+    <script src="../js/jquery-1.3.2.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../js/jquery-effect.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../js/main.js" type="text/javascript" charset="utf-8"></script>
+</head>
+
+<body>     
+    <div class="banner">
+        <h1>
+            README.markdown
+        </h1>
+        <ul class="files">
+            <li>README.markdown</li>
+            <li>Last modified: Tue Oct 06 21:17:21 -0700 2009</li>
+        </ul>
+    </div>
+
+    <div id="bodyContent">
+        <div id="content">
+    
+    <div class="description">
+        <h1>FakeFS</h1>
+
+<p>Mocha is great. But when your library is all about manipulating the
+filesystem, you really want to test the behavior and not the implementation.</p>
+
+<p>If you're mocking and stubbing every call to FileUtils or File, you're
+tightly coupling your tests with the implementation.</p>
+
+<pre><code>def test_creates_directory
+  FileUtils.expects(:mkdir).with("directory").once
+  Library.add "directory"
+end
+</code></pre>
+
+<p>The above test will break if we decide to use <code>mkdir_p</code> in our code. Refactoring
+code shouldn't necessitate refactoring tests.</p>
+
+<p>With FakeFS:</p>
+
+<pre><code>def test_creates_directory
+  Library.add "directory"
+  assert File.directory?("directory")
+end
+</code></pre>
+
+<p>Woot.</p>
+
+<h2>Usage</h2>
+
+<pre><code>require 'fakefs'
+
+# That's it.
+</code></pre>
+
+<h2>Don't Fake the FS Immediately</h2>
+
+<pre><code>require 'fakefs/safe'
+
+FakeFS.activate!
+# your code
+FakeFS.deactivate!
+
+# or
+FakeFS do
+  # your code
+end
+</code></pre>
+
+<h2>How is this different than MockFS?</h2>
+
+<p>FakeFS provides a test suite and works with symlinks. It's also strictly a
+test-time dependency: your actual library does not need to use or know about
+FakeFS.</p>
+
+<h2>Speed?</h2>
+
+<p><a href="http://gist.github.com/156091">http://gist.github.com/156091</a></p>
+
+<h2>Installation</h2>
+
+<h3><a href="http://gemcutter.org/">Gemcutter</a></h3>
+
+<pre><code>$ gem install fakefs
+</code></pre>
+
+<h3><a href="http://hellorip.com">Rip</a></h3>
+
+<pre><code>$ rip install git://github.com/defunkt/fakefs.git
+</code></pre>
+
+<h2>Contributors</h2>
+
+<ul>
+<li>Chris Wanstrath</li>
+<li>David Reese</li>
+<li>Jeff Hodges</li>
+<li>Jon Yurek</li>
+<li>Matt Freels</li>
+<li>Myles Eftos</li>
+<li>Pat Nakajima</li>
+<li>Rob Sanheim</li>
+<li>Scott Taylor</li>
+<li>Tymon Tobolski</li>
+<li>msassak</li>
+</ul>
+
+
+<h2>Meta</h2>
+
+<ul>
+<li>Code: <code>git clone git://github.com/defunkt/fakefs.git</code></li>
+<li>Docs: <a href="http://defunkt.github.com/fakefs">http://defunkt.github.com/fakefs</a></li>
+<li>Bugs: <a href="http://github.com/defunkt/fakefs/issues">http://github.com/defunkt/fakefs/issues</a></li>
+<li>List: <a href="http://groups.google.com/group/fakefs">http://groups.google.com/group/fakefs</a></li>
+<li>Test: <a href="http://runcoderun.com/defunkt/fakefs">http://runcoderun.com/defunkt/fakefs</a></li>
+<li>Gems: <a href="http://gemcutter.org/gems/fakefs">http://gemcutter.org/gems/fakefs</a></li>
+<li>Boss: Chris Wanstrath :: <a href="http://github.com/defunkt">http://github.com/defunkt</a></li>
+</ul>
+
+<script type="text/javascript">$(function() {
+  $('a').each(function() { $(this).attr('target', '_blank') })
+})</script>
+
+    </div>
+    
+
+    
+
+    
+    
+
+    
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</div>
+    </div>
+  </body>
+</html>

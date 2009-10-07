@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <title>FakeFS</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="../css/reset.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" />
+    <script src="../js/jquery-1.3.2.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../js/jquery-effect.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../js/main.js" type="text/javascript" charset="utf-8"></script>
+</head>
+
+<body>     
+    <div class="banner">
+        <h1>
+            <span class="type">Module</span> 
+            FakeFS 
+            
+        </h1>
+        <ul class="files">
+            
+            <li><a href="../files/lib/fakefs/dir_rb.html">lib/fakefs/dir.rb</a></li>
+            
+            <li><a href="../files/lib/fakefs/base_rb.html">lib/fakefs/base.rb</a></li>
+            
+            <li><a href="../files/lib/fakefs/fake/dir_rb.html">lib/fakefs/fake/dir.rb</a></li>
+            
+            <li><a href="../files/lib/fakefs/fake/file_rb.html">lib/fakefs/fake/file.rb</a></li>
+            
+            <li><a href="../files/lib/fakefs/fake/symlink_rb.html">lib/fakefs/fake/symlink.rb</a></li>
+            
+            <li><a href="../files/lib/fakefs/file_rb.html">lib/fakefs/file.rb</a></li>
+            
+            <li><a href="../files/lib/fakefs/file_system_rb.html">lib/fakefs/file_system.rb</a></li>
+            
+            <li><a href="../files/lib/fakefs/fileutils_rb.html">lib/fakefs/fileutils.rb</a></li>
+            
+            <li><a href="../files/lib/fakefs/version_rb.html">lib/fakefs/version.rb</a></li>
+            
+        </ul>
+    </div>
+    <div id="bodyContent">
+        <div id="content">
+    
+
+    
+
+    
+    
+
+    
+    
+    <div class="sectiontitle">Methods</div>
+    <dl class="methods">
+    
+        <dt>A</dt>
+        <dd>
+            <ul>
+                
+                <li><a href="#M000002">activate!</a></li>
+                
+            </ul>
+        </dd>
+    
+        <dt>D</dt>
+        <dd>
+            <ul>
+                
+                <li><a href="#M000003">deactivate!</a></li>
+                
+            </ul>
+        </dd>
+    
+    </dl>
+    
+
+    
+
+    
+
+    
+    <div class="sectiontitle">Classes and Modules</div>
+    <ul>
+        
+        <li><span class="type">MODULE</span> <a href="FakeFS/FileSystem.html">FakeFS::FileSystem</a></li>
+        
+        <li><span class="type">MODULE</span> <a href="FakeFS/FileUtils.html">FakeFS::FileUtils</a></li>
+        
+        <li><span class="type">MODULE</span> <a href="FakeFS/Version.html">FakeFS::Version</a></li>
+        
+        <li><span class="type">CLASS</span> <a href="FakeFS/Dir.html">FakeFS::Dir</a></li>
+        
+        <li><span class="type">CLASS</span> <a href="FakeFS/FakeDir.html">FakeFS::FakeDir</a></li>
+        
+        <li><span class="type">CLASS</span> <a href="FakeFS/FakeFile.html">FakeFS::FakeFile</a></li>
+        
+        <li><span class="type">CLASS</span> <a href="FakeFS/FakeSymlink.html">FakeFS::FakeSymlink</a></li>
+        
+        <li><span class="type">CLASS</span> <a href="FakeFS/File.html">FakeFS::File</a></li>
+        
+    </ul>
+    
+
+    
+
+    
+
+    
+            <div class="sectiontitle">Class Public methods</div>
+            
+            <div class="method">
+                <div class="title" id="M000002">
+                    
+                    <a name="M000002"></a><b>activate!</b>()
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000002_source')" id="l_M000002_source">show</a>
+                        
+                        | <a href="http://github.com/defunkt/fakefs/blob/0da41d92a7ad99b3e2f3dd640f34520a3bd711ea/lib/fakefs/base.rb#L8" target="_blank" class="github_url">on GitHub</a>
+                        
+                    </p>
+                    <div id="M000002_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/base.rb, line 8</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">activate!</span>
+    <span class="ruby-constant">Object</span>.<span class="ruby-identifier">class_eval</span> <span class="ruby-keyword kw">do</span>
+      <span class="ruby-identifier">remove_const</span>(<span class="ruby-identifier">:Dir</span>)
+      <span class="ruby-identifier">remove_const</span>(<span class="ruby-identifier">:File</span>)
+      <span class="ruby-identifier">remove_const</span>(<span class="ruby-identifier">:FileUtils</span>)
+      <span class="ruby-identifier">const_set</span>(<span class="ruby-identifier">:Dir</span>, <span class="ruby-constant">FakeFS</span><span class="ruby-operator">::</span><span class="ruby-constant">Dir</span>)
+      <span class="ruby-identifier">const_set</span>(<span class="ruby-identifier">:File</span>, <span class="ruby-constant">FakeFS</span><span class="ruby-operator">::</span><span class="ruby-constant">File</span>)
+      <span class="ruby-identifier">const_set</span>(<span class="ruby-identifier">:FileUtils</span>, <span class="ruby-constant">FakeFS</span><span class="ruby-operator">::</span><span class="ruby-constant">FileUtils</span>)
+    <span class="ruby-keyword kw">end</span>
+  <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="method">
+                <div class="title" id="M000003">
+                    
+                    <a name="M000003"></a><b>deactivate!</b>()
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000003_source')" id="l_M000003_source">show</a>
+                        
+                        | <a href="http://github.com/defunkt/fakefs/blob/0da41d92a7ad99b3e2f3dd640f34520a3bd711ea/lib/fakefs/base.rb#L19" target="_blank" class="github_url">on GitHub</a>
+                        
+                    </p>
+                    <div id="M000003_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/base.rb, line 19</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">deactivate!</span>
+    <span class="ruby-constant">Object</span>.<span class="ruby-identifier">class_eval</span> <span class="ruby-keyword kw">do</span>
+      <span class="ruby-identifier">remove_const</span>(<span class="ruby-identifier">:Dir</span>)
+      <span class="ruby-identifier">remove_const</span>(<span class="ruby-identifier">:File</span>)
+      <span class="ruby-identifier">remove_const</span>(<span class="ruby-identifier">:FileUtils</span>)
+      <span class="ruby-identifier">const_set</span>(<span class="ruby-identifier">:Dir</span>, <span class="ruby-constant">RealDir</span>)
+      <span class="ruby-identifier">const_set</span>(<span class="ruby-identifier">:File</span>, <span class="ruby-constant">RealFile</span>)
+      <span class="ruby-identifier">const_set</span>(<span class="ruby-identifier">:FileUtils</span>, <span class="ruby-constant">RealFileUtils</span>)
+    <span class="ruby-keyword kw">end</span>
+  <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+</div>
+    </div>
+  </body>
+</html>    
