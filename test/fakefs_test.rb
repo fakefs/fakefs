@@ -74,6 +74,20 @@ class FakeFSTest < Test::Unit::TestCase
       FileUtils.ln_s(target, '/path/to/link')
     end
   end
+  
+  def test_can_force_creation_of_symlinks
+    FileUtils.mkdir_p(target = "/path/to/first/target")
+    FileUtils.ln_s(target, "/path/to/link")
+    assert_kind_of FakeSymlink, FileSystem.fs['path']['to']['link']
+    FileUtils.ln_s(target, '/path/to/link', :force => true)
+  end
+  
+  def test_create_symlink_using_ln_sf
+    FileUtils.mkdir_p(target = "/path/to/first/target")
+    FileUtils.ln_s(target, "/path/to/link")
+    assert_kind_of FakeSymlink, FileSystem.fs['path']['to']['link']
+    FileUtils.ln_sf(target, '/path/to/link')
+  end
 
   def test_can_follow_symlinks
     FileUtils.mkdir_p(target = "/path/to/target")

@@ -26,13 +26,13 @@ module FakeFS
     alias_method :rm_rf, :rm
     alias_method :rm_r, :rm
 
-    def ln_s(target, path)
-      raise Errno::EEXIST, path if FileSystem.find(path)
+    def ln_s(target, path, options = {})
+      options = { :force => false }.merge(options)
+      (FileSystem.find(path) and !options[:force]) ? raise(Errno::EEXIST, path) : FileSystem.delete(path)
       FileSystem.add(path, FakeSymlink.new(target))
     end
     def ln_sf(target, path)
-      FileSystem.delete(path)
-      FileSystem.add(path, FakeSymlink.new(target))
+      ln_s(target, path, { :force => true })
     end
 
     
