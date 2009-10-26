@@ -910,6 +910,20 @@ class FakeFSTest < Test::Unit::TestCase
     test.each { |t| assert yielded.include?(t) }
   end
 
+  def test_directory_entries_works_with_trailing_slash
+    test = ['.', '..', 'file_1', 'file_2', 'file_3', 'file_4', 'file_5' ]
+
+    FileUtils.mkdir_p('/this/path/should/be/here')
+
+    test.each do |f|
+      FileUtils.touch("/this/path/should/be/here/#{f}")
+    end
+
+    yielded = Dir.entries('/this/path/should/be/here/')
+    assert yielded.size == test.size
+    test.each { |t| assert yielded.include?(t) }
+  end
+
   def test_directory_foreach
     test = ['.', '..', 'file_1', 'file_2', 'file_3', 'file_4', 'file_5' ]
 

@@ -71,7 +71,7 @@ module FakeFS
 
     def self.entries(dirname)
       raise SystemCallError, dirname unless FileSystem.find(dirname)
-      Dir.new(dirname).map { |file| file }
+      Dir.new(dirname).map { |file| File.basename(file) }
     end
 
     def self.foreach(dirname, &block)
