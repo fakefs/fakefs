@@ -47,6 +47,7 @@ Don't Fake the FS Immediately
       # your code
     end
 
+
 RSpec
 -----------------------------
 The above approach works with RSpec as well. In addition to this you may use the
@@ -60,6 +61,14 @@ How is this different than MockFS?
 FakeFS provides a test suite and works with symlinks. It's also strictly a
 test-time dependency: your actual library does not need to use or know about
 FakeFS.
+
+
+Caveats
+-------
+
+FakeFS internally uses the `Pathname` and `FileUtils` constants. If you use
+these in your app, be certain you're properly requiring them and not counting
+on FakeFS' own require.
 
 
 Speed?
