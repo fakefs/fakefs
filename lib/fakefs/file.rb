@@ -196,6 +196,8 @@ module FakeFS
       @file = FileSystem.find(path)
       @open = true
 
+      check_modes!
+
       file_creation_mode? ? create_missing_file : check_file_existence!
 
       @stream = StringIO.new(@file.content, mode)
@@ -231,6 +233,10 @@ module FakeFS
 
   private
 
+    def check_modes!
+      StringIO.new("", @mode)
+    end
+
     def check_file_existence!
       unless @file
         raise Errno::ENOENT, "No such file or directory - #{@file}"
@@ -242,7 +248,7 @@ module FakeFS
     end
 
     def mode_in?(list)
-      list.include?(@mode)
+      list.any? { |element| @mode.include?(element) }
     end
 
     def create_missing_file

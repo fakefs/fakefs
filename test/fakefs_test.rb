@@ -214,6 +214,17 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal 'Yada Yada', File.read(path)
   end
 
+  def test_raises_error_when_opening_with_binary_mode_only
+    assert_raise ArgumentError do
+      File.open("/foo", "b")
+    end
+  end
+
+  def test_can_open_file_in_binary_mode
+    File.open("/foo", "wb") { |x| x << "a" }
+    assert_equal "a", File.read("/foo")
+  end
+
   def test_can_chunk_io_when_reading
     path = '/path/to/file.txt'
     File.open(path, 'w') do |f|
