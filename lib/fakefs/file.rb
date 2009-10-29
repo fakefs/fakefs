@@ -13,20 +13,6 @@ module FakeFS
 
     FILE_CREATION_MODES = MODES - [READ_ONLY, READ_WRITE]
 
-    READ_ONLY_MODES = [
-      READ_ONLY
-    ]
-
-    WRITE_ONLY_MODES = [
-      WRITE_ONLY,
-      APPEND_WRITE_ONLY
-    ]
-
-    TRUNCATION_MODES = [
-      WRITE_ONLY,
-      READ_WRITE_TRUNCATE
-    ]
-
     def self.extname(path)
       RealFile.extname(path)
     end
@@ -209,11 +195,10 @@ module FakeFS
       @mode = mode
       @file = FileSystem.find(path)
       @open = true
-      @stream = StringIO.new(@file.content) if @file
 
-      check_valid_mode
       file_creation_mode? ? create_missing_file : check_file_existence!
-      truncate_file if truncation_mode?
+
+      @stream = StringIO.new(@file.content, mode)
     end
 
     def close
@@ -221,8 +206,6 @@ module FakeFS
     end
 
     def read(chunk = nil)
-      raise IOError, 'closed stream' unless @open
-      raise IOError, 'not opened for reading' if write_only?
       @stream.read(chunk)
     end
 
@@ -231,20 +214,15 @@ module FakeFS
     end
 
     def exists?
-      @file
+      true
     end
 
     def puts(*content)
-      content.flatten.each do |obj|
-        write(obj.to_s + "\n")
-      end
+      @stream.puts(*content)
     end
 
     def write(content)
-      raise IOError, 'closed stream' unless @open
-      raise IOError, 'not open for writing' if read_only?
-
-      @file.content += content
+      @stream.write(content)
     end
     alias_method :print, :write
     alias_method :<<, :write
@@ -259,26 +237,8 @@ module FakeFS
       end
     end
 
-    def check_valid_mode
-      if !mode_in?(MODES)
-        raise ArgumentError, "illegal access mode #{@mode}"
-      end
-    end
-
-    def read_only?
-      mode_in? READ_ONLY_MODES
-    end
-
     def file_creation_mode?
       mode_in? FILE_CREATION_MODES
-    end
-
-    def write_only?
-      mode_in? WRITE_ONLY_MODES
-    end
-
-    def truncation_mode?
-      mode_in? TRUNCATION_MODES
     end
 
     def mode_in?(list)
@@ -289,10 +249,6 @@ module FakeFS
       if !File.exists?(@path)
         @file = FileSystem.add(path, FakeFile.new)
       end
-    end
-
-    def truncate_file
-      @file.content = ""
     end
   end
 end

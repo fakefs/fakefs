@@ -19,6 +19,12 @@ module FakeFS
       def unlink(file)
         links.delete(file)
       end
+
+      def clone
+        clone = super
+        clone.content = content.dup
+        clone
+      end
     end
 
     def initialize(name = nil, parent = nil)
