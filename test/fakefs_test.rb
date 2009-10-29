@@ -397,6 +397,21 @@ class FakeFSTest < Test::Unit::TestCase
     #assert_equal ['/'], Dir['/']
   end
 
+  def test_dir_glob_handles_recursive_globs
+    File.open('/one/two/three/four.rb', 'w')
+    File.open('/one/five.rb', 'w')
+    assert_equal ['/one/five.rb', '/one/two/three/four.rb'], Dir['/one/**/*.rb']
+    assert_equal ['/one/two'], Dir['/one/**/two']
+    assert_equal ['/one/two/three'], Dir['/one/**/three']
+  end
+
+  def test_dir_recursive_glob_ending_in_wildcards_only_returns_files
+    File.open('/one/two/three/four.rb', 'w')
+    File.open('/one/five.rb', 'w')
+    assert_equal ['/one/five.rb', '/one/two/three/four.rb'], Dir['/one/**/*']
+    assert_equal ['/one/five.rb', '/one/two/three/four.rb'], Dir['/one/**']
+  end
+
   def test_chdir_changes_directories_like_a_boss
     # I know memes!
     FileUtils.mkdir_p '/path'

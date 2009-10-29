@@ -106,13 +106,31 @@ module FakeFS
       return [] unless dir.respond_to? :[]
 
       pattern , *parts = parts
-      matches = dir.reject {|k,v| /\A#{pattern.gsub('?','.').gsub('*', '.*')}\Z/ !~ k }.values
+      matches = case pattern
+      when '**'
+        case parts
+        when ['*'], []
+          parts = [] # end recursion
+          directories_under(dir).map do |d|
+            d.values.select{|f| f.is_a? FakeFile }
+          end.flatten.uniq
+        else
+          directories_under(dir)
+        end
+      else
+        dir.reject {|k,v| /\A#{pattern.gsub('?','.').gsub('*', '.*')}\Z/ !~ k }.values
+      end
 
       if parts.empty? # we're done recursing
         matches
       else
         matches.map{|entry| find_recurser(entry, parts) }
       end
+    end
+
+    def directories_under(dir)
+      children = dir.values.select{|f| f.is_a? FakeDir}
+      ([dir] + children + children.map{|c| directories_under(c)}).flatten.uniq
     end
   end
 end
