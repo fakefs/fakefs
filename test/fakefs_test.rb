@@ -1144,6 +1144,59 @@ class FakeFSTest < Test::Unit::TestCase
     assert !File.exists?("/foo")
   end
 
+  def test_file_seek_returns_0
+    File.open("/foo", "w") do |f|
+      f << "one\ntwo\nthree"
+    end
+
+    file = File.open("/foo", "r")
+
+    assert_equal 0, file.seek(1)
+  end
+
+  def test_file_seek_seeks_to_location
+    File.open("/foo", "w") do |f|
+      f << "123"
+    end
+
+    file = File.open("/foo", "r")
+    file.seek(1)
+    assert_equal "23", file.read
+  end
+
+  def test_file_seek_seeks_to_correct_location
+    File.open("/foo", "w") do |f|
+      f << "123"
+    end
+
+    file = File.open("/foo", "r")
+    file.seek(2)
+    assert_equal "3", file.read
+  end
+
+  def test_file_seek_can_take_negative_offset
+    File.open("/foo", "w") do |f|
+      f << "123456789"
+    end
+
+    file = File.open("/foo", "r")
+
+    file.seek(-1, IO::SEEK_END)
+    assert_equal "9", file.read
+
+    file.seek(-2, IO::SEEK_END)
+    assert_equal "89", file.read
+
+    file.seek(-3, IO::SEEK_END)
+    assert_equal "789", file.read
+  end
+
+  def test_should_have_constants_inherited_from_descending_from_io
+    assert_equal IO::SEEK_CUR, File::SEEK_CUR
+    assert_equal IO::SEEK_END, File::SEEK_END
+    assert_equal IO::SEEK_SET, File::SEEK_SET
+  end
+
   def here(fname)
     RealFile.expand_path(RealFile.dirname(__FILE__)+'/'+fname)
   end

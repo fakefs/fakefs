@@ -231,6 +231,10 @@ module FakeFS
 
     def flush; self; end
 
+    def seek(amount, whence = SEEK_SET)
+      @stream.seek(amount, whence)
+    end
+
   private
 
     def check_modes!
