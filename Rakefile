@@ -31,3 +31,16 @@ begin
 rescue LoadError
   puts "sdoc support not enabled. Please gem install sdoc-helpers."
 end
+
+desc "Build a gem"
+task :gem => [ :gemspec, :build ]
+
+desc "Push a new version to Gemcutter"
+task :publish => [ :test, :gemspec, :build ] do
+  system "git tag v#{FakeFS::Version}"
+  system "git push origin v#{FakeFS::Version}"
+  system "git push origin master"
+  system "gem push pkg/fakefs-#{FakeFS::Version}.gem"
+  system "git clean -fd"
+  exec "rake pages"
+end
