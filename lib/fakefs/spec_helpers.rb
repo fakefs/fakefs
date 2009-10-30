@@ -5,8 +5,9 @@
 #
 #   require 'fakefs/safe'
 #   require 'fakefs/spec_helpers'
-#   describe SomeClassThatDealsWithFiles
-#     include FakeFS::SpecHelpers
+#
+#   describe "Some specs that deal with files" do
+#     extend FakeFS::SpecHelpers
 #     use_fakefs
 #     ...
 #   end
@@ -16,6 +17,7 @@
 #
 #   require 'fakefs/safe'
 #   require 'fakefs/spec_helpers'
+#
 #   Spec::Runner.configure do |config|
 #     config.extend FakeFS::SpecHelpers
 #   end
