@@ -13,6 +13,19 @@ module FakeFS
 
     FILE_CREATION_MODES = MODES - [READ_ONLY, READ_WRITE]
 
+    MODE_BITMASK = RealFile::RDONLY   |
+                   RealFile::WRONLY   |
+                   RealFile::RDWR     |
+                   RealFile::APPEND   |
+                   RealFile::CREAT    |
+                   RealFile::EXCL     |
+                   RealFile::NONBLOCK |
+                   RealFile::TRUNC    |
+                   RealFile::NOCTTY   |
+                   RealFile::SYNC
+
+    FILE_CREATION_BITMASK = RealFile::CREAT
+
     def self.extname(path)
       RealFile.extname(path)
     end
@@ -28,8 +41,9 @@ module FakeFS
     class << self
       alias_method :exists?, :exist?
 
-      # Assuming that everyone can read files
+      # Assuming that everyone can read and write files
       alias_method :readable?, :exist?
+      alias_method :writable?, :exist?
     end
 
     def self.mtime(path)
@@ -248,11 +262,15 @@ module FakeFS
     end
 
     def file_creation_mode?
-      mode_in? FILE_CREATION_MODES
+      mode_in?(FILE_CREATION_MODES) || mode_in_bitmask?(FILE_CREATION_BITMASK)
     end
 
     def mode_in?(list)
-      list.any? { |element| @mode.include?(element) }
+      list.any? { |element| @mode.include?(element) } if @mode.respond_to?(:include?)
+    end
+
+    def mode_in_bitmask?(mask)
+      (@mode & mask) != 0 if @mode.is_a?(Integer)
     end
 
     def create_missing_file

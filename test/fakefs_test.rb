@@ -109,12 +109,34 @@ class FakeFSTest < Test::Unit::TestCase
 
     assert File.exists?(path)
     assert File.readable?(path)
+    assert File.writable?(path)
+  end
+
+  def test_can_create_files_with_bitmasks
+    path = '/path/to/file.txt'
+    File.open(path, File::RDWR | File::CREAT) do |f|
+      f.write "Yatta!"
+    end
+
+    assert File.exists?(path)
+    assert File.readable?(path)
+    assert File.writable?(path)
   end
 
   def test_file_opens_in_read_only_mode
     File.open("foo", "w") { |f| f << "foo" }
 
     f = File.open("foo")
+
+    assert_raises(IOError) do
+      f << "bar"
+    end
+  end
+
+  def test_file_opens_in_read_only_mode_with_bitmasks
+    File.open("foo", "w") { |f| f << "foo" }
+
+    f = File.open("foo", File::RDONLY)
 
     assert_raises(IOError) do
       f << "bar"
@@ -144,6 +166,17 @@ class FakeFSTest < Test::Unit::TestCase
   def test_creates_files_in_write_only_mode
     File.open("foo", "w")
     assert File.exists?("foo")
+  end
+
+  def test_creates_files_in_write_only_mode_with_bitmasks
+    File.open("foo", File::WRONLY | File::CREAT)
+    assert File.exists?("foo")
+  end
+
+  def test_raises_in_write_only_mode_without_create_bitmask
+    assert_raises(Errno::ENOENT) do
+      File.open("foo", File::WRONLY)
+    end
   end
 
   def test_creates_files_in_read_write_truncate_mode
