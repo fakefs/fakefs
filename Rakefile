@@ -36,7 +36,8 @@ desc "Build a gem"
 task :gem => [ :gemspec, :build ]
 
 desc "Push a new version to Gemcutter"
-task :publish => [ :test, :gemspec, :build ] do
+task :publish => [ :gemspec, :build ] do
+  abort("Tests failed!") unless system("rake test")
   system "git tag v#{FakeFS::Version}"
   system "git push origin v#{FakeFS::Version}"
   system "git push origin master"
