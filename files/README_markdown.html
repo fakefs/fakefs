@@ -19,7 +19,7 @@
         </h1>
         <ul class="files">
             <li>README.markdown</li>
-            <li>Last modified: Tue Oct 06 21:17:21 -0700 2009</li>
+            <li>Last modified: Wed Oct 28 11:02:19 -0700 2009</li>
         </ul>
     </div>
 
@@ -75,11 +75,23 @@ FakeFS do
 end
 </code></pre>
 
+<h2>RSpec</h2>
+
+<p>The above approach works with RSpec as well. In addition to this you may use the
+'use_fakefs' macro to turn FakeFS on and off in a given example group.  See
+lib/spec_helpers for more details on it's usage.</p>
+
 <h2>How is this different than MockFS?</h2>
 
 <p>FakeFS provides a test suite and works with symlinks. It's also strictly a
 test-time dependency: your actual library does not need to use or know about
 FakeFS.</p>
+
+<h2>Caveats</h2>
+
+<p>FakeFS internally uses the <code>Pathname</code> and <code>FileUtils</code> constants. If you use
+these in your app, be certain you're properly requiring them and not counting
+on FakeFS' own require.</p>
 
 <h2>Speed?</h2>
 
@@ -97,27 +109,11 @@ FakeFS.</p>
 <pre><code>$ rip install git://github.com/defunkt/fakefs.git
 </code></pre>
 
-<h2>Contributors</h2>
-
-<ul>
-<li>Chris Wanstrath</li>
-<li>David Reese</li>
-<li>Jeff Hodges</li>
-<li>Jon Yurek</li>
-<li>Matt Freels</li>
-<li>Myles Eftos</li>
-<li>Pat Nakajima</li>
-<li>Rob Sanheim</li>
-<li>Scott Taylor</li>
-<li>Tymon Tobolski</li>
-<li>msassak</li>
-</ul>
-
-
 <h2>Meta</h2>
 
 <ul>
 <li>Code: <code>git clone git://github.com/defunkt/fakefs.git</code></li>
+<li>Home: <a href="http://github.com/defunkt/fakefs">http://github.com/defunkt/fakefs</a></li>
 <li>Docs: <a href="http://defunkt.github.com/fakefs">http://defunkt.github.com/fakefs</a></li>
 <li>Bugs: <a href="http://github.com/defunkt/fakefs/issues">http://github.com/defunkt/fakefs/issues</a></li>
 <li>List: <a href="http://groups.google.com/group/fakefs">http://groups.google.com/group/fakefs</a></li>

@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <title>FakeFS::SpecHelpers</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="../../css/reset.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="../../css/main.css" type="text/css" media="screen" />
+    <script src="../../js/jquery-1.3.2.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../../js/jquery-effect.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../../js/main.js" type="text/javascript" charset="utf-8"></script>
+</head>
+
+<body>     
+    <div class="banner">
+        <h1>
+            <span class="type">Module</span> 
+            FakeFS::SpecHelpers 
+            
+        </h1>
+        <ul class="files">
+            
+            <li><a href="../../files/lib/fakefs/spec_helpers_rb.html">lib/fakefs/spec_helpers.rb</a></li>
+            
+        </ul>
+    </div>
+    <div id="bodyContent">
+        <div id="content">
+    
+
+    
+
+    
+    
+
+    
+    
+    <div class="sectiontitle">Methods</div>
+    <dl class="methods">
+    
+        <dt>E</dt>
+        <dd>
+            <ul>
+                
+                <li><a href="#M000120">extended</a></li>
+                
+            </ul>
+        </dd>
+    
+        <dt>I</dt>
+        <dd>
+            <ul>
+                
+                <li><a href="#M000121">included</a></li>
+                
+            </ul>
+        </dd>
+    
+        <dt>U</dt>
+        <dd>
+            <ul>
+                
+                <li><a href="#M000124">use_fakefs</a></li>
+                
+            </ul>
+        </dd>
+    
+    </dl>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+            <div class="sectiontitle">Class Public methods</div>
+            
+            <div class="method">
+                <div class="title" id="M000120">
+                    
+                    <a name="M000120"></a><b>extended</b>(example_group)
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000120_source')" id="l_M000120_source">show</a>
+                        
+                        | <a href="http://github.com/defunkt/fakefs/blob/85d4fa117317385f8e2aa5c441b23ff5f84239c3/lib/fakefs/spec_helpers.rb#L27" target="_blank" class="github_url">on GitHub</a>
+                        
+                    </p>
+                    <div id="M000120_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/spec_helpers.rb, line 27</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">extended</span>(<span class="ruby-identifier">example_group</span>)
+      <span class="ruby-identifier">example_group</span>.<span class="ruby-identifier">use_fakefs</span>(<span class="ruby-identifier">example_group</span>)
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="method">
+                <div class="title" id="M000121">
+                    
+                    <a name="M000121"></a><b>included</b>(example_group)
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000121_source')" id="l_M000121_source">show</a>
+                        
+                        | <a href="http://github.com/defunkt/fakefs/blob/85d4fa117317385f8e2aa5c441b23ff5f84239c3/lib/fakefs/spec_helpers.rb#L31" target="_blank" class="github_url">on GitHub</a>
+                        
+                    </p>
+                    <div id="M000121_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/spec_helpers.rb, line 31</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">included</span>(<span class="ruby-identifier">example_group</span>)
+      <span class="ruby-identifier">example_group</span>.<span class="ruby-identifier">extend</span> <span class="ruby-keyword kw">self</span>
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="sectiontitle">Instance Public methods</div>
+            
+            <div class="method">
+                <div class="title" id="M000124">
+                    
+                    <a name="M000124"></a><b>use_fakefs</b>(describe_block)
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000124_source')" id="l_M000124_source">show</a>
+                        
+                        | <a href="http://github.com/defunkt/fakefs/blob/85d4fa117317385f8e2aa5c441b23ff5f84239c3/lib/fakefs/spec_helpers.rb#L35" target="_blank" class="github_url">on GitHub</a>
+                        
+                    </p>
+                    <div id="M000124_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/spec_helpers.rb, line 35</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">use_fakefs</span>(<span class="ruby-identifier">describe_block</span>)
+      <span class="ruby-identifier">describe_block</span>.<span class="ruby-identifier">before</span> <span class="ruby-identifier">:each</span> <span class="ruby-keyword kw">do</span>
+        <span class="ruby-constant">FakeFS</span>.<span class="ruby-identifier">activate!</span>
+      <span class="ruby-keyword kw">end</span>
+
+      <span class="ruby-identifier">describe_block</span>.<span class="ruby-identifier">after</span> <span class="ruby-identifier">:each</span> <span class="ruby-keyword kw">do</span>
+        <span class="ruby-constant">FakeFS</span>.<span class="ruby-identifier">deactivate!</span>
+        <span class="ruby-constant">FakeFS</span><span class="ruby-operator">::</span><span class="ruby-constant">FileSystem</span>.<span class="ruby-identifier">clear</span>
+      <span class="ruby-keyword kw">end</span>
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+</div>
+    </div>
+  </body>
+</html>    
