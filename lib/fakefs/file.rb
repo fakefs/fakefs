@@ -253,6 +253,11 @@ module FakeFS
       @stream.pos
     end
 
+    def pos=(pos)
+      @stream.pos=(pos)
+    end
+    alias_method :tell=, :pos=
+
   private
 
     def check_modes!

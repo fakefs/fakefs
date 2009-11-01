@@ -465,6 +465,28 @@ class FakeFSTest < Test::Unit::TestCase
     end
   end
 
+  def test_should_set_pos
+    File.open("/foo", "w") do |f|
+      f << "foo"
+    end
+
+    fp = File.open("/foo", "r")
+    fp.pos = 1
+
+    assert_equal 1, fp.pos
+  end
+
+  def test_should_set_pos_with_tell_method
+    File.open("/foo", "w") do |f|
+      f << "foo"
+    end
+
+    fp = File.open("/foo", "r")
+    fp.tell = 1
+
+    assert_equal 1, fp.pos
+  end
+
   def test_chdir_changes_directories_like_a_boss
     # I know memes!
     FileUtils.mkdir_p '/path'
