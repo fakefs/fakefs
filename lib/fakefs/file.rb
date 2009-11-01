@@ -1,5 +1,5 @@
 module FakeFS
-  class File
+  class File < StringIO
     PATH_SEPARATOR = '/'
 
     MODES = [
@@ -214,48 +214,19 @@ module FakeFS
 
       file_creation_mode? ? create_missing_file : check_file_existence!
 
-      @stream = StringIO.new(@file.content, mode)
+      super(@file.content, mode)
     end
 
     def close
       @open = false
     end
 
-    def read(chunk = nil)
-      @stream.read(chunk)
-    end
-
-    def rewind
-      @stream.rewind
-    end
-
     def exists?
       true
     end
 
-    def puts(*content)
-      @stream.puts(*content)
-    end
-
-    def write(content)
-      @stream.write(content)
-    end
-    alias_method :print, :write
-    alias_method :<<, :write
-
     def flush; self; end
 
-    def seek(amount, whence = SEEK_SET)
-      @stream.seek(amount, whence)
-    end
-
-    def pos
-      @stream.pos
-    end
-
-    def pos=(pos)
-      @stream.pos=(pos)
-    end
     alias_method :tell=, :pos=
 
   private
