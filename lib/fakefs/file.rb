@@ -249,6 +249,10 @@ module FakeFS
       @stream.seek(amount, whence)
     end
 
+    def pos
+      @stream.pos
+    end
+
   private
 
     def check_modes!

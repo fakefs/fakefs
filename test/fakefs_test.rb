@@ -445,6 +445,26 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal ['/one/five.rb', '/one/two/three/four.rb'], Dir['/one/**']
   end
 
+  def test_should_report_pos_as_0_when_opening
+    File.open("/foo", "w") do |f|
+      f << "foobar"
+      f.rewind
+
+      assert_equal 0, f.pos
+    end
+  end
+
+  def test_should_report_pos_as_1_when_seeking_one_char
+    File.open("/foo", "w") do |f|
+      f << "foobar"
+
+      f.rewind
+      f.seek(1)
+
+      assert_equal 1, f.pos
+    end
+  end
+
   def test_chdir_changes_directories_like_a_boss
     # I know memes!
     FileUtils.mkdir_p '/path'
