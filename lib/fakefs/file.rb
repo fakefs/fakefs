@@ -229,6 +229,66 @@ module FakeFS
 
     alias_method :tell=, :pos=
 
+    def ioctl(integer_cmd, arg)
+      raise NotImplementedError
+    end
+
+    def read_nonblock(maxlen, outbuf = nil)
+      raise NotImplementedError
+    end
+
+    def stat
+      raise NotImplementedError
+    end
+
+    def sysseek(offset, whence = SEEK_SET)
+      raise NotImplementedError
+    end
+
+    def to_i
+      raise NotImplementedError
+    end
+
+    def to_io
+      raise NotImplementedError
+    end
+
+    def write_nonblock(string)
+      raise NotImplementedError
+    end
+
+    def readpartial(maxlen, outbuf = nil)
+      raise NotImplementedError
+    end
+
+    def atime
+      raise NotImplementedError
+    end
+
+    def chmod(mode_int)
+      raise NotImplementedError
+    end
+
+    def chown(owner_int, group_int)
+      raise NotImplementedError
+    end
+
+    def ctime
+      raise NotImplementedError
+    end
+
+    def flock(locking_constant)
+      raise NotImplementedError
+    end
+
+    def lstat
+      raise NotImplementedError
+    end
+
+    def mtime
+      raise NotImplementedError
+    end
+
   private
 
     def check_modes!

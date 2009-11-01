@@ -487,6 +487,12 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal 1, fp.pos
   end
 
+  RealFile.instance_methods.each do |method_name|
+    define_method "test_should_have_method_#{method_name}_from_io_class" do
+      assert File.instance_methods.include?(method_name)
+    end
+  end
+
   def test_chdir_changes_directories_like_a_boss
     # I know memes!
     FileUtils.mkdir_p '/path'
