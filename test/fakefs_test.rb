@@ -487,10 +487,25 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal 1, fp.pos
   end
 
+  # Every method in File is in FakeFS::File
   RealFile.instance_methods.each do |method_name|
     define_method "test_should_have_method_#{method_name}_from_io_class" do
       assert File.instance_methods.include?(method_name)
     end
+  end
+
+  # No methods which are in StringIO that aren't in File are included into
+  # FakeFS::File (because of inheritence)
+  uniq_string_io_methods = StringIO.instance_methods - RealFile.instance_methods
+  uniq_string_io_methods.each do |method_name|
+    define_method "test_file_should_not_respond_to_#{method_name}" do
+      assert !File.instance_methods.include?(method_name)
+    end
+  end
+
+  def test_does_not_remove_methods_from_stringio
+    stringio = StringIO.new("foo")
+    assert stringio.respond_to?(:size)
   end
 
   def test_chdir_changes_directories_like_a_boss

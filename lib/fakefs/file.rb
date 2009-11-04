@@ -229,6 +229,13 @@ module FakeFS
 
     alias_method :tell=, :pos=
 
+    undef_method :closed_read?
+    undef_method :closed_write?
+    undef_method :length
+    undef_method :size
+    undef_method :string
+    undef_method :string=
+
     def ioctl(integer_cmd, arg)
       raise NotImplementedError
     end
