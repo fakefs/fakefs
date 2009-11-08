@@ -369,6 +369,11 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal f, f.to_io
   end
 
+  def test_File_to_i_is_alias_for_filno
+    f = File.open("/foo", "w")
+    assert_equal f.method(:to_i), f.method(:fileno)
+  end
+
   def test_knows_symlink_files_are_files
     path = '/path/to/file.txt'
     File.open(path, 'w') do |f|

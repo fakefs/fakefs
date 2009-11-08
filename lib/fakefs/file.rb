@@ -237,9 +237,7 @@ module FakeFS
       raise NotImplementedError
     end
 
-    def to_i
-      raise NotImplementedError
-    end
+    alias_method :to_i, :fileno
 
     def to_io
       self
