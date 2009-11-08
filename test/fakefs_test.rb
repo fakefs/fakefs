@@ -288,7 +288,7 @@ class FakeFSTest < Test::Unit::TestCase
     assert_nil File.size?("/path/to/other.txt")
   end
 
-  def test_can_check_size?_of_empty_file
+  def test_can_check_size_of_empty_file
     path = '/path/to/file.txt'
     File.open(path, 'w') do |f|
       f << ''
