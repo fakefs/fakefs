@@ -509,7 +509,7 @@ class FakeFSTest < Test::Unit::TestCase
 
   # Every method in File is in FakeFS::File
   RealFile.instance_methods.each do |method_name|
-    define_method "test_should_have_method_#{method_name}_from_io_class" do
+    define_method "test_should_have_method_#{method_name}_from_real_file_class" do
       assert File.instance_methods.include?(method_name)
     end
   end
