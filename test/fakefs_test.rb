@@ -24,7 +24,7 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.mkdir_p("/path/to/dir")
     assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']
   end
-  
+
   def test_can_create_directories_with_mkpath
     FileUtils.mkpath("/path/to/dir")
     assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']
@@ -74,14 +74,14 @@ class FakeFSTest < Test::Unit::TestCase
       FileUtils.ln_s(target, '/path/to/link')
     end
   end
-  
+
   def test_can_force_creation_of_symlinks
     FileUtils.mkdir_p(target = "/path/to/first/target")
     FileUtils.ln_s(target, "/path/to/link")
     assert_kind_of FakeSymlink, FileSystem.fs['path']['to']['link']
     FileUtils.ln_s(target, '/path/to/link', :force => true)
   end
-  
+
   def test_create_symlink_using_ln_sf
     FileUtils.mkdir_p(target = "/path/to/first/target")
     FileUtils.ln_s(target, "/path/to/link")
@@ -1126,38 +1126,38 @@ class FakeFSTest < Test::Unit::TestCase
   def test_tmpdir
     assert Dir.tmpdir == "/tmp"
   end
-  
+
   def test_hard_link_creates_file
     FileUtils.touch("/foo")
-    
+
     File.link("/foo", "/bar")
     assert File.exists?("/bar")
   end
-  
+
   def test_hard_link_with_missing_file_raises_error
     assert_raises(Errno::ENOENT) do
       File.link("/foo", "/bar")
     end
   end
-  
+
   def test_hard_link_with_existing_destination_file
     FileUtils.touch("/foo")
     FileUtils.touch("/bar")
-    
+
     assert_raises(Errno::EEXIST) do
       File.link("/foo", "/bar")
     end
   end
-  
+
   def test_hard_link_returns_0_when_successful
     FileUtils.touch("/foo")
-    
+
     assert_equal 0, File.link("/foo", "/bar")
   end
-  
+
   def test_hard_link_returns_duplicate_file
     File.open("/foo", "w") { |x| x << "some content" }
-    
+
     File.link("/foo", "/bar")
     assert_equal "some content", File.read("/bar")
   end

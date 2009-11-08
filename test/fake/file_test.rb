@@ -7,7 +7,7 @@ class FakeFileTest < Test::Unit::TestCase
 
   def setup
     FileSystem.clear
-    
+
     @file = FakeFile.new
   end
 
@@ -43,9 +43,9 @@ class FakeFileTest < Test::Unit::TestCase
 
   def test_links_are_mutual
     other_file = FakeFile.new
-  
+
     @file.link(other_file)
-  
+
     assert_equal [@file, other_file], other_file.links
   end
 

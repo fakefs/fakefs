@@ -24,7 +24,7 @@ module FakeFS
     end
 
   private
-    
+
     def method_missing(*args, &block)
       entry.send(*args, &block)
     end

@@ -37,11 +37,11 @@ Don't Fake the FS Immediately
 -----------------------------
 
     require 'fakefs/safe'
-    
+
     FakeFS.activate!
     # your code
     FakeFS.deactivate!
-    
+
     # or
     FakeFS do
       # your code
