@@ -200,7 +200,6 @@ module FakeFS
       @path = path
       @mode = mode
       @file = FileSystem.find(path)
-      @open = true
 
       check_modes!
 
