@@ -113,14 +113,6 @@ module FakeFS
       FileSystem.find(symlink.target).to_s
     end
 
-    def self.open(path, mode=READ_ONLY, perm = 0644)
-      if block_given?
-        yield new(path, mode, perm)
-      else
-        new(path, mode, perm)
-      end
-    end
-
     def self.read(path)
       file = new(path)
       if file.exists?
