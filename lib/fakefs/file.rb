@@ -242,7 +242,7 @@ module FakeFS
     end
 
     def to_io
-      raise NotImplementedError
+      self
     end
 
     def write_nonblock(string)

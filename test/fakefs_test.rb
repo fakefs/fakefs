@@ -364,6 +364,11 @@ class FakeFSTest < Test::Unit::TestCase
     assert File.file?(path)
   end
 
+  def test_File_io_returns_self
+    f = File.open("/foo", "w")
+    assert_equal f, f.to_io
+  end
+
   def test_knows_symlink_files_are_files
     path = '/path/to/file.txt'
     File.open(path, 'w') do |f|
