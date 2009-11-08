@@ -217,10 +217,6 @@ module FakeFS
       super(@file.content, mode)
     end
 
-    def close
-      @open = false
-    end
-
     def exists?
       true
     end

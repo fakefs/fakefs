@@ -330,6 +330,16 @@ class FakeFSTest < Test::Unit::TestCase
     end
   end
 
+  def test_File_close_disallows_further_writes
+    path = '/path/to/file.txt'
+    file = File.open(path, 'w')
+    file.write 'Yada'
+    file.close
+    assert_raise IOError do
+      file << "foo"
+    end
+  end
+
   def test_can_read_from_file_objects
     path = '/path/to/file.txt'
     File.open(path, 'w') do |f|
