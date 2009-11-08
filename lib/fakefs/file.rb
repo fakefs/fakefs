@@ -221,8 +221,6 @@ module FakeFS
       true
     end
 
-    def flush; self; end
-
     alias_method :tell=, :pos=
 
     undef_method :closed_read?
