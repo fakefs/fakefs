@@ -86,7 +86,43 @@ module FakeFsTester
       
   end
 
+  def raise_assertion_failure(message, location)
+    begin
+      flunk message
+    rescue Exception => e
+      p e.class
+      # new_bt = Test::Unit::Util::BacktraceFilter.filter_backtrace(e.backtrace)
+      e.set_backtrace(location)
+      raise e
+    end
+  end
+
   def compare_fileystem_checks(expected_fschecks, actual_fschecks)
+    missing_checks = expected_fschecks.keys - actual_fschecks.keys
+    unless (missing_checks.empty?)
+      missing_checks.each do |check|
+        msg = "the check at the given location wasn't performed in the fake filesystem"
+        check_count = check.check_count(missing_checks)
+        msg += " (#{check_count} at this location)" if check_count > 1
+        raise_assertion_failure(msg, check.location)
+      end
+    end
+    extra_checks = expected_fschecks.keys - actual_fschecks.keys
+    unless (extra_checks.empty?)
+      missing_checks.each do |check|
+        msg = <<-EOF
+        the check at the given location was performed in the fake filesystem,
+        but not the real file system
+        EOF
+        check_count = check.check_count(missing_checks)
+        msg += " (#{check_count} at this location)" if check_count > 1
+        raise_assertion_failure(msg, check.location)
+      end
+    end
+    expected_fschecks.keys.sort.each do |fscheck_info|
+      flunk "can't remember what to do here TODO"
+    end
+      
     assert_equal(expected_fschecks.size, actual_fschecks.size)
     assert_equal(expected_fschecks.keys, actual_fschecks.keys)
 
@@ -99,7 +135,7 @@ module FakeFsTester
   def compare_filesystems(expected_fs, actual_fs, location_info)
     # puts expected_fs.inspect_tree
     # puts actual_fs.inspect_tree
-    # todo fix assertions to through error at right spot
+    # todo fix assertions to throw error at right spot
     assert_equal(expected_fs.name, actual_fs.name)
     assert_equal(expected_fs.size, actual_fs.size)
 
@@ -121,6 +157,8 @@ module FakeFsTester
       @base_path = base_path
       @filesystem_checks = {}
       @value_checks = {}
+      @filesystem_check_count = 0
+      @value_check_count = 0
     end
     attr_accessor :filesystem_checks, :value_checks
     def check_filesystem
@@ -132,13 +170,45 @@ module FakeFsTester
         FakeFS::FileSystem.clear
       end
 
-      @filesystem_checks[caller()[0]] = new_value
+      check_info = CheckInfo.new(@filesystem_check_count, caller()[0])
+      @filesystem_check_count += 1
+      @filesystem_checks[check_info] = new_value
     end
 
     def check_value(value)
-      @value_checks[caller()[0]] = value
+      check_info = CheckInfo.new(@value_check_count, caller()[0])
+      @value_check_count += 1
+
+      @value_checks[check_info] = value
     end
 
+  end
+
+  class CheckInfo
+    include Comparable
+    def <=>(other)
+      number <=> other.number
+    end
+
+    def hash()
+      number.hash
+    end
+    
+    def eql?(other)
+      self == other
+    end
+
+    def initialize(number, location)
+      @number, @location = number, location
+    end
+
+    # counts the number of times a check at the same location
+    # as this check appears in the other_check_array
+    def check_count(other_check_array)
+      other_check_array.select {|c| c.location == location}.length
+    end
+      
+    attr_accessor :location, :number
   end
     
 
@@ -147,13 +217,10 @@ end
 class AutoTests < Test::Unit::TestCase
   include FakeFsTester
 
-  def initialize()
-  end
-  
-  def f
+  def test_should_fail
     compare_with_real do |path|
       check_filesystem
-      Dir.mkdir(path + "somedir1") # + rand().to_s)
+      Dir.mkdir(path + "somedir1" + rand().to_s)
       Dir.mkdir(path + "somedir")
       Dir.mkdir(path + "somedir/lol")
       check_filesystem
@@ -164,4 +231,4 @@ class AutoTests < Test::Unit::TestCase
 
 end
 
-$a = AutoTests.new
+# $a = AutoTests.new
