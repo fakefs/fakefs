@@ -42,50 +42,45 @@ module FakeFsTester
     pathname = Pathname.new(test_path)
     
     if pathname.exist? 
-      p "REMOVING STUFF"
       pathname.rmtree
     end
     Dir.mkdir(test_path)
     real_test = AutoTestObject.new(:real, test_path)
     fake_test = AutoTestObject.new(:fake, test_path)
 
-
+    # firstly execute the code in the fake file system
+    # this is done in a thread so that SAFE can be set
+    # without it leaking into the rest of the program
     FakeFS::FileSystem.clone(test_path)
-
     thread = Thread.new do
       # TODO: this should be enabled or be an option
       # $SAFE = 3
       FakeFS do
         fake_test.instance_exec(test_path, &block)
-        Dir.mkdir(test_path + "/lol")
       end
-      p "here"
     end
-    
     thread.join
+
+    # clear the filesystem ready for the real run 
     FakeFS::FileSystem.clear
-      
     pathname.rmdir
     Dir.mkdir(test_path)
 
     real_test.instance_exec(test_path, &block)
 
-    p "real_test: #{real_test.inspect}"
-    p "fake_test: #{fake_test.inspect}"
-    
-
     compare_fileystem_checks(real_test.filesystem_checks,
                              fake_test.filesystem_checks)
-                             
-      
-
     
     if real_test.value_checks != fake_test.value_checks
-      flunk "this is bad value"
+      
     end
       
   end
 
+  # creates an assertion failure with the given message, as if it
+  # was created at the given location.
+  # Example: 
+  #   raise_assertion-failure("values not equal", "auto_test.rb:18")
   def raise_assertion_failure(message, location)
     begin
       flunk message
@@ -118,9 +113,6 @@ module FakeFsTester
         msg += " (#{check_count} at this location)" if check_count > 1
         raise_assertion_failure(msg, check.location)
       end
-    end
-    expected_fschecks.keys.sort.each do |fscheck_info|
-      flunk "can't remember what to do here TODO"
     end
       
     assert_equal(expected_fschecks.size, actual_fschecks.size)
