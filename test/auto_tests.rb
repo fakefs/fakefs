@@ -70,11 +70,10 @@ module FakeFsTester
 
     compare_fileystem_checks(real_test.filesystem_checks,
                              fake_test.filesystem_checks)
+
+    compare_value_checks(real_test.value_checks,
+                         fake_test.value_checks)
     
-    if real_test.value_checks != fake_test.value_checks
-      
-    end
-      
   end
 
   # creates an assertion failure with the given message, as if it
@@ -85,57 +84,81 @@ module FakeFsTester
     begin
       flunk message
     rescue Exception => e
-      p e.class
       # new_bt = Test::Unit::Util::BacktraceFilter.filter_backtrace(e.backtrace)
-      e.set_backtrace(location)
+      e.set_backtrace([location])
       raise e
     end
   end
 
-  def compare_fileystem_checks(expected_fschecks, actual_fschecks)
-    missing_checks = expected_fschecks.keys - actual_fschecks.keys
-    unless (missing_checks.empty?)
-      missing_checks.each do |check|
-        msg = "the check at the given location wasn't performed in the fake filesystem"
-        check_count = check.check_count(missing_checks)
-        msg += " (#{check_count} at this location)" if check_count > 1
-        raise_assertion_failure(msg, check.location)
-      end
+  def assert_equal_at(location, expected, actual, msg="")
+    begin
+      assert_equal(expected, actual, msg)
+    rescue Exception => e
+      # new_bt = Test::Unit::Util::BacktraceFilter.filter_backtrace(e.backtrace)
+      e.set_backtrace([location])
+      raise e
     end
-    extra_checks = expected_fschecks.keys - actual_fschecks.keys
-    unless (extra_checks.empty?)
-      missing_checks.each do |check|
-        msg = <<-EOF
-        the check at the given location was performed in the fake filesystem,
-        but not the real file system
-        EOF
-        check_count = check.check_count(missing_checks)
-        msg += " (#{check_count} at this location)" if check_count > 1
-        raise_assertion_failure(msg, check.location)
+  end
+    
+  def compare_value_checks(expected_values, actual_values)
+    expected_values.keys.each do |check_loc|
+      unless actual_values.has_key? check_loc
+        msg = "The value check at #{check_loc} wasn't performed"
+        raise_assertion_failure(msg, check_loc)
       end
+      assert_equal_at(check_loc,
+                      expected_values[check_loc],
+                      actual_values[check_loc])
     end
-      
-    assert_equal(expected_fschecks.size, actual_fschecks.size)
-    assert_equal(expected_fschecks.keys, actual_fschecks.keys)
+  end
+    
 
-    expected_fschecks.keys.each do |key|
-      compare_filesystems(expected_fschecks[key], actual_fschecks[key],
-                          key)
+  def compare_fileystem_checks(expected_fschecks, actual_fschecks)
+    expected_fschecks.keys.each do |check_loc|
+      unless actual_fschecks.has_key? check_loc
+        msg = "The filesystem check at #{check_loc} wasn't performed"
+        raise_assertion_failure(msg, check_loc)
+      end
+      compare_filesystems("/", check_loc,
+                          expected_fschecks[check_loc],
+                          actual_fschecks[check_loc])
     end
   end
 
-  def compare_filesystems(expected_fs, actual_fs, location_info)
+  def compare_filesystems(curr_dir, location, expected_fs, actual_fs)
     # puts expected_fs.inspect_tree
     # puts actual_fs.inspect_tree
     # todo fix assertions to throw error at right spot
-    assert_equal(expected_fs.name, actual_fs.name)
-    assert_equal(expected_fs.size, actual_fs.size)
+    assert_equal_at(location, expected_fs.name, actual_fs.name)
+    assert_equal_at(location, expected_fs.size, actual_fs.size)
 
-    assert_equal(expected_fs.keys.sort, actual_fs.keys.sort)
+    assert_equal_at(location, expected_fs.keys.sort, actual_fs.keys.sort,
+                    "directory entries for #{curr_dir} not equal")
     
     expected_fs.keys.each do |name|
-      compare_filesystems(expected_fs[name], actual_fs[name], location_info)
+      new_path = "#{curr_dir}#{name}"
+      expected_entry = expected_fs[name]
+      actual_entry = actual_fs[name]
+      assert_equal_at(location, expected_entry.class, actual_entry.class,
+                      "Filesystem object #{new_path} wrong type")
+      case expected_entry
+      when FakeFS::FakeDir
+        compare_filesystems("#{new_path}/", location, expected_entry, actual_entry)
+      when FakeFS::FakeFile
+        compare_file(new_path, location, expected_entry, actual_entry)
+      when FakeFS::FakeSymlink
+        compare_symlink(new_path, location, expected_entry, actual_entry)
+      end
     end
+  end
+
+  def compare_file(path, location, expected_file, actual_file)
+    assert_equal_at(location, expected_file.content, actual_file.content,
+                    "The content of the file #{path} is different")
+    assert_equal_at(location, expected_file.mtime, actual_file.mtime,
+                    "The mtime of the file #{path} is different")
+    assert_equal_at(location, expected_file.links, actual_file.links,
+                    "The links of the file #{path} is different")
   end
 
     
@@ -149,10 +172,10 @@ module FakeFsTester
       @base_path = base_path
       @filesystem_checks = {}
       @value_checks = {}
-      @filesystem_check_count = 0
-      @value_check_count = 0
     end
+
     attr_accessor :filesystem_checks, :value_checks
+
     def check_filesystem
       if @mode == :fake
         new_value = FakeFS::FileSystem.fs.clone
@@ -162,47 +185,14 @@ module FakeFsTester
         FakeFS::FileSystem.clear
       end
 
-      check_info = CheckInfo.new(@filesystem_check_count, caller()[0])
-      @filesystem_check_count += 1
-      @filesystem_checks[check_info] = new_value
+      @filesystem_checks[caller()[0]] = new_value
     end
 
     def check_value(value)
-      check_info = CheckInfo.new(@value_check_count, caller()[0])
-      @value_check_count += 1
-
-      @value_checks[check_info] = value
+      @value_checks[caller()[0]] = value
     end
 
   end
-
-  class CheckInfo
-    include Comparable
-    def <=>(other)
-      number <=> other.number
-    end
-
-    def hash()
-      number.hash
-    end
-    
-    def eql?(other)
-      self == other
-    end
-
-    def initialize(number, location)
-      @number, @location = number, location
-    end
-
-    # counts the number of times a check at the same location
-    # as this check appears in the other_check_array
-    def check_count(other_check_array)
-      other_check_array.select {|c| c.location == location}.length
-    end
-      
-    attr_accessor :location, :number
-  end
-    
 
 end
 
@@ -212,9 +202,12 @@ class AutoTests < Test::Unit::TestCase
   def test_should_fail
     compare_with_real do |path|
       check_filesystem
-      Dir.mkdir(path + "somedir1" + rand().to_s)
+      # Dir.mkdir(path + "somedir1" + rand().to_s)
       Dir.mkdir(path + "somedir")
       Dir.mkdir(path + "somedir/lol")
+      file = File.open("#{path}somedir/afile", "w")
+      file.write "hello world"
+      file.close
       check_filesystem
       check_value "this"
       # check_value Dir.entries(path)
