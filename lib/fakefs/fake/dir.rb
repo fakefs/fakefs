@@ -46,7 +46,7 @@ module FakeFS
     end
 
     def inspect_tree
-      output_tree_helper(0)
+      inspect_tree_helper(0)
     end
 
     def inspect_tree_helper(indent = 0)
@@ -55,7 +55,7 @@ module FakeFS
       self.values.each do |value|
         case value 
         when FakeDir
-          result += "\n#{in_s}  " + value.output_tree_helper(indent + 2)
+          result += "\n#{in_s}  " + value.inspect_tree_helper(indent + 2)
         when FakeFile
           result += "\n#{in_s}  " + value.name
         when FakeSymlink
