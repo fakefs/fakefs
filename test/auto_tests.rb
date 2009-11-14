@@ -25,8 +25,9 @@ module FakeFsTester
   # this amount (in seconds), then the change won't be reported as an error. This is useful for longer
   # running tests, since the clock may change in the time it takes to run the test.
   # Defaults to 1.
-  # test_time: <bool>:
-  # Whether to test mod/access/change times at all. Defaults to true.
+  #
+  # ignore_time: <bool>:
+  # Whether to ignore mod/access/change times for testing. Defaults to false.
   #
   # Example Usage:
   # compare_with_real(time_measurement_tolerance: 2) do |path|
@@ -39,126 +40,154 @@ module FakeFsTester
   # 
   def compare_with_real(options = {}, &block)
     test_path = "/tmp/autotest-dir/"
-    pathname = Pathname.new(test_path)
-    
-    if pathname.exist? 
-      pathname.rmtree
-    end
-    Dir.mkdir(test_path)
-    real_test = AutoTestObject.new(:real, test_path)
-    fake_test = AutoTestObject.new(:fake, test_path)
+    comparer = CompareWithRealRunner.new(test_path, options)
+    comparer.tester = self
+    comparer.run_compare(&block)
+  end
 
-    # firstly execute the code in the fake file system
-    # this is done in a thread so that SAFE can be set
-    # without it leaking into the rest of the program
-    FakeFS::FileSystem.clone(test_path)
-    thread = Thread.new do
-      # TODO: this should be enabled or be an option
-      # $SAFE = 3
-      FakeFS do
-        fake_test.instance_exec(test_path, &block)
+  # whether tests run with compare_with_real should be run
+  # with $SAFE=3 for the fakefs test. This can detect whether 
+  # the fakefs code is accidently touching the real file system (since
+  # this will trigger a SecurityError with $SAFE = 3)
+  # Defaults to false, as this doesn't work at all yet
+  $run_tests_with_safe3 = false
+
+  class CompareWithRealRunner
+
+    attr_accessor :tester
+
+    def initialize(test_path, options = {})
+      @test_path = test_path
+      @time_measurement_tolerance = options[:time_measurement_tolerance] || 1
+      @ignore_time = options[:ignore_time]
+    end
+
+    def run_compare(&block)
+      pathname = Pathname.new(@test_path)
+      
+      if pathname.exist? 
+        pathname.rmtree
+      end
+      Dir.mkdir(@test_path)
+      real_test = AutoTestObject.new(:real, @test_path)
+      fake_test = AutoTestObject.new(:fake, @test_path)
+
+      # firstly execute the code in the fake file system
+      # this is done in a thread so that SAFE can be set
+      # without it leaking into the rest of the program
+      FakeFS::FileSystem.clone(@test_path)
+      thread = Thread.new do
+        # TODO: this should be enabled or be an option
+        $SAFE = 3 if $run_tests_with_safe3
+        FakeFS do
+          fake_test.instance_exec(@test_path, &block)
+        end
+      end
+      thread.join
+
+      # clear the filesystem ready for the real run 
+      FakeFS::FileSystem.clear
+      pathname.rmdir
+      Dir.mkdir(@test_path)
+
+      real_test.instance_exec(@test_path, &block)
+
+      compare_fileystem_checks(real_test.filesystem_checks,
+                               fake_test.filesystem_checks)
+
+      compare_value_checks(real_test.value_checks,
+                           fake_test.value_checks)
+    end
+
+    # creates an assertion failure with the given message, as if it
+    # was created at the given location.
+    # Example: 
+    #   raise_assertion-failure("values not equal", "auto_test.rb:18")
+    def raise_assertion_failure(message, location)
+      begin
+        tester.flunk message
+      rescue Exception => e
+        # new_bt = Test::Unit::Util::BacktraceFilter.filter_backtrace(e.backtrace)
+        e.set_backtrace([location])
+        raise e
       end
     end
-    thread.join
 
-    # clear the filesystem ready for the real run 
-    FakeFS::FileSystem.clear
-    pathname.rmdir
-    Dir.mkdir(test_path)
-
-    real_test.instance_exec(test_path, &block)
-
-    compare_fileystem_checks(real_test.filesystem_checks,
-                             fake_test.filesystem_checks)
-
-    compare_value_checks(real_test.value_checks,
-                         fake_test.value_checks)
-    
-  end
-
-  # creates an assertion failure with the given message, as if it
-  # was created at the given location.
-  # Example: 
-  #   raise_assertion-failure("values not equal", "auto_test.rb:18")
-  def raise_assertion_failure(message, location)
-    begin
-      flunk message
-    rescue Exception => e
-      # new_bt = Test::Unit::Util::BacktraceFilter.filter_backtrace(e.backtrace)
-      e.set_backtrace([location])
-      raise e
-    end
-  end
-
-  def assert_equal_at(location, expected, actual, msg="")
-    begin
-      assert_equal(expected, actual, msg)
-    rescue Exception => e
-      # new_bt = Test::Unit::Util::BacktraceFilter.filter_backtrace(e.backtrace)
-      e.set_backtrace([location])
-      raise e
-    end
-  end
-    
-  def compare_value_checks(expected_values, actual_values)
-    expected_values.keys.each do |check_loc|
-      unless actual_values.has_key? check_loc
-        msg = "The value check at #{check_loc} wasn't performed"
-        raise_assertion_failure(msg, check_loc)
-      end
-      assert_equal_at(check_loc,
-                      expected_values[check_loc],
-                      actual_values[check_loc])
-    end
-  end
-    
-
-  def compare_fileystem_checks(expected_fschecks, actual_fschecks)
-    expected_fschecks.keys.each do |check_loc|
-      unless actual_fschecks.has_key? check_loc
-        msg = "The filesystem check at #{check_loc} wasn't performed"
-        raise_assertion_failure(msg, check_loc)
-      end
-      compare_filesystems("/", check_loc,
-                          expected_fschecks[check_loc],
-                          actual_fschecks[check_loc])
-    end
-  end
-
-  def compare_filesystems(curr_dir, location, expected_fs, actual_fs)
-    # puts expected_fs.inspect_tree
-    # puts actual_fs.inspect_tree
-    # todo fix assertions to throw error at right spot
-    assert_equal_at(location, expected_fs.name, actual_fs.name)
-    assert_equal_at(location, expected_fs.size, actual_fs.size)
-
-    assert_equal_at(location, expected_fs.keys.sort, actual_fs.keys.sort,
-                    "directory entries for #{curr_dir} not equal")
-    
-    expected_fs.keys.each do |name|
-      new_path = "#{curr_dir}#{name}"
-      expected_entry = expected_fs[name]
-      actual_entry = actual_fs[name]
-      assert_equal_at(location, expected_entry.class, actual_entry.class,
-                      "Filesystem object #{new_path} wrong type")
-      case expected_entry
-      when FakeFS::FakeDir
-        compare_filesystems("#{new_path}/", location, expected_entry, actual_entry)
-      when FakeFS::FakeFile
-        compare_file(new_path, location, expected_entry, actual_entry)
-      when FakeFS::FakeSymlink
-        compare_symlink(new_path, location, expected_entry, actual_entry)
+    def assert_equal_at(location, expected, actual, msg="")
+      begin
+        tester.assert_equal(expected, actual, msg)
+      rescue Exception => e
+        # new_bt = Test::Unit::Util::BacktraceFilter.filter_backtrace(e.backtrace)
+        e.set_backtrace([location])
+        raise e
       end
     end
-  end
+    
+    def compare_value_checks(expected_values, actual_values)
+      expected_values.keys.each do |check_loc|
+        unless actual_values.has_key? check_loc
+          msg = "The value check at #{check_loc} wasn't performed"
+          raise_assertion_failure(msg, check_loc)
+        end
+        assert_equal_at(check_loc,
+                        expected_values[check_loc],
+                        actual_values[check_loc])
+      end
+    end
+    
 
-  def compare_file(path, location, expected_file, actual_file)
-    assert_equal_at(location, expected_file.content, actual_file.content,
-                    "The content of the file #{path} is different")
-    assert_equal_at(location, expected_file.mtime, actual_file.mtime,
-                    "The mtime of the file #{path} is different")
-    assert_equal_at(location, expected_file.links, actual_file.links,
-                    "The links of the file #{path} is different")
+    def compare_fileystem_checks(expected_fschecks, actual_fschecks)
+      expected_fschecks.keys.each do |check_loc|
+        unless actual_fschecks.has_key? check_loc
+          msg = "The filesystem check at #{check_loc} wasn't performed"
+          raise_assertion_failure(msg, check_loc)
+        end
+        compare_filesystems("/", check_loc,
+                            expected_fschecks[check_loc],
+                            actual_fschecks[check_loc])
+      end
+    end
+
+    def compare_filesystems(curr_dir, location, expected_fs, actual_fs)
+      # puts expected_fs.inspect_tree
+      # puts actual_fs.inspect_tree
+      # todo fix assertions to throw error at right spot
+      assert_equal_at(location, expected_fs.name, actual_fs.name)
+      assert_equal_at(location, expected_fs.size, actual_fs.size)
+
+      assert_equal_at(location, expected_fs.keys.sort, actual_fs.keys.sort,
+                      "directory entries for #{curr_dir} not equal")
+      
+      expected_fs.keys.each do |name|
+        new_path = "#{curr_dir}#{name}"
+        expected_entry = expected_fs[name]
+        actual_entry = actual_fs[name]
+        assert_equal_at(location, expected_entry.class, actual_entry.class,
+                        "Filesystem object #{new_path} wrong type")
+        case expected_entry
+        when FakeFS::FakeDir
+          compare_filesystems("#{new_path}/", location, expected_entry, actual_entry)
+        when FakeFS::FakeFile
+          compare_file(new_path, location, expected_entry, actual_entry)
+        when FakeFS::FakeSymlink
+          compare_symlink(new_path, location, expected_entry, actual_entry)
+        end
+      end
+    end
+
+    def compare_file(path, location, expected_file, actual_file)
+      assert_equal_at(location, expected_file.content, actual_file.content,
+                      "The content of the file #{path} is different")
+      unless @ignore_time
+        if (expected_file.mtime - actual_file.mtime).abs >= @time_measurement_tolerance 
+          assert_equal_at(location, expected_file.mtime, actual_file.mtime,
+                          "The mtime of the file #{path} is different")
+        end
+      end
+      assert_equal_at(location, expected_file.links.map(&:name),
+                      actual_file.links.map(&:name),
+                      "The links of the file #{path} is different")
+    end
   end
 
     
@@ -210,7 +239,7 @@ class AutoTests < Test::Unit::TestCase
       file.close
       check_filesystem
       check_value "this"
-      # check_value Dir.entries(path)
+      check_value Dir.entries(path)
     end
   end
 
