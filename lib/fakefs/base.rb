@@ -1,4 +1,5 @@
 RealFile = File
+RealFileTest = FileTest
 RealFileUtils = FileUtils
 RealDir = Dir
 RealFileUtils::Dir = RealDir
@@ -9,10 +10,12 @@ module FakeFS
     Object.class_eval do
       remove_const(:Dir)
       remove_const(:File)
+      remove_const(:FileTest)
       remove_const(:FileUtils)
       const_set(:Dir, FakeFS::Dir)
       const_set(:File, FakeFS::File)
       const_set(:FileUtils, FakeFS::FileUtils)
+      const_set(:FileTest,  FakeFS::FileTest)
     end
   end
 
@@ -20,9 +23,11 @@ module FakeFS
     Object.class_eval do
       remove_const(:Dir)
       remove_const(:File)
+      remove_const(:FileTest)
       remove_const(:FileUtils)
       const_set(:Dir, RealDir)
       const_set(:File, RealFile)
+      const_set(:FileTest, RealFileTest)
       const_set(:FileUtils, RealFileUtils)
     end
   end

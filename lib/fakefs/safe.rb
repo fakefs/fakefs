@@ -7,5 +7,6 @@ require 'fakefs/fake/symlink'
 require 'fakefs/file_system'
 require 'fakefs/fileutils'
 require 'fakefs/file'
+require 'fakefs/file_test'
 require 'fakefs/dir'
 

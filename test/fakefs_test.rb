@@ -1336,6 +1336,21 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal IO::SEEK_SET, File::SEEK_SET
   end
 
+  def test_filetest_exists_return_correct_values
+    FileUtils.mkdir_p("/path/to/dir")
+    assert FileTest.exist?("/path/to/")
+
+    FileUtils.rmdir("/path/to/dir")
+    assert !FileTest.exist?("/path/to/dir")
+  end
+
+  def pathname_exists_returns_correct_value
+    FileUtils.touch "foo"
+    assert Pathname.new("foo").exist?
+
+    assert !Pathname.new("bar").exist?
+  end
+
   def here(fname)
     RealFile.expand_path(RealFile.dirname(__FILE__)+'/'+fname)
   end
