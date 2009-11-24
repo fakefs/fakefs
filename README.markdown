@@ -52,7 +52,7 @@ RSpec
 -----------------------------
 The above approach works with RSpec as well. In addition to this you may use the
 'use_fakefs' macro to turn FakeFS on and off in a given example group.  See
-lib/spec_helpers for more details on it's usage.
+lib/fakefs/spec_helpers.rb for more details on it's usage.
 
 
 How is this different than MockFS?
