@@ -2,8 +2,6 @@ RealFile            = File
 RealFileTest        = FileTest
 RealFileUtils       = FileUtils
 RealDir             = Dir
-RealFileUtils::Dir  = RealDir
-RealFileUtils::File = RealFile
 
 module FakeFS
   def self.activate!
