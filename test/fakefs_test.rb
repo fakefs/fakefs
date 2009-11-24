@@ -1102,6 +1102,14 @@ class FakeFSTest < Test::Unit::TestCase
     end
   end
 
+  def test_mkdir_raises_error_if_already_created
+    Dir.mkdir "foo"
+
+    assert_raises(Errno::EEXIST) do
+      Dir.mkdir "foo"
+    end
+  end
+
   def test_directory_open
     test = ['.', '..', 'file_1', 'file_2', 'file_3', 'file_4', 'file_5' ]
 
