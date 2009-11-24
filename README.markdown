@@ -50,9 +50,16 @@ Don't Fake the FS Immediately
 
 RSpec
 -----------------------------
-The above approach works with RSpec as well. In addition to this you may use the
-'use_fakefs' macro to turn FakeFS on and off in a given example group.  See
-lib/fakefs/spec_helpers.rb for more details on it's usage.
+The above approach works with RSpec as well. In addition you may include
+FakeFS::SpecHelpers to turn FakeFS on and off in a given example group:
+
+    require 'fakefs/spec_helpers'
+
+    describe "my spec" do
+      include FakeFS::SpecHelpers
+    end
+
+See lib/fakefs/spec_helpers.rb for more info.
 
 
 How is this different than MockFS?
