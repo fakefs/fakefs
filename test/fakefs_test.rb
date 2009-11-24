@@ -37,6 +37,13 @@ class FakeFSTest < Test::Unit::TestCase
     assert File.exists?("/path/to/dir") == false
   end
 
+  def test_can_delete_multiple_files
+    FileUtils.touch(["foo", "bar"])
+    FileUtils.rm(["foo", "bar"])
+    assert File.exists?("foo") == false
+    assert File.exists?("bar") == false
+  end
+
   def test_knows_directories_exist
     FileUtils.mkdir_p(path = "/path/to/dir")
     assert File.exists?(path)
