@@ -192,6 +192,10 @@ module FakeFS
       def nlink
         FileSystem.find(@file).links.size
       end
+
+      def size
+        File.size(@file)
+      end
     end
 
     attr_reader :path

@@ -67,4 +67,9 @@ class FileStatTest < Test::Unit::TestCase
 
     assert_equal 2, File.stat("testfile").nlink
   end
+
+  def test_file_size
+    File.open('testfile', 'w') { |f| f << 'test' }
+    assert_equal 4, File.stat('testfile').size
+  end
 end
