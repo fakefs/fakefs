@@ -5,6 +5,10 @@ class FakeFSSafeTest < Test::Unit::TestCase
     FakeFS.deactivate!
   end
 
+  def teardown
+    FakeFS.activate!
+  end
+
   def test_FakeFS_method_does_not_intrude_on_global_namespace
     path = '/path/to/file.txt'
 

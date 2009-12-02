@@ -4,7 +4,12 @@ class FakeFSTest < Test::Unit::TestCase
   include FakeFS
 
   def setup
+    FakeFS.activate!
     FileSystem.clear
+  end
+
+  def teardown
+    FakeFS.deactivate!
   end
 
   def test_can_be_initialized_empty
