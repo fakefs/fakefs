@@ -1,6 +1,4 @@
-$LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
-require 'fakefs/safe'
-require 'test/unit'
+require "test_helper"
 
 class FakeFSSafeTest < Test::Unit::TestCase
   def setup

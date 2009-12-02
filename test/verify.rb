@@ -3,8 +3,7 @@
 # USAGE
 #
 #   $ ruby test/verify.rb | grep "not implemented"
-require 'fakefs/safe'
-require 'test/unit'
+require "test_helper"
 
 class FakeFSVerifierTest < Test::Unit::TestCase
   (RealFile.methods - Class.new.methods).each do |name|
