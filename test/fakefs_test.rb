@@ -1,5 +1,5 @@
 $LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
-require 'fakefs'
+require 'fakefs/safe'
 require 'test/unit'
 
 class FakeFSTest < Test::Unit::TestCase

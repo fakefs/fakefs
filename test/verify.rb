@@ -3,7 +3,7 @@
 # USAGE
 #
 #   $ ruby test/verify.rb | grep "not implemented"
-require 'fakefs'
+require 'fakefs/safe'
 require 'test/unit'
 
 class FakeFSVerifierTest < Test::Unit::TestCase
