@@ -788,7 +788,9 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_clone_clones_directories
+    FakeFS.deactivate!
     RealFileUtils.mkdir_p(here('subdir'))
+    FakeFS.activate!
 
     FileSystem.clone(here('subdir'))
 
@@ -799,7 +801,10 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_clone_clones_dot_files_even_hard_to_find_ones
+    FakeFS.deactivate!
     RealFileUtils.mkdir_p(here('subdir/.bar/baz/.quux/foo'))
+    FakeFS.activate!
+
     assert !File.exists?(here('subdir'))
 
     FileSystem.clone(here('subdir'))
