@@ -1,16 +1,20 @@
-require 'spec/rake/spectask'
-
-desc "Run specs"
-Spec::Rake::SpecTask.new(:spec) do |t|
-  t.spec_files = FileList["spec/**/*.rb"]
-end
-
 desc "Run tests"
 task :test do
   Dir['test/**/*_test.rb'].each { |file| require file }
 end
 
 task :default => :test
+
+begin
+  require 'spec/rake/spectask'
+
+  desc "Run specs"
+  Spec::Rake::SpecTask.new(:spec) do |t|
+    t.spec_files = FileList["spec/**/*.rb"]
+  end
+rescue LoadError
+  puts "Spec task can't be loaded. `gem install rspec`"
+end
 
 begin
   require 'jeweler'
