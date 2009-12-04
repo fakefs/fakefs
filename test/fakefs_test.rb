@@ -1367,6 +1367,6 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def here(fname)
-    RealFile.expand_path(RealFile.dirname(__FILE__)+'/'+fname)
+    RealFile.expand_path(File.join(RealFile.dirname(__FILE__), fname))
   end
 end
