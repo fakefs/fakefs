@@ -7,29 +7,25 @@
 require "test_helper"
 
 class FakeFSVerifierTest < Test::Unit::TestCase
-  def setup
-    FakeFS.activate!
-  end
+  class_mapping = {
+    RealFile       => FakeFS::File,
+    RealFile::Stat => FakeFS::File::Stat,
+    RealFileUtils  => FakeFS::FileUtils,
+    RealDir        => FakeFS::Dir,
+    RealFileTest   => FakeFS::FileTest
+  }
 
-  def teardown
-    FakeFS.deactivate!
-  end
-
-  (RealFile.methods - Class.new.methods).each do |name|
-    define_method("test #{name} class method") do
-      assert File.respond_to?(name), "File.#{name} not implemented"
+  class_mapping.each do |real_class, fake_class|
+    real_class.methods.each do |method|
+      define_method "test #{method} class method" do
+        assert fake_class.respond_to?(method), "#{fake_class}.#{method} not implemented"
+      end
     end
-  end
 
-  (RealFile.instance_methods - Enumerable.instance_methods).each do |name|
-    define_method("test #{name} instance method") do
-      assert File.instance_methods.include?(name), "File##{name} not implemented"
-    end
-  end
-
-  (RealFileUtils.methods - Class.new.methods).each do |name|
-    define_method("test #{name} module method") do
-      assert FileUtils.respond_to?(name), "FileUtils.#{name} not implemented"
+    real_class.instance_methods.each do |method|
+      define_method("test #{method} instance method") do
+        assert fake_class.instance_methods.include?(method), "#{fake_class}##{name} not implemented"
+      end
     end
   end
 end
