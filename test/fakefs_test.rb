@@ -797,7 +797,9 @@ class FakeFSTest < Test::Unit::TestCase
     assert File.exists?(here('subdir')), 'subdir was cloned'
     assert File.directory?(here('subdir')), 'subdir is a directory'
   ensure
-    RealFileUtils.rm_rf(here('subdir')) if RealFile.exists?(here('subdir'))
+    FakeFS.deactivate!
+    RealFileUtils.rm_rf(here('subdir'))
+    FakeFS.activate!
   end
 
   def test_clone_clones_dot_files_even_hard_to_find_ones
@@ -811,7 +813,9 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal ['.bar'], FileSystem.find(here('subdir')).keys
     assert_equal ['foo'], FileSystem.find(here('subdir/.bar/baz/.quux')).keys
   ensure
-    RealFileUtils.rm_rf(here('subdir')) if RealFile.exists?(here('subdir'))
+    FakeFS.deactivate!
+    RealFileUtils.rm_rf(here('subdir'))
+    FakeFS.activate!
   end
 
   def test_putting_a_dot_at_end_copies_the_contents
