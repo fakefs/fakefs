@@ -7,6 +7,14 @@
 require "test_helper"
 
 class FakeFSVerifierTest < Test::Unit::TestCase
+  def setup
+    FakeFS.activate!
+  end
+
+  def teardown
+    FakeFS.deactivate!
+  end
+
   (RealFile.methods - Class.new.methods).each do |name|
     define_method("test #{name} class method") do
       assert File.respond_to?(name), "File.#{name} not implemented"
