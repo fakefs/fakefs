@@ -2,7 +2,8 @@
 #
 # USAGE
 #
-#   $ ruby test/verify.rb | grep "not implemented"
+#   $ RUBYLIB=test ruby test/verify.rb | grep "not implemented"
+
 require "test_helper"
 
 class FakeFSVerifierTest < Test::Unit::TestCase
