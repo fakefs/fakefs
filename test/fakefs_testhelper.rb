@@ -1,12 +1,11 @@
 $LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
-# require 'fakefs'
 require 'test/unit'
 require 'fakefs/safe'
 require 'pathname'
 
   
 
-module FakeFsTester
+module FakeFsTestHelper
   # runs the code in the given block, firstly in the real file system,
   # then in the Fake file system. The method will then compare the results,
   # and cause assert errors for any differences.
@@ -149,9 +148,6 @@ module FakeFsTester
     end
 
     def compare_filesystems(curr_dir, location, expected_fs, actual_fs)
-      # puts expected_fs.inspect_tree
-      # puts actual_fs.inspect_tree
-      # todo fix assertions to throw error at right spot
       assert_equal_at(location, expected_fs.name, actual_fs.name)
       assert_equal_at(location, expected_fs.size, actual_fs.size)
 
@@ -188,10 +184,19 @@ module FakeFsTester
                       actual_file.links.map(&:name),
                       "The links of the file #{path} is different")
     end
+
+    def compare_symlink(path, location, expected_symlink, actual_symlink)
+      assert_equal_at(location, expected_symlink.target, actual_symlink.target)
+      
+    end
   end
 
     
 
+  # this is the class of the object that the block passes to compare_with_real
+  # is evaulated in, and supplies the check_filesystem and check_value methods.
+  # It adds every check result to the hashes filesystem_checks and value_checks
+  # using the location of the check as the key
   class AutoTestObject
     # creates a new AutoTestObject
     # @param mode the mode to run the test for (either :real or :fake)
@@ -225,24 +230,3 @@ module FakeFsTester
 
 end
 
-class AutoTests < Test::Unit::TestCase
-  include FakeFsTester
-
-  def test_should_fail
-    compare_with_real do |path|
-      check_filesystem
-      # Dir.mkdir(path + "somedir1" + rand().to_s)
-      Dir.mkdir(path + "somedir")
-      Dir.mkdir(path + "somedir/lol")
-      file = File.open("#{path}somedir/afile", "w")
-      file.write "hello world"
-      file.close
-      check_filesystem
-      check_value "this"
-      check_value Dir.entries(path)
-    end
-  end
-
-end
-
-# $a = AutoTests.new
