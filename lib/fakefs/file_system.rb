@@ -97,7 +97,7 @@ module FakeFS
     end
 
     def current_dir
-      find(normalize_path('.'))
+      find(File.join(*dir_levels))
     end
 
     private
