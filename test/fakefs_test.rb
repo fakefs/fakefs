@@ -814,6 +814,7 @@ class FakeFSTest < Test::Unit::TestCase
       File.open('foobar', 'w') { |f| f.write 'foo'}
     end
 
+    assert_equal("/", Dir.pwd)
     assert_equal '/', FileSystem.fs.name
     assert_equal(['foo', 'foobar'], FileSystem.fs['path'].keys.sort)
 
