@@ -98,7 +98,16 @@ module FakeFS
     end
 
     def current_dir
-      find(File.join(*dir_levels))
+      parts = path_parts(File.join(*dir_levels))
+      return fs if parts.empty? # '/'
+
+      entries = find_recurser(fs, parts).flatten
+
+      case entries.length
+      when 0 then nil
+      when 1 then entries.first
+      else entries
+      end
     end
 
     private
