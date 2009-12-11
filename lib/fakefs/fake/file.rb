@@ -77,14 +77,7 @@ module FakeFS
     end
 
     def ==(other)
-      p content
-      p other.content
-      p mtime.usec
-      p other.mtime.usec
-      p links
-      p other.links
-      p name
-      p other.name
+      return false unless other.is_a?(FakeFile)
       (content == other.content) && 
         (mtime == other.mtime) &&
         (links == other.links) &&
