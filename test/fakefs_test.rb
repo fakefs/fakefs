@@ -1370,6 +1370,37 @@ class FakeFSTest < Test::Unit::TestCase
     assert !Pathname.new("bar").exist?
   end
 
+  def test_expand_path_using_default_dir_string_returns_correct_value
+    Dir.mkdir("/tmp")
+    Dir.chdir("/tmp")
+    assert_equal "/tmp/a/b", File.expand_path("a/b")
+  end
+
+  def test_expand_path_returns_correct_value
+    assert_equal "/some path/dir a/xxx", File.expand_path("dir a/xxx", "/some path")
+  end
+
+  def test_expand_path_with_dir_path_ending_in_slash_returns_correct_value
+    assert_equal "/some path/dir a/xxx", File.expand_path("dir a/xxx", "/some path/")
+  end
+
+  def test_expand_path_with_path_ending_in_slash_returns_correct_value
+    assert_equal "/some path/dir a/xxx", File.expand_path("dir a/xxx/", "/some path/")
+  end
+
+  def test_expand_path_with_home_path_returns_correct_value
+    assert_equal "#{ENV['HOME']}/a dir/a file", File.expand_path("~/a dir/a file")
+  end
+  
+  def test_expand_path_with_home_path_second_param_is_ignored
+    assert_equal "#{ENV['HOME']}/a dir/a file", File.expand_path("~/a dir/a file", "/tmp")
+  end
+
+  def test_expand_path_with_root_home_path
+    assert_equal "#{Etc.getpwnam('root').dir}/a dir /a file", File.expand_path("~root/a dir /a file")
+  end
+    
+
   def here(fname)
     RealFile.expand_path(File.join(RealFile.dirname(__FILE__), fname))
   end
