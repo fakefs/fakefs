@@ -62,6 +62,41 @@ class AutoTests < Test::Unit::TestCase
     end
   end
 
+  def test_file_read
+    compare_with_real do
+      input = <<EOF
+comic_txt_text = <<COMIC_EOF
+Achewood: http://achewood.com/
+Dinosaur Comics: http://qwantz.com/
+Perry Bible Fellowship: http://cheston.com/pbf/archive.html
+Get Your War On: http://mnftiu.cc/
+EOF
+      File.open("comics.txt", "w") { |file| file << file.write(input) }
+
+      check_filesystem
+      check_value File.read("comics.txt")
+    end
+  end
+
+  def test_file_foreach
+    compare_with_real do
+      input = <<EOF
+line 1
+line 2
+line 3
+line 4
+EOF
+      File.open("comics.txt", "w") { |file| file << file.write(input) }
+      check_filesystem
+      arr = []
+      File.foreach("comics.txt") { |line| arr << line }
+      check_value arr
+    end
+  end
+
+      
+      
+
 end
       
       

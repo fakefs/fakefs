@@ -147,6 +147,10 @@ module FakeFS
       read(path).split("\n")
     end
 
+    def self.foreach(path)
+      self.read(path).each_line {|line| yield(line) }
+    end
+
     def self.link(source, dest)
       if directory?(source)
         raise Errno::EPERM, "Operation not permitted - #{source} or #{dest}"
