@@ -62,6 +62,7 @@ module FakeFS
           FileUtils.ln_s()
         end
       end
+      @current_dir = "/"
     end
 
     def delete(path)
