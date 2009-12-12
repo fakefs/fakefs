@@ -95,7 +95,7 @@ module FakeFsTestHelper
         real_test.instance_eval(&block)
       end
 
-      compare_fileystem_checks(real_test.filesystem_checks,
+      compare_filesystem_checks(real_test.filesystem_checks,
                                fake_test.filesystem_checks)
 
       compare_value_checks(real_test.value_checks,
@@ -139,7 +139,7 @@ module FakeFsTestHelper
     end
     
 
-    def compare_fileystem_checks(expected_fschecks, actual_fschecks)
+    def compare_filesystem_checks(expected_fschecks, actual_fschecks)
       expected_fschecks.keys.each do |check_loc|
         unless actual_fschecks.has_key? check_loc
           msg = "The filesystem check at #{check_loc} wasn't performed"
