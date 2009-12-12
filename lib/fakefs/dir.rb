@@ -120,7 +120,7 @@ module FakeFS
     end
 
     def self.pwd
-      FileSystem.current_dir.to_s
+      FileSystem.current_dir
     end
 
     # This code has been borrowed from Rubinius
