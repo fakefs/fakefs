@@ -73,7 +73,6 @@ module FakeFS
 
     def chdir(dir, &blk)
       new_dir = normalize_path(dir)
-      p new_dir
       old_current_dir = @current_dir
       raise Errno::ENOENT, dir unless find(new_dir)
       @current_dir = new_dir

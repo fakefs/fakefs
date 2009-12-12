@@ -129,6 +129,8 @@ module FakeFS
         user = ENV['USER'] if user.empty?
         home_path = Etc.getpwnam(user).dir
         abs_file_name = RealFile.join(home_path, remaining_path)
+      elsif (file_name.start_with?("/")) then
+        abs_file_name = file_name
       else
         abs_file_name = RealFile.join(dir_string, file_name)
       end
@@ -142,15 +144,7 @@ module FakeFS
         else result_path_parts.push(part)
         end
       end
-      
-
-      result = RealFile.join(*result_path_parts)
-      result = "/" if result.empty?
-      real_result = RealFile.expand_path(file_name, dir_string)
-      if result != real_result and !real_result.include?("david")
-        puts "for path: #{file_name}, dir_string:#{dir_string}:: result: #{result}, real_result:#{real_result}"
-      end
-      real_result
+      RealFile.join(*result_path_parts)
     end
 
     def self.basename(*args)
