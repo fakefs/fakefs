@@ -173,6 +173,10 @@ module FakeFS
       read(path).split("\n")
     end
 
+    def self.foreach(path)
+      self.read(path).each_line {|line| yield(line) }
+    end
+
     def self.rename(source, dest)
       if directory?(source) && file?(dest)
         raise Errno::ENOTDIR, "Not a directory - #{source} or #{dest}"
