@@ -28,13 +28,13 @@ module FakeFS
       
 
     def to_s
-      if parent && parent.to_s != '.'
-        File.join(parent.to_s, name)
-      elsif parent && parent.to_s == '.'
-        "#{File::PATH_SEPARATOR}#{name}"
+      if parent
+        result = File.join(parent.to_s, name).gsub("//", "/")
       else
-        name
+        result = name
       end
+      result = "/" if result == "."
+      result
     end
 
     def delete(node = self)
