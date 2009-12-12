@@ -27,7 +27,7 @@ class AutoTests < Test::Unit::TestCase
     end
   end
 
-    def test_dir_search
+  def test_dir_search
     compare_with_real do
       Dir.mkdir mp("test")
       File.open(mp("comics.txt"), "w") { |f| f.write("test") }
@@ -35,6 +35,15 @@ class AutoTests < Test::Unit::TestCase
       Dir.chdir base_path
       check_value Dir["*.txt"]
       check_value Dir["#{base_path}*.txt"]
+    end
+  end
+
+  def test_fileutils_copy
+    compare_with_real do
+      File.open(mp("test.txt"), "w") { |f| f.write("hello") }
+      Dir.mkdir "dir"
+      check_value FileUtils.copy(mp('test.txt'), mp('dir/file.txt'))
+      check_filesystem
     end
   end
 
