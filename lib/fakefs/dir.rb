@@ -79,7 +79,11 @@ module FakeFS
     end
 
     def self.glob(pattern)
-      [FileSystem.find(pattern) || []].flatten.map{|e| e.to_s}.sort
+      results = [FileSystem.find(pattern) || []].flatten.map{|e| e.to_s}.sort
+      unless pattern.start_with?("/") 
+        results.map! {|s| s.sub("#{pwd}/", "") }
+      end
+      return results.map {|s| s.gsub("//", "/")}
     end
 
     def self.mkdir(string, integer = 0)
