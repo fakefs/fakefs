@@ -123,8 +123,34 @@ module FakeFS
       end
     end
 
-    def self.expand_path(*args)
-      RealFile.expand_path(*args)
+    def self.expand_path(file_name, dir_string = Dir.pwd)
+      if (file_name.start_with?("~")) then
+        user,remaining_path = file_name.match("^~([^/]*)/(.*)$")[1..2]
+        user = ENV['USER'] if user.empty?
+        home_path = Etc.getpwnam(user).dir
+        abs_file_name = RealFile.join(home_path, remaining_path)
+      else
+        abs_file_name = RealFile.join(dir_string, file_name)
+      end
+      
+      path_parts = abs_file_name.split(RealFile::Separator)
+      result_path_parts = [""]
+      path_parts.each do |part|
+        case part
+        when ".." then result_path_parts.pop
+        when "." then # ignore
+        else result_path_parts.push(part)
+        end
+      end
+      
+
+      result = RealFile.join(*result_path_parts)
+      result = "/" if result.empty?
+      real_result = RealFile.expand_path(file_name, dir_string)
+      if result != real_result and !real_result.include?("david")
+        puts "for path: #{file_name}, dir_string:#{dir_string}:: result: #{result}, real_result:#{real_result}"
+      end
+      real_result
     end
 
     def self.basename(*args)

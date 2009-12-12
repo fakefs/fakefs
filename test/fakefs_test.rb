@@ -891,7 +891,7 @@ class FakeFSTest < Test::Unit::TestCase
       rescue Errno::ENOENT
       end
 
-      assert_equal ['/path'], FileSystem.dir_levels
+      assert_equal '/path', Dir.pwd
     end
 
     assert_equal(['foo', 'foobar'], FileSystem.fs['path'].keys.sort)
@@ -901,16 +901,16 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.mkdir_p '/path'
     Dir.chdir('/path')
     FileUtils.mkdir_p 'subdir'
-    assert_equal ['subdir'], FileSystem.current_dir.keys
+    assert_equal [".", "..", 'subdir'], (Dir.entries (Dir.pwd))
     Dir.chdir('subdir')
     File.open('foo', 'w') { |f| f.write 'foo'}
-    assert_equal ['foo'], FileSystem.current_dir.keys
+    assert_equal [".", "..", 'foo'], (Dir.entries (Dir.pwd))
 
     assert_raises(Errno::ENOENT) do
       Dir.chdir('subsubdir')
     end
 
-    assert_equal ['foo'], FileSystem.current_dir.keys
+    assert_equal [".", "..", 'foo'], (Dir.entries (Dir.pwd))
   end
 
   def test_current_dir_reflected_by_pwd
