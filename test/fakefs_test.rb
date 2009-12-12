@@ -538,6 +538,10 @@ class FakeFSTest < Test::Unit::TestCase
     assert stringio.respond_to?(:size)
   end
 
+  def test_chdir_initially_root
+    assert_equal "/", Dir.pwd
+  end
+
   def test_chdir_changes_directories_like_a_boss
     # I know memes!
     FileUtils.mkdir_p '/path'
