@@ -268,6 +268,12 @@ module FakeFS
       self
     end
 
+    def inspect
+      # TODO should be a test to see if file is closed before
+      # adding (closed) to output
+      "#<File:#{@path.gsub("//", "/")} (closed)>"
+    end
+
     def write_nonblock(string)
       raise NotImplementedError
     end
