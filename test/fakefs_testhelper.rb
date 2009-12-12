@@ -74,22 +74,24 @@ module FakeFsTestHelper
       # firstly execute the code in the fake file system
       # this is done in a thread so that SAFE can be set
       # without it leaking into the rest of the program
-      FakeFS::FileSystem.clone(@test_path)
-      thread = Thread.new do
-        # TODO: this should be enabled or be an option
-        $SAFE = 3 if $run_tests_with_safe3
-        FakeFS do
-          Dir.chdir(@test_path) do
-            fake_test.instance_eval(&block)
+      begin
+        FakeFS::FileSystem.clone(@test_path)
+        thread = Thread.new do
+          # TODO: this should be enabled or be an option
+          $SAFE = 3 if $run_tests_with_safe3
+          FakeFS do
+            Dir.chdir(@test_path) do
+              fake_test.instance_eval(&block)
+            end
           end
         end
+        thread.join
+      ensure
+        # clear the filesystem ready for the real run 
+        FakeFS::FileSystem.clear
+        pathname.rmdir
+        Dir.mkdir(@test_path)
       end
-      thread.join
-
-      # clear the filesystem ready for the real run 
-      FakeFS::FileSystem.clear
-      pathname.rmdir
-      Dir.mkdir(@test_path)
 
       Dir.chdir(@test_path) do
         real_test.instance_eval(&block)
