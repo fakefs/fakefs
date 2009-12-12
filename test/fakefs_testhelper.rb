@@ -49,7 +49,7 @@ module FakeFsTestHelper
   # the fakefs code is accidently touching the real file system (since
   # this will trigger a SecurityError with $SAFE = 3)
   # Defaults to false, as this doesn't work at all yet
-  $run_tests_with_safe3 = false
+  $run_tests_with_safe3 = true
 
   class CompareWithRealRunner
 
@@ -79,7 +79,9 @@ module FakeFsTestHelper
         # TODO: this should be enabled or be an option
         $SAFE = 3 if $run_tests_with_safe3
         FakeFS do
-          fake_test.instance_exec(@test_path, &block)
+          Dir.chdir(@test_path) do
+            fake_test.instance_eval(&block)
+          end
         end
       end
       thread.join
@@ -89,7 +91,9 @@ module FakeFsTestHelper
       pathname.rmdir
       Dir.mkdir(@test_path)
 
-      real_test.instance_exec(@test_path, &block)
+      Dir.chdir(@test_path) do
+        real_test.instance_eval(&block)
+      end
 
       compare_fileystem_checks(real_test.filesystem_checks,
                                fake_test.filesystem_checks)
@@ -225,6 +229,14 @@ module FakeFsTestHelper
     def check_value(value)
       @value_checks[caller()[0]] = value
     end
+
+    def mp(path)
+      File.join(@base_path, path)
+    end
+
+    alias_method :make_path, :mp
+
+    attr_reader :base_path
 
   end
 
