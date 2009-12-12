@@ -47,6 +47,21 @@ class AutoTests < Test::Unit::TestCase
     end
   end
 
+  def test_file_open
+    compare_with_real do
+      check_value File.open(mp("test.txt"), "w") { |f| f.write("hello") }
+      check_filesystem
+      Dir.mkdir mp("Home")
+
+      file = File.open(mp("Home/comics.txt"), "a") do |f|                            
+        f << "Cat and Girl: http://catandgirl.com/\n"                      
+      end
+
+      check_value file.inspect
+      check_filesystem
+    end
+  end
+
 end
       
       
