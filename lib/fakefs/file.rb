@@ -172,13 +172,18 @@ module FakeFS
       File::Stat.new(file)
     end
 
+    def self.lstat(file)
+      File::Stat.new(file, true)
+    end
+
     class Stat
-      def initialize(file)
+      def initialize(file, __lstat = false)
         if !File.exists?(file)
           raise(Errno::ENOENT, "No such file or directory - #{file}")
         end
 
-        @file = file
+        @file    = file
+        @__lstat = __lstat
       end
 
       def symlink?
@@ -194,7 +199,11 @@ module FakeFS
       end
 
       def size
-        File.size(@file)
+        if @__lstat && symlink?
+          FileSystem.find(@file).target.size
+        else
+          File.size(@file)
+        end
       end
     end
 
@@ -236,7 +245,11 @@ module FakeFS
     end
 
     def stat
-      raise NotImplementedError
+      self.class.stat(@path)
+    end
+
+    def lstat
+      self.class.lstat(@path)
     end
 
     def sysseek(position, whence = SEEK_SET)
@@ -275,10 +288,6 @@ module FakeFS
     end
 
     def flock(locking_constant)
-      raise NotImplementedError
-    end
-
-    def lstat
       raise NotImplementedError
     end
 
