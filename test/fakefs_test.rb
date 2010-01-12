@@ -1370,6 +1370,15 @@ class FakeFSTest < Test::Unit::TestCase
     assert !Pathname.new("bar").exist?
   end
 
+  def test_activating_returns_true
+    FakeFS.deactivate!
+    assert_equal true, FakeFS.activate!
+  end
+
+  def test_deactivating_returns_true
+    assert_equal true, FakeFS.deactivate!
+  end
+
   def here(fname)
     RealFile.expand_path(File.join(RealFile.dirname(__FILE__), fname))
   end
