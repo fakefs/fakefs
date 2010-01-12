@@ -33,7 +33,7 @@ module FakeFS
     end
 
     def self.join(*parts)
-      parts * PATH_SEPARATOR
+      RealFile.join(parts)
     end
 
     def self.exist?(path)
