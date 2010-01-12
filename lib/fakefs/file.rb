@@ -239,8 +239,9 @@ module FakeFS
       raise NotImplementedError
     end
 
-    def sysseek(offset, whence = SEEK_SET)
-      raise NotImplementedError
+    def sysseek(position, whence = SEEK_SET)
+      seek(position, whence)
+      pos
     end
 
     alias_method :to_i, :fileno
