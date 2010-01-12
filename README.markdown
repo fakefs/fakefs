@@ -49,7 +49,8 @@ Don't Fake the FS Immediately
 
 
 RSpec
------------------------------
+-----
+
 The above approach works with RSpec as well. In addition you may include
 FakeFS::SpecHelpers to turn FakeFS on and off in a given example group:
 
@@ -59,7 +60,7 @@ FakeFS::SpecHelpers to turn FakeFS on and off in a given example group:
       include FakeFS::SpecHelpers
     end
 
-See lib/fakefs/spec_helpers.rb for more info.
+See `lib/fakefs/spec_helpers.rb` for more info.
 
 
 How is this different than MockFS?
@@ -80,6 +81,7 @@ on FakeFS' own require.
 
 Speed?
 ------
+
 <http://gist.github.com/156091>
 
 
@@ -95,6 +97,17 @@ Installation
     $ rip install git://github.com/defunkt/fakefs.git
 
 
+Contributing
+------------
+
+Once you've made your great commits:
+
+1. [Fork][0] FakeFS
+2. Create a topic branch - `git checkout -b my_branch`
+3. Push to your branch - `git push origin my_branch`
+4. Create an [Issue][1] with a link to your branch
+5. That's it!
+
 Meta
 ----
 
@@ -105,4 +118,6 @@ Meta
 * List: <http://groups.google.com/group/fakefs>
 * Test: <http://runcoderun.com/defunkt/fakefs>
 * Gems: <http://gemcutter.org/gems/fakefs>
-* Boss: Chris Wanstrath :: <http://github.com/defunkt>
+
+[0]: http://help.github.com/forking/
+[1]: http://github.com/defunkt/fakefs/issues
