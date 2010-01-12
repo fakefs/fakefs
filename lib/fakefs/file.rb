@@ -1,3 +1,5 @@
+require 'stringio'
+
 module FakeFS
   class File < StringIO
     PATH_SEPARATOR = '/'
