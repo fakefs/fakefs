@@ -5,7 +5,7 @@ task :test do
   Dir['test/**/*_test.rb'].each { |file| require file }
 end
 
-task :default => :test
+task :default => [:test, :spec]
 
 begin
   require 'spec/rake/spectask'
