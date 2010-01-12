@@ -216,7 +216,9 @@ module FakeFS
       true
     end
 
-    alias_method :tell=, :pos=
+    alias_method :tell=,    :pos=
+    alias_method :sysread,  :read
+    alias_method :syswrite, :write
 
     undef_method :closed_read?
     undef_method :closed_write?
