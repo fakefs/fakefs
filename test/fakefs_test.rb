@@ -1363,7 +1363,7 @@ class FakeFSTest < Test::Unit::TestCase
     assert !FileTest.exist?("/path/to/dir")
   end
 
-  def pathname_exists_returns_correct_value
+  def test_pathname_exists_returns_correct_value
     FileUtils.touch "foo"
     assert Pathname.new("foo").exist?
 
