@@ -38,8 +38,6 @@ module FakeFS
       ln_s(target, path, { :force => true })
     end
 
-
-
     def cp(src, dest)
       dst_file = FileSystem.find(dest)
       src_file = FileSystem.find(src)
