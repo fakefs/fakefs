@@ -86,7 +86,7 @@ module FakeFS
       end
     end
 
-    def mv(src, dest)
+    def mv(src, dest, options={})
       if target = FileSystem.find(src)
         FileSystem.add(dest, target.entry.clone)
         FileSystem.delete(src)

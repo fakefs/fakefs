@@ -688,6 +688,12 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal 'bar', File.open('baz') { |f| f.read }
   end
 
+  def test_mv_works_with_options
+    File.open('foo', 'w') {|f| f.write 'bar'}
+    FileUtils.mv 'foo', 'baz', :force => true
+    assert_equal('bar', File.open('baz') { |f| f.read })
+  end
+
   def test_cp_actually_works
     File.open('foo', 'w') {|f| f.write 'bar' }
     FileUtils.cp('foo', 'baz')
