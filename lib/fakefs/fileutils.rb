@@ -2,7 +2,7 @@ module FakeFS
   module FileUtils
     extend self
 
-    def mkdir_p(path)
+    def mkdir_p(path, options = {})
       FileSystem.add(path, FakeDir.new)
     end
     alias_method :mkpath, :mkdir_p
