@@ -702,6 +702,15 @@ class FakeFSTest < Test::Unit::TestCase
     assert File.directory?('destdir')
   end
 
+  def test_mv_array
+    File.open('foo', 'w') {|f| f.write 'bar' }
+    File.open('baz', 'w') {|f| f.write 'binky' }
+    FileUtils.mkdir_p 'destdir'
+    FileUtils.mv %w(foo baz), 'destdir'
+    assert_equal('bar', File.open('destdir/foo') {|f| f.read })
+    assert_equal('binky', File.open('destdir/baz') {|f| f.read })
+  end
+
   def test_cp_actually_works
     File.open('foo', 'w') {|f| f.write 'bar' }
     FileUtils.cp('foo', 'baz')
