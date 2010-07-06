@@ -88,7 +88,8 @@ module FakeFS
 
     def mv(src, dest, options={})
       if target = FileSystem.find(src)
-        FileSystem.add(dest, target.entry.clone)
+        d_path = File.directory?(dest) ? File.join(dest, File.basename(src)) : dest
+        FileSystem.add(d_path, target.entry.clone)
         FileSystem.delete(src)
       else
         raise Errno::ENOENT, src
