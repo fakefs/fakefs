@@ -227,6 +227,11 @@ module FakeFS
       true
     end
 
+    def write(str)
+      @file.mtime = Time.now if @file.respond_to?(:mtime=)
+      super(str)
+    end
+
     alias_method :tell=,    :pos=
     alias_method :sysread,  :read
     alias_method :syswrite, :write

@@ -70,4 +70,20 @@ class FileStatTest < Test::Unit::TestCase
     File.open('testfile', 'w') { |f| f << 'test' }
     assert_equal 4, File.stat('testfile').size
   end
+
+  def test_touch_modifies_mtime
+    touch("/foo")
+    mtime = File.mtime("/foo")
+    
+    touch("/foo")
+    assert File.mtime("/foo") > mtime
+  end
+
+  def test_writing_to_file_modifies_mtime
+    touch("/foo")
+    mtime = File.mtime("/foo")
+    
+    File.open('/foo', 'w') { |f| f << 'test' }
+    assert File.mtime("/foo") > mtime
+  end
 end

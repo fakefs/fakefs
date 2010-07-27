@@ -42,6 +42,8 @@ module FakeFS
       object.name = parts.last
       object.parent = d
       d[parts.last] ||= object
+      d[parts.last].mtime = Time.now if d[parts.last].respond_to?(:mtime=)
+      d[parts.last]
     end
 
     # copies directories and files from the real filesystem

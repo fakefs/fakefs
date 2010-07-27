@@ -41,6 +41,7 @@ module FakeFS
     end
 
     def content=(str)
+      @mtime = Time.now
       @inode.content = str
     end
 
