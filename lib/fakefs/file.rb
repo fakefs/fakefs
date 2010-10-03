@@ -228,6 +228,7 @@ module FakeFS
       @path = path
       @mode = mode
       @file = FileSystem.find(path)
+      @autoclose = true
 
       check_modes!
 
@@ -310,7 +311,7 @@ module FakeFS
       self.class.mtime(@path)
     end
 
-    if RUBY_VERSION.to_f >= 1.9
+    if RUBY_VERSION >= "1.9"
       def binmode?
         raise NotImplementedError
       end
@@ -325,6 +326,20 @@ module FakeFS
 
       def to_path
         raise NotImplementedError
+      end
+    end
+
+    if RUBY_VERSION >= "1.9.2"
+      attr_writer :autoclose
+
+      def autoclose?
+        @autoclose
+      end
+
+      alias_method :fdatasync, :flush
+
+      def size
+        File.size(@path)
       end
     end
 
