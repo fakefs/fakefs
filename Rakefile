@@ -1,3 +1,4 @@
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__))
 $LOAD_PATH.unshift File.join(File.dirname(__FILE__), 'test')
 
 desc "Run tests"

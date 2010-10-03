@@ -1452,4 +1452,30 @@ class FakeFSTest < Test::Unit::TestCase
   def here(fname)
     RealFile.expand_path(File.join(RealFile.dirname(__FILE__), fname))
   end
+
+  if RUBY_VERSION >= "1.9.2"
+    def test_file_size
+      File.open("foo", 'w') do |f|
+        f << 'Yada Yada'
+        assert_equal 9, f.size
+      end
+    end
+
+    def test_fdatasync
+      File.open("foo", 'w') do |f|
+        f << 'Yada Yada'
+        assert_nothing_raised do
+          f.fdatasync
+        end
+      end
+    end
+
+    def test_autoclose
+      File.open("foo", 'w') do |f|
+        assert_equal true, f.autoclose?
+        f.autoclose = false
+        assert_equal false, f.autoclose?
+      end
+    end
+  end
 end
