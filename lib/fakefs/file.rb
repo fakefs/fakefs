@@ -56,6 +56,14 @@ module FakeFS
       end
     end
 
+    def self.ctime(path)
+      if exists?(path)
+        FileSystem.find(path).ctime
+      else
+        raise Errno::ENOENT
+      end
+    end
+
     def self.size(path)
       read(path).length
     end
@@ -179,13 +187,17 @@ module FakeFS
     end
 
     class Stat
+      attr_reader :ctime, :mtime
+
       def initialize(file, __lstat = false)
         if !File.exists?(file)
           raise(Errno::ENOENT, "No such file or directory - #{file}")
         end
 
-        @file    = file
-        @__lstat = __lstat
+        @file      = file
+        @fake_file = FileSystem.find(@file)
+        @__lstat   = __lstat
+        @ctime, @mtime = @fake_file.ctime, @fake_file.mtime
       end
 
       def symlink?
@@ -197,12 +209,12 @@ module FakeFS
       end
 
       def nlink
-        FileSystem.find(@file).links.size
+        @fake_file.links.size
       end
 
       def size
         if @__lstat && symlink?
-          FileSystem.find(@file).target.size
+          @fake_file.target.size
         else
           File.size(@file)
         end
@@ -286,7 +298,7 @@ module FakeFS
     end
 
     def ctime
-      raise NotImplementedError
+      self.class.ctime(@path)
     end
 
     def flock(locking_constant)
@@ -294,7 +306,7 @@ module FakeFS
     end
 
     def mtime
-      raise NotImplementedError
+      self.class.mtime(@path)
     end
 
     if RUBY_VERSION.to_f >= 1.9

@@ -330,6 +330,60 @@ class FakeFSTest < Test::Unit::TestCase
     assert File.mtime('/path/to/file.txt').is_a?(Time)
   end
 
+  def test_raises_error_on_ctime_if_file_does_not_exist
+    assert_raise Errno::ENOENT do
+      File.ctime('/path/to/file.txt')
+    end
+  end
+
+  def test_can_return_ctime_on_existing_file
+    File.open("foo", "w") { |f| f << "some content" }
+    assert File.ctime('foo').is_a?(Time)
+  end
+
+  def test_ctime_and_mtime_are_equal_for_new_files
+    File.open("foo", "w") { |f| f << "some content" }
+    ctime = File.ctime("foo")
+    mtime = File.mtime("foo")
+    assert ctime.is_a?(Time)
+    assert mtime.is_a?(Time)
+    assert_equal ctime, mtime
+
+    File.open("foo", "r") do |f|
+      assert_equal ctime, f.ctime
+      assert_equal mtime, f.mtime
+    end
+  end
+
+  def test_ctime_and_mtime_are_equal_for_new_directories
+    FileUtils.mkdir_p("foo")
+    ctime = File.ctime("foo")
+    mtime = File.mtime("foo")
+    assert ctime.is_a?(Time)
+    assert mtime.is_a?(Time)
+    assert_equal ctime, mtime
+  end
+
+  def test_file_ctime_is_equal_to_file_stat_ctime
+    File.open("foo", "w") { |f| f << "some content" }
+    assert_equal File.stat("foo").ctime, File.ctime("foo")
+  end
+
+  def test_directory_ctime_is_equal_to_directory_stat_ctime
+    FileUtils.mkdir_p("foo")
+    assert_equal File.stat("foo").ctime, File.ctime("foo")
+  end
+
+  def test_file_mtime_is_equal_to_file_stat_mtime
+    File.open("foo", "w") { |f| f << "some content" }
+    assert_equal File.stat("foo").mtime, File.mtime("foo")
+  end
+
+  def test_directory_mtime_is_equal_to_directory_stat_mtime
+    FileUtils.mkdir_p("foo")
+    assert_equal File.stat("foo").mtime, File.mtime("foo")
+  end
+
   def test_can_read_with_File_readlines
     path = '/path/to/file.txt'
     File.open(path, 'w') do |f|
