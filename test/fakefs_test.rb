@@ -458,6 +458,13 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal ['/path/foo', '/path/foobar'], Dir['/p*h/foo*']
     assert_equal ['/path/foo', '/path/foobar'], Dir['/p??h/foo*']
 
+    assert_equal ['/path/bar', '/path/bar/baz', '/path/bar2', '/path/bar2/baz', '/path/foo', '/path/foobar'], Dir['/path/**/*']
+    assert_equal ['/path', '/path/bar', '/path/bar/baz', '/path/bar2', '/path/bar2/baz', '/path/foo', '/path/foobar'], Dir['/**/*']
+
+    assert_equal ['/path/bar', '/path/bar/baz', '/path/bar2', '/path/bar2/baz', '/path/foo', '/path/foobar'], Dir['/path/**/*']
+    
+    assert_equal ['/path/bar/baz'], Dir['/path/bar/**/*']
+
     FileUtils.cp_r '/path', '/otherpath'
 
     assert_equal %w( /otherpath/foo /otherpath/foobar /path/foo /path/foobar ), Dir['/*/foo*']
@@ -478,11 +485,11 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal ['/one/two/three'], Dir['/one/**/three']
   end
 
-  def test_dir_recursive_glob_ending_in_wildcards_only_returns_files
+  def test_dir_recursive_glob_ending_in_wildcards_returns_both_files_and_dirs
     File.open('/one/two/three/four.rb', 'w')
     File.open('/one/five.rb', 'w')
-    assert_equal ['/one/five.rb', '/one/two/three/four.rb'], Dir['/one/**/*']
-    assert_equal ['/one/five.rb', '/one/two/three/four.rb'], Dir['/one/**']
+    assert_equal ['/one/five.rb', '/one/two', '/one/two/three', '/one/two/three/four.rb'], Dir['/one/**/*']
+    assert_equal ['/one/five.rb', '/one/two'], Dir['/one/**']
   end
 
   def test_should_report_pos_as_0_when_opening

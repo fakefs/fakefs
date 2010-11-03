@@ -109,11 +109,14 @@ module FakeFS
       matches = case pattern
       when '**'
         case parts
-        when ['*'], []
+        when ['*']
           parts = [] # end recursion
           directories_under(dir).map do |d|
-            d.values.select{|f| f.is_a? FakeFile }
+            d.values.select{|f| f.is_a?(FakeFile) || f.is_a?(FakeDir) }
           end.flatten.uniq
+        when []
+          parts = [] # end recursion
+          dir.values.flatten.uniq
         else
           directories_under(dir)
         end
