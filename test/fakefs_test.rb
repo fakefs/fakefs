@@ -561,6 +561,9 @@ class FakeFSTest < Test::Unit::TestCase
 
     assert_equal ['/path/bar/baz'], Dir['/path/bar/**/*']
 
+    assert_equal ['/path/bar/baz', '/path/bar2/baz'], Dir['/path/bar/**/*', '/path/bar2/**/*']
+    assert_equal ['/path/bar/baz', '/path/bar2/baz', '/path/bar/baz'], Dir['/path/ba*/**/*', '/path/bar/**/*']
+
     FileUtils.cp_r '/path', '/otherpath'
 
     assert_equal %w( /otherpath/foo /otherpath/foobar /path/foo /path/foobar ), Dir['/*/foo*']
