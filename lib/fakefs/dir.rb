@@ -52,8 +52,8 @@ module FakeFS
       @contents[integer]
     end
 
-    def self.[](pattern)
-      glob(pattern)
+    def self.[](*pattern)
+      glob pattern
     end
 
     def self.chdir(dir, &blk)
@@ -79,7 +79,13 @@ module FakeFS
     end
 
     def self.glob(pattern)
-      [FileSystem.find(pattern) || []].flatten.map{|e| e.to_s}.sort
+      matches_for_pattern = lambda { |matcher| [FileSystem.find(matcher) || []].flatten.map{|e| e.to_s}.sort  }
+
+      if pattern.is_a? Array
+        return pattern.collect { |matcher| matches_for_pattern.call matcher }.flatten
+      else
+        return matches_for_pattern.call pattern
+      end
     end
 
     def self.mkdir(string, integer = 0)
