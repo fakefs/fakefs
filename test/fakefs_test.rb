@@ -1134,6 +1134,11 @@ class FakeFSTest < Test::Unit::TestCase
     assert File.exists?('/path')
   end
 
+  def test_can_create_directories_starting_with_dot
+    Dir.mkdir './path'
+    assert File.exists? './path'
+  end
+
   def test_directory_mkdir_relative
     FileUtils.mkdir_p('/new/root')
     FileSystem.chdir('/new/root')
