@@ -500,6 +500,11 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal [], Dir['/one/**/*']
   end
 
+  def test_dir_glob_can_be_overridden_to_match_dot_dirs
+    File.open('/one/.dotdir/three.rb', 'w')
+    assert_equal ['/one/.dotdir/three.rb'], Dir.glob(['/one/**/*'], File::FNM_DOTMATCH)
+  end
+
   def test_should_report_pos_as_0_when_opening
     File.open("/foo", "w") do |f|
       f << "foobar"

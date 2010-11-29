@@ -78,8 +78,8 @@ module FakeFS
       Dir.open(dirname) { |file| yield file }
     end
 
-    def self.glob(pattern)
-      matches_for_pattern = lambda { |matcher| [FileSystem.find(matcher) || []].flatten.map{|e| e.to_s}.sort  }
+    def self.glob(pattern, flags = 0)
+      matches_for_pattern = lambda { |matcher| [FileSystem.find(matcher, flags) || []].flatten.map{|e| e.to_s}.sort  }
 
       if pattern.is_a? Array
         return pattern.collect { |matcher| matches_for_pattern.call matcher }.flatten
