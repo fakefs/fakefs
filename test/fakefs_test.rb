@@ -601,6 +601,11 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal 2, yielded.size
   end
 
+  def test_dir_glob_does_not_match_dot_dirs_by_default
+    File.open('/one/.dotdir/three.rb', 'w')
+    assert_equal [], Dir['/one/**/*']
+  end
+
   def test_should_report_pos_as_0_when_opening
     File.open("/foo", "w") do |f|
       f << "foobar"
