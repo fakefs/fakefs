@@ -112,7 +112,7 @@ module FakeFS
         when ['*']
           parts = [] # end recursion
           directories_under(dir).map do |d|
-            d.values.select{|f| f.is_a?(FakeFile) || f.is_a?(FakeDir) }
+            d.values.select{|f| f.is_a?(FakeFile) || is_a_directory_and_matches_flags?(f, 0)}
           end.flatten.uniq
         when []
           parts = [] # end recursion
@@ -132,8 +132,12 @@ module FakeFS
     end
 
     def directories_under(dir)
-      children = dir.values.select{|f| f.is_a? FakeDir}
+      children = dir.values.select{|f| is_a_directory_and_matches_flags?(f, 0)}
       ([dir] + children + children.map{|c| directories_under(c)}).flatten.uniq
+    end
+
+    def is_a_directory_and_matches_flags?(entry, flags)
+      entry.is_a?(FakeDir) && entry.name !~ /^\./
     end
   end
 end
