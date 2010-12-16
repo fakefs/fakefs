@@ -197,7 +197,8 @@ module FakeFS
         @file      = file
         @fake_file = FileSystem.find(@file)
         @__lstat   = __lstat
-        @ctime, @mtime = @fake_file.ctime, @fake_file.mtime
+        @ctime     = @fake_file.ctime
+        @mtime     = @fake_file.mtime
       end
 
       def symlink?
