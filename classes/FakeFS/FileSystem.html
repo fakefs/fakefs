@@ -1,0 +1,482 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <title>FakeFS::FileSystem</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="../../css/reset.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="../../css/main.css" type="text/css" media="screen" />
+    <script src="../../js/jquery-1.3.2.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../../js/jquery-effect.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../../js/main.js" type="text/javascript" charset="utf-8"></script>
+</head>
+
+<body>     
+    <div class="banner">
+        <h1>
+            <span class="type">Module</span> 
+            FakeFS::FileSystem 
+            
+        </h1>
+        <ul class="files">
+            
+            <li><a href="../../files/lib/fakefs/file_system_rb.html">lib/fakefs/file_system.rb</a></li>
+            
+        </ul>
+    </div>
+    <div id="bodyContent">
+        <div id="content">
+    
+
+    
+
+    
+    
+
+    
+    
+    <div class="sectiontitle">Methods</div>
+    <dl class="methods">
+    
+        <dt>A</dt>
+        <dd>
+            <ul>
+                
+                <li><a href="#M000059">add</a></li>
+                
+            </ul>
+        </dd>
+    
+        <dt>C</dt>
+        <dd>
+            <ul>
+                
+                <li><a href="#M000069">chdir</a>,</li>
+                
+                <li><a href="#M000052">clear</a>,</li>
+                
+                <li><a href="#M000064">clone</a>,</li>
+                
+                <li><a href="#M000077">current_dir</a></li>
+                
+            </ul>
+        </dd>
+    
+        <dt>D</dt>
+        <dd>
+            <ul>
+                
+                <li><a href="#M000068">delete</a>,</li>
+                
+                <li><a href="#M000050">dir_levels</a></li>
+                
+            </ul>
+        </dd>
+    
+        <dt>F</dt>
+        <dd>
+            <ul>
+                
+                <li><a href="#M000053">files</a>,</li>
+                
+                <li><a href="#M000054">find</a>,</li>
+                
+                <li><a href="#M000051">fs</a></li>
+                
+            </ul>
+        </dd>
+    
+        <dt>N</dt>
+        <dd>
+            <ul>
+                
+                <li><a href="#M000076">normalize_path</a></li>
+                
+            </ul>
+        </dd>
+    
+        <dt>P</dt>
+        <dd>
+            <ul>
+                
+                <li><a href="#M000070">path_parts</a></li>
+                
+            </ul>
+        </dd>
+    
+    </dl>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+            <div class="sectiontitle">Instance Public methods</div>
+            
+            <div class="method">
+                <div class="title" id="M000059">
+                    
+                    <a name="M000059"></a><b>add</b>(path, object=FakeDir.new)
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000059_source')" id="l_M000059_source">show</a>
+                        
+                    </p>
+                    <div id="M000059_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/file_system.rb, line 35</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">add</span>(<span class="ruby-identifier">path</span>, <span class="ruby-identifier">object</span>=<span class="ruby-constant">FakeDir</span>.<span class="ruby-identifier">new</span>)
+      <span class="ruby-identifier">parts</span> = <span class="ruby-identifier">path_parts</span>(<span class="ruby-identifier">normalize_path</span>(<span class="ruby-identifier">path</span>))
+
+      <span class="ruby-identifier">d</span> = <span class="ruby-identifier">parts</span>[<span class="ruby-value">0</span><span class="ruby-operator">...</span><span class="ruby-value">-1</span>].<span class="ruby-identifier">inject</span>(<span class="ruby-identifier">fs</span>) <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">dir</span>, <span class="ruby-identifier">part</span><span class="ruby-operator">|</span>
+        <span class="ruby-identifier">dir</span>[<span class="ruby-identifier">part</span>] <span class="ruby-operator">||=</span> <span class="ruby-constant">FakeDir</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">part</span>, <span class="ruby-identifier">dir</span>)
+      <span class="ruby-keyword kw">end</span>
+
+      <span class="ruby-identifier">object</span>.<span class="ruby-identifier">name</span> = <span class="ruby-identifier">parts</span>.<span class="ruby-identifier">last</span>
+      <span class="ruby-identifier">object</span>.<span class="ruby-identifier">parent</span> = <span class="ruby-identifier">d</span>
+      <span class="ruby-identifier">d</span>[<span class="ruby-identifier">parts</span>.<span class="ruby-identifier">last</span>] <span class="ruby-operator">||=</span> <span class="ruby-identifier">object</span>
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="method">
+                <div class="title" id="M000069">
+                    
+                    <a name="M000069"></a><b>chdir</b>(dir, &amp;blk)
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000069_source')" id="l_M000069_source">show</a>
+                        
+                    </p>
+                    <div id="M000069_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/file_system.rb, line 74</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">chdir</span>(<span class="ruby-identifier">dir</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">blk</span>)
+      <span class="ruby-identifier">new_dir</span> = <span class="ruby-identifier">find</span>(<span class="ruby-identifier">dir</span>)
+      <span class="ruby-identifier">dir_levels</span>.<span class="ruby-identifier">push</span> <span class="ruby-identifier">dir</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">blk</span>
+
+      <span class="ruby-identifier">raise</span> <span class="ruby-constant">Errno</span><span class="ruby-operator">::</span><span class="ruby-constant">ENOENT</span>, <span class="ruby-identifier">dir</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">new_dir</span>
+
+      <span class="ruby-identifier">dir_levels</span>.<span class="ruby-identifier">push</span> <span class="ruby-identifier">dir</span> <span class="ruby-keyword kw">if</span> <span class="ruby-operator">!</span><span class="ruby-identifier">blk</span>
+      <span class="ruby-identifier">blk</span>.<span class="ruby-identifier">call</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">blk</span>
+    <span class="ruby-keyword kw">ensure</span>
+      <span class="ruby-identifier">dir_levels</span>.<span class="ruby-identifier">pop</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">blk</span>
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="method">
+                <div class="title" id="M000052">
+                    
+                    <a name="M000052"></a><b>clear</b>()
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000052_source')" id="l_M000052_source">show</a>
+                        
+                    </p>
+                    <div id="M000052_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/file_system.rb, line 13</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">clear</span>
+      <span class="ruby-ivar">@dir_levels</span> = <span class="ruby-keyword kw">nil</span>
+      <span class="ruby-ivar">@fs</span> = <span class="ruby-keyword kw">nil</span>
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="method">
+                <div class="title" id="M000064">
+                    
+                    <a name="M000064"></a><b>clone</b>(path)
+                    
+                </div>
+                
+                <div class="description">
+                  <p>
+copies directories and files from the real filesystem into our fake one
+</p>
+
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000064_source')" id="l_M000064_source">show</a>
+                        
+                    </p>
+                    <div id="M000064_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/file_system.rb, line 49</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">clone</span>(<span class="ruby-identifier">path</span>)
+      <span class="ruby-identifier">path</span>    = <span class="ruby-constant">File</span>.<span class="ruby-identifier">expand_path</span>(<span class="ruby-identifier">path</span>)
+      <span class="ruby-identifier">pattern</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">join</span>(<span class="ruby-identifier">path</span>, <span class="ruby-value str">'**'</span>, <span class="ruby-value str">'*'</span>)
+      <span class="ruby-identifier">files</span>   = <span class="ruby-constant">RealFile</span>.<span class="ruby-identifier">file?</span>(<span class="ruby-identifier">path</span>) <span class="ruby-operator">?</span> [<span class="ruby-identifier">path</span>] <span class="ruby-operator">:</span> [<span class="ruby-identifier">path</span>] <span class="ruby-operator">+</span> <span class="ruby-constant">RealDir</span>.<span class="ruby-identifier">glob</span>(<span class="ruby-identifier">pattern</span>, <span class="ruby-constant">RealFile</span><span class="ruby-operator">::</span><span class="ruby-constant">FNM_DOTMATCH</span>)
+
+      <span class="ruby-identifier">files</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span>
+        <span class="ruby-keyword kw">if</span> <span class="ruby-constant">RealFile</span>.<span class="ruby-identifier">file?</span>(<span class="ruby-identifier">f</span>)
+          <span class="ruby-constant">FileUtils</span>.<span class="ruby-identifier">mkdir_p</span>(<span class="ruby-constant">File</span>.<span class="ruby-identifier">dirname</span>(<span class="ruby-identifier">f</span>))
+          <span class="ruby-constant">File</span>.<span class="ruby-identifier">open</span>(<span class="ruby-identifier">f</span>, <span class="ruby-constant">File</span><span class="ruby-operator">::</span><span class="ruby-constant">WRITE_ONLY</span>) <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">g</span><span class="ruby-operator">|</span>
+            <span class="ruby-identifier">g</span>.<span class="ruby-identifier">print</span> <span class="ruby-constant">RealFile</span>.<span class="ruby-identifier">open</span>(<span class="ruby-identifier">f</span>){<span class="ruby-operator">|</span><span class="ruby-identifier">h</span><span class="ruby-operator">|</span> <span class="ruby-identifier">h</span>.<span class="ruby-identifier">read</span> }
+          <span class="ruby-keyword kw">end</span>
+        <span class="ruby-keyword kw">elsif</span> <span class="ruby-constant">RealFile</span>.<span class="ruby-identifier">directory?</span>(<span class="ruby-identifier">f</span>)
+          <span class="ruby-constant">FileUtils</span>.<span class="ruby-identifier">mkdir_p</span>(<span class="ruby-identifier">f</span>)
+        <span class="ruby-keyword kw">elsif</span> <span class="ruby-constant">RealFile</span>.<span class="ruby-identifier">symlink?</span>(<span class="ruby-identifier">f</span>)
+          <span class="ruby-constant">FileUtils</span>.<span class="ruby-identifier">ln_s</span>()
+        <span class="ruby-keyword kw">end</span>
+      <span class="ruby-keyword kw">end</span>
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="method">
+                <div class="title" id="M000077">
+                    
+                    <a name="M000077"></a><b>current_dir</b>()
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000077_source')" id="l_M000077_source">show</a>
+                        
+                    </p>
+                    <div id="M000077_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/file_system.rb, line 99</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">current_dir</span>
+      <span class="ruby-identifier">find</span>(<span class="ruby-identifier">normalize_path</span>(<span class="ruby-value str">'.'</span>))
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="method">
+                <div class="title" id="M000068">
+                    
+                    <a name="M000068"></a><b>delete</b>(path)
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000068_source')" id="l_M000068_source">show</a>
+                        
+                    </p>
+                    <div id="M000068_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/file_system.rb, line 68</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">delete</span>(<span class="ruby-identifier">path</span>)
+      <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">node</span> = <span class="ruby-constant">FileSystem</span>.<span class="ruby-identifier">find</span>(<span class="ruby-identifier">path</span>)
+        <span class="ruby-identifier">node</span>.<span class="ruby-identifier">delete</span>
+      <span class="ruby-keyword kw">end</span>
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="method">
+                <div class="title" id="M000050">
+                    
+                    <a name="M000050"></a><b>dir_levels</b>()
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000050_source')" id="l_M000050_source">show</a>
+                        
+                    </p>
+                    <div id="M000050_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/file_system.rb, line 5</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">dir_levels</span>
+      <span class="ruby-ivar">@dir_levels</span> <span class="ruby-operator">||=</span> []
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="method">
+                <div class="title" id="M000053">
+                    
+                    <a name="M000053"></a><b>files</b>()
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000053_source')" id="l_M000053_source">show</a>
+                        
+                    </p>
+                    <div id="M000053_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/file_system.rb, line 18</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">files</span>
+      <span class="ruby-identifier">fs</span>.<span class="ruby-identifier">values</span>
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="method">
+                <div class="title" id="M000054">
+                    
+                    <a name="M000054"></a><b>find</b>(path)
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000054_source')" id="l_M000054_source">show</a>
+                        
+                    </p>
+                    <div id="M000054_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/file_system.rb, line 22</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">find</span>(<span class="ruby-identifier">path</span>)
+      <span class="ruby-identifier">parts</span> = <span class="ruby-identifier">path_parts</span>(<span class="ruby-identifier">normalize_path</span>(<span class="ruby-identifier">path</span>))
+      <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">fs</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">parts</span>.<span class="ruby-identifier">empty?</span> <span class="ruby-comment cmt"># '/'</span>
+
+      <span class="ruby-identifier">entries</span> = <span class="ruby-identifier">find_recurser</span>(<span class="ruby-identifier">fs</span>, <span class="ruby-identifier">parts</span>).<span class="ruby-identifier">flatten</span>
+
+      <span class="ruby-keyword kw">case</span> <span class="ruby-identifier">entries</span>.<span class="ruby-identifier">length</span>
+      <span class="ruby-keyword kw">when</span> <span class="ruby-value">0</span> <span class="ruby-keyword kw">then</span> <span class="ruby-keyword kw">nil</span>
+      <span class="ruby-keyword kw">when</span> <span class="ruby-value">1</span> <span class="ruby-keyword kw">then</span> <span class="ruby-identifier">entries</span>.<span class="ruby-identifier">first</span>
+      <span class="ruby-keyword kw">else</span> <span class="ruby-identifier">entries</span>
+      <span class="ruby-keyword kw">end</span>
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="method">
+                <div class="title" id="M000051">
+                    
+                    <a name="M000051"></a><b>fs</b>()
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000051_source')" id="l_M000051_source">show</a>
+                        
+                    </p>
+                    <div id="M000051_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/file_system.rb, line 9</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">fs</span>
+      <span class="ruby-ivar">@fs</span> <span class="ruby-operator">||=</span> <span class="ruby-constant">FakeDir</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value str">'.'</span>)
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="method">
+                <div class="title" id="M000076">
+                    
+                    <a name="M000076"></a><b>normalize_path</b>(path)
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000076_source')" id="l_M000076_source">show</a>
+                        
+                    </p>
+                    <div id="M000076_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/file_system.rb, line 90</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">normalize_path</span>(<span class="ruby-identifier">path</span>)
+      <span class="ruby-keyword kw">if</span> <span class="ruby-constant">Pathname</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">path</span>).<span class="ruby-identifier">absolute?</span>
+        <span class="ruby-constant">File</span>.<span class="ruby-identifier">expand_path</span>(<span class="ruby-identifier">path</span>)
+      <span class="ruby-keyword kw">else</span>
+        <span class="ruby-identifier">parts</span> = <span class="ruby-identifier">dir_levels</span> <span class="ruby-operator">+</span> [<span class="ruby-identifier">path</span>]
+        <span class="ruby-constant">File</span>.<span class="ruby-identifier">expand_path</span>(<span class="ruby-constant">File</span>.<span class="ruby-identifier">join</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">parts</span>))
+      <span class="ruby-keyword kw">end</span>
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="method">
+                <div class="title" id="M000070">
+                    
+                    <a name="M000070"></a><b>path_parts</b>(path)
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000070_source')" id="l_M000070_source">show</a>
+                        
+                    </p>
+                    <div id="M000070_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/file_system.rb, line 86</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">path_parts</span>(<span class="ruby-identifier">path</span>)
+      <span class="ruby-identifier">path</span>.<span class="ruby-identifier">split</span>(<span class="ruby-constant">File</span><span class="ruby-operator">::</span><span class="ruby-constant">PATH_SEPARATOR</span>).<span class="ruby-identifier">reject</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">part</span><span class="ruby-operator">|</span> <span class="ruby-identifier">part</span>.<span class="ruby-identifier">empty?</span> }
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+</div>
+    </div>
+  </body>
+</html>    

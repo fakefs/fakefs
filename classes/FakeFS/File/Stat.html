@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <title>FakeFS::File::Stat</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="../../../css/reset.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="../../../css/main.css" type="text/css" media="screen" />
+    <script src="../../../js/jquery-1.3.2.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../../../js/jquery-effect.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../../../js/main.js" type="text/javascript" charset="utf-8"></script>
+</head>
+
+<body>     
+    <div class="banner">
+        <h1>
+            <span class="type">Class</span> 
+            FakeFS::File::Stat 
+            
+                <span class="parent">&lt; 
+                    
+                    <a href="../../Object.html">Object</a>
+                    
+                </span>
+            
+        </h1>
+        <ul class="files">
+            
+            <li><a href="../../../files/lib/fakefs/file_rb.html">lib/fakefs/file.rb</a></li>
+            
+        </ul>
+    </div>
+    <div id="bodyContent">
+        <div id="content">
+    
+
+    
+
+    
+    
+
+    
+    
+    <div class="sectiontitle">Methods</div>
+    <dl class="methods">
+    
+        <dt>D</dt>
+        <dd>
+            <ul>
+                
+                <li><a href="#M000087">directory?</a></li>
+                
+            </ul>
+        </dd>
+    
+        <dt>N</dt>
+        <dd>
+            <ul>
+                
+                <li><a href="#M000084">new</a>,</li>
+                
+                <li><a href="#M000088">nlink</a></li>
+                
+            </ul>
+        </dd>
+    
+        <dt>S</dt>
+        <dd>
+            <ul>
+                
+                <li><a href="#M000089">size</a>,</li>
+                
+                <li><a href="#M000086">symlink?</a></li>
+                
+            </ul>
+        </dd>
+    
+    </dl>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="sectiontitle">Attributes</div>
+    <table border='0' cellpadding='5'>
+        
+        <tr valign='top'>
+            <td class='attr-rw'>
+                [R]
+            </td>
+            <td class='attr-name'>ctime</td>
+            <td class='attr-desc'></td>
+        </tr>
+        
+        <tr valign='top'>
+            <td class='attr-rw'>
+                [R]
+            </td>
+            <td class='attr-name'>mtime</td>
+            <td class='attr-desc'></td>
+        </tr>
+        
+    </table>
+    
+
+    
+            <div class="sectiontitle">Class Public methods</div>
+            
+            <div class="method">
+                <div class="title" id="M000084">
+                    
+                    <a name="M000084"></a><b>new</b>(file, __lstat = false)
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000084_source')" id="l_M000084_source">show</a>
+                        
+                    </p>
+                    <div id="M000084_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/file.rb, line 192</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">initialize</span>(<span class="ruby-identifier">file</span>, <span class="ruby-identifier">__lstat</span> = <span class="ruby-keyword kw">false</span>)
+        <span class="ruby-keyword kw">if</span> <span class="ruby-operator">!</span><span class="ruby-constant">File</span>.<span class="ruby-identifier">exists?</span>(<span class="ruby-identifier">file</span>)
+          <span class="ruby-identifier">raise</span>(<span class="ruby-constant">Errno</span><span class="ruby-operator">::</span><span class="ruby-constant">ENOENT</span>, <span class="ruby-node">&quot;No such file or directory - #{file}&quot;</span>)
+        <span class="ruby-keyword kw">end</span>
+
+        <span class="ruby-ivar">@file</span>      = <span class="ruby-identifier">file</span>
+        <span class="ruby-ivar">@fake_file</span> = <span class="ruby-constant">FileSystem</span>.<span class="ruby-identifier">find</span>(<span class="ruby-ivar">@file</span>)
+        <span class="ruby-ivar">@__lstat</span>   = <span class="ruby-identifier">__lstat</span>
+        <span class="ruby-ivar">@ctime</span>     = <span class="ruby-ivar">@fake_file</span>.<span class="ruby-identifier">ctime</span>
+        <span class="ruby-ivar">@mtime</span>     = <span class="ruby-ivar">@fake_file</span>.<span class="ruby-identifier">mtime</span>
+      <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="sectiontitle">Instance Public methods</div>
+            
+            <div class="method">
+                <div class="title" id="M000087">
+                    
+                    <a name="M000087"></a><b>directory?</b>()
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000087_source')" id="l_M000087_source">show</a>
+                        
+                    </p>
+                    <div id="M000087_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/file.rb, line 208</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">directory?</span>
+        <span class="ruby-constant">File</span>.<span class="ruby-identifier">directory?</span>(<span class="ruby-ivar">@file</span>)
+      <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="method">
+                <div class="title" id="M000088">
+                    
+                    <a name="M000088"></a><b>nlink</b>()
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000088_source')" id="l_M000088_source">show</a>
+                        
+                    </p>
+                    <div id="M000088_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/file.rb, line 212</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">nlink</span>
+        <span class="ruby-ivar">@fake_file</span>.<span class="ruby-identifier">links</span>.<span class="ruby-identifier">size</span>
+      <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="method">
+                <div class="title" id="M000089">
+                    
+                    <a name="M000089"></a><b>size</b>()
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000089_source')" id="l_M000089_source">show</a>
+                        
+                    </p>
+                    <div id="M000089_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/file.rb, line 216</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">size</span>
+        <span class="ruby-keyword kw">if</span> <span class="ruby-ivar">@__lstat</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">symlink?</span>
+          <span class="ruby-ivar">@fake_file</span>.<span class="ruby-identifier">target</span>.<span class="ruby-identifier">size</span>
+        <span class="ruby-keyword kw">else</span>
+          <span class="ruby-constant">File</span>.<span class="ruby-identifier">size</span>(<span class="ruby-ivar">@file</span>)
+        <span class="ruby-keyword kw">end</span>
+      <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="method">
+                <div class="title" id="M000086">
+                    
+                    <a name="M000086"></a><b>symlink?</b>()
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000086_source')" id="l_M000086_source">show</a>
+                        
+                    </p>
+                    <div id="M000086_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/file.rb, line 204</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">symlink?</span>
+        <span class="ruby-constant">File</span>.<span class="ruby-identifier">symlink?</span>(<span class="ruby-ivar">@file</span>)
+      <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+</div>
+    </div>
+  </body>
+</html>    

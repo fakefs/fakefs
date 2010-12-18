@@ -1,0 +1,456 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <title>FakeFS::FakeFile</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="../../css/reset.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="../../css/main.css" type="text/css" media="screen" />
+    <script src="../../js/jquery-1.3.2.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../../js/jquery-effect.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../../js/main.js" type="text/javascript" charset="utf-8"></script>
+</head>
+
+<body>     
+    <div class="banner">
+        <h1>
+            <span class="type">Class</span> 
+            FakeFS::FakeFile 
+            
+                <span class="parent">&lt; 
+                    
+                    <a href="../Object.html">Object</a>
+                    
+                </span>
+            
+        </h1>
+        <ul class="files">
+            
+            <li><a href="../../files/lib/fakefs/fake/file_rb.html">lib/fakefs/fake/file.rb</a></li>
+            
+        </ul>
+    </div>
+    <div id="bodyContent">
+        <div id="content">
+    
+
+    
+
+    
+    
+
+    
+    
+    <div class="sectiontitle">Methods</div>
+    <dl class="methods">
+    
+        <dt>C</dt>
+        <dd>
+            <ul>
+                
+                <li><a href="#M000038">clone</a>,</li>
+                
+                <li><a href="#M000034">content</a>,</li>
+                
+                <li><a href="#M000035">content=</a></li>
+                
+            </ul>
+        </dd>
+    
+        <dt>D</dt>
+        <dd>
+            <ul>
+                
+                <li><a href="#M000042">delete</a></li>
+                
+            </ul>
+        </dd>
+    
+        <dt>E</dt>
+        <dd>
+            <ul>
+                
+                <li><a href="#M000039">entry</a></li>
+                
+            </ul>
+        </dd>
+    
+        <dt>I</dt>
+        <dd>
+            <ul>
+                
+                <li><a href="#M000040">inspect</a></li>
+                
+            </ul>
+        </dd>
+    
+        <dt>L</dt>
+        <dd>
+            <ul>
+                
+                <li><a href="#M000037">link</a>,</li>
+                
+                <li><a href="#M000036">links</a></li>
+                
+            </ul>
+        </dd>
+    
+        <dt>N</dt>
+        <dd>
+            <ul>
+                
+                <li><a href="#M000033">new</a></li>
+                
+            </ul>
+        </dd>
+    
+        <dt>T</dt>
+        <dd>
+            <ul>
+                
+                <li><a href="#M000041">to_s</a></li>
+                
+            </ul>
+        </dd>
+    
+    </dl>
+    
+
+    
+
+    
+
+    
+    <div class="sectiontitle">Classes and Modules</div>
+    <ul>
+        
+        <li><span class="type">CLASS</span> <a href="FakeFile/Inode.html">FakeFS::FakeFile::Inode</a></li>
+        
+    </ul>
+    
+
+    
+
+    
+    <div class="sectiontitle">Attributes</div>
+    <table border='0' cellpadding='5'>
+        
+        <tr valign='top'>
+            <td class='attr-rw'>
+                [RW]
+            </td>
+            <td class='attr-name'>name</td>
+            <td class='attr-desc'></td>
+        </tr>
+        
+        <tr valign='top'>
+            <td class='attr-rw'>
+                [RW]
+            </td>
+            <td class='attr-name'>parent</td>
+            <td class='attr-desc'></td>
+        </tr>
+        
+        <tr valign='top'>
+            <td class='attr-rw'>
+                [RW]
+            </td>
+            <td class='attr-name'>content</td>
+            <td class='attr-desc'></td>
+        </tr>
+        
+        <tr valign='top'>
+            <td class='attr-rw'>
+                [R]
+            </td>
+            <td class='attr-name'>ctime</td>
+            <td class='attr-desc'></td>
+        </tr>
+        
+        <tr valign='top'>
+            <td class='attr-rw'>
+                [R]
+            </td>
+            <td class='attr-name'>mtime</td>
+            <td class='attr-desc'></td>
+        </tr>
+        
+        <tr valign='top'>
+            <td class='attr-rw'>
+                [RW]
+            </td>
+            <td class='attr-name'>inode</td>
+            <td class='attr-desc'></td>
+        </tr>
+        
+    </table>
+    
+
+    
+            <div class="sectiontitle">Class Public methods</div>
+            
+            <div class="method">
+                <div class="title" id="M000033">
+                    
+                    <a name="M000033"></a><b>new</b>(name = nil, parent = nil)
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000033_source')" id="l_M000033_source">show</a>
+                        
+                    </p>
+                    <div id="M000033_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/fake/file.rb, line 31</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">initialize</span>(<span class="ruby-identifier">name</span> = <span class="ruby-keyword kw">nil</span>, <span class="ruby-identifier">parent</span> = <span class="ruby-keyword kw">nil</span>)
+      <span class="ruby-ivar">@name</span>   = <span class="ruby-identifier">name</span>
+      <span class="ruby-ivar">@parent</span> = <span class="ruby-identifier">parent</span>
+      <span class="ruby-ivar">@inode</span>  = <span class="ruby-constant">Inode</span>.<span class="ruby-identifier">new</span>(<span class="ruby-keyword kw">self</span>)
+      <span class="ruby-ivar">@ctime</span>  = <span class="ruby-constant">Time</span>.<span class="ruby-identifier">now</span>
+      <span class="ruby-ivar">@mtime</span>  = <span class="ruby-ivar">@ctime</span>
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="sectiontitle">Instance Public methods</div>
+            
+            <div class="method">
+                <div class="title" id="M000038">
+                    
+                    <a name="M000038"></a><b>clone</b>(parent = nil)
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000038_source')" id="l_M000038_source">show</a>
+                        
+                    </p>
+                    <div id="M000038_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/fake/file.rb, line 57</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">clone</span>(<span class="ruby-identifier">parent</span> = <span class="ruby-keyword kw">nil</span>)
+      <span class="ruby-identifier">clone</span> = <span class="ruby-keyword kw">super</span>()
+      <span class="ruby-identifier">clone</span>.<span class="ruby-identifier">parent</span> = <span class="ruby-identifier">parent</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">parent</span>
+      <span class="ruby-identifier">clone</span>.<span class="ruby-identifier">inode</span>  = <span class="ruby-identifier">inode</span>.<span class="ruby-identifier">clone</span>
+      <span class="ruby-identifier">clone</span>
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="method">
+                <div class="title" id="M000034">
+                    
+                    <a name="M000034"></a><b>content</b>()
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000034_source')" id="l_M000034_source">show</a>
+                        
+                    </p>
+                    <div id="M000034_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/fake/file.rb, line 41</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">content</span>
+      <span class="ruby-ivar">@inode</span>.<span class="ruby-identifier">content</span>
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="method">
+                <div class="title" id="M000035">
+                    
+                    <a name="M000035"></a><b>content=</b>(str)
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000035_source')" id="l_M000035_source">show</a>
+                        
+                    </p>
+                    <div id="M000035_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/fake/file.rb, line 45</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">content=</span>(<span class="ruby-identifier">str</span>)
+      <span class="ruby-ivar">@inode</span>.<span class="ruby-identifier">content</span> = <span class="ruby-identifier">str</span>
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="method">
+                <div class="title" id="M000042">
+                    
+                    <a name="M000042"></a><b>delete</b>()
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000042_source')" id="l_M000042_source">show</a>
+                        
+                    </p>
+                    <div id="M000042_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/fake/file.rb, line 76</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">delete</span>
+      <span class="ruby-identifier">inode</span>.<span class="ruby-identifier">unlink</span>(<span class="ruby-keyword kw">self</span>)
+      <span class="ruby-identifier">parent</span>.<span class="ruby-identifier">delete</span>(<span class="ruby-keyword kw">self</span>)
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="method">
+                <div class="title" id="M000039">
+                    
+                    <a name="M000039"></a><b>entry</b>()
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000039_source')" id="l_M000039_source">show</a>
+                        
+                    </p>
+                    <div id="M000039_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/fake/file.rb, line 64</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">entry</span>
+      <span class="ruby-keyword kw">self</span>
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="method">
+                <div class="title" id="M000040">
+                    
+                    <a name="M000040"></a><b>inspect</b>()
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000040_source')" id="l_M000040_source">show</a>
+                        
+                    </p>
+                    <div id="M000040_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/fake/file.rb, line 68</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">inspect</span>
+      <span class="ruby-node">&quot;(FakeFile name:#{name.inspect} parent:#{parent.to_s.inspect} size:#{content.size})&quot;</span>
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="method">
+                <div class="title" id="M000037">
+                    
+                    <a name="M000037"></a><b>link</b>(other_file)
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000037_source')" id="l_M000037_source">show</a>
+                        
+                    </p>
+                    <div id="M000037_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/fake/file.rb, line 53</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">link</span>(<span class="ruby-identifier">other_file</span>)
+      <span class="ruby-ivar">@inode</span>.<span class="ruby-identifier">link</span>(<span class="ruby-identifier">other_file</span>)
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="method">
+                <div class="title" id="M000036">
+                    
+                    <a name="M000036"></a><b>links</b>()
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000036_source')" id="l_M000036_source">show</a>
+                        
+                    </p>
+                    <div id="M000036_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/fake/file.rb, line 49</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">links</span>
+      <span class="ruby-ivar">@inode</span>.<span class="ruby-identifier">links</span>
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="method">
+                <div class="title" id="M000041">
+                    
+                    <a name="M000041"></a><b>to_s</b>()
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000041_source')" id="l_M000041_source">show</a>
+                        
+                    </p>
+                    <div id="M000041_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/fake/file.rb, line 72</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">to_s</span>
+      <span class="ruby-constant">File</span>.<span class="ruby-identifier">join</span>(<span class="ruby-identifier">parent</span>.<span class="ruby-identifier">to_s</span>, <span class="ruby-identifier">name</span>)
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+</div>
+    </div>
+  </body>
+</html>    

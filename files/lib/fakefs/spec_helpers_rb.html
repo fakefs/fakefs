@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <title>spec_helpers.rb</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="../../../css/reset.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="../../../css/main.css" type="text/css" media="screen" />
+    <script src="../../../js/jquery-1.3.2.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../../../js/jquery-effect.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../../../js/main.js" type="text/javascript" charset="utf-8"></script>
+</head>
+
+<body>     
+    <div class="banner">
+        <h1>
+            spec_helpers.rb
+        </h1>
+        <ul class="files">
+            <li>lib/fakefs/spec_helpers.rb</li>
+            <li>Last modified: Sun Nov 08 00:56:21 -0500 2009</li>
+        </ul>
+    </div>
+
+    <div id="bodyContent">
+        <div id="content">
+    
+    <div class="description">
+        <p>
+<a href="../../../classes/FakeFS/SpecHelpers.html">FakeFS::SpecHelpers</a>
+provides a simple macro for RSpec example groups to turn <a
+href="../../../classes/FakeFS.html">FakeFS</a> on and off. To use it simply
+require &#8216;fakefs/spec_helpers&#8217;, then include <a
+href="../../../classes/FakeFS/SpecHelpers.html">FakeFS::SpecHelpers</a>
+into any example groups that you wish to use <a
+href="../../../classes/FakeFS.html">FakeFS</a> in. For example:
+</p>
+<pre>
+  require 'fakefs/spec_helpers'
+
+  describe &quot;Some specs that deal with files&quot; do
+    include FakeFS::SpecHelpers
+    ...
+  end
+</pre>
+<p>
+Alternatively, you can include <a
+href="../../../classes/FakeFS/SpecHelpers.html">FakeFS::SpecHelpers</a> in
+all your example groups using RSpec&#8217;s configuration block in your
+spec helper:
+</p>
+<pre>
+  require 'fakefs/spec_helpers'
+
+  Spec::Runner.configure do |config|
+    config.include FakeFS::SpecHelpers
+  end
+</pre>
+<p>
+If you do the above then use_fakefs will be available in all of your
+example groups.
+</p>
+
+    </div>
+    
+
+    
+    <div class="sectiontitle">Required Files</div>
+    <ul>
+        
+        <li>fakefs/safe</li>
+        
+    </ul>
+    
+
+    
+    
+
+    
+    
+
+    
+
+    
+
+    
+    <div class="sectiontitle">Classes and Modules</div>
+    <ul>
+        
+        <li><span class="type">MODULE</span> <a href="../../../classes/FakeFS.html">FakeFS</a></li>
+        
+    </ul>
+    
+
+    
+
+    
+
+    
+</div>
+    </div>
+  </body>
+</html>
