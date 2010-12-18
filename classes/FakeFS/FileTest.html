@@ -3,7 +3,7 @@
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-    <title>FakeFS::Version</title>
+    <title>FakeFS::FileTest</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <link rel="stylesheet" href="../../css/reset.css" type="text/css" media="screen" />
     <link rel="stylesheet" href="../../css/main.css" type="text/css" media="screen" />
@@ -15,13 +15,19 @@
 <body>     
     <div class="banner">
         <h1>
-            <span class="type">Module</span> 
-            FakeFS::Version 
+            <span class="type">Class</span> 
+            FakeFS::FileTest 
+            
+                <span class="parent">&lt; 
+                    
+                    <a href="../Object.html">Object</a>
+                    
+                </span>
             
         </h1>
         <ul class="files">
             
-            <li><a href="../../files/lib/fakefs/version_rb.html">lib/fakefs/version.rb</a></li>
+            <li><a href="../../files/lib/fakefs/file_test_rb.html">lib/fakefs/file_test.rb</a></li>
             
         </ul>
     </div>
@@ -39,11 +45,11 @@
     <div class="sectiontitle">Methods</div>
     <dl class="methods">
     
-        <dt>T</dt>
+        <dt>E</dt>
         <dd>
             <ul>
                 
-                <li><a href="#M000139">to_s</a></li>
+                <li><a href="#M000118">exist?</a></li>
                 
             </ul>
         </dd>
@@ -58,18 +64,6 @@
     
 
     
-    <div class="sectiontitle">Constants</div>
-    <table border='0' cellpadding='5'>
-        
-        <tr valign='top'>
-            <td class="attr-name">VERSION</td>
-            <td>=</td>
-            <td class="attr-value">&quot;0.3.0&quot;</td>
-        </tr>
-        
-        
-    </table>
-    
 
     
 
@@ -77,9 +71,9 @@
             <div class="sectiontitle">Class Public methods</div>
             
             <div class="method">
-                <div class="title" id="M000139">
+                <div class="title" id="M000118">
                     
-                    <a name="M000139"></a><b>to_s</b>()
+                    <a name="M000118"></a><b>exist?</b>(file_name)
                     
                 </div>
                 
@@ -88,13 +82,13 @@
                 
                 <div class="sourcecode">
                     <p class="source-link">
-                        Source: <a href="javascript:toggleSource('M000139_source')" id="l_M000139_source">show</a>
+                        Source: <a href="javascript:toggleSource('M000118_source')" id="l_M000118_source">show</a>
                         
                     </p>
-                    <div id="M000139_source" class="dyn-source">
-                        <pre><span class="ruby-comment cmt"># File lib/fakefs/version.rb, line 5</span>
-    <span class="ruby-keyword kw">def</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">to_s</span>
-      <span class="ruby-constant">VERSION</span>
+                    <div id="M000118_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/file_test.rb, line 3</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">exist?</span>(<span class="ruby-identifier">file_name</span>)
+      <span class="ruby-constant">File</span>.<span class="ruby-identifier">exist?</span>(<span class="ruby-identifier">file_name</span>)
     <span class="ruby-keyword kw">end</span></pre>
                     </div>
                 </div>

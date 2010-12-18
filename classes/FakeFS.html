@@ -35,6 +35,8 @@
             
             <li><a href="../files/lib/fakefs/file_system_rb.html">lib/fakefs/file_system.rb</a></li>
             
+            <li><a href="../files/lib/fakefs/file_test_rb.html">lib/fakefs/file_test.rb</a></li>
+            
             <li><a href="../files/lib/fakefs/fileutils_rb.html">lib/fakefs/fileutils.rb</a></li>
             
             <li><a href="../files/lib/fakefs/spec_helpers_rb.html">lib/fakefs/spec_helpers.rb</a></li>
@@ -104,6 +106,8 @@
         
         <li><span class="type">CLASS</span> <a href="FakeFS/File.html">FakeFS::File</a></li>
         
+        <li><span class="type">CLASS</span> <a href="FakeFS/FileTest.html">FakeFS::FileTest</a></li>
+        
     </ul>
     
 
@@ -128,20 +132,22 @@
                     <p class="source-link">
                         Source: <a href="javascript:toggleSource('M000000_source')" id="l_M000000_source">show</a>
                         
-                        | <a href="http://github.com/defunkt/fakefs/blob/7444ef50b3ffbb8a534182b2a3af6a0b6073b32f/lib/fakefs/base.rb#L8" target="_blank" class="github_url">on GitHub</a>
-                        
                     </p>
                     <div id="M000000_source" class="dyn-source">
-                        <pre><span class="ruby-comment cmt"># File lib/fakefs/base.rb, line 8</span>
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/base.rb, line 7</span>
   <span class="ruby-keyword kw">def</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">activate!</span>
     <span class="ruby-constant">Object</span>.<span class="ruby-identifier">class_eval</span> <span class="ruby-keyword kw">do</span>
       <span class="ruby-identifier">remove_const</span>(<span class="ruby-identifier">:Dir</span>)
       <span class="ruby-identifier">remove_const</span>(<span class="ruby-identifier">:File</span>)
+      <span class="ruby-identifier">remove_const</span>(<span class="ruby-identifier">:FileTest</span>)
       <span class="ruby-identifier">remove_const</span>(<span class="ruby-identifier">:FileUtils</span>)
-      <span class="ruby-identifier">const_set</span>(<span class="ruby-identifier">:Dir</span>, <span class="ruby-constant">FakeFS</span><span class="ruby-operator">::</span><span class="ruby-constant">Dir</span>)
-      <span class="ruby-identifier">const_set</span>(<span class="ruby-identifier">:File</span>, <span class="ruby-constant">FakeFS</span><span class="ruby-operator">::</span><span class="ruby-constant">File</span>)
+
+      <span class="ruby-identifier">const_set</span>(<span class="ruby-identifier">:Dir</span>,       <span class="ruby-constant">FakeFS</span><span class="ruby-operator">::</span><span class="ruby-constant">Dir</span>)
+      <span class="ruby-identifier">const_set</span>(<span class="ruby-identifier">:File</span>,      <span class="ruby-constant">FakeFS</span><span class="ruby-operator">::</span><span class="ruby-constant">File</span>)
       <span class="ruby-identifier">const_set</span>(<span class="ruby-identifier">:FileUtils</span>, <span class="ruby-constant">FakeFS</span><span class="ruby-operator">::</span><span class="ruby-constant">FileUtils</span>)
+      <span class="ruby-identifier">const_set</span>(<span class="ruby-identifier">:FileTest</span>,  <span class="ruby-constant">FakeFS</span><span class="ruby-operator">::</span><span class="ruby-constant">FileTest</span>)
     <span class="ruby-keyword kw">end</span>
+    <span class="ruby-keyword kw">true</span>
   <span class="ruby-keyword kw">end</span></pre>
                     </div>
                 </div>
@@ -162,20 +168,22 @@
                     <p class="source-link">
                         Source: <a href="javascript:toggleSource('M000001_source')" id="l_M000001_source">show</a>
                         
-                        | <a href="http://github.com/defunkt/fakefs/blob/7444ef50b3ffbb8a534182b2a3af6a0b6073b32f/lib/fakefs/base.rb#L19" target="_blank" class="github_url">on GitHub</a>
-                        
                     </p>
                     <div id="M000001_source" class="dyn-source">
-                        <pre><span class="ruby-comment cmt"># File lib/fakefs/base.rb, line 19</span>
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/base.rb, line 22</span>
   <span class="ruby-keyword kw">def</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">deactivate!</span>
     <span class="ruby-constant">Object</span>.<span class="ruby-identifier">class_eval</span> <span class="ruby-keyword kw">do</span>
       <span class="ruby-identifier">remove_const</span>(<span class="ruby-identifier">:Dir</span>)
       <span class="ruby-identifier">remove_const</span>(<span class="ruby-identifier">:File</span>)
+      <span class="ruby-identifier">remove_const</span>(<span class="ruby-identifier">:FileTest</span>)
       <span class="ruby-identifier">remove_const</span>(<span class="ruby-identifier">:FileUtils</span>)
-      <span class="ruby-identifier">const_set</span>(<span class="ruby-identifier">:Dir</span>, <span class="ruby-constant">RealDir</span>)
-      <span class="ruby-identifier">const_set</span>(<span class="ruby-identifier">:File</span>, <span class="ruby-constant">RealFile</span>)
+
+      <span class="ruby-identifier">const_set</span>(<span class="ruby-identifier">:Dir</span>,       <span class="ruby-constant">RealDir</span>)
+      <span class="ruby-identifier">const_set</span>(<span class="ruby-identifier">:File</span>,      <span class="ruby-constant">RealFile</span>)
+      <span class="ruby-identifier">const_set</span>(<span class="ruby-identifier">:FileTest</span>,  <span class="ruby-constant">RealFileTest</span>)
       <span class="ruby-identifier">const_set</span>(<span class="ruby-identifier">:FileUtils</span>, <span class="ruby-constant">RealFileUtils</span>)
     <span class="ruby-keyword kw">end</span>
+    <span class="ruby-keyword kw">true</span>
   <span class="ruby-keyword kw">end</span></pre>
                     </div>
                 </div>

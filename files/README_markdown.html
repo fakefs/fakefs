@@ -19,7 +19,7 @@
         </h1>
         <ul class="files">
             <li>README.markdown</li>
-            <li>Last modified: Wed Oct 28 11:02:19 -0700 2009</li>
+            <li>Last modified: Sat Dec 18 14:13:57 -0500 2010</li>
         </ul>
     </div>
 
@@ -27,104 +27,184 @@
         <div id="content">
     
     <div class="description">
-        <h1>FakeFS</h1>
+        <p>
+<a href="../classes/FakeFS.html">FakeFS</a>
+</p>
+<h6></h6>
+<p>
+Mocha is great. But when your library is all about manipulating the
+filesystem, you really want to test the behavior and not the
+implementation.
+</p>
+<p>
+If you&#8217;re mocking and stubbing every call to FileUtils or File,
+you&#8217;re tightly coupling your tests with the implementation.
+</p>
+<pre>
+    def test_creates_directory
+      FileUtils.expects(:mkdir).with(&quot;directory&quot;).once
+      Library.add &quot;directory&quot;
+    end
+</pre>
+<p>
+The above test will break if we decide to use `mkdir_p` in our code.
+Refactoring code shouldn&#8217;t necessitate refactoring tests.
+</p>
+<p>
+With FakeFS:
+</p>
+<pre>
+    def test_creates_directory
+      Library.add &quot;directory&quot;
+      assert File.directory?(&quot;directory&quot;)
+    end
+</pre>
+<p>
+Woot.
+</p>
+<p>
+Usage
+</p>
+<hr size="3"></hr><pre>
+    require 'fakefs'
 
-<p>Mocha is great. But when your library is all about manipulating the
-filesystem, you really want to test the behavior and not the implementation.</p>
+    # That's it.
+</pre>
+<p>
+Don&#8217;t Fake the FS Immediately
+</p>
+<hr size="10"></hr><pre>
+    require 'fakefs/safe'
 
-<p>If you're mocking and stubbing every call to FileUtils or File, you're
-tightly coupling your tests with the implementation.</p>
+    FakeFS.activate!
+    # your code
+    FakeFS.deactivate!
 
-<pre><code>def test_creates_directory
-  FileUtils.expects(:mkdir).with("directory").once
-  Library.add "directory"
-end
-</code></pre>
+    # or
+    FakeFS do
+      # your code
+    end
+</pre>
+<p>
+RSpec
+</p>
+<hr size="3"></hr><p>
+The above approach works with RSpec as well. In addition you may include <a
+href="../classes/FakeFS/SpecHelpers.html">FakeFS::SpecHelpers</a> to turn
+<a href="../classes/FakeFS.html">FakeFS</a> on and off in a given example
+group:
+</p>
+<pre>
+    require 'fakefs/spec_helpers'
 
-<p>The above test will break if we decide to use <code>mkdir_p</code> in our code. Refactoring
-code shouldn't necessitate refactoring tests.</p>
+    describe &quot;my spec&quot; do
+      include FakeFS::SpecHelpers
+    end
+</pre>
+<p>
+See `<a
+href="lib/fakefs/spec_helpers_rb.html">lib/fakefs/spec_helpers.rb</a>` for
+more info.
+</p>
+<p>
+How is this different than MockFS?
+</p>
+<hr size="10"></hr><p>
+<a href="../classes/FakeFS.html">FakeFS</a> provides a test suite and works
+with symlinks. It&#8217;s also strictly a test-time dependency: your actual
+library does not need to use or know about <a
+href="../classes/FakeFS.html">FakeFS</a>.
+</p>
+<p>
+Caveats
+</p>
+<hr size="5"></hr><p>
+<a href="../classes/FakeFS.html">FakeFS</a> internally uses the `Pathname`
+and `FileUtils` constants. If you use these in your app, be certain
+you&#8217;re properly requiring them and not counting on FakeFS&#8217; own
+require.
+</p>
+<p>
+Speed?
+</p>
+<hr size="4"></hr><p>
+<<a href="http://gist.github.com/156091">gist.github.com/156091</a>>
+</p>
+<p>
+Installation
+</p>
+<hr size="10"></hr><p>
+### [Gemcutter](<a href="http://gemcutter.org/">gemcutter.org/</a>)
+</p>
+<pre>
+    $ gem install fakefs
+</pre>
+<p>
+### [Rip](<a href="http://hellorip.com">hellorip.com</a>)
+</p>
+<pre>
+    $ rip install git://github.com/defunkt/fakefs.git
+</pre>
+<p>
+Contributing
+</p>
+<hr size="10"></hr><p>
+Once you&#8217;ve made your great commits:
+</p>
+<ol>
+<li>[Fork][0] <a href="../classes/FakeFS.html">FakeFS</a>
 
-<p>With FakeFS:</p>
+</li>
+<li>Create a topic branch - `git checkout -b my_branch`
 
-<pre><code>def test_creates_directory
-  Library.add "directory"
-  assert File.directory?("directory")
-end
-</code></pre>
+</li>
+<li>Push to your branch - `git push origin my_branch`
 
-<p>Woot.</p>
+</li>
+<li>Create an [Issue][1] with a link to your branch
 
-<h2>Usage</h2>
+</li>
+<li>That&#8217;s it!
 
-<pre><code>require 'fakefs'
+</li>
+</ol>
+<p>
+Meta
+</p>
+<hr size="2"></hr><ul>
+<li>Code: `git clone git://github.com/defunkt/fakefs.git`
 
-# That's it.
-</code></pre>
+</li>
+<li>Home: <<a
+href="http://github.com/defunkt/fakefs">github.com/defunkt/fakefs</a>>
 
-<h2>Don't Fake the FS Immediately</h2>
+</li>
+<li>Docs: <<a
+href="http://defunkt.github.com/fakefs">defunkt.github.com/fakefs</a>>
 
-<pre><code>require 'fakefs/safe'
+</li>
+<li>Bugs: <<a
+href="http://github.com/defunkt/fakefs/issues">github.com/defunkt/fakefs/issues</a>>
 
-FakeFS.activate!
-# your code
-FakeFS.deactivate!
+</li>
+<li>List: <<a
+href="http://groups.google.com/group/fakefs">groups.google.com/group/fakefs</a>>
 
-# or
-FakeFS do
-  # your code
-end
-</code></pre>
+</li>
+<li>Test: <<a
+href="http://runcoderun.com/defunkt/fakefs">runcoderun.com/defunkt/fakefs</a>>
 
-<h2>RSpec</h2>
+</li>
+<li>Gems: <<a
+href="http://gemcutter.org/gems/fakefs">gemcutter.org/gems/fakefs</a>>
 
-<p>The above approach works with RSpec as well. In addition to this you may use the
-'use_fakefs' macro to turn FakeFS on and off in a given example group.  See
-lib/spec_helpers for more details on it's usage.</p>
-
-<h2>How is this different than MockFS?</h2>
-
-<p>FakeFS provides a test suite and works with symlinks. It's also strictly a
-test-time dependency: your actual library does not need to use or know about
-FakeFS.</p>
-
-<h2>Caveats</h2>
-
-<p>FakeFS internally uses the <code>Pathname</code> and <code>FileUtils</code> constants. If you use
-these in your app, be certain you're properly requiring them and not counting
-on FakeFS' own require.</p>
-
-<h2>Speed?</h2>
-
-<p><a href="http://gist.github.com/156091">http://gist.github.com/156091</a></p>
-
-<h2>Installation</h2>
-
-<h3><a href="http://gemcutter.org/">Gemcutter</a></h3>
-
-<pre><code>$ gem install fakefs
-</code></pre>
-
-<h3><a href="http://hellorip.com">Rip</a></h3>
-
-<pre><code>$ rip install git://github.com/defunkt/fakefs.git
-</code></pre>
-
-<h2>Meta</h2>
-
-<ul>
-<li>Code: <code>git clone git://github.com/defunkt/fakefs.git</code></li>
-<li>Home: <a href="http://github.com/defunkt/fakefs">http://github.com/defunkt/fakefs</a></li>
-<li>Docs: <a href="http://defunkt.github.com/fakefs">http://defunkt.github.com/fakefs</a></li>
-<li>Bugs: <a href="http://github.com/defunkt/fakefs/issues">http://github.com/defunkt/fakefs/issues</a></li>
-<li>List: <a href="http://groups.google.com/group/fakefs">http://groups.google.com/group/fakefs</a></li>
-<li>Test: <a href="http://runcoderun.com/defunkt/fakefs">http://runcoderun.com/defunkt/fakefs</a></li>
-<li>Gems: <a href="http://gemcutter.org/gems/fakefs">http://gemcutter.org/gems/fakefs</a></li>
-<li>Boss: Chris Wanstrath :: <a href="http://github.com/defunkt">http://github.com/defunkt</a></li>
+</li>
 </ul>
-
-<script type="text/javascript">$(function() {
-  $('a').each(function() { $(this).attr('target', '_blank') })
-})</script>
+<p>
+[0]: <a href="http://help.github.com/forking/">help.github.com/forking/</a>
+[1]: <a
+href="http://github.com/defunkt/fakefs/issues">github.com/defunkt/fakefs/issues</a>
+</p>
 
     </div>
     
