@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Chris Wanstrath", "Scott Taylor", "Jeff Hodges", "Pat Nakajima"]
-  s.date = %q{2010-12-15}
+  s.date = %q{2010-12-18}
   s.description = %q{A fake filesystem. Use it in your tests.}
   s.email = %q{chris@ozmm.org}
   s.extra_rdoc_files = [
