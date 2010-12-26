@@ -87,11 +87,14 @@ module FakeFS
     end
 
     def mv(src, dest, options={})
-      if target = FileSystem.find(src)
-        FileSystem.add(dest, target.entry.clone)
-        FileSystem.delete(src)
-      else
-        raise Errno::ENOENT, src
+      Array(src).each do |path|
+        if target = FileSystem.find(path)
+          dest_path = File.directory?(dest) ? File.join(dest, File.basename(path)) : dest
+          FileSystem.add(dest_path, target.entry.clone)
+          FileSystem.delete(path)
+        else
+          raise Errno::ENOENT, src
+        end
       end
     end
 
