@@ -546,6 +546,16 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal ['/one/five.rb', '/one/two'], Dir['/one/**']
   end
 
+  def test_dir_glob_with_block
+    FileUtils.touch('foo')
+    FileUtils.touch('bar')
+
+    yielded = []
+    Dir.glob('*') { |file| yielded << file }
+
+    assert_equal 2, yielded.size
+  end
+
   def test_should_report_pos_as_0_when_opening
     File.open("/foo", "w") do |f|
       f << "foobar"
