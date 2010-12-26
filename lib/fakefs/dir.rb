@@ -78,8 +78,9 @@ module FakeFS
       Dir.open(dirname) { |file| yield file }
     end
 
-    def self.glob(pattern)
-      [FileSystem.find(pattern) || []].flatten.map{|e| e.to_s}.sort
+    def self.glob(pattern, &block)
+      files = [FileSystem.find(pattern) || []].flatten.map(&:to_s).sort
+      block_given? ? files.each { |file| block.call(file) } : files
     end
 
     def self.mkdir(string, integer = 0)
