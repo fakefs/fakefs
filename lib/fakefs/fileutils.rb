@@ -101,7 +101,7 @@ module FakeFS
           FileSystem.add(dest_path, target.entry.clone)
           FileSystem.delete(path)
         else
-          raise Errno::ENOENT, src
+          raise Errno::ENOENT, path
         end
       end
     end
