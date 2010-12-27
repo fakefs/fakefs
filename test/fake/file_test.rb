@@ -83,4 +83,14 @@ class FakeFileTest < Test::Unit::TestCase
     assert_equal "foo", clone.content
     assert_equal "bar", @file.content
   end
+  
+  def test_gh_34_doesnt_print_path_of_nonexisting_file
+    begin
+      FakeFS::File.new "/some/non/existing/file"
+      msg = nil
+    rescue Errno::ENOENT => e
+      msg = e.message
+    end
+    assert_match /^No such file or directory - No such file or directory - $/, msg
+  end
 end
