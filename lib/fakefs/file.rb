@@ -64,6 +64,18 @@ module FakeFS
       end
     end
 
+    def self.utime(atime, mtime, *paths)
+      paths.each do |path|
+        if exists?(path)
+          FileSystem.find(path).mtime = mtime
+        else
+          raise Errno::ENOENT
+        end
+      end
+
+      paths.size
+    end
+
     def self.size(path)
       read(path).length
     end

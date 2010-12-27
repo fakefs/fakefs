@@ -384,6 +384,32 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal File.stat("foo").mtime, File.mtime("foo")
   end
 
+  def test_utime_raises_error_if_path_does_not_exist
+    assert_raise Errno::ENOENT do
+      File.utime(Time.now, Time.now, '/path/to/file.txt')
+    end
+  end
+
+  def test_can_call_utime_on_an_existing_file
+    time = Time.now - 300 # Not now
+    path = '/path/to/file.txt'
+    File.open(path, 'w') do |f|
+      f << ''
+    end
+    File.utime(time, time, path)
+    assert_equal time, File.mtime('/path/to/file.txt')
+  end
+
+  def test_utime_returns_number_of_paths
+    path1, path2 = '/path/to/file.txt', '/path/to/another_file.txt'
+    [path1, path2].each do |path|
+      File.open(path, 'w') do |f|
+        f << ''
+      end
+    end
+    assert_equal 2, File.utime(Time.now, Time.now, path1, path2)
+  end
+
   def test_can_read_with_File_readlines
     path = '/path/to/file.txt'
     File.open(path, 'w') do |f|
