@@ -23,7 +23,7 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal 1, fs.files.size
   end
 
-  def test_can_create_directories
+  def test_can_create_directories_with_file_utils_mkdir_p
     FileUtils.mkdir_p("/path/to/dir")
     assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']
   end
@@ -31,6 +31,18 @@ class FakeFSTest < Test::Unit::TestCase
   def test_can_create_directories_with_options
     FileUtils.mkdir_p("/path/to/dir", :mode => 0755)
     assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']
+  end
+
+  def test_can_create_directories_with_file_utils_mkdir
+    FileUtils.mkdir_p("/path/to/dir")
+    FileUtils.mkdir("/path/to/dir/subdir")
+    assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']['subdir']
+  end
+
+  def test_raises_error_when_creating_a_new_dir_with_mkdir_in_non_existent_path
+    assert_raises Errno::ENOENT do
+      FileUtils.mkdir("/this/path/does/not/exists/newdir")
+    end
   end
 
   def test_can_create_directories_with_mkpath
@@ -82,6 +94,10 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.mkdir_p(path = "/path/to/dir")
     assert File.exists?(path)
     FileUtils.mkdir_p("/path/to")
+    assert File.exists?(path)
+    assert_raises Errno::EEXIST do
+      FileUtils.mkdir("/path/to")
+    end
     assert File.exists?(path)
   end
 
