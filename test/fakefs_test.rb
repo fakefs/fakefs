@@ -1283,7 +1283,6 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.touch("/bar")
     File.rename("/foo", "/bar")
     assert File.file?("/bar")
-
   end
 
   def test_rename_renames_a_directories
