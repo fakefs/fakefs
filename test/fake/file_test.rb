@@ -84,13 +84,14 @@ class FakeFileTest < Test::Unit::TestCase
     assert_equal "bar", @file.content
   end
   
-  def test_gh_34_doesnt_print_path_of_nonexisting_file
+  def test_raises_an_error_with_the_correct_path
+    path = "/some/non/existing/file"
     begin
-      FakeFS::File.new "/some/non/existing/file"
+      FakeFS::File.new path
       msg = nil
     rescue Errno::ENOENT => e
       msg = e.message
     end
-    assert_match /^No such file or directory - No such file or directory - $/, msg
+    assert_equal "No such file or directory - #{path}", msg
   end
 end

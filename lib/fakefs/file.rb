@@ -379,9 +379,7 @@ module FakeFS
     end
 
     def check_file_existence!
-      unless @file
-        raise Errno::ENOENT, "No such file or directory - #{@file}"
-      end
+      raise Errno::ENOENT, @path unless @file
     end
 
     def file_creation_mode?
