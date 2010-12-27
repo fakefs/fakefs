@@ -83,7 +83,7 @@ class FakeFileTest < Test::Unit::TestCase
     assert_equal "foo", clone.content
     assert_equal "bar", @file.content
   end
-  
+
   def test_raises_an_error_with_the_correct_path
     path = "/some/non/existing/file"
     begin
