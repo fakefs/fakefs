@@ -59,3 +59,8 @@ task :publish => [ :gemspec, :build ] do
   system "git clean -fd"
   exec "rake pages"
 end
+
+desc "Update contributors"
+task :update_contributors do
+  sh "git-rank-contributors > CONTRIBUTORS"
+end
