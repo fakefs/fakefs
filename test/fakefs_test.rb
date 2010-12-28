@@ -790,8 +790,12 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_mv_should_raise_error_on_missing_file
-    assert_raise(Errno::ENOENT) { FileUtils.mv 'blafgag', 'destdir' }
-    exception = assert_raise(Errno::ENOENT) { FileUtils.mv ['foo', 'bar'], 'destdir' }
+    assert_raise(Errno::ENOENT) do
+      FileUtils.mv 'blafgag', 'destdir'
+    end
+    exception = assert_raise(Errno::ENOENT) do
+      FileUtils.mv ['foo', 'bar'], 'destdir'
+    end
     assert_equal "No such file or directory - foo", exception.message
   end
 
