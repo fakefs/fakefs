@@ -568,7 +568,6 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal ['/path', '/path/bar', '/path/bar/baz', '/path/bar2', '/path/bar2/baz', '/path/foo', '/path/foobar'], Dir['/**/*']
 
     assert_equal ['/path/bar', '/path/bar/baz', '/path/bar2', '/path/bar2/baz', '/path/foo', '/path/foobar'], Dir['/path/**/*']
-
     assert_equal ['/path/bar/baz'], Dir['/path/bar/**/*']
 
     FileUtils.cp_r '/path', '/otherpath'
@@ -803,6 +802,10 @@ class FakeFSTest < Test::Unit::TestCase
     assert_raise(Errno::ENOENT) do
       FileUtils.mv 'blafgag', 'foo'
     end
+    exception = assert_raise(Errno::ENOENT) do
+      FileUtils.mv ['foo', 'bar'], 'destdir'
+    end
+    assert_equal "No such file or directory - foo", exception.message
   end
 
   def test_mv_actually_works
@@ -1610,7 +1613,7 @@ class FakeFSTest < Test::Unit::TestCase
   def test_deactivating_returns_true
     assert_equal true, FakeFS.deactivate!
   end
-  
+
   def test_split
     assert File.respond_to? :split
     filename = "/this/is/what/we/expect.txt"
