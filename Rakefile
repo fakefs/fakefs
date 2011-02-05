@@ -9,11 +9,13 @@ end
 task :default => [:test, :spec]
 
 begin
-  require 'spec/rake/spectask'
+  require 'bundler/setup'
+  require 'spec/core/rake_task'
 
   desc "Run specs"
-  Spec::Rake::SpecTask.new(:spec) do |t|
-    t.spec_files = FileList["spec/**/*.rb"]
+  RSpec::Core::RakeTask.new(:spec) do |t|
+    t.rspec_opts = ["--color"]
+    t.pattern = "spec/**/*.rb"
   end
 rescue LoadError
   puts "Spec task can't be loaded. `gem install rspec`"
