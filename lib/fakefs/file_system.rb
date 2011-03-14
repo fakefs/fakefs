@@ -121,7 +121,7 @@ module FakeFS
           directories_under(dir)
         end
       else
-        regexp_pattern = /\A#{pattern.gsub('?','.').gsub('*', '.*').gsub(/\{(.*?)\}/) { "(#{$1.split(',').join('|')})" }}\Z/
+        regexp_pattern = /\A#{pattern.gsub('?','.').gsub('*', '.*').gsub(/\{(.*?)\}/) { "(#{$1.gsub(',', '|')})" }}\Z/
         dir.reject {|k,v| regexp_pattern !~ k }.values
       end
 
