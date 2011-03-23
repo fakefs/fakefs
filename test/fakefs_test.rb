@@ -141,6 +141,12 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal target, File.readlink(link)
   end
 
+  def test_symlinks_in_different_directories
+    FileUtils.mkdir_p(target = "/path/to/foo/target")
+    FileUtils.ln_s(target, link = "/path/to/bar/symlink")
+    assert_equal target, File.readlink(link)
+  end
+
   def test_knows_symlinks_are_symlinks
     FileUtils.mkdir_p(target = "/path/to/target")
     FileUtils.ln_s(target, link = "/path/to/symlink")

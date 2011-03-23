@@ -1,6 +1,6 @@
 module FakeFS
   class FakeSymlink
-    attr_accessor :name, :target
+    attr_accessor :name, :target, :parent
     alias_method  :to_s, :name
 
     def initialize(target)
