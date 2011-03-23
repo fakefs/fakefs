@@ -1,7 +1,6 @@
 module FakeFS
   class FakeSymlink
     attr_accessor :name, :target, :parent
-    alias_method  :to_s, :name
 
     def initialize(target)
       @target = target
@@ -17,6 +16,10 @@ module FakeFS
 
     def delete
       parent.delete(self)
+    end
+
+    def to_s
+      File.join(parent.to_s, name)
     end
 
     def respond_to?(method)
