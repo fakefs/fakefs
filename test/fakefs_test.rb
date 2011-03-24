@@ -117,6 +117,11 @@ class FakeFSTest < Test::Unit::TestCase
     assert File.exists?(path)
   end
 
+  def test_symlink_with_missing_refferent_does_not_exist
+    File.symlink('/foo', '/bar')
+    assert !File.exists?('/bar')
+  end
+
   def test_can_create_symlinks
     FileUtils.mkdir_p(target = "/path/to/target")
     FileUtils.ln_s(target, "/path/to/link")
@@ -153,6 +158,27 @@ class FakeFSTest < Test::Unit::TestCase
 
     FileUtils.ln_s(target, link = "/path/to/bar/symlink")
     assert_equal target, File.readlink(link)
+  end
+
+  def test_symlink_with_relative_path_exists
+    FileUtils.touch("/file")
+    FileUtils.mkdir_p("/a/b")
+    FileUtils.ln_s("../../file", link = "/a/b/symlink")
+    assert File.exist?('/a/b/symlink')
+  end
+
+  def test_symlink_with_relative_path_and_nonexistant_file_does_not_exist
+    FileUtils.touch("/file")
+    FileUtils.mkdir_p("/a/b")
+    FileUtils.ln_s("../../file_foo", link = "/a/b/symlink")
+    assert !File.exist?('/a/b/symlink')
+  end
+
+  def test_symlink_with_relative_path_has_correct_target
+    FileUtils.touch("/file")
+    FileUtils.mkdir_p("/a/b")
+    FileUtils.ln_s("../../file", link = "/a/b/symlink")
+    assert_equal "../../file", File.readlink(link)
   end
 
   def test_symlinks_to_symlinks
@@ -685,7 +711,7 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.mkdir_p '/path'
 
     # this fails. the root dir should be named '/' but it is '.'
-    #assert_equal ['/'], Dir['/']
+    assert_equal ['/'], Dir['/']
   end
 
   def test_dir_glob_handles_recursive_globs
@@ -781,14 +807,14 @@ class FakeFSTest < Test::Unit::TestCase
   def test_chdir_changes_directories_like_a_boss
     # I know memes!
     FileUtils.mkdir_p '/path'
-    assert_equal '.', FileSystem.fs.name
+    assert_equal '/', FileSystem.fs.name
     assert_equal({}, FileSystem.fs['path'])
     Dir.chdir '/path' do
       File.open('foo', 'w') { |f| f.write 'foo'}
       File.open('foobar', 'w') { |f| f.write 'foo'}
     end
 
-    assert_equal '.', FileSystem.fs.name
+    assert_equal '/', FileSystem.fs.name
     assert_equal(['foo', 'foobar'], FileSystem.fs['path'].keys.sort)
 
     c = nil

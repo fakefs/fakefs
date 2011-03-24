@@ -7,7 +7,7 @@ module FakeFS
     end
 
     def fs
-      @fs ||= FakeDir.new('.')
+      @fs ||= FakeDir.new('/')
     end
 
     def clear

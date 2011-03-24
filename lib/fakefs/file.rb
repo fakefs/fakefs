@@ -37,7 +37,12 @@ module FakeFS
     end
 
     def self.exist?(path)
-      !!FileSystem.find(path)
+      if(File.symlink?(path)) then
+        referent = File.expand_path(File.readlink(path), File.dirname(path))
+        exist?(referent)
+      else
+        !!FileSystem.find(path)
+      end
     end
 
     class << self
@@ -132,7 +137,7 @@ module FakeFS
 
     def self.readlink(path)
       symlink = FileSystem.find(path)
-      FileSystem.find(symlink.target).to_s
+      symlink.target
     end
 
     def self.read(path)
