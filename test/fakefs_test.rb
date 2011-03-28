@@ -23,7 +23,7 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal 1, fs.files.size
   end
 
-  def test_can_create_directories
+  def test_can_create_directories_with_file_utils_mkdir_p
     FileUtils.mkdir_p("/path/to/dir")
     assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']
   end
@@ -31,6 +31,18 @@ class FakeFSTest < Test::Unit::TestCase
   def test_can_create_directories_with_options
     FileUtils.mkdir_p("/path/to/dir", :mode => 0755)
     assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']
+  end
+
+  def test_can_create_directories_with_file_utils_mkdir
+    FileUtils.mkdir_p("/path/to/dir")
+    FileUtils.mkdir("/path/to/dir/subdir")
+    assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']['subdir']
+  end
+
+  def test_raises_error_when_creating_a_new_dir_with_mkdir_in_non_existent_path
+    assert_raises Errno::ENOENT do
+      FileUtils.mkdir("/this/path/does/not/exists/newdir")
+    end
   end
 
   def test_can_create_directories_with_mkpath
@@ -82,6 +94,10 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.mkdir_p(path = "/path/to/dir")
     assert File.exists?(path)
     FileUtils.mkdir_p("/path/to")
+    assert File.exists?(path)
+    assert_raises Errno::EEXIST do
+      FileUtils.mkdir("/path/to")
+    end
     assert File.exists?(path)
   end
 
@@ -330,6 +346,86 @@ class FakeFSTest < Test::Unit::TestCase
     assert File.mtime('/path/to/file.txt').is_a?(Time)
   end
 
+  def test_raises_error_on_ctime_if_file_does_not_exist
+    assert_raise Errno::ENOENT do
+      File.ctime('/path/to/file.txt')
+    end
+  end
+
+  def test_can_return_ctime_on_existing_file
+    File.open("foo", "w") { |f| f << "some content" }
+    assert File.ctime('foo').is_a?(Time)
+  end
+
+  def test_ctime_and_mtime_are_equal_for_new_files
+    File.open("foo", "w") { |f| f << "some content" }
+    ctime = File.ctime("foo")
+    mtime = File.mtime("foo")
+    assert ctime.is_a?(Time)
+    assert mtime.is_a?(Time)
+    assert_equal ctime, mtime
+
+    File.open("foo", "r") do |f|
+      assert_equal ctime, f.ctime
+      assert_equal mtime, f.mtime
+    end
+  end
+
+  def test_ctime_and_mtime_are_equal_for_new_directories
+    FileUtils.mkdir_p("foo")
+    ctime = File.ctime("foo")
+    mtime = File.mtime("foo")
+    assert ctime.is_a?(Time)
+    assert mtime.is_a?(Time)
+    assert_equal ctime, mtime
+  end
+
+  def test_file_ctime_is_equal_to_file_stat_ctime
+    File.open("foo", "w") { |f| f << "some content" }
+    assert_equal File.stat("foo").ctime, File.ctime("foo")
+  end
+
+  def test_directory_ctime_is_equal_to_directory_stat_ctime
+    FileUtils.mkdir_p("foo")
+    assert_equal File.stat("foo").ctime, File.ctime("foo")
+  end
+
+  def test_file_mtime_is_equal_to_file_stat_mtime
+    File.open("foo", "w") { |f| f << "some content" }
+    assert_equal File.stat("foo").mtime, File.mtime("foo")
+  end
+
+  def test_directory_mtime_is_equal_to_directory_stat_mtime
+    FileUtils.mkdir_p("foo")
+    assert_equal File.stat("foo").mtime, File.mtime("foo")
+  end
+
+  def test_utime_raises_error_if_path_does_not_exist
+    assert_raise Errno::ENOENT do
+      File.utime(Time.now, Time.now, '/path/to/file.txt')
+    end
+  end
+
+  def test_can_call_utime_on_an_existing_file
+    time = Time.now - 300 # Not now
+    path = '/path/to/file.txt'
+    File.open(path, 'w') do |f|
+      f << ''
+    end
+    File.utime(time, time, path)
+    assert_equal time, File.mtime('/path/to/file.txt')
+  end
+
+  def test_utime_returns_number_of_paths
+    path1, path2 = '/path/to/file.txt', '/path/to/another_file.txt'
+    [path1, path2].each do |path|
+      File.open(path, 'w') do |f|
+        f << ''
+      end
+    end
+    assert_equal 2, File.utime(Time.now, Time.now, path1, path2)
+  end
+
   def test_can_read_with_File_readlines
     path = '/path/to/file.txt'
     File.open(path, 'w') do |f|
@@ -503,6 +599,16 @@ class FakeFSTest < Test::Unit::TestCase
   def test_dir_glob_can_be_overridden_to_match_dot_dirs
     File.open('/one/.dotdir/three.rb', 'w')
     assert_equal ['/one/.dotdir/three.rb'], Dir.glob(['/one/**/*'], File::FNM_DOTMATCH)
+  end
+
+  def test_dir_glob_with_block
+    FileUtils.touch('foo')
+    FileUtils.touch('bar')
+
+    yielded = []
+    Dir.glob('*') { |file| yielded << file }
+
+    assert_equal 2, yielded.size
   end
 
   def test_should_report_pos_as_0_when_opening
@@ -712,6 +818,23 @@ class FakeFSTest < Test::Unit::TestCase
     File.open('foo', 'w') {|f| f.write 'bar'}
     FileUtils.mv 'foo', 'baz', :force => true
     assert_equal('bar', File.open('baz') { |f| f.read })
+  end
+
+  def test_mv_to_directory
+    File.open('foo', 'w') {|f| f.write 'bar'}
+    FileUtils.mkdir_p 'destdir'
+    FileUtils.mv 'foo', 'destdir'
+    assert_equal('bar', File.open('destdir/foo') {|f| f.read })
+    assert File.directory?('destdir')
+  end
+
+  def test_mv_array
+    File.open('foo', 'w') {|f| f.write 'bar' }
+    File.open('baz', 'w') {|f| f.write 'binky' }
+    FileUtils.mkdir_p 'destdir'
+    FileUtils.mv %w(foo baz), 'destdir'
+    assert_equal('bar', File.open('destdir/foo') {|f| f.read })
+    assert_equal('binky', File.open('destdir/baz') {|f| f.read })
   end
 
   def test_cp_actually_works
@@ -1205,6 +1328,60 @@ class FakeFSTest < Test::Unit::TestCase
     assert Dir.tmpdir == "/tmp"
   end
 
+  def test_rename_renames_a_file
+    FileUtils.touch("/foo")
+    File.rename("/foo", "/bar")
+    assert File.file?("/bar")
+  end
+
+  def test_rename_returns
+    FileUtils.touch("/foo")
+    assert_equal 0, File.rename("/foo", "/bar")
+  end
+
+  def test_rename_renames_two_files
+    FileUtils.touch("/foo")
+    FileUtils.touch("/bar")
+    File.rename("/foo", "/bar")
+    assert File.file?("/bar")
+  end
+
+  def test_rename_renames_a_directories
+    Dir.mkdir("/foo")
+    File.rename("/foo", "/bar")
+    assert File.directory?("/bar")
+  end
+
+  def test_rename_renames_two_directories
+    Dir.mkdir("/foo")
+    Dir.mkdir("/bar")
+    File.rename("/foo", "/bar")
+    assert File.directory?("/bar")
+  end
+
+  def test_rename_file_to_directory_raises_error
+    FileUtils.touch("/foo")
+    Dir.mkdir("/bar")
+    assert_raises(Errno::EISDIR) do
+      File.rename("/foo", "/bar")
+    end
+  end
+
+  def test_rename_directory_to_file_raises_error
+    Dir.mkdir("/foo")
+    FileUtils.touch("/bar")
+    assert_raises(Errno::ENOTDIR) do
+      File.rename("/foo", "/bar")
+    end
+  end
+
+
+  def test_rename_with_missing_source_raises_error
+    assert_raises(Errno::ENOENT) do
+      File.rename("/no_such_file", "/bar")
+    end
+  end
+
   def test_hard_link_creates_file
     FileUtils.touch("/foo")
 
@@ -1422,5 +1599,31 @@ class FakeFSTest < Test::Unit::TestCase
 
   def here(fname)
     RealFile.expand_path(File.join(RealFile.dirname(__FILE__), fname))
+  end
+
+  if RUBY_VERSION >= "1.9.2"
+    def test_file_size
+      File.open("foo", 'w') do |f|
+        f << 'Yada Yada'
+        assert_equal 9, f.size
+      end
+    end
+
+    def test_fdatasync
+      File.open("foo", 'w') do |f|
+        f << 'Yada Yada'
+        assert_nothing_raised do
+          f.fdatasync
+        end
+      end
+    end
+
+    def test_autoclose
+      File.open("foo", 'w') do |f|
+        assert_equal true, f.autoclose?
+        f.autoclose = false
+        assert_equal false, f.autoclose?
+      end
+    end
   end
 end

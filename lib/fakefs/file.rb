@@ -33,7 +33,7 @@ module FakeFS
     end
 
     def self.join(*parts)
-      parts * PATH_SEPARATOR
+      RealFile.join(parts)
     end
 
     def self.exist?(path)
@@ -54,6 +54,26 @@ module FakeFS
       else
         raise Errno::ENOENT
       end
+    end
+
+    def self.ctime(path)
+      if exists?(path)
+        FileSystem.find(path).ctime
+      else
+        raise Errno::ENOENT
+      end
+    end
+
+    def self.utime(atime, mtime, *paths)
+      paths.each do |path|
+        if exists?(path)
+          FileSystem.find(path).mtime = mtime
+        else
+          raise Errno::ENOENT
+        end
+      end
+
+      paths.size
     end
 
     def self.size(path)
@@ -128,6 +148,23 @@ module FakeFS
       read(path).split("\n")
     end
 
+    def self.rename(source, dest)
+      if directory?(source) && file?(dest)
+        raise Errno::ENOTDIR, "Not a directory - #{source} or #{dest}"
+      elsif file?(source) && directory?(dest)
+        raise Errno::EISDIR, "Is a directory - #{source} or #{dest}"
+      end
+
+      if target = FileSystem.find(source)
+        FileSystem.add(dest, target.entry.clone)
+        FileSystem.delete(source)
+      else
+        raise Errno::ENOENT,  "No such file or directory - #{source} or #{dest}"
+      end
+
+      0
+    end
+
     def self.link(source, dest)
       if directory?(source)
         raise Errno::EPERM, "Operation not permitted - #{source} or #{dest}"
@@ -179,13 +216,18 @@ module FakeFS
     end
 
     class Stat
+      attr_reader :ctime, :mtime
+
       def initialize(file, __lstat = false)
         if !File.exists?(file)
           raise(Errno::ENOENT, "No such file or directory - #{file}")
         end
 
-        @file    = file
-        @__lstat = __lstat
+        @file      = file
+        @fake_file = FileSystem.find(@file)
+        @__lstat   = __lstat
+        @ctime     = @fake_file.ctime
+        @mtime     = @fake_file.mtime
       end
 
       def symlink?
@@ -197,12 +239,12 @@ module FakeFS
       end
 
       def nlink
-        FileSystem.find(@file).links.size
+        @fake_file.links.size
       end
 
       def size
         if @__lstat && symlink?
-          FileSystem.find(@file).target.size
+          @fake_file.target.size
         else
           File.size(@file)
         end
@@ -215,6 +257,7 @@ module FakeFS
       @path = path
       @mode = mode
       @file = FileSystem.find(path)
+      @autoclose = true
 
       check_modes!
 
@@ -286,7 +329,7 @@ module FakeFS
     end
 
     def ctime
-      raise NotImplementedError
+      self.class.ctime(@path)
     end
 
     def flock(locking_constant)
@@ -294,10 +337,10 @@ module FakeFS
     end
 
     def mtime
-      raise NotImplementedError
+      self.class.mtime(@path)
     end
 
-    if RUBY_VERSION.to_f >= 1.9
+    if RUBY_VERSION >= "1.9"
       def binmode?
         raise NotImplementedError
       end
@@ -315,6 +358,20 @@ module FakeFS
       end
     end
 
+    if RUBY_VERSION >= "1.9.2"
+      attr_writer :autoclose
+
+      def autoclose?
+        @autoclose
+      end
+
+      alias_method :fdatasync, :flush
+
+      def size
+        File.size(@path)
+      end
+    end
+
   private
 
     def check_modes!
@@ -322,9 +379,7 @@ module FakeFS
     end
 
     def check_file_existence!
-      unless @file
-        raise Errno::ENOENT, "No such file or directory - #{@file}"
-      end
+      raise Errno::ENOENT, @path unless @file
     end
 
     def file_creation_mode?

@@ -1,10 +1,13 @@
 module FakeFS
   class FakeDir < Hash
     attr_accessor :name, :parent
+    attr_reader :ctime, :mtime
 
     def initialize(name = nil, parent = nil)
-      @name = name
+      @name   = name
       @parent = parent
+      @ctime  = Time.now
+      @mtime  = @ctime
     end
 
     def entry

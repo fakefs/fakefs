@@ -1,3 +1,4 @@
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__))
 $LOAD_PATH.unshift File.join(File.dirname(__FILE__), 'test')
 
 desc "Run tests"
@@ -30,7 +31,7 @@ begin
     gemspec.email       = "chris@ozmm.org"
     gemspec.homepage    = "http://github.com/defunkt/fakefs"
     gemspec.description = "A fake filesystem. Use it in your tests."
-    gemspec.authors     = ["Chris Wanstrath"]
+    gemspec.authors     = ["Chris Wanstrath", "Scott Taylor", "Jeff Hodges", "Pat Nakajima"]
     gemspec.has_rdoc    = false
     gemspec.version     = FakeFS::Version.to_s
   end
@@ -57,4 +58,9 @@ task :publish => [ :gemspec, :build ] do
   system "gem push pkg/fakefs-#{FakeFS::Version}.gem"
   system "git clean -fd"
   exec "rake pages"
+end
+
+desc "Update contributors"
+task :update_contributors do
+  sh "git-rank-contributors > CONTRIBUTORS"
 end
