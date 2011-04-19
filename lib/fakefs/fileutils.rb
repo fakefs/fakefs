@@ -6,6 +6,7 @@ module FakeFS
       FileSystem.add(path, FakeDir.new)
     end
     alias_method :mkpath, :mkdir_p
+    alias_method :makedirs, :mkdir_p
 
     def mkdir(path)
       parent = path.split('/')
