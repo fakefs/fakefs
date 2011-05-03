@@ -1563,11 +1563,33 @@ class FakeFSTest < Test::Unit::TestCase
     assert !FileTest.exist?("/path/to/dir")
   end
 
+  def test_filetest_directory_returns_correct_values
+    FileUtils.mkdir_p '/path/to/somedir'
+    assert FileTest.directory?('/path/to/somedir')
+
+    FileUtils.rm_r '/path/to/somedir'
+    assert !FileTest.directory?('/path/to/somedir')
+  end
+
   def test_pathname_exists_returns_correct_value
     FileUtils.touch "foo"
     assert Pathname.new("foo").exist?
 
     assert !Pathname.new("bar").exist?
+  end
+
+  def test_dir_mktmpdir
+    FileUtils.mkdir '/tmp'
+
+    tmpdir = Dir.mktmpdir
+    assert File.directory?(tmpdir)
+    FileUtils.rm_r tmpdir
+
+    Dir.mktmpdir do |t|
+      tmpdir = t
+      assert File.directory?(t)
+    end
+    assert !File.directory?(tmpdir)
   end
 
   def test_activating_returns_true
