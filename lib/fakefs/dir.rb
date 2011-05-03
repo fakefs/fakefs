@@ -107,6 +107,52 @@ module FakeFS
       FileSystem.current_dir.to_s
     end
 
+    # This code has been borrowed from Rubinius
+    def self.mktmpdir(prefix_suffix = nil, tmpdir = nil)
+      case prefix_suffix
+      when nil
+        prefix = "d"
+        suffix = ""
+      when String
+        prefix = prefix_suffix
+        suffix = ""
+      when Array
+        prefix = prefix_suffix[0]
+        suffix = prefix_suffix[1]
+      else
+        raise ArgumentError, "unexpected prefix_suffix: #{prefix_suffix.inspect}"
+      end
+
+      t = Time.now.strftime("%Y%m%d")
+      n = nil
+
+      begin
+        path = "#{tmpdir}/#{prefix}#{t}-#{$$}-#{rand(0x100000000).to_s(36)}"
+        path << "-#{n}" if n
+        path << suffix
+        mkdir(path, 0700)
+      rescue Errno::EEXIST
+        n ||= 0
+        n += 1
+        retry
+      end
+
+      if block_given?
+        begin
+          yield path
+        ensure
+          require 'fileutils'
+          # This here was using FileUtils.remove_entry_secure instead of just
+          # .rm_r. However, the security concerns that apply to
+          # .rm_r/.remove_entry_secure shouldn't apply to a test fake
+          # filesystem. :^)
+          FileUtils.rm_r path
+        end
+      else
+        path
+      end
+    end
+
     class << self
       alias_method :getwd, :pwd
       alias_method :rmdir, :delete
