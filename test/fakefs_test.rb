@@ -55,6 +55,16 @@ class FakeFSTest < Test::Unit::TestCase
     assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']
   end
 
+  def test_can_create_directories_with_mkpath
+    FileUtils.makedirs("/path/to/dir")
+    assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']
+  end
+
+  def test_can_create_directories_with_mkpath_and_options
+    FileUtils.makedirs("/path/to/dir", :mode => 0755)
+    assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']
+  end
+
   def test_can_delete_directories
     FileUtils.mkdir_p("/path/to/dir")
     FileUtils.rmdir("/path/to/dir")
