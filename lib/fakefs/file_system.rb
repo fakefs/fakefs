@@ -19,11 +19,11 @@ module FakeFS
       fs.values
     end
 
-    def find(path)
+    def find(path, flags = 0)
       parts = path_parts(normalize_path(path))
       return fs if parts.empty? # '/'
 
-      entries = find_recurser(fs, parts).flatten
+      entries = find_recurser(fs, parts, flags).flatten
 
       case entries.length
       when 0 then nil
@@ -102,7 +102,7 @@ module FakeFS
 
     private
 
-    def find_recurser(dir, parts)
+    def find_recurser(dir, parts, flags)
       return [] unless dir.respond_to? :[]
 
       pattern , *parts = parts
@@ -111,14 +111,14 @@ module FakeFS
         case parts
         when ['*']
           parts = [] # end recursion
-          directories_under(dir).map do |d|
-            d.values.select{|f| f.is_a?(FakeFile) || f.is_a?(FakeDir) }
+          directories_under(dir, flags).map do |d|
+            d.values.select{|f| f.is_a?(FakeFile) || is_a_directory_and_matches_flags?(f, 0)}
           end.flatten.uniq
         when []
           parts = [] # end recursion
           dir.values.flatten.uniq
         else
-          directories_under(dir)
+          directories_under(dir, flags)
         end
       else
         dir.reject {|k,v| /\A#{pattern.gsub('?','.').gsub('*', '.*')}\Z/ !~ k }.values
@@ -127,13 +127,18 @@ module FakeFS
       if parts.empty? # we're done recursing
         matches
       else
-        matches.map{|entry| find_recurser(entry, parts) }
+        matches.map{|entry| find_recurser(entry, parts, flags) }
       end
     end
 
-    def directories_under(dir)
-      children = dir.values.select{|f| f.is_a? FakeDir}
-      ([dir] + children + children.map{|c| directories_under(c)}).flatten.uniq
+    def directories_under(dir, flags)
+      children = dir.values.select{|f| is_a_directory_and_matches_flags?(f, flags)}
+      ([dir] + children + children.map{|c| directories_under(c, flags)}).flatten.uniq
+    end
+
+    def is_a_directory_and_matches_flags?(entry, flags)
+      return entry.is_a?(FakeDir) if flags == File::FNM_DOTMATCH
+      return entry.is_a?(FakeDir) && entry.name !~ /^\./ if flags != File::FNM_DOTMATCH
     end
   end
 end
