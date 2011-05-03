@@ -1578,6 +1578,15 @@ class FakeFSTest < Test::Unit::TestCase
   def test_deactivating_returns_true
     assert_equal true, FakeFS.deactivate!
   end
+  
+  def test_split
+    assert File.respond_to? :split
+    filename = "/this/is/what/we/expect.txt"
+    path,filename = File.split(filename)
+    assert_equal path, "/this/is/what/we"
+    assert_equal filename, "expect.txt"
+  end
+
 
   def here(fname)
     RealFile.expand_path(File.join(RealFile.dirname(__FILE__), fname))

@@ -215,6 +215,10 @@ module FakeFS
       File::Stat.new(file, true)
     end
 
+    def self.split(path)
+      return RealFile.split(path)
+    end
+
     class Stat
       attr_reader :ctime, :mtime
 
