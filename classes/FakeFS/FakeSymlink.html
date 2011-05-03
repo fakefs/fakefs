@@ -49,7 +49,7 @@
         <dd>
             <ul>
                 
-                <li><a href="#M000046">delete</a></li>
+                <li><a href="#M000047">delete</a></li>
                 
             </ul>
         </dd>
@@ -58,7 +58,7 @@
         <dd>
             <ul>
                 
-                <li><a href="#M000045">entry</a></li>
+                <li><a href="#M000046">entry</a></li>
                 
             </ul>
         </dd>
@@ -67,7 +67,7 @@
         <dd>
             <ul>
                 
-                <li><a href="#M000044">inspect</a></li>
+                <li><a href="#M000045">inspect</a></li>
                 
             </ul>
         </dd>
@@ -76,7 +76,7 @@
         <dd>
             <ul>
                 
-                <li><a href="#M000043">new</a></li>
+                <li><a href="#M000044">new</a></li>
                 
             </ul>
         </dd>
@@ -85,7 +85,7 @@
         <dd>
             <ul>
                 
-                <li><a href="#M000047">respond_to?</a></li>
+                <li><a href="#M000048">respond_to?</a></li>
                 
             </ul>
         </dd>
@@ -128,9 +128,9 @@
             <div class="sectiontitle">Class Public methods</div>
             
             <div class="method">
-                <div class="title" id="M000043">
+                <div class="title" id="M000044">
                     
-                    <a name="M000043"></a><b>new</b>(target)
+                    <a name="M000044"></a><b>new</b>(target)
                     
                 </div>
                 
@@ -139,12 +139,12 @@
                 
                 <div class="sourcecode">
                     <p class="source-link">
-                        Source: <a href="javascript:toggleSource('M000043_source')" id="l_M000043_source">show</a>
+                        Source: <a href="javascript:toggleSource('M000044_source')" id="l_M000044_source">show</a>
                         
                         | <a href="http://github.com/defunkt/fakefs/blob/2877f7d4c19cb4f18a3d43dc79bc8189976e3634/lib/fakefs/fake/symlink.rb#L6" target="_blank" class="github_url">on GitHub</a>
                         
                     </p>
-                    <div id="M000043_source" class="dyn-source">
+                    <div id="M000044_source" class="dyn-source">
                         <pre><span class="ruby-comment cmt"># File lib/fakefs/fake/symlink.rb, line 6</span>
     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">initialize</span>(<span class="ruby-identifier">target</span>)
       <span class="ruby-ivar">@target</span> = <span class="ruby-identifier">target</span>
@@ -157,90 +157,9 @@
             <div class="sectiontitle">Instance Public methods</div>
             
             <div class="method">
-                <div class="title" id="M000046">
-                    
-                    <a name="M000046"></a><b>delete</b>()
-                    
-                </div>
-                
-                
-                
-                
-                <div class="sourcecode">
-                    <p class="source-link">
-                        Source: <a href="javascript:toggleSource('M000046_source')" id="l_M000046_source">show</a>
-                        
-                        | <a href="http://github.com/defunkt/fakefs/blob/2877f7d4c19cb4f18a3d43dc79bc8189976e3634/lib/fakefs/fake/symlink.rb#L18" target="_blank" class="github_url">on GitHub</a>
-                        
-                    </p>
-                    <div id="M000046_source" class="dyn-source">
-                        <pre><span class="ruby-comment cmt"># File lib/fakefs/fake/symlink.rb, line 18</span>
-    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">delete</span>
-      <span class="ruby-identifier">parent</span>.<span class="ruby-identifier">delete</span>(<span class="ruby-keyword kw">self</span>)
-    <span class="ruby-keyword kw">end</span></pre>
-                    </div>
-                </div>
-                
-            </div>
-            
-            <div class="method">
-                <div class="title" id="M000045">
-                    
-                    <a name="M000045"></a><b>entry</b>()
-                    
-                </div>
-                
-                
-                
-                
-                <div class="sourcecode">
-                    <p class="source-link">
-                        Source: <a href="javascript:toggleSource('M000045_source')" id="l_M000045_source">show</a>
-                        
-                        | <a href="http://github.com/defunkt/fakefs/blob/2877f7d4c19cb4f18a3d43dc79bc8189976e3634/lib/fakefs/fake/symlink.rb#L14" target="_blank" class="github_url">on GitHub</a>
-                        
-                    </p>
-                    <div id="M000045_source" class="dyn-source">
-                        <pre><span class="ruby-comment cmt"># File lib/fakefs/fake/symlink.rb, line 14</span>
-    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">entry</span>
-      <span class="ruby-constant">FileSystem</span>.<span class="ruby-identifier">find</span>(<span class="ruby-identifier">target</span>)
-    <span class="ruby-keyword kw">end</span></pre>
-                    </div>
-                </div>
-                
-            </div>
-            
-            <div class="method">
-                <div class="title" id="M000044">
-                    
-                    <a name="M000044"></a><b>inspect</b>()
-                    
-                </div>
-                
-                
-                
-                
-                <div class="sourcecode">
-                    <p class="source-link">
-                        Source: <a href="javascript:toggleSource('M000044_source')" id="l_M000044_source">show</a>
-                        
-                        | <a href="http://github.com/defunkt/fakefs/blob/2877f7d4c19cb4f18a3d43dc79bc8189976e3634/lib/fakefs/fake/symlink.rb#L10" target="_blank" class="github_url">on GitHub</a>
-                        
-                    </p>
-                    <div id="M000044_source" class="dyn-source">
-                        <pre><span class="ruby-comment cmt"># File lib/fakefs/fake/symlink.rb, line 10</span>
-    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">inspect</span>
-      <span class="ruby-node">&quot;symlink(#{target.split('/').last})&quot;</span>
-    <span class="ruby-keyword kw">end</span></pre>
-                    </div>
-                </div>
-                
-            </div>
-            
-            <div class="method">
                 <div class="title" id="M000047">
                     
-                    <a name="M000047"></a><b>respond_to?</b>(method)
+                    <a name="M000047"></a><b>delete</b>()
                     
                 </div>
                 
@@ -251,10 +170,91 @@
                     <p class="source-link">
                         Source: <a href="javascript:toggleSource('M000047_source')" id="l_M000047_source">show</a>
                         
-                        | <a href="http://github.com/defunkt/fakefs/blob/2877f7d4c19cb4f18a3d43dc79bc8189976e3634/lib/fakefs/fake/symlink.rb#L22" target="_blank" class="github_url">on GitHub</a>
+                        | <a href="http://github.com/defunkt/fakefs/blob/2877f7d4c19cb4f18a3d43dc79bc8189976e3634/lib/fakefs/fake/symlink.rb#L18" target="_blank" class="github_url">on GitHub</a>
                         
                     </p>
                     <div id="M000047_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/fake/symlink.rb, line 18</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">delete</span>
+      <span class="ruby-identifier">parent</span>.<span class="ruby-identifier">delete</span>(<span class="ruby-keyword kw">self</span>)
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="method">
+                <div class="title" id="M000046">
+                    
+                    <a name="M000046"></a><b>entry</b>()
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000046_source')" id="l_M000046_source">show</a>
+                        
+                        | <a href="http://github.com/defunkt/fakefs/blob/2877f7d4c19cb4f18a3d43dc79bc8189976e3634/lib/fakefs/fake/symlink.rb#L14" target="_blank" class="github_url">on GitHub</a>
+                        
+                    </p>
+                    <div id="M000046_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/fake/symlink.rb, line 14</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">entry</span>
+      <span class="ruby-constant">FileSystem</span>.<span class="ruby-identifier">find</span>(<span class="ruby-identifier">target</span>)
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="method">
+                <div class="title" id="M000045">
+                    
+                    <a name="M000045"></a><b>inspect</b>()
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000045_source')" id="l_M000045_source">show</a>
+                        
+                        | <a href="http://github.com/defunkt/fakefs/blob/2877f7d4c19cb4f18a3d43dc79bc8189976e3634/lib/fakefs/fake/symlink.rb#L10" target="_blank" class="github_url">on GitHub</a>
+                        
+                    </p>
+                    <div id="M000045_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/fake/symlink.rb, line 10</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">inspect</span>
+      <span class="ruby-node">&quot;symlink(#{target.split('/').last})&quot;</span>
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="method">
+                <div class="title" id="M000048">
+                    
+                    <a name="M000048"></a><b>respond_to?</b>(method)
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000048_source')" id="l_M000048_source">show</a>
+                        
+                        | <a href="http://github.com/defunkt/fakefs/blob/2877f7d4c19cb4f18a3d43dc79bc8189976e3634/lib/fakefs/fake/symlink.rb#L22" target="_blank" class="github_url">on GitHub</a>
+                        
+                    </p>
+                    <div id="M000048_source" class="dyn-source">
                         <pre><span class="ruby-comment cmt"># File lib/fakefs/fake/symlink.rb, line 22</span>
     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">respond_to?</span>(<span class="ruby-identifier">method</span>)
       <span class="ruby-identifier">entry</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-identifier">method</span>)

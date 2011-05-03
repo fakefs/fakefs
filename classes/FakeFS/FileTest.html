@@ -45,11 +45,20 @@
     <div class="sectiontitle">Methods</div>
     <dl class="methods">
     
+        <dt>D</dt>
+        <dd>
+            <ul>
+                
+                <li><a href="#M000097">directory?</a></li>
+                
+            </ul>
+        </dd>
+    
         <dt>E</dt>
         <dd>
             <ul>
                 
-                <li><a href="#M000118">exist?</a></li>
+                <li><a href="#M000096">exist?</a></li>
                 
             </ul>
         </dd>
@@ -71,9 +80,9 @@
             <div class="sectiontitle">Class Public methods</div>
             
             <div class="method">
-                <div class="title" id="M000118">
+                <div class="title" id="M000097">
                     
-                    <a name="M000118"></a><b>exist?</b>(file_name)
+                    <a name="M000097"></a><b>directory?</b>(file_name)
                     
                 </div>
                 
@@ -82,12 +91,39 @@
                 
                 <div class="sourcecode">
                     <p class="source-link">
-                        Source: <a href="javascript:toggleSource('M000118_source')" id="l_M000118_source">show</a>
+                        Source: <a href="javascript:toggleSource('M000097_source')" id="l_M000097_source">show</a>
                         
-                        | <a href="http://github.com/defunkt/fakefs/blob/50193f2a753e42b1b8a66fc7adae457b6d008b8d/lib/fakefs/file_test.rb#L3" target="_blank" class="github_url">on GitHub</a>
+                        | <a href="http://github.com/defunkt/fakefs/blob/564387b6a33077a08c6d686b1b52592879894534/lib/fakefs/file_test.rb#L7" target="_blank" class="github_url">on GitHub</a>
                         
                     </p>
-                    <div id="M000118_source" class="dyn-source">
+                    <div id="M000097_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/file_test.rb, line 7</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">directory?</span>(<span class="ruby-identifier">file_name</span>)
+      <span class="ruby-constant">File</span>.<span class="ruby-identifier">directory?</span>(<span class="ruby-identifier">file_name</span>)
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="method">
+                <div class="title" id="M000096">
+                    
+                    <a name="M000096"></a><b>exist?</b>(file_name)
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000096_source')" id="l_M000096_source">show</a>
+                        
+                        | <a href="http://github.com/defunkt/fakefs/blob/564387b6a33077a08c6d686b1b52592879894534/lib/fakefs/file_test.rb#L3" target="_blank" class="github_url">on GitHub</a>
+                        
+                    </p>
+                    <div id="M000096_source" class="dyn-source">
                         <pre><span class="ruby-comment cmt"># File lib/fakefs/file_test.rb, line 3</span>
     <span class="ruby-keyword kw">def</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">exist?</span>(<span class="ruby-identifier">file_name</span>)
       <span class="ruby-constant">File</span>.<span class="ruby-identifier">exist?</span>(<span class="ruby-identifier">file_name</span>)
