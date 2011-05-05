@@ -652,8 +652,7 @@ class FakeFSTest < Test::Unit::TestCase
   # Every method in File is in FakeFS::File
   RealFile.instance_methods.each do |method_name|
     define_method "test_should_have_method_#{method_name}_from_real_file_class" do
-        # TODO(dmiani) disabled
-      # assert File.instance_methods.include?(method_name)
+      assert File.instance_methods.include?(method_name)
     end
   end
 
@@ -849,14 +848,13 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal 'bar', File.read('baz')
   end
 
-  # TODO(dmiani) disabled 
-  # def test_cp_file_into_dir
-  #   File.open('foo', 'w') {|f| f.write 'bar' }
-  #   FileUtils.mkdir_p 'baz'
+  def test_cp_file_into_dir
+    File.open('foo', 'w') {|f| f.write 'bar' }
+    FileUtils.mkdir_p 'baz'
 
-  #   FileUtils.cp('foo', 'baz')
-  #   assert_equal 'bar', File.read('baz/foo')
-  # end
+    FileUtils.cp('foo', 'baz')
+    assert_equal 'bar', File.read('baz/foo')
+  end
 
   def test_cp_overwrites_dest_file
     File.open('foo', 'w') {|f| f.write 'FOO' }
