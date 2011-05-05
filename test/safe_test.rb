@@ -22,8 +22,9 @@ class FakeFSSafeTest < Test::Unit::TestCase
 
   def test_FakeFS_method_returns_value_of_yield
     result = FakeFS do
-      File.open('myfile.txt', 'w') { |f| f.write "Yatta!" }
-      File.read('myfile.txt')
+      path = '/path/to/file.txt'
+      File.open(path, 'w') { |f| f.write "Yatta!" }
+      File.read(path)
     end
 
     assert_equal result, "Yatta!"
