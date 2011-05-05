@@ -3,21 +3,17 @@ require 'test/unit'
 require 'fakefs/safe'
 require 'pathname'
 
-  
-
 module FakeFsTestHelper
   # runs the code in the given block, firstly in the real file system,
   # then in the Fake file system. The method will then compare the results,
   # and cause assert errors for any differences.
   #
   # The block may also use a check_value method. This takes a value, and checks if that
-  # value is the same in both FakeFS and the real file system
+  # value is the same in both FakeFS and the real file system. 
+  # The method check_filesystem compares the state of the filesystem and reports and
+  # errors.
   #
-  # The block takes one parameter, a String giving the path to a temporary directory
-  # For example "/tmp/autotest-asdf/"
-  # This should be used as the base of all tests. The directory will be deleted after
-  # the tests has been finished in the real file system.
-  #
+  # To generate paths for the test, use the method mp. For example mp('my/dir')
   # Additional Options:
   # time_measurement_tolerence:<num>   
   # If the mod/access/change times of an item in the file systems differ by less than 
@@ -29,8 +25,8 @@ module FakeFsTestHelper
   # Whether to ignore mod/access/change times for testing. Defaults to false.
   #
   # Example Usage:
-  # compare_with_real(time_measurement_tolerance: 2) do |path|
-  #   Dir.mkdir(path + "somedir")
+  # compare_with_real(time_measurement_tolerance: 2) do
+  #   Dir.mkdir(mp('somedir'))
   #   check_filesystem
   #   check_value Dir.entries
   # end
@@ -44,15 +40,7 @@ module FakeFsTestHelper
     comparer.run_compare(&block)
   end
 
-  # whether tests run with compare_with_real should be run
-  # with $SAFE=3 for the fakefs test. This can detect whether 
-  # the fakefs code is accidently touching the real file system (since
-  # this will trigger a SecurityError with $SAFE = 3)
-  # Defaults to false, as this doesn't work at all yet
-  $run_tests_with_safe3 = true
-
   class CompareWithRealRunner
-
     attr_accessor :tester
 
     def initialize(test_path, options = {})
@@ -77,8 +65,7 @@ module FakeFsTestHelper
       begin
         FakeFS::FileSystem.clone(@test_path)
         thread = Thread.new do
-          # TODO: this should be enabled or be an option
-          $SAFE = 3 if $run_tests_with_safe3
+          $SAFE = 3
           FakeFS do
             Dir.chdir(@test_path) do
               fake_test.instance_eval(&block)
@@ -193,11 +180,8 @@ module FakeFsTestHelper
 
     def compare_symlink(path, location, expected_symlink, actual_symlink)
       assert_equal_at(location, expected_symlink.target, actual_symlink.target)
-      
     end
   end
-
-    
 
   # this is the class of the object that the block passes to compare_with_real
   # is evaulated in, and supplies the check_filesystem and check_value methods.
@@ -224,7 +208,6 @@ module FakeFsTestHelper
         new_value = FakeFS::FileSystem.fs
         FakeFS::FileSystem.clear
       end
-
       @filesystem_checks[caller()[0]] = new_value
     end
 
@@ -237,10 +220,7 @@ module FakeFsTestHelper
     end
 
     alias_method :make_path, :mp
-
     attr_reader :base_path
-
   end
-
 end
 
