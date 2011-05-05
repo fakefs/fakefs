@@ -1,3 +1,4 @@
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__))
 $LOAD_PATH.unshift File.join(File.dirname(__FILE__), 'test')
 $LOAD_PATH.unshift File.dirname(__FILE__)
 
@@ -6,7 +7,7 @@ task :test do
   Dir['test/**/*_test.rb'].each { |file| require file }
 end
 
-task :default => :test
+task :default => [:test, :spec]
 
 begin
   require 'spec/rake/spectask'
@@ -31,7 +32,7 @@ begin
     gemspec.email       = "chris@ozmm.org"
     gemspec.homepage    = "http://github.com/defunkt/fakefs"
     gemspec.description = "A fake filesystem. Use it in your tests."
-    gemspec.authors     = ["Chris Wanstrath"]
+    gemspec.authors     = ["Chris Wanstrath", "Scott Taylor", "Jeff Hodges", "Pat Nakajima"]
     gemspec.has_rdoc    = false
     gemspec.version     = FakeFS::Version.to_s
   end

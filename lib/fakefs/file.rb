@@ -55,6 +55,14 @@ module FakeFS
       end
     end
 
+    def self.ctime(path)
+      if exists?(path)
+        FileSystem.find(path).ctime
+      else
+        raise Errno::ENOENT
+      end
+    end
+
     def self.size(path)
       read(path).length
     end
@@ -197,13 +205,23 @@ module FakeFS
       File::Stat.new(file)
     end
 
+    def self.lstat(file)
+      File::Stat.new(file, true)
+    end
+
     class Stat
-      def initialize(file)
+      attr_reader :ctime, :mtime
+
+      def initialize(file, __lstat = false)
         if !File.exists?(file)
           raise(Errno::ENOENT, "No such file or directory - #{file}")
         end
 
-        @file = file
+        @file      = file
+        @fake_file = FileSystem.find(@file)
+        @__lstat   = __lstat
+        @ctime     = @fake_file.ctime
+        @mtime     = @fake_file.mtime
       end
 
       def symlink?
@@ -215,11 +233,15 @@ module FakeFS
       end
 
       def nlink
-        FileSystem.find(@file).links.size
+        @fake_file.links.size
       end
 
       def size
-        File.size(@file)
+        if @__lstat && symlink?
+          @fake_file.target.size
+        else
+          File.size(@file)
+        end
       end
     end
 
@@ -229,6 +251,7 @@ module FakeFS
       @path = path
       @mode = mode
       @file = FileSystem.find(path)
+      @autoclose = true
 
       check_modes!
 
@@ -241,7 +264,9 @@ module FakeFS
       true
     end
 
-    alias_method :tell=, :pos=
+    alias_method :tell=,    :pos=
+    alias_method :sysread,  :read
+    alias_method :syswrite, :write
 
     undef_method :closed_read?
     undef_method :closed_write?
@@ -259,11 +284,16 @@ module FakeFS
     end
 
     def stat
-      raise NotImplementedError
+      self.class.stat(@path)
     end
 
-    def sysseek(offset, whence = SEEK_SET)
-      raise NotImplementedError
+    def lstat
+      self.class.lstat(@path)
+    end
+
+    def sysseek(position, whence = SEEK_SET)
+      seek(position, whence)
+      pos
     end
 
     alias_method :to_i, :fileno
@@ -299,22 +329,18 @@ module FakeFS
     end
 
     def ctime
-      raise NotImplementedError
+      self.class.ctime(@path)
     end
 
     def flock(locking_constant)
       raise NotImplementedError
     end
 
-    def lstat
-      raise NotImplementedError
-    end
-
     def mtime
-      raise NotImplementedError
+      self.class.mtime(@path)
     end
 
-    if RUBY_VERSION.to_f >= 1.9
+    if RUBY_VERSION >= "1.9"
       def binmode?
         raise NotImplementedError
       end
@@ -329,6 +355,20 @@ module FakeFS
 
       def to_path
         raise NotImplementedError
+      end
+    end
+
+    if RUBY_VERSION >= "1.9.2"
+      attr_writer :autoclose
+
+      def autoclose?
+        @autoclose
+      end
+
+      alias_method :fdatasync, :flush
+
+      def size
+        File.size(@path)
       end
     end
 

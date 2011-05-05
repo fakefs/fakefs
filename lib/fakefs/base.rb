@@ -16,6 +16,7 @@ module FakeFS
       const_set(:FileUtils, FakeFS::FileUtils)
       const_set(:FileTest,  FakeFS::FileTest)
     end
+    true
   end
 
   def self.deactivate!
@@ -30,6 +31,7 @@ module FakeFS
       const_set(:FileTest,  RealFileTest)
       const_set(:FileUtils, RealFileUtils)
     end
+    true
   end
 end
 

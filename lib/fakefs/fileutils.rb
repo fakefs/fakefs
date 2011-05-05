@@ -2,7 +2,7 @@ module FakeFS
   module FileUtils
     extend self
 
-    def mkdir_p(path)
+    def mkdir_p(path, options = {})
       FileSystem.add(path, FakeDir.new)
     end
     alias_method :mkpath, :mkdir_p
@@ -38,8 +38,6 @@ module FakeFS
     def ln_sf(target, path)
       ln_s(target, path, { :force => true })
     end
-
-
 
     def cp(src, dest)
       dst_file = FileSystem.find(dest)
@@ -97,7 +95,7 @@ module FakeFS
       end
     end
 
-    def mv(src, dest)
+    def mv(src, dest, options={})
       if target = FileSystem.find(src)
         FileSystem.add(dest, target.entry.clone)
         FileSystem.delete(src)
