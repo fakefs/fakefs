@@ -32,7 +32,7 @@ module FakeFS
     end
 
     def self.join(*parts)
-      parts * PATH_SEPARATOR
+      RealFile.join(parts)
     end
 
     def self.exist?(path)
@@ -61,6 +61,18 @@ module FakeFS
       else
         raise Errno::ENOENT
       end
+    end
+
+    def self.utime(atime, mtime, *paths)
+      paths.each do |path|
+        if exists?(path)
+          FileSystem.find(path).mtime = mtime
+        else
+          raise Errno::ENOENT
+        end
+      end
+
+      paths.size
     end
 
     def self.size(path)
@@ -159,6 +171,23 @@ module FakeFS
       self.read(path).each_line {|line| yield(line) }
     end
 
+    def self.rename(source, dest)
+      if directory?(source) && file?(dest)
+        raise Errno::ENOTDIR, "Not a directory - #{source} or #{dest}"
+      elsif file?(source) && directory?(dest)
+        raise Errno::EISDIR, "Is a directory - #{source} or #{dest}"
+      end
+
+      if target = FileSystem.find(source)
+        FileSystem.add(dest, target.entry.clone)
+        FileSystem.delete(source)
+      else
+        raise Errno::ENOENT,  "No such file or directory - #{source} or #{dest}"
+      end
+
+      0
+    end
+
     def self.link(source, dest)
       if directory?(source)
         raise Errno::EPERM, "Operation not permitted - #{source} or #{dest}"
@@ -207,6 +236,10 @@ module FakeFS
 
     def self.lstat(file)
       File::Stat.new(file, true)
+    end
+
+    def self.split(path)
+      return RealFile.split(path)
     end
 
     class Stat
@@ -379,9 +412,7 @@ module FakeFS
     end
 
     def check_file_existence!
-      unless @file
-        raise Errno::ENOENT, "No such file or directory - #{@file}"
-      end
+      raise Errno::ENOENT, @path unless @file
     end
 
     def file_creation_mode?

@@ -9,16 +9,9 @@ end
 
 task :default => [:test, :spec]
 
-begin
-  require 'spec/rake/spectask'
-
-  desc "Run specs"
-  Spec::Rake::SpecTask.new(:spec) do |t|
-    t.spec_files = FileList["spec/**/*.rb"]
-  end
-rescue LoadError
-  puts "Spec task can't be loaded. `gem install rspec`"
-end
+require 'rspec/core/rake_task'
+desc "Run specs"
+RSpec::Core::RakeTask.new
 
 begin
   require 'jeweler'
@@ -59,4 +52,9 @@ task :publish => [ :gemspec, :build ] do
   system "gem push pkg/fakefs-#{FakeFS::Version}.gem"
   system "git clean -fd"
   exec "rake pages"
+end
+
+desc "Update contributors"
+task :update_contributors do
+  sh "git-rank-contributors > CONTRIBUTORS"
 end

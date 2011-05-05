@@ -6,6 +6,15 @@ module FakeFS
       FileSystem.add(path, FakeDir.new)
     end
     alias_method :mkpath, :mkdir_p
+    alias_method :makedirs, :mkdir_p
+
+    def mkdir(path)
+      parent = path.split('/')
+      parent.pop
+      raise Errno::ENOENT, "No such file or directory - #{path}" unless parent.join == "" || FileSystem.find(parent.join('/'))
+      raise Errno::EEXIST, "File exists - #{path}" if FileSystem.find(path)
+      FileSystem.add(path, FakeDir.new)
+    end
 
     def rmdir(list, options = {})
       list = [ list ] unless list.is_a?(Array)
@@ -96,11 +105,14 @@ module FakeFS
     end
 
     def mv(src, dest, options={})
-      if target = FileSystem.find(src)
-        FileSystem.add(dest, target.entry.clone)
-        FileSystem.delete(src)
-      else
-        raise Errno::ENOENT, src
+      Array(src).each do |path|
+        if target = FileSystem.find(path)
+          dest_path = File.directory?(dest) ? File.join(dest, File.basename(path)) : dest
+          FileSystem.add(dest_path, target.entry.clone)
+          FileSystem.delete(path)
+        else
+          raise Errno::ENOENT, path
+        end
       end
     end
 
