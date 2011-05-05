@@ -1,4 +1,5 @@
 $LOAD_PATH.unshift File.join(File.dirname(__FILE__), 'test')
+$LOAD_PATH.unshift File.dirname(__FILE__)
 
 desc "Run tests"
 task :test do
