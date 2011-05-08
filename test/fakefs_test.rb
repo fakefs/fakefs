@@ -147,8 +147,8 @@ class FakeFSTest < Test::Unit::TestCase
     assert File.symlink?(link)
   end
 
-  def test_can_create_files
-    path = '/path/to/file.txt'
+  def test_can_create_files_in_current_dir
+    path = 'file.txt'
     File.open(path, 'w') do |f|
       f.write "Yatta!"
     end
@@ -158,7 +158,44 @@ class FakeFSTest < Test::Unit::TestCase
     assert File.writable?(path)
   end
 
+  def test_can_create_files_in_existing_dir
+    FileUtils.mkdir_p "/path/to"
+    path = "/path/to/file.txt"
+
+    File.open(path, 'w') do |f|
+      f.write "Yatta!"
+    end
+
+    assert File.exists?(path)
+    assert File.readable?(path)
+    assert File.writable?(path)
+  end
+
+  def test_raises_ENOENT_trying_to_create_files_in_nonexistent_dir
+    path = "/path/to/file.txt"
+
+    assert_raises(Errno::ENOENT) {
+      File.open(path, 'w') do |f|
+        f.write "Yatta!"
+      end
+    }
+  end
+
+  def test_raises_EISDIR_if_trying_to_open_existing_directory_name
+    path = "/path/to"
+
+    FileUtils.mkdir_p path
+
+    assert_raises(Errno::EISDIR) {
+      File.open(path, 'w') do |f|
+        f.write "Yatta!"
+      end
+    }
+  end
+
   def test_can_create_files_with_bitmasks
+    FileUtils.mkdir_p("/path/to")
+
     path = '/path/to/file.txt'
     File.open(path, File::RDWR | File::CREAT) do |f|
       f.write "Yatta!"
@@ -277,7 +314,7 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_can_read_files_once_written
-    path = '/path/to/file.txt'
+    path = 'file.txt'
     File.open(path, 'w') do |f|
       f.write "Yatta!"
     end
@@ -286,7 +323,7 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_can_write_to_files
-    path = '/path/to/file.txt'
+    path = 'file.txt'
     File.open(path, 'w') do |f|
       f << 'Yada Yada'
     end
@@ -300,11 +337,12 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_can_open_file_in_binary_mode
-    File.open("/foo", "wb") { |x| x << "a" }
-    assert_equal "a", File.read("/foo")
+    File.open("foo", "wb") { |x| x << "a" }
+    assert_equal "a", File.read("foo")
   end
 
   def test_can_chunk_io_when_reading
+    FileUtils.mkdir_p "/path/to"
     path = '/path/to/file.txt'
     File.open(path, 'w') do |f|
       f << 'Yada Yada'
@@ -318,7 +356,7 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_can_get_size_of_files
-    path = '/path/to/file.txt'
+    path = 'file.txt'
     File.open(path, 'w') do |f|
       f << 'Yada Yada'
     end
@@ -326,20 +364,20 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_can_check_if_file_has_size?
-    path = '/path/to/file.txt'
+    path = 'file.txt'
     File.open(path, 'w') do |f|
       f << 'Yada Yada'
     end
     assert File.size?(path)
-    assert_nil File.size?("/path/to/other.txt")
+    assert_nil File.size?("other.txt")
   end
 
   def test_can_check_size_of_empty_file
-    path = '/path/to/file.txt'
+    path = 'file.txt'
     File.open(path, 'w') do |f|
       f << ''
     end
-    assert_nil File.size?("/path/to/file.txt")
+    assert_nil File.size?("file.txt")
   end
 
   def test_raises_error_on_mtime_if_file_does_not_exist
@@ -349,16 +387,16 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_can_return_mtime_on_existing_file
-    path = '/path/to/file.txt'
+    path = 'file.txt'
     File.open(path, 'w') do |f|
       f << ''
     end
-    assert File.mtime('/path/to/file.txt').is_a?(Time)
+    assert File.mtime('file.txt').is_a?(Time)
   end
 
   def test_raises_error_on_ctime_if_file_does_not_exist
     assert_raise Errno::ENOENT do
-      File.ctime('/path/to/file.txt')
+      File.ctime('file.txt')
     end
   end
 
@@ -418,16 +456,16 @@ class FakeFSTest < Test::Unit::TestCase
 
   def test_can_call_utime_on_an_existing_file
     time = Time.now - 300 # Not now
-    path = '/path/to/file.txt'
+    path = 'file.txt'
     File.open(path, 'w') do |f|
       f << ''
     end
     File.utime(time, time, path)
-    assert_equal time, File.mtime('/path/to/file.txt')
+    assert_equal time, File.mtime('file.txt')
   end
 
   def test_utime_returns_number_of_paths
-    path1, path2 = '/path/to/file.txt', '/path/to/another_file.txt'
+    path1, path2 = 'file.txt', 'another_file.txt'
     [path1, path2].each do |path|
       File.open(path, 'w') do |f|
         f << ''
@@ -437,7 +475,7 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_can_read_with_File_readlines
-    path = '/path/to/file.txt'
+    path = 'file.txt'
     File.open(path, 'w') do |f|
       f.puts "Yatta!", "Gatta!"
       f.puts ["woot","toot"]
@@ -447,7 +485,7 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_File_close_disallows_further_access
-    path = '/path/to/file.txt'
+    path = 'file.txt'
     file = File.open(path, 'w')
     file.write 'Yada'
     file.close
@@ -457,7 +495,7 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_File_close_disallows_further_writes
-    path = '/path/to/file.txt'
+    path = 'file.txt'
     file = File.open(path, 'w')
     file.write 'Yada'
     file.close
@@ -467,7 +505,7 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_can_read_from_file_objects
-    path = '/path/to/file.txt'
+    path = 'file.txt'
     File.open(path, 'w') do |f|
       f.write "Yatta!"
     end
@@ -482,7 +520,7 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_knows_files_are_files
-    path = '/path/to/file.txt'
+    path = 'file.txt'
     File.open(path, 'w') do |f|
       f.write "Yatta!"
     end
@@ -491,17 +529,17 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_File_io_returns_self
-    f = File.open("/foo", "w")
+    f = File.open("foo", "w")
     assert_equal f, f.to_io
   end
 
   def test_File_to_i_is_alias_for_filno
-    f = File.open("/foo", "w")
+    f = File.open("foo", "w")
     assert_equal f.method(:to_i), f.method(:fileno)
   end
 
   def test_knows_symlink_files_are_files
-    path = '/path/to/file.txt'
+    path = 'file.txt'
     File.open(path, 'w') do |f|
       f.write "Yatta!"
     end
@@ -583,6 +621,7 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_dir_glob_handles_recursive_globs
+    FileUtils.mkdir_p "/one/two/three"
     File.open('/one/two/three/four.rb', 'w')
     File.open('/one/five.rb', 'w')
     assert_equal ['/one/five.rb', '/one/two/three/four.rb'], Dir['/one/**/*.rb']
@@ -591,6 +630,7 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_dir_recursive_glob_ending_in_wildcards_returns_both_files_and_dirs
+    FileUtils.mkdir_p "/one/two/three"
     File.open('/one/two/three/four.rb', 'w')
     File.open('/one/five.rb', 'w')
     assert_equal ['/one/five.rb', '/one/two', '/one/two/three', '/one/two/three/four.rb'], Dir['/one/**/*']
@@ -608,7 +648,7 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_should_report_pos_as_0_when_opening
-    File.open("/foo", "w") do |f|
+    File.open("foo", "w") do |f|
       f << "foobar"
       f.rewind
 
@@ -617,7 +657,7 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_should_report_pos_as_1_when_seeking_one_char
-    File.open("/foo", "w") do |f|
+    File.open("foo", "w") do |f|
       f << "foobar"
 
       f.rewind
@@ -628,22 +668,22 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_should_set_pos
-    File.open("/foo", "w") do |f|
+    File.open("foo", "w") do |f|
       f << "foo"
     end
 
-    fp = File.open("/foo", "r")
+    fp = File.open("foo", "r")
     fp.pos = 1
 
     assert_equal 1, fp.pos
   end
 
   def test_should_set_pos_with_tell_method
-    File.open("/foo", "w") do |f|
+    File.open("foo", "w") do |f|
       f << "foo"
     end
 
-    fp = File.open("/foo", "r")
+    fp = File.open("foo", "r")
     fp.tell = 1
 
     assert_equal 1, fp.pos
