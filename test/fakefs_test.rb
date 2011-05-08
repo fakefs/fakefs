@@ -209,6 +209,36 @@ class FakeFSTest < Test::Unit::TestCase
     }
   end
 
+  def test_raises_ENOENT_trying_to_create_files_in_relative_nonexistent_dir
+    FileUtils.mkdir_p "/some/path"
+
+    Dir.chdir("/some/path") {
+      assert_raises(Errno::ENOENT) {
+        File.open("../foo") {|f| f.write "moo" }
+      }
+    }
+  end
+
+  def test_raises_ENOENT_trying_to_create_files_in_obscured_nonexistent_dir
+    FileUtils.mkdir_p "/some/path"
+
+    assert_raises(Errno::ENOENT) {
+      File.open("/some/path/../foo") {|f| f.write "moo" }
+    }
+  end
+
+  def test_raises_ENOENT_trying_to_create_tilde_referenced_nonexistent_dir
+    path = "~/fakefs_test_#{$$}_0000"
+
+    while File.exist? path
+      path = path.succ
+    end
+
+    assert_raises(Errno::ENOENT) {
+      File.open("#{path}/foo") {|f| f.write "moo" }
+    }
+  end
+
   def test_raises_EISDIR_if_trying_to_open_existing_directory_name
     path = "/path/to"
 
