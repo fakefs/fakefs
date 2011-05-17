@@ -1,7 +1,0 @@
-pkg/*
-*.gem
-.bundle
-.loadpath
-.project
-Gemfile.lock
-.rvmrc
