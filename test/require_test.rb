@@ -1,4 +1,4 @@
-require File.expand_path("../helper", __FILE__)
+require "test_helper"
 
 class RequireTest < Test::Unit::TestCase
 
