@@ -1,9 +1,11 @@
-require File.dirname(__FILE__) + "/helper"
+require File.expand_path("../helper", __FILE__)
 
 class RequireTest < Test::Unit::TestCase
 
   def setup
     FakeFS.activate!
+    
+    $LOAD_PATH << "."
   end
 
   def teardown
@@ -12,6 +14,8 @@ class RequireTest < Test::Unit::TestCase
     
     FakeFS::FileSystem.clear
     FakeFS.deactivate!
+    
+    $LOAD_PATH.delete "."
   end
   
   def test_fakes_require
@@ -101,6 +105,8 @@ class RequireTest < Test::Unit::TestCase
       require "fake_fs_test_require_with_fooback.rb"
     end
     
+    skip "Get rid of rack"
+    
     # load a file from a gem
     require "rack/static.rb"
     assert ::Rack::Static
@@ -176,12 +182,6 @@ class RequireTest < Test::Unit::TestCase
     # doesn't append .rb
     assert_raise(LoadError) { load "fake_fs_test_load/asd.rb" }
     
-    # falls back to the original #load
-    fn = "fake_fs_test_load2.rb"
-    FakeFS::Require.opts[:fallback] = true
-    self.expects(:fakefs_original_load).with(fn, false).returns(true)
-    load fn
-    
     # executes the file within an anonymous module
     File.open "fake_fs_test_load3.rb", "w" do |f|
       f.write <<-CODE
@@ -191,6 +191,14 @@ class RequireTest < Test::Unit::TestCase
     end
     load "fake_fs_test_load3.rb", true
     assert_raise(NameError) { FakeFSTestLoad3 }
+    
+    skip "Get rid of mocha"
+    
+    # falls back to the original #load
+    fn = "fake_fs_test_load2.rb"
+    FakeFS::Require.opts[:fallback] = true
+    self.expects(:fakefs_original_load).with(fn, false).returns(true)
+    load fn
   end
 
 end
