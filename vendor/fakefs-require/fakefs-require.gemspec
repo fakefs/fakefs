@@ -14,10 +14,6 @@ Gem::Specification.new do |s|
   
   s.add_dependency "fakefs"
 
-  s.add_development_dependency "test-unit"
-  s.add_development_dependency "mocha"
-  s.add_development_dependency "rack"
-
   s.files         = `git ls-files`.split("\n") - [".gitignore", ".rvmrc"]
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
