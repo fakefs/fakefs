@@ -1,0 +1,9 @@
+source "http://rubygems.org"
+
+gemspec
+
+gem "fakefs", :require => "fakefs/safe"
+
+group :development do
+  gem "awesome_print"
+end
