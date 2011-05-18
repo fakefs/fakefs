@@ -105,19 +105,21 @@ class RequireTest < Test::Unit::TestCase
       require "fake_fs_test_require_with_fooback.rb"
     end
     
-    skip "Get rid of rack"
-    
-    # load a file from a gem
-    require "rack/static.rb"
-    assert ::Rack::Static
-    assert_raise LoadError do
-      require "rack/is_great"
-    end
-    
     # turned off fallback
-    FakeFS::Require.opts[:fallback] = false
-    assert_raise LoadError do
-      require "rack/mime"
+    begin
+      dir = RealDir.tmpdir + "/" + rand.to_s[2..-1]
+      RealDir.mkdir dir
+      $LOAD_PATH.unshift dir
+      RealFile.open dir + "/fake_fs_test_require_without_fallback.rb", "w" do |f|; end
+      
+      FakeFS::Require.opts[:fallback] = false
+      assert_raise LoadError do
+        require "fake_fs_test_require_without_fallbacK"
+      end
+    ensure
+      RealFile.delete dir + "/fake_fs_test_require_without_fallback.rb"
+      $LOAD_PATH.delete dir
+      RealDir.delete dir
     end
   end
   
@@ -159,6 +161,7 @@ class RequireTest < Test::Unit::TestCase
     end
   end
   
+  # TODO test return values
   def test_fakes_load
     FakeFS::Require.activate! :load => true
     
@@ -180,6 +183,7 @@ class RequireTest < Test::Unit::TestCase
     assert_equal 2, FakeFSTestLoad.count
     
     # doesn't append .rb
+    # TODO i don't get this line.
     assert_raise(LoadError) { load "fake_fs_test_load/asd.rb" }
     
     # executes the file within an anonymous module
@@ -192,13 +196,52 @@ class RequireTest < Test::Unit::TestCase
     load "fake_fs_test_load3.rb", true
     assert_raise(NameError) { FakeFSTestLoad3 }
     
-    skip "Get rid of mocha"
+    # load with fallback
+    begin
+      FakeFS::Require.opts[:fallback] = true
+      
+      dir = RealDir.tmpdir + "/" + rand.to_s[2..-1]
+      RealDir.mkdir dir
+      $LOAD_PATH.unshift dir
+      
+      code = <<-EOS
+        module FakeFSTestLoadWithFallback
+        end
+      EOS
+      RealFile.open dir + "/fake_fs_test_load_with_fallback.rb", "w" do |f|
+        f.write code
+      end
+      
+      load "fake_fs_test_load_with_fallback.rb"
+      assert FakeFSTestLoadWithFallback
+    ensure
+      RealFile.delete dir + "/fake_fs_test_load_with_fallback.rb"
+      RealDir.delete dir
+      $LOAD_PATH.delete dir
+    end
     
-    # falls back to the original #load
-    fn = "fake_fs_test_load2.rb"
-    FakeFS::Require.opts[:fallback] = true
-    self.expects(:fakefs_original_load).with(fn, false).returns(true)
-    load fn
+    # failing load without fallback
+    begin
+      FakeFS::Require.opts[:fallback] = false
+      
+      dir = RealDir.tmpdir + "/" + rand.to_s[2..-1]
+      RealDir.mkdir dir
+      $LOAD_PATH.unshift dir
+      
+      code = <<-EOS
+        module FakeFSTestLoadWithoutFallback
+        end
+      EOS
+      RealFile.open dir + "/fake_fs_test_load_without_fallback.rb", "w" do |f|
+        f.write code
+      end
+      
+      assert_raise(LoadError) { load "fake_fs_test_load_without_fallback.rb" }
+    ensure
+      RealFile.delete dir + "/fake_fs_test_load_without_fallback.rb"
+      RealDir.delete dir
+      $LOAD_PATH.delete dir
+    end
   end
 
 end
