@@ -3,27 +3,30 @@ require "test_helper"
 class RequireTest < Test::Unit::TestCase
 
   def setup
+    @original_dir = Dir.pwd
+    @dir = RealDir.tmpdir + "/" + rand.to_s[2..-1]
+    Dir.mkdir @dir
+    Dir.chdir @dir
+    
     FakeFS.activate!
     
-    FileUtils.mkdir_p "tmp/fakefs"
-    Dir.chdir "tmp/fakefs"
-    @dir = Dir.pwd
-    
-    $LOAD_PATH.unshift "."
+    $LOAD_PATH.unshift @dir
   end
   
   def teardown
-    Dir.chdir "../.."
-    FileUtils.rm_r "tmp/fakefs"
-    
     FakeFS::Require.deactivate!
     FakeFS::Require.clear
     
     FakeFS::FileSystem.clear
     FakeFS.deactivate!
+  ensure
+    $LOAD_PATH.delete @dir
+    $LOADED_FEATURES.delete_if {|path|
+      path =~ /^#{Regexp.escape @dir}\//
+    }
     
-    $LOAD_PATH.delete "."
-    $LOADED_FEATURES.delete_if {|path| path =~ /^#{Regexp.escape @dir}\// }
+    Dir.chdir @original_dir
+    FileUtils.rm_r @dir
   end
   
   def test_loads_file
@@ -33,7 +36,7 @@ class RequireTest < Test::Unit::TestCase
       f.write "module FakeFS::Foo; end"
     }
     
-    require "foo"
+    assert require "foo"
     assert FakeFS::Foo
     
     FakeFS.send :remove_const, :Foo
@@ -100,91 +103,61 @@ class RequireTest < Test::Unit::TestCase
     assert_raise(LoadError) { require "i_dont_exist" }
   end
   
-  def test_fakes_require_with_fallback
+  def test_falls_back_to_original_fs
     FakeFS::Require.activate! :fallback => true
     
-    # load a file that's in the real (= non-faked) load path
-    begin
-      dir = RealDir.tmpdir + "/" + rand.to_s[2..-1]
-      RealDir.mkdir dir
-      
-      $LOAD_PATH.unshift dir
-      
-      code = <<-EOS
-        module FakeFSTestRequireWithFallback
-        end
-      EOS
-      RealFile.open dir + "/fake_fs_test_require_with_fallback.rb", "w" do |f|
-        f.write code
-      end
-      
-      require "fake_fs_test_require_with_fallback.rb"
-      assert FakeFSTestRequireWithFallback
-    ensure
-      RealFile.delete dir + "/fake_fs_test_require_with_fallback.rb"
-      RealDir.delete dir
-      $LOAD_PATH.delete dir
-    end
+    RealFile.open("with_fallback.rb", "w") {|f|
+      f.write "module FakeFS::WithFallback; end"
+    }
+    require "with_fallback"
+    assert  FakeFS::WithFallback
     
-    # load a file that exists neither in fakefs nor in the real load path
-    assert_raise LoadError do
-      require "fake_fs_test_require_with_fooback.rb"
-    end
-    
-    # turned off fallback
-    begin
-      dir = RealDir.tmpdir + "/" + rand.to_s[2..-1]
-      RealDir.mkdir dir
-      $LOAD_PATH.unshift dir
-      RealFile.open dir + "/fake_fs_test_require_without_fallback.rb", "w" do |f|; end
-      
-      FakeFS::Require.opts[:fallback] = false
-      assert_raise LoadError do
-        require "fake_fs_test_require_without_fallbacK"
-      end
-    ensure
-      RealFile.delete dir + "/fake_fs_test_require_without_fallback.rb"
-      $LOAD_PATH.delete dir
-      RealDir.delete dir
-    end
+    FakeFS.send :remove_const, :WithFallback
   end
   
-  def test_fakes_autoload
+  def test_doesnt_load_files_in_original_fs_without_fallback
+    FakeFS::Require.activate!
+    
+    RealFile.open("without_fallback.rb", "w") {|f|
+      f.write ""
+    }
+    assert_raise(LoadError) { require "without_fallback" }
+  end
+  
+  def test_fails_if_file_doesnt_exist_in_both_faked_and_original_fs
+    FakeFS::Require.activate! :fallback => true
+    
+    assert_raise(LoadError) { require "i_dont_exist" }
+  end
+  
+  def test_loads_autorequire_files
     FakeFS::Require.activate! :autoload => true
     
-    code = <<-EOS
-      module FakeFSTestAutoload
-        autoload :Foo, "fake_fs_test_autoload/foo"
-        autoload :Bar, "fake_fs_test_autoload/bar"
-      end
-    EOS
-    File.open "fake_fs_test_autoload.rb", "w" do |f|
-      f.write code
-    end
-    code = <<-EOS
-      module FakeFSTestAutoload
-        module Foo
-        end
-      end
-    EOS
-    File.open "fake_fs_test_autoload/foo.rb", "w" do |f|
-      f.write code
-    end
+    File.open("with_autoload.rb", "w") {|f|
+      f.write "module FakeFS::WithAutoload; end"
+    }
+    FakeFS.send :autoload, :WithAutoload, "with_autoload"
     
-    require "fake_fs_test_autoload"
+    assert FakeFS::WithAutoload
+    FakeFS.send :remove_const, :WithAutoload
+  end
+  
+  def test_fails_if_autoload_file_doesnt_exist
+    FakeFS::Require.activate! :autoload => true
     
-    # autoload
-    assert FakeFSTestAutoload::Foo
+    FakeFS.send :autoload, :WithAutoload, "i_dont_exist"
+    assert_raise(LoadError) { FakeFS::WithAutoload }
+  end
+  
+  def test_fails_if_autoloaded_file_doesnt_define_constant
+    FakeFS::Require.activate! :autoload => true
     
-    # autoload with non-existing path
-    assert_raise LoadError do
-      FakeFSTestAutoload::Bar
-    end
+    File.open("empty.rb", "w") {|f|
+      f.write ""
+    }
+    FakeFS.send :autoload, :EmptyAutoload, "empty"
     
-    # no autoload
-    assert_raise NameError do
-      FakeFSTestAutoload::Baz
-    end
+    assert_raise(NameError) { FakeFS::EmptyAutoload }
   end
   
   # TODO test return values
