@@ -29,7 +29,7 @@ class RequireTest < Test::Unit::TestCase
     FileUtils.rm_r @dir
   end
   
-  def test_loads_file
+  def test_requires_file
     FakeFS::Require.activate!
     
     File.open("foo.rb", "w") {|f|
@@ -80,7 +80,7 @@ class RequireTest < Test::Unit::TestCase
     FakeFS.send :remove_const, :No2ndDotRb
   end
   
-  def test_remembers_loaded_features
+  def test_remembers_required_files
     skip "$LOADED_FEATURES behaviour is not up-to-date with tests' expectations"
     
     FakeFS::Require.activate!
@@ -115,7 +115,7 @@ class RequireTest < Test::Unit::TestCase
     FakeFS.send :remove_const, :WithFallback
   end
   
-  def test_doesnt_load_files_in_original_fs_without_fallback
+  def test_doesnt_require_files_in_original_fs_without_fallback
     FakeFS::Require.activate!
     
     RealFile.open("without_fallback.rb", "w") {|f|
@@ -130,7 +130,7 @@ class RequireTest < Test::Unit::TestCase
     assert_raise(LoadError) { require "i_dont_exist" }
   end
   
-  def test_loads_autorequire_files
+  def test_requires_autorequire_files
     FakeFS::Require.activate! :autoload => true
     
     File.open("with_autoload.rb", "w") {|f|
@@ -160,40 +160,43 @@ class RequireTest < Test::Unit::TestCase
     assert_raise(NameError) { FakeFS::EmptyAutoload }
   end
   
-  # TODO test return values
   def test_fakes_load
     FakeFS::Require.activate! :load => true
     
-    # loads a file
-    File.open "fake_fs_test_load.rb", "w" do |f|
-      f.write <<-CODE
-        module FakeFSTestLoad
-          @count ||= 0
-          @count += 1
-          def self.count; return @count; end
-        end
-      CODE
-    end
-    load "fake_fs_test_load.rb"
-    assert_equal 1, FakeFSTestLoad.count
+    File.open("with_load.rb", "w") {|f|
+      f.write "module FakeFS::WithLoad; " +
+                "@count ||= 0; @count += 1; def self.count; @count; end; " +
+              "end"
+    }
     
-    # loads the file twice
-    load "fake_fs_test_load.rb"
-    assert_equal 2, FakeFSTestLoad.count
+    1.upto(3) {|i|
+      load "with_load.rb"
+      assert_equal i, FakeFS::WithLoad.count
+    }
+  end
+  
+  def test_load_doesnt_append_dot_rb
+    FakeFS::Require.activate! :load => true
     
-    # doesn't append .rb
-    # TODO i don't get this line.
-    assert_raise(LoadError) { load "fake_fs_test_load/asd.rb" }
+    File.open("no_dot_rb.rb", "w") {|f|
+      f.write ""
+    }
+    assert_raise(LoadError) { load "no_dot_rb "}
+  end
+  
+  def test_load_executes_with_an_anonymous_module
+    FakeFS::Require.activate! :load => true
     
-    # executes the file within an anonymous module
-    File.open "fake_fs_test_load3.rb", "w" do |f|
-      f.write <<-CODE
-        module FakeFSTestLoad3
-        end
-      CODE
-    end
-    load "fake_fs_test_load3.rb", true
-    assert_raise(NameError) { FakeFSTestLoad3 }
+    File.open("anonymous.rb", "w") {|f|
+      f.write "module Anonymous; end"
+    }
+
+    load "anonymous.rb", true
+    assert_raise(NameError) { Anonymous }
+  end
+  
+  def test_load_uses_fallback
+    skip "Not implemented yet."
     
     # load with fallback
     begin
@@ -218,6 +221,10 @@ class RequireTest < Test::Unit::TestCase
       RealDir.delete dir
       $LOAD_PATH.delete dir
     end
+  end
+  
+  def test_load_fallback_fails_if_file_doesnt_exist_in_original_fs
+    skip "Not implemented yet."
     
     # failing load without fallback
     begin
@@ -242,5 +249,12 @@ class RequireTest < Test::Unit::TestCase
       $LOAD_PATH.delete dir
     end
   end
-
+  
+  def test_load_doesnt_load_files_in_original_fs_without_fallback
+    skip "Not implemented yet."
+  end
+  
+  def test_load_return_values
+    skip "Not implemented yet."
+  end
 end
