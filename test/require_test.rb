@@ -5,10 +5,17 @@ class RequireTest < Test::Unit::TestCase
   def setup
     FakeFS.activate!
     
-    $LOAD_PATH << "."
+    FileUtils.mkdir_p "tmp/fakefs"
+    Dir.chdir "tmp/fakefs"
+    @dir = Dir.pwd
+    
+    $LOAD_PATH.unshift "."
   end
-
+  
   def teardown
+    Dir.chdir "../.."
+    FileUtils.rm_r "tmp/fakefs"
+    
     FakeFS::Require.deactivate!
     FakeFS::Require.clear
     
@@ -16,62 +23,79 @@ class RequireTest < Test::Unit::TestCase
     FakeFS.deactivate!
     
     $LOAD_PATH.delete "."
+    $LOADED_FEATURES.delete_if {|path| path =~ /^#{Regexp.escape @dir}\// }
   end
   
-  def test_fakes_require
+  def test_loads_file
     FakeFS::Require.activate!
     
-    # require a file
-    code = <<-EOS
-      module FakeFSTestRequire1
-      end
-    EOS
-    File.open "fake_fs_test_require1.rb", "w" do |f|
-      f.write code
-    end
-    require "fake_fs_test_require1.rb"
-    assert ::FakeFSTestRequire1
+    File.open("foo.rb", "w") {|f|
+      f.write "module FakeFS::Foo; end"
+    }
     
-    # require a file that doesn't exist
-    assert_raise LoadError do
-      require "foo"
-    end
+    require "foo"
+    assert FakeFS::Foo
     
-    # always append .rb if the filename doesn't end with it
-    code = <<-EOS
-      module FakeFSTestRequire2_WithDotRb
-      end
-    EOS
-    File.open "fake_fs_test_require2.rb", "w" do |f|
-      f.write code
-    end
-    code = <<-EOS
-      module FakeFSTestRequire2_WithoutDotRb
-      end
-    EOS
-    File.open "fake_fs_test_require2", "w" do |f|
-      f.write code
-    end
-    require "fake_fs_test_require2"
-    assert ::FakeFSTestRequire2_WithDotRb
+    FakeFS.send :remove_const, :Foo
+  end
+  
+  def test_fails_if_file_doesnt_exist
+    FakeFS::Require.activate!
     
-    # remember which files have been loaded
-    code = <<-EOS
-      module FakeFSTestRequire3
-      end
-    EOS
-    File.open "fake_fs_test_require3.rb", "w" do |f|
-      f.write code
-    end
-    require "fake_fs_test_require3"
-    assert_equal "fake_fs_test_require3.rb", $".last
-    assert !require("fake_fs_test_require3")
+    assert_raise(LoadError) { require "foo" }
+  end
+  
+  def test_appends_dot_rb_to_filename
+    FakeFS::Require.activate!
     
-    # properly deactivate
+    File.open("dot_rb.rb", "w") {|f|
+      f.write "module FakeFS::DotRb; end"
+    }
+    File.open("dot_rb", "w") {|f|
+      f.write "module FakeFS::NoDotRb; end"
+    }
+    
+    require "dot_rb"
+    assert FakeFS::DotRb
+    
+    FakeFS.send :remove_const, :DotRb
+  end
+  
+  def test_doesnt_append_dot_rb_if_present
+    FakeFS::Require.activate!
+    
+    File.open("2nd_dot_rb.rb", "w") {|f|
+      f.write "module FakeFS::No2ndDotRb; end"
+    }
+    File.open("2nd_dot_rb.rb.rb", "w") {|f|
+      f.write "module FakeFS::2ndDotRb; end"
+    }
+    
+    require "2nd_dot_rb.rb"
+    assert FakeFS::No2ndDotRb
+    
+    FakeFS.send :remove_const, :No2ndDotRb
+  end
+  
+  def test_remembers_loaded_features
+    FakeFS::Require.activate!
+    
+    File.open("loaded_feature.rb", "w") {|f|
+      f.write "module FakeFS::LoadedFeature; end"
+    }
+    require "loaded_feature"
+    
+    assert_equal @dir + "/loaded_feature.rb", $LOADED_FEATURES.last
+    assert_false require("loaded_feature")
+    
+    FakeFS.send :remove_const, :LoadedFeature
+  end
+  
+  def test_deactivates_itself_properly
+    FakeFS::Require.activate!
     FakeFS::Require.deactivate!
-    assert_raise LoadError do
-      require "bar"
-    end
+    
+    assert_raise(LoadError) { require "i_dont_exist" }
   end
   
   def test_fakes_require_with_fallback
