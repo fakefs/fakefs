@@ -196,62 +196,32 @@ class RequireTest < Test::Unit::TestCase
   end
   
   def test_load_uses_fallback
-    skip "Not implemented yet."
+    FakeFS::Require.activate! :fallback => true, :load => true
     
-    # load with fallback
-    begin
-      FakeFS::Require.opts[:fallback] = true
-      
-      dir = RealDir.tmpdir + "/" + rand.to_s[2..-1]
-      RealDir.mkdir dir
-      $LOAD_PATH.unshift dir
-      
-      code = <<-EOS
-        module FakeFSTestLoadWithFallback
-        end
-      EOS
-      RealFile.open dir + "/fake_fs_test_load_with_fallback.rb", "w" do |f|
-        f.write code
-      end
-      
-      load "fake_fs_test_load_with_fallback.rb"
-      assert FakeFSTestLoadWithFallback
-    ensure
-      RealFile.delete dir + "/fake_fs_test_load_with_fallback.rb"
-      RealDir.delete dir
-      $LOAD_PATH.delete dir
-    end
+    RealFile.open("with_fallback.rb", "w") {|f|
+      f.write "module FakeFS::WithFallback; end"
+    }
+    
+    load "with_fallback.rb"
+    assert FakeFS::WithFallback
+    
+    FakeFS.send :remove_const, :WithFallback
   end
   
   def test_load_fallback_fails_if_file_doesnt_exist_in_original_fs
-    skip "Not implemented yet."
+    FakeFS::Require.activate! :fallback => true, :load => true
     
-    # failing load without fallback
-    begin
-      FakeFS::Require.opts[:fallback] = false
-      
-      dir = RealDir.tmpdir + "/" + rand.to_s[2..-1]
-      RealDir.mkdir dir
-      $LOAD_PATH.unshift dir
-      
-      code = <<-EOS
-        module FakeFSTestLoadWithoutFallback
-        end
-      EOS
-      RealFile.open dir + "/fake_fs_test_load_without_fallback.rb", "w" do |f|
-        f.write code
-      end
-      
-      assert_raise(LoadError) { load "fake_fs_test_load_without_fallback.rb" }
-    ensure
-      RealFile.delete dir + "/fake_fs_test_load_without_fallback.rb"
-      RealDir.delete dir
-      $LOAD_PATH.delete dir
-    end
+    assert_raise(LoadError) { load "i_dont_exist.rb" }
   end
   
   def test_load_doesnt_load_files_in_original_fs_without_fallback
-    skip "Not implemented yet."
+    FakeFS::Require.activate! :load => true
+    
+    RealFile.open("without_fallback.rb", "w") {|f|
+      f.write ""
+    }
+    
+    assert_raise(LoadError) { load "without_fallback.rb" }
   end
   
   def test_load_return_values
