@@ -96,7 +96,10 @@ module FakeFS
       else
         $LOAD_PATH.each do |p|
           path = p + "/" + fn
-          found = File.expand_path path if File.exist? path
+          if File.exist? path
+            found = File.expand_path path
+            break
+          end
         end
       end
       
