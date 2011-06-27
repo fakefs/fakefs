@@ -163,7 +163,6 @@ module FakeFS
         fn = fn.to_s
         orig_fn = fn.dup
         
-        fn = fn + ".rb" unless fn[-3..-1] == ".rb"
         path = FakeFS::Require.resolve fn
         
         if path
