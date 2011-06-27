@@ -93,20 +93,25 @@ class RequireTest < Test::Unit::TestCase
   def test_remembers_required_files
     FakeFS::Require.activate!
     
+    FileUtils.mkdir "foo"
+    $LOAD_PATH << "foo"
+    
     File.open("load_it.rb", "w") {|f|
       f.write "require 'loaded_feature'"
     }
-    File.open("loaded_feature.rb", "w") {|f|
+    File.open("foo/loaded_feature.rb", "w") {|f|
       f.write "module FakeFS::LoadedFeature; end"
     }
     require "load_it"
     
-    assert_equal @dir + "/loaded_feature.rb", $LOADED_FEATURES[-2]
+    assert_equal @dir + "/foo/loaded_feature.rb", $LOADED_FEATURES[-2]
     assert_equal @dir + "/load_it.rb", $LOADED_FEATURES[-1]
     
     assert !require("loaded_feature")
     
     FakeFS.send :remove_const, :LoadedFeature
+  ensure
+    $LOAD_PATH.delete "foo"
   end
   
   def test_deactivates_itself_properly
@@ -191,7 +196,9 @@ class RequireTest < Test::Unit::TestCase
   end
   
   def test_load_fails_if_file_doesnt_exist
-    skip "Not yet implemented."
+    FakeFS::Require.activate! :load => true
+    
+    assert_raise(LoadError) { load "i_dont_exist" }
   end
   
   def test_load_file_from_absolute_path
