@@ -60,7 +60,16 @@ class RequireTest < Test::Unit::TestCase
   end
   
   def test_requires_file_from_absolute_path
-    skip "Not yet implemented."
+    FakeFS::Require.activate!
+    
+    path = @dir + "/an/absolute/path"
+    File.open(path + ".rb", "w") {|f|
+      f.write "module FakeFS::AnAbsolutePath; end"
+    }
+    assert require path
+    assert FakeFS::AnAbsolutePath
+    
+    FakeFS.send :remove_const, :AnAbsolutePath
   end
   
   def test_uses_absolute_path_for_caller
@@ -217,7 +226,16 @@ class RequireTest < Test::Unit::TestCase
   end
   
   def test_load_file_from_absolute_path
-    skip "Not yet implemented."
+    FakeFS::Require.activate! :load => true
+    
+    path = @dir + "/an/absolute/path.rb"
+    File.open(path, "w") {|f|
+      f.write "module FakeFS::AnAbsolutePath; end"
+    }
+    load path
+    assert FakeFS::AnAbsolutePath
+    
+    FakeFS.send :remove_const, :AnAbsolutePath
   end
   
   def test_load_uses_absolute_path_for_caller
