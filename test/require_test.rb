@@ -30,6 +30,8 @@ class RequireTest < Test::Unit::TestCase
   end
   
   def test_requires_file
+    skip "What about $LOAD_PATH behaviour?"
+    
     FakeFS::Require.activate!
     
     File.open("foo.rb", "w") {|f|
@@ -46,6 +48,10 @@ class RequireTest < Test::Unit::TestCase
     FakeFS::Require.activate!
     
     assert_raise(LoadError) { require "foo" }
+  end
+  
+  def test_requires_file_from_absolute_path
+    skip "Not yet implemented."
   end
   
   def test_appends_dot_rb_to_filename
@@ -161,6 +167,8 @@ class RequireTest < Test::Unit::TestCase
   end
   
   def test_fakes_load
+    skip "What about $LOAD_PATH behaviour?"
+    
     FakeFS::Require.activate! :load => true
     
     File.open("with_load.rb", "w") {|f|
@@ -170,21 +178,31 @@ class RequireTest < Test::Unit::TestCase
     }
     
     1.upto(3) {|i|
-      load "with_load.rb"
+      assert load "with_load.rb"
       assert_equal i, FakeFS::WithLoad.count
     }
   end
   
+  def test_load_fails_if_file_doesnt_exist
+    skip "Not yet implemented."
+  end
+  
+  def test_load_file_from_absolute_path
+    skip "Not yet implemented."
+  end
+  
   def test_load_doesnt_append_dot_rb
+    skip "Kernel#load should not append .rb"
+    
     FakeFS::Require.activate! :load => true
     
     File.open("no_dot_rb.rb", "w") {|f|
       f.write ""
     }
-    assert_raise(LoadError) { load "no_dot_rb "}
+    assert_raise(LoadError) { load "no_dot_rb"}
   end
   
-  def test_load_executes_with_an_anonymous_module
+  def test_load_executes_within_an_anonymous_module
     FakeFS::Require.activate! :load => true
     
     File.open("anonymous.rb", "w") {|f|
@@ -192,7 +210,7 @@ class RequireTest < Test::Unit::TestCase
     }
 
     load "anonymous.rb", true
-    assert_raise(NameError) { Anonymous }
+    assert_raise(NameError) { ::Anonymous }
   end
   
   def test_load_uses_fallback
@@ -222,9 +240,5 @@ class RequireTest < Test::Unit::TestCase
     }
     
     assert_raise(LoadError) { load "without_fallback.rb" }
-  end
-  
-  def test_load_return_values
-    skip "Not implemented yet."
   end
 end
