@@ -195,8 +195,6 @@ class RequireTest < Test::Unit::TestCase
   end
   
   def test_load_doesnt_append_dot_rb
-    skip "Kernel#load should not append .rb"
-    
     FakeFS::Require.activate! :load => true
     
     File.open("no_dot_rb.rb", "w") {|f|
