@@ -112,10 +112,10 @@ module FakeFS
       path = FakeFS::Require.resolve fn
       
       if path
-        return false if $".include? fn
+        return false if $LOADED_FEATURES.include? path
         
         File.open(path, "r") {|f| Object.class_eval f.read, fn, 1 }
-        $" << fn
+        $LOADED_FEATURES << path
         return true
       elsif FakeFS::Require.opts[:fallback]
         opts = FakeFS::Require.opts
