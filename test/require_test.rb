@@ -87,17 +87,20 @@ class RequireTest < Test::Unit::TestCase
   end
   
   def test_remembers_required_files
-    skip "$LOADED_FEATURES behaviour is not up-to-date with tests' expectations"
-    
     FakeFS::Require.activate!
     
+    File.open("load_it.rb", "w") {|f|
+      f.write "require 'loaded_feature'"
+    }
     File.open("loaded_feature.rb", "w") {|f|
       f.write "module FakeFS::LoadedFeature; end"
     }
-    require "loaded_feature"
+    require "load_it"
     
-    assert_equal @dir + "/loaded_feature.rb", $LOADED_FEATURES.last
-    assert_false require("loaded_feature")
+    assert_equal @dir + "/loaded_feature.rb", $LOADED_FEATURES[-2]
+    assert_equal @dir + "/load_it.rb", $LOADED_FEATURES[-1]
+    
+    assert !require("loaded_feature")
     
     FakeFS.send :remove_const, :LoadedFeature
   end
