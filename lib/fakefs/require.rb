@@ -96,7 +96,7 @@ module FakeFS
       else
         $LOAD_PATH.each do |p|
           path = p + "/" + fn
-          found = path if File.exist? path
+          found = File.expand_path path if File.exist? path
         end
       end
       
@@ -114,7 +114,9 @@ module FakeFS
       if path
         return false if $LOADED_FEATURES.include? path
         
-        File.open(path, "r") {|f| Object.class_eval f.read, fn, 1 }
+        File.open(path, "r") {|f|
+          Object.class_eval f.read, path, 1
+        }
         $LOADED_FEATURES << path
         return true
       elsif FakeFS::Require.opts[:fallback]
@@ -168,9 +170,9 @@ module FakeFS
         if path
           File.open path, "r" do |f|
             if wrap
-              Module.new.module_eval f.read, fn, 1
+              Module.new.module_eval f.read, path, 1
             else
-              Object.class_eval f.read, fn, 1
+              Object.class_eval f.read, path, 1
             end
           end
           return true

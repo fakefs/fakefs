@@ -54,6 +54,10 @@ class RequireTest < Test::Unit::TestCase
     skip "Not yet implemented."
   end
   
+  def test_uses_absolute_path_for_caller
+    skip "Not yet implemented."
+  end
+  
   def test_appends_dot_rb_to_filename
     FakeFS::Require.activate!
     
@@ -191,6 +195,10 @@ class RequireTest < Test::Unit::TestCase
   end
   
   def test_load_file_from_absolute_path
+    skip "Not yet implemented."
+  end
+  
+  def test_load_uses_absolute_path_for_caller
     skip "Not yet implemented."
   end
   
