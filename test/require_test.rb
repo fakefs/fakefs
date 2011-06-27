@@ -73,7 +73,18 @@ class RequireTest < Test::Unit::TestCase
   end
   
   def test_uses_absolute_path_for_caller
-    skip "Not yet implemented."
+    FakeFS::Require.activate!
+    
+    File.open("error.rb", "w") {|f|
+      f.write "this will raise a name error"
+    }
+    
+    begin
+      require "error"
+      fail "nothing raised"
+    rescue NameError => e
+      assert_match /^#{@dir + "/error.rb"}:1:in /, e.backtrace[0]
+    end
   end
   
   def test_appends_dot_rb_to_filename
@@ -239,7 +250,18 @@ class RequireTest < Test::Unit::TestCase
   end
   
   def test_load_uses_absolute_path_for_caller
-    skip "Not yet implemented."
+    FakeFS::Require.activate! :load => true
+    
+    File.open("error.rb", "w") {|f|
+      f.write "this will raise a name error"
+    }
+    
+    begin
+      load "error.rb"
+      fail "nothing raised"
+    rescue NameError => e
+      assert_match /^#{@dir + "/error.rb"}:1:in /, e.backtrace[0]
+    end
   end
   
   def test_load_doesnt_append_dot_rb
