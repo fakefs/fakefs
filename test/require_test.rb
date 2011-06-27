@@ -30,18 +30,27 @@ class RequireTest < Test::Unit::TestCase
   end
   
   def test_requires_file
-    skip "What about $LOAD_PATH behaviour?"
-    
     FakeFS::Require.activate!
     
-    File.open("foo.rb", "w") {|f|
+    FileUtils.mkdir "foo"
+    $LOAD_PATH << "foo"
+    FileUtils.mkdir "bar"
+    $LOAD_PATH << "bar"
+    
+    File.open("foo/cool_load_path.rb", "w") {|f|
       f.write "module FakeFS::Foo; end"
     }
+    File.open("bar/cool_load_path.rb", "w") {|f|
+      f.write ""
+    }
     
-    assert require "foo"
+    assert require "cool_load_path"
     assert FakeFS::Foo
     
     FakeFS.send :remove_const, :Foo
+  ensure
+    $LOAD_PATH.delete "foo"
+    $LOAD_PATH.delete "bar"
   end
   
   def test_fails_if_file_doesnt_exist
@@ -179,19 +188,25 @@ class RequireTest < Test::Unit::TestCase
   end
   
   def test_fakes_load
-    skip "What about $LOAD_PATH behaviour?"
-    
     FakeFS::Require.activate! :load => true
     
-    File.open("with_load.rb", "w") {|f|
-      f.write "module FakeFS::WithLoad; " +
+    FileUtils.mkdir "foo"
+    $LOAD_PATH << "foo"
+    FileUtils.mkdir "bar"
+    $LOAD_PATH << "bar"
+    
+    File.open("foo/zomg_load_path.rb", "w") {|f|
+      f.write "module FakeFS::Foo; " +
                 "@count ||= 0; @count += 1; def self.count; @count; end; " +
               "end"
     }
+    File.open("bar/zomg_load_path.rb", "w") {|f|
+      f.write ""
+    }
     
     1.upto(3) {|i|
-      assert load "with_load.rb"
-      assert_equal i, FakeFS::WithLoad.count
+      assert load "zomg_load_path.rb"
+      assert_equal i, FakeFS::Foo.count
     }
   end
   
