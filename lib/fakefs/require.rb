@@ -129,7 +129,7 @@ module FakeFS
         end
       end
       
-      raise LoadError, "no such file to load -- " + orig_fn
+      raise LoadError, "no such file to load -- #{orig_fn} (fakefs)"
     end
     
     module Autoload
@@ -178,7 +178,7 @@ module FakeFS
           return fakefs_original_load orig_fn, wrap
         end
         
-        raise LoadError, "no such file to load -- " + fn
+        raise LoadError, "no such file to load -- #{fn} (fakefs)"
       end
     end
     
