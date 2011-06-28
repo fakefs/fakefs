@@ -144,10 +144,14 @@ class RequireTest < Test::Unit::TestCase
   end
   
   def test_deactivates_itself_properly
-    FakeFS::Require.activate!
-    FakeFS::Require.deactivate!
+    FakeFS::Require.activate! :load => true, :fallback => true
+    File.open("i_dont_exist.rb", "w") {|f|
+      f.write ""
+    }
     
+    FakeFS::Require.deactivate!
     assert_raise(LoadError) { require "i_dont_exist" }
+    assert_raise(LoadError) { load "i_dont_exist.rb" }
   end
   
   def test_falls_back_to_original_fs
