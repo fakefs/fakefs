@@ -15,7 +15,7 @@ class RequireTest < Test::Unit::TestCase
   
   def teardown
     FakeFS::Require.deactivate!
-    FakeFS::Require.clear
+    #FakeFS::Require.clear
     
     FakeFS::FileSystem.clear
     FakeFS.deactivate!
@@ -181,7 +181,7 @@ class RequireTest < Test::Unit::TestCase
     assert_raise(LoadError) { require "i_dont_exist" }
   end
   
-  def test_requires_autorequire_files
+  def test_requires_autoload_files
     FakeFS::Require.activate! :autoload => true
     
     File.open("with_autoload.rb", "w") {|f|

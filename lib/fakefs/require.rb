@@ -1,118 +1,18 @@
-require "stringio"
-
 module FakeFS
-  
-  module Require
-    @active = false
+  class Require
+    @options = [{
+      :require => true,
+      :load => true,
+      :autoload => false,
+      :fallback => false
+    }]
     
-    # Activates faked #require
-    #
-    # = Options
-    # 
-    # * :fallback => true # activates the fallback to Kernel#require
-    # * :autoload => true # activates faked #autoload, #autoload? and #const_missing
-    # * :load => true     # activates faked #load
-    def self.activate! opts = {}
-      return if active?
+    def self.require(filename, &fallback)
+      filename = String(filename)
+      orig_fn = filename.dup
       
-      @active = true
-      
-      @opts = {
-        :fallback => false,
-        :autoload => false,
-        :load => false,
-      }.merge opts
-      
-      Kernel.class_eval do
-        alias_method :fakefs_original_require, :require
-        alias_method :require, :fakefs_require
-      end
-      
-      Module.class_eval do
-        alias_method :fakefs_original_autoload, :autoload
-        alias_method :autoload, :fakefs_autoload
-        
-        alias_method :fakefs_original_autoload?, :autoload?
-        alias_method :autoload?, :fakefs_autoload?
-        
-        alias_method :fakefs_original_const_missing, :const_missing
-        alias_method :const_missing, :fakefs_const_missing
-      end if @opts[:autoload]
-      
-      Kernel.class_eval do
-        alias_method :fakefs_original_load, :load
-        alias_method :load, :fakefs_load
-      end if @opts[:load]
-    end
-    
-    # Deactivates the faked methods
-    def self.deactivate!
-      return unless active?
-      
-      @active = false
-      
-      Kernel.class_eval do
-        alias_method :require, :fakefs_original_require
-      end
-      
-      Module.class_eval do
-        alias_method :autoload, :fakefs_original_autoload
-        alias_method :autoload?, :fakefs_original_autoload?
-        alias_method :const_missing, :fakefs_original_const_missing
-      end if @opts[:autoload]
-      
-      Kernel.class_eval do
-        alias_method :load, :fakefs_original_load
-      end if @opts[:load]
-      
-      @opts = nil
-    end
-    
-    # Returns whether FakeFS::Require is active
-    def self.active?
-      @active
-    end
-    
-    # Returns the options passed to ::activate!
-    def self.opts
-      @opts
-    end
-    
-    # Returns a hash containing autoload data
-    def self.autoloadable
-      @autoloadable ||= {}
-    end
-    
-    # Clears the autoload data hash
-    def self.clear
-      @autoloadable = {}
-    end
-    
-    # Resolves the passed filename to a path
-    def self.resolve fn
-      found = nil
-      if fn[0...1] == "/"
-        found = fn if File.exist? fn
-      else
-        $LOAD_PATH.each do |p|
-          path = p + "/" + fn
-          if File.exist? path
-            found = File.expand_path path
-            break
-          end
-        end
-      end
-      
-      return found
-    end
-    
-    # Faked #require (see Kernel#require)
-    def fakefs_require fn
-      fn = fn.to_s
-      orig_fn = fn.dup
-      
-      fn = fn + ".rb" unless fn[-3..-1] == ".rb"
-      path = FakeFS::Require.resolve fn
+      filename = filename + ".rb" unless filename[-3..-1] == ".rb"
+      path = resolve(filename)
       
       if path
         return false if $LOADED_FEATURES.include? path
@@ -122,80 +22,158 @@ module FakeFS
         }
         $LOADED_FEATURES << path
         return true
-      elsif FakeFS::Require.opts[:fallback]
-        opts = FakeFS::Require.opts
-        begin
-          FakeFS.deactivate!
-          FakeFS::Require.deactivate!
-          return fakefs_original_require orig_fn
-        ensure
-          FakeFS::Require.activate! opts
-          FakeFS.activate!
-        end
+      elsif options[:fallback]
+        return fallback.call
       end
       
       raise LoadError, "no such file to load -- #{orig_fn} (fakefs)"
     end
     
-    module Autoload
-      # Faked #autoload (see Module#autoload)
-      def fakefs_autoload const, file
-        Require.autoloadable[self] ||= {}
-        Require.autoloadable[self][const] = file
-      end
+    def self.load(filename, wrap, &fallback)
+      filename = String(filename)
+      orig_fn = filename.dup
       
-      # Faked #autoload? (see Module#autoload?)
-      def fakefs_autoload? const
-        hsh = Require.autoloadable[self]
-        return hsh[const] if hsh
-      end
+      path = resolve(filename)
       
-      # Implementation of #const_missing, catches autoload cases
-      def fakefs_const_missing name
-        file = autoload? name
-        if file
-          require file
-          return const_get name if const_defined? name
-        end
-        parent = (self == Object) ? "" : self.to_s + "::"
-        raise NameError, "uninitialized constant #{parent + name.to_s}", caller
-      end
-    end
-    
-    module Load
-      # Faked #load (see Kernel#load)
-      def fakefs_load fn, wrap = false
-        fn = fn.to_s
-        orig_fn = fn.dup
-        
-        path = FakeFS::Require.resolve fn
-        
-        if path
-          File.open path, "r" do |f|
-            if wrap
-              Module.new.module_eval f.read, path, 1
-            else
-              Object.class_eval f.read, path, 1
-            end
+      if path
+        File.open(path, "r") {|f|
+          if wrap
+            Module.new.module_eval f.read, path, 1
+          else
+            Object.class_eval f.read, path, 1
           end
-          return true
-        elsif FakeFS::Require.opts[:fallback]
-          return fakefs_original_load orig_fn, wrap
-        end
-        
-        raise LoadError, "no such file to load -- #{fn} (fakefs)"
+        }
+        return true
+      elsif options[:fallback]
+        return fallback.call
       end
+      
+      raise LoadError, "no such file to load -- #{orig_fn} (fakefs)"
     end
     
+    @autoload_data = [Hash.new {|h, k| h[k] = {} }]
+    
+    def self.autoload(object, constant_name, filename)
+      autoload_data[object][constant_name.to_sym] = filename
+    end
+    
+    def self.autoload?(object, constant_name, &fallback)
+      filename = autoload_data[object][constant_name.to_sym]
+      if options[:fallback]
+        filename ||= fallback.call
+      end
+      filename
+    end
+    
+    def self.constant_missing(object, constant_name)
+      if filename = object.autoload?(constant_name)
+        require filename
+        if object.const_defined? constant_name
+          return object.const_get constant_name
+        end
+      end
+      
+      name = "#{object}::#{constant_name}"
+      raise NameError, "uninitialized constant #{name}", caller
+    end
+    
+    def self.resolve(filename)
+      found = nil
+      if filename[0...1] == "/"
+        found = filename if File.exist? filename
+      else
+        $LOAD_PATH.each do |p|
+          path = p + "/" + filename
+          if File.exist? path
+            found = File.expand_path(path)
+            break
+          end
+        end
+      end
+      
+      found
+    end
+    
+    def self.options
+      active? ? @options.last : {}
+    end
+    
+    def self.active?
+      !!@active
+    end
+    
+    def self.autoload_data
+      active? ? @autoload_data.last : {}
+    end
+    
+    def self.activate!(opts = {})
+      @active = true
+      @options << @options.last.merge(opts)
+      @autoload_data << @autoload_data.last.dup
+    end
+    
+    def self.deactivate!
+      return unless active?
+      @options.pop
+      @autoload_data.pop
+      @active = false if @options.size == 1
+    end
+  end
+end
+  
+module Kernel
+  alias_method :fakefs_original_require, :require
+  alias_method :fakefs_original_load, :load
+  
+  def require(filename)
+    if FakeFS::Require.options[:require]
+      FakeFS::Require.require(filename) {
+        fakefs_original_require filename
+      }
+    else
+      fakefs_original_require filename
+    end
   end
   
-end
-
-module Kernel
-  include FakeFS::Require
-  include FakeFS::Require::Load
+  def load(filename, wrap = false)
+    if FakeFS::Require.options[:load]
+      FakeFS::Require.load(filename, wrap) {
+        fakefs_original_load filename, wrap
+      }
+    else
+      fakefs_original_load filename, wrap
+    end
+  end
 end
 
 class Module
-  include FakeFS::Require::Autoload
+  alias_method :fakefs_original_autoload, :autoload
+  alias_method :fakefs_original_autoload?, :autoload?
+  alias_method :fakefs_original_const_missing, :const_missing
+  
+  def autoload(constant_name, filename)
+    if FakeFS::Require.options[:autoload]
+      FakeFS::Require.autoload self, constant_name, filename
+    else
+      fakefs_original_autoload constant_name, filename
+    end
+  end
+  
+  def autoload?(constant_name)
+    if FakeFS::Require.options[:autoload]
+      FakeFS::Require.autoload?(self, constant_name) {
+        fakefs_original_autoload? constant_name
+      }
+    else
+      fakefs_original_autoload? constant_name
+    end
+  end
+  
+  def const_missing(constant_name)
+    if FakeFS::Require.options[:autoload]
+      FakeFS::Require.constant_missing self, constant_name
+    else
+      fakefs_original_const_missing constant_name
+    end
+  end
 end
