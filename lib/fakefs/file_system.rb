@@ -92,7 +92,7 @@ module FakeFS
         File.expand_path(path)
       else
         parts = dir_levels + [path]
-        File.expand_path(File.join(*parts))
+        File.expand_path(File.join(*parts), RealDir.pwd)
       end
     end
 
