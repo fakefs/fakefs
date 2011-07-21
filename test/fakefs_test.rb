@@ -565,6 +565,10 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.cp_r '/path', '/otherpath'
 
     assert_equal %w( /otherpath/foo /otherpath/foobar /path/foo /path/foobar ), Dir['/*/foo*']
+
+    assert_equal ['/path/bar', '/path/foo'], Dir['/path/{foo,bar}']
+
+    assert_equal ['/path/bar', '/path/bar2'], Dir['/path/bar{2,}']
   end
 
   def test_dir_glob_handles_root
