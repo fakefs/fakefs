@@ -24,7 +24,7 @@ class FakeFSVerifierTest < Test::Unit::TestCase
 
     real_class.instance_methods.each do |method|
       define_method("test #{method} instance method") do
-        assert fake_class.instance_methods.include?(method), "#{fake_class}##{name} not implemented"
+        assert fake_class.instance_methods.include?(method), "#{fake_class}##{method} not implemented"
       end
     end
   end
