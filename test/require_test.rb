@@ -4,12 +4,16 @@ class RequireTest < Test::Unit::TestCase
 
   def setup
     @original_dir = Dir.pwd
-    @dir = RealDir.tmpdir + "/" + rand.to_s[2..-1]
+    @dir = "/tmp/" + rand.to_s[2..-1]
+
     Dir.mkdir @dir
     Dir.chdir @dir
-    
+
+
     FakeFS.activate!
-    
+    FakeFS::FileSystem.clone(@dir)
+    Dir.chdir @dir
+
     $LOAD_PATH.unshift @dir
   end
   
