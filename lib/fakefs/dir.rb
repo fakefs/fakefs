@@ -52,8 +52,8 @@ module FakeFS
       @contents[integer]
     end
 
-    def self.[](pattern)
-      glob(pattern)
+    def self.[](*pattern)
+      glob pattern
     end
 
     def self.chdir(dir, &blk)
@@ -78,15 +78,22 @@ module FakeFS
       Dir.open(dirname) { |file| yield file }
     end
 
-    def self.glob(pattern, &block)
-      files = [FileSystem.find(pattern) || []].flatten.map(&:to_s).sort
+    def self.glob(pattern, flags = 0, &block)
+      matches_for_pattern = lambda { |matcher| [FileSystem.find(matcher, flags) || []].flatten.map{|e| e.to_s}.sort  }
+
+      if pattern.is_a? Array
+        files = pattern.collect { |matcher| matches_for_pattern.call matcher }.flatten
+      else
+        files = matches_for_pattern.call pattern
+      end
+
       block_given? ? files.each { |file| block.call(file) } : files
     end
 
     def self.mkdir(string, integer = 0)
       parent = string.split('/')
       parent.pop
-      raise Errno::ENOENT, "No such file or directory - #{string}" unless parent.join == "" || FileSystem.find(parent.join('/'))
+      raise Errno::ENOENT, "No such file or directory - #{string}" unless parent.join == "" || parent.join == "." || FileSystem.find(parent.join('/'))
       raise Errno::EEXIST, "File exists - #{string}" if File.exists?(string)
       FileUtils.mkdir_p(string)
     end
