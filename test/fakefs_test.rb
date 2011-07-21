@@ -667,11 +667,13 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_dir_glob_does_not_match_dot_dirs_by_default
+    FileUtils.mkdir_p('/one/.dotdir/')
     File.open('/one/.dotdir/three.rb', 'w')
     assert_equal [], Dir['/one/**/*']
   end
 
   def test_dir_glob_can_be_overridden_to_match_dot_dirs
+    FileUtils.mkdir_p('/one/.dotdir/')
     File.open('/one/.dotdir/three.rb', 'w')
     assert_equal ['/one/.dotdir/three.rb'], Dir.glob(['/one/**/*'], File::FNM_DOTMATCH)
   end
