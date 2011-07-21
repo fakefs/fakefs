@@ -10,7 +10,7 @@ class FakeFSSafeTest < Test::Unit::TestCase
   end
 
   def test_FakeFS_method_does_not_intrude_on_global_namespace
-    path = '/path/to/file.txt'
+    path = 'file.txt'
 
     FakeFS do
       File.open(path, 'w') { |f| f.write "Yatta!" }
