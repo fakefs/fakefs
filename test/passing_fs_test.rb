@@ -16,7 +16,7 @@ class AutoTests < Test::Unit::TestCase
   end
 
 
-  def test_file_read
+  def test_file_read_nested
     compare_with_real do
       Dir.mkdir mp("somedir")
       Dir.mkdir mp("somedir/lol")

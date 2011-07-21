@@ -3,6 +3,7 @@ require 'fakefs_testhelper'
 class AutoTests < Test::Unit::TestCase
   include FakeFsTestHelper
 
+
   def test_symlink_creation
     compare_with_real do
       check_filesystem
@@ -14,7 +15,7 @@ class AutoTests < Test::Unit::TestCase
     end
   end
 
-
+      
   def test_dir_entries
     compare_with_real do
       Dir.mkdir mp("somedir")
@@ -24,7 +25,6 @@ class AutoTests < Test::Unit::TestCase
       check_value Dir.entries (mp ("."))
     end
   end
-      
 
   def test_dir_search
     compare_with_real do
@@ -39,4 +39,3 @@ class AutoTests < Test::Unit::TestCase
 
 end
 
-# $a = AutoTests.new

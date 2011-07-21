@@ -24,6 +24,7 @@ GEM
       rdoc (= 2.4.3)
     sdoc-helpers (0.1.4)
       sdoc (~> 0.2)
+    test-unit (2.3.0)
 
 PLATFORMS
   ruby
@@ -33,3 +34,4 @@ DEPENDENCIES
   rdiscount
   rspec
   sdoc-helpers
+  test-unit
