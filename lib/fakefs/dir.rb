@@ -65,12 +65,13 @@ module FakeFS
     end
 
     def self.delete(string)
-      raise SystemCallError, "No such file or directory - #{string}" unless FileSystem.find(string).values.empty?
+      raise Errno::ENOENT, "No such file or directory - #{string}" unless FileSystem.find(string)
+      raise Errno::ENOTEMPTY, "Directory not empty - #{string}" unless FileSystem.find(string).values.empty?
       FileSystem.delete(string)
     end
 
     def self.entries(dirname)
-      raise SystemCallError, dirname unless FileSystem.find(dirname)
+      raise Errno::ENOENT, "No such file or directory - #{dirname}" unless FileSystem.find(dirname)
       Dir.new(dirname).map { |file| File.basename(file) }
     end
 
