@@ -358,7 +358,7 @@ module FakeFS
       end
 
       def to_path
-        raise NotImplementedError
+        @path
       end
     end
 

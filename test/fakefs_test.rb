@@ -1663,5 +1663,11 @@ class FakeFSTest < Test::Unit::TestCase
         assert_equal false, f.autoclose?
       end
     end
+
+    def test_to_path
+      File.new("foo", 'w') do |f|
+        assert_equal "foo", f.to_path
+      end
+    end
   end
 end
