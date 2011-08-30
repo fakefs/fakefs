@@ -1584,6 +1584,18 @@ class FakeFSTest < Test::Unit::TestCase
     assert !FileTest.directory?('/path/to/somedir')
   end
 
+  def test_filetest_file_returns_correct_values
+    path = '/path/to/file.txt'
+    File.open(path, 'w') { |f| f.write "Yatta!" }
+    assert FileTest.file?(path)
+
+    FileUtils.rm path
+    assert !FileTest.file?(path)
+
+    FileUtils.mkdir_p '/path/to/somedir'
+    assert !FileTest.file?('/path/to/somedir')
+  end
+
   def test_pathname_exists_returns_correct_value
     FileUtils.touch "foo"
     assert Pathname.new("foo").exist?
