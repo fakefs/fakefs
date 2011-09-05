@@ -65,6 +65,12 @@ class FakeFSTest < Test::Unit::TestCase
     assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']
   end
 
+  def test_unlink_errors_on_file_not_found
+    assert_raise Errno::ENOENT do
+      FileUtils.rm("/foo")
+    end
+  end
+
   def test_can_delete_directories
     FileUtils.mkdir_p("/path/to/dir")
     FileUtils.rmdir("/path/to/dir")
@@ -1579,14 +1585,6 @@ class FakeFSTest < Test::Unit::TestCase
   def test_delete_raises_error_when_first_file_does_not_exist
     assert_raises Errno::ENOENT do
       File.delete("/foo")
-    end
-  end
-
-  def test_delete_does_not_raise_error_when_second_file_does_not_exist
-    FileUtils.touch("/foo")
-
-    assert_nothing_raised do
-      File.delete("/foo", "/bar")
     end
   end
 

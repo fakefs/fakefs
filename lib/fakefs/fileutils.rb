@@ -30,7 +30,7 @@ module FakeFS
 
     def rm(list, options = {})
       Array(list).each do |path|
-        FileSystem.delete(path)
+        FileSystem.delete(path) or raise Errno::ENOENT.new(path)
       end
     end
 
