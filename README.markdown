@@ -128,3 +128,10 @@ Meta
 
 [0]: http://help.github.com/forking/
 [1]: http://github.com/defunkt/fakefs/issues
+
+Releasing
+---------
+
+1. Update version in lib/fakefs/version.rb
+2. Commit it
+3. rake publish
