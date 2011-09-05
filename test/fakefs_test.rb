@@ -142,16 +142,31 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_symlinks_in_different_directories
+    FileUtils.mkdir_p("/path/to/bar")
     FileUtils.mkdir_p(target = "/path/to/foo/target")
+
     FileUtils.ln_s(target, link = "/path/to/bar/symlink")
     assert_equal target, File.readlink(link)
   end
 
   def test_symlinks_to_symlinks
     FileUtils.mkdir_p(target = "/path/to/foo/target")
+    FileUtils.mkdir_p("/path/to/bar")
+    FileUtils.mkdir_p("/path/to/bar2")
+
     FileUtils.ln_s(target, link1 = "/path/to/bar/symlink")
     FileUtils.ln_s(link1, link2 = "/path/to/bar2/symlink")
     assert_equal link1, File.readlink(link2)
+  end
+
+  def test_symlink_to_symlinks_should_raise_error_if_dir_doesnt_exist
+    FileUtils.mkdir_p(target = "/path/to/foo/target")
+
+    assert !Dir.exists?("/path/to/bar")
+
+    assert_raise Errno::ENOENT do
+      FileUtils.ln_s(target, "/path/to/bar/symlink")
+    end
   end
 
   def test_knows_symlinks_are_symlinks

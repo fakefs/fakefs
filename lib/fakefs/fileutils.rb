@@ -40,9 +40,17 @@ module FakeFS
 
     def ln_s(target, path, options = {})
       options = { :force => false }.merge(options)
-      (FileSystem.find(path) and !options[:force]) ? raise(Errno::EEXIST, path) : FileSystem.delete(path)
+      (FileSystem.find(path) && !options[:force]) ?
+        raise(Errno::EEXIST, path) :
+        FileSystem.delete(path)
+
+      if !options[:force] && !Dir.exists?(File.dirname(path))
+        raise Errno::ENOENT, path
+      end
+
       FileSystem.add(path, FakeSymlink.new(target))
     end
+
     def ln_sf(target, path)
       ln_s(target, path, { :force => true })
     end

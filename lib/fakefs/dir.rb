@@ -61,6 +61,10 @@ module FakeFS
       glob(pattern)
     end
 
+    def self.exists?(path)
+      File.exists?(path) && File.directory?(path)
+    end
+
     def self.chdir(dir, &blk)
       FileSystem.chdir(dir, &blk)
     end
