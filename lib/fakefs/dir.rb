@@ -66,7 +66,7 @@ module FakeFS
     end
 
     def self.chroot(string)
-      # Not implemented yet
+      raise NotImplementedError
     end
 
     def self.delete(string)
