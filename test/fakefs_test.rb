@@ -1669,6 +1669,8 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_filetest_file_returns_correct_values
+    FileUtils.mkdir_p("/path/to")
+
     path = '/path/to/file.txt'
     File.open(path, 'w') { |f| f.write "Yatta!" }
     assert FileTest.file?(path)
