@@ -6,3 +6,7 @@ group :development do
   gem 'sdoc-helpers'
   gem 'rdiscount'
 end
+
+group :test do
+  gem 'test-unit'
+end

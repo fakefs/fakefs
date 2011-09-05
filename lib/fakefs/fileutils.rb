@@ -38,6 +38,7 @@ module FakeFS
     alias_method :rm_r, :rm
     alias_method :rm_f, :rm
 
+
     def ln_s(target, path, options = {})
       options = { :force => false }.merge(options)
       (FileSystem.find(path) and !options[:force]) ? raise(Errno::EEXIST, path) : FileSystem.delete(path)
@@ -51,6 +52,7 @@ module FakeFS
       dst_file = FileSystem.find(dest)
       src_file = FileSystem.find(src)
 
+
       if !src_file
         raise Errno::ENOENT, src
       end
@@ -60,12 +62,20 @@ module FakeFS
       end
 
       if dst_file && File.directory?(dst_file)
-        FileSystem.add(File.join(dest, src), src_file.entry.clone(dst_file))
+        dest = File.join(dest,src)
+        FileSystem.add(dest, src_file.entry.clone(dst_file))
       else
         FileSystem.delete(dest)
         FileSystem.add(dest, src_file.entry.clone)
       end
+      dst_file = FileSystem.find(dest)
+      dst_file.inode = FakeFile::Inode.new(dst_file)
+      dst_file.content = src_file.content
+      dst_file.name = File.basename(dest)
+      nil
     end
+
+    alias_method :copy, :cp
 
     def cp_r(src, dest)
       # This error sucks, but it conforms to the original Ruby

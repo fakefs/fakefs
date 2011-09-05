@@ -77,5 +77,13 @@ module FakeFS
       inode.unlink(self)
       parent.delete(self)
     end
+
+    def ==(other)
+      return false unless other.is_a?(FakeFile)
+      (content == other.content) && 
+        (mtime == other.mtime) &&
+        (links == other.links) &&
+        (name == other.name)
+    end
   end
 end

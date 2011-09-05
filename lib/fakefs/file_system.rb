@@ -2,28 +2,24 @@ module FakeFS
   module FileSystem
     extend self
 
-    def dir_levels
-      @dir_levels ||= []
-    end
-
     def fs
       @fs ||= FakeDir.new('.')
     end
 
     def clear
-      @dir_levels = nil
-      @fs = nil
+      @fs = FakeDir.new('.')
+      @current_dir = "/"
     end
 
     def files
       fs.values
     end
 
-    def find(path)
+    def find(path, flags = 0)
       parts = path_parts(normalize_path(path))
       return fs if parts.empty? # '/'
 
-      entries = find_recurser(fs, parts).flatten
+      entries = find_recurser(fs, parts, flags).flatten
 
       case entries.length
       when 0 then nil
@@ -63,6 +59,7 @@ module FakeFS
           FileUtils.ln_s()
         end
       end
+      @current_dir = "/"
     end
 
     def delete(path)
@@ -72,37 +69,37 @@ module FakeFS
     end
 
     def chdir(dir, &blk)
-      new_dir = find(dir)
-      dir_levels.push dir if blk
+      new_dir = normalize_path(dir)
+      old_current_dir = @current_dir
+      raise Errno::ENOENT, dir unless find(new_dir)
+      @current_dir = new_dir
 
-      raise Errno::ENOENT, dir unless new_dir
-
-      dir_levels.push dir if !blk
-      blk.call if blk
-    ensure
-      dir_levels.pop if blk
+      if blk then
+        begin
+          blk.call
+        ensure
+          @current_dir = old_current_dir
+        end
+      end
     end
 
     def path_parts(path)
       path.split(File::PATH_SEPARATOR).reject { |part| part.empty? }
     end
 
+    # expands path into an absolute path with no empty or dot components.
+    # Uses File.expand_path to do this
     def normalize_path(path)
-      if Pathname.new(path).absolute?
-        File.expand_path(path)
-      else
-        parts = dir_levels + [path]
-        File.expand_path(File.join(*parts))
-      end
+      File.expand_path(path)
     end
 
-    def current_dir
-      find(normalize_path('.'))
-    end
+    attr_accessor :current_dir
+
+
 
     private
 
-    def find_recurser(dir, parts)
+    def find_recurser(dir, parts, flags)
       return [] unless dir.respond_to? :[]
 
       pattern , *parts = parts
@@ -111,29 +108,35 @@ module FakeFS
         case parts
         when ['*']
           parts = [] # end recursion
-          directories_under(dir).map do |d|
-            d.values.select{|f| f.is_a?(FakeFile) || f.is_a?(FakeDir) }
+          directories_under(dir, flags).map do |d|
+            d.values.select{|f| f.is_a?(FakeFile) || is_a_directory_and_matches_flags?(f, 0)}
           end.flatten.uniq
         when []
           parts = [] # end recursion
           dir.values.flatten.uniq
         else
-          directories_under(dir)
+          directories_under(dir, flags)
         end
       else
-        dir.reject {|k,v| /\A#{pattern.gsub('?','.').gsub('*', '.*')}\Z/ !~ k }.values
+        regexp_pattern = /\A#{pattern.gsub('?','.').gsub('*', '.*').gsub(/\{(.*?)\}/) { "(#{$1.gsub(',', '|')})" }}\Z/
+        dir.reject {|k,v| regexp_pattern !~ k }.values
       end
 
       if parts.empty? # we're done recursing
         matches
       else
-        matches.map{|entry| find_recurser(entry, parts) }
+        matches.map{|entry| find_recurser(entry, parts, flags) }
       end
     end
 
-    def directories_under(dir)
-      children = dir.values.select{|f| f.is_a? FakeDir}
-      ([dir] + children + children.map{|c| directories_under(c)}).flatten.uniq
+    def directories_under(dir, flags)
+      children = dir.values.select{|f| is_a_directory_and_matches_flags?(f, flags)}
+      ([dir] + children + children.map{|c| directories_under(c, flags)}).flatten.uniq
+    end
+
+    def is_a_directory_and_matches_flags?(entry, flags)
+      return entry.is_a?(FakeDir) if flags == File::FNM_DOTMATCH
+      return entry.is_a?(FakeDir) && entry.name !~ /^\./ if flags != File::FNM_DOTMATCH
     end
   end
 end
