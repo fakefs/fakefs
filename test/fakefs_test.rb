@@ -1211,8 +1211,14 @@ class FakeFSTest < Test::Unit::TestCase
       FileUtils.touch("/this/path/should/be/here/#{f}")
     end
 
-    assert_raises(SystemCallError) do
+    assert_raises(Errno::ENOTEMPTY) do
       Dir.delete('/this/path/should/be/here')
+    end
+  end
+
+  def test_directory_class_delete_does_not_work_if_dir_path_cannot_be_found
+    assert_raises(Errno::ENOENT) do
+      Dir.delete('/this/path/should/not/be/here')
     end
   end
 
@@ -1242,6 +1248,12 @@ class FakeFSTest < Test::Unit::TestCase
     yielded = Dir.entries('/this/path/should/be/here/')
     assert yielded.size == test.size
     test.each { |t| assert yielded.include?(t) }
+  end
+
+  def test_directory_entries_does_not_work_if_dir_path_cannot_be_found
+    assert_raises(Errno::ENOENT) do
+      Dir.delete('/this/path/should/not/be/here')
+    end
   end
 
   def test_directory_foreach
