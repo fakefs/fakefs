@@ -43,7 +43,7 @@
         <dd>
             <ul>
                 
-                <li><a href="#M000063">add</a></li>
+                <li><a href="#M000067">add</a></li>
                 
             </ul>
         </dd>
@@ -52,13 +52,13 @@
         <dd>
             <ul>
                 
-                <li><a href="#M000075">chdir</a>,</li>
+                <li><a href="#M000076">chdir</a>,</li>
                 
-                <li><a href="#M000060">clear</a>,</li>
+                <li><a href="#M000061">clear</a>,</li>
                 
-                <li><a href="#M000064">clone</a>,</li>
+                <li><a href="#M000068">clone</a>,</li>
                 
-                <li><a href="#M000081">current_dir</a></li>
+                <li><a href="#M000085">current_dir</a></li>
                 
             </ul>
         </dd>
@@ -67,9 +67,9 @@
         <dd>
             <ul>
                 
-                <li><a href="#M000074">delete</a>,</li>
+                <li><a href="#M000075">delete</a>,</li>
                 
-                <li><a href="#M000058">dir_levels</a></li>
+                <li><a href="#M000056">dir_levels</a></li>
                 
             </ul>
         </dd>
@@ -78,11 +78,11 @@
         <dd>
             <ul>
                 
-                <li><a href="#M000061">files</a>,</li>
+                <li><a href="#M000062">files</a>,</li>
                 
-                <li><a href="#M000062">find</a>,</li>
+                <li><a href="#M000063">find</a>,</li>
                 
-                <li><a href="#M000059">fs</a></li>
+                <li><a href="#M000060">fs</a></li>
                 
             </ul>
         </dd>
@@ -91,7 +91,7 @@
         <dd>
             <ul>
                 
-                <li><a href="#M000080">normalize_path</a></li>
+                <li><a href="#M000082">normalize_path</a></li>
                 
             </ul>
         </dd>
@@ -100,7 +100,7 @@
         <dd>
             <ul>
                 
-                <li><a href="#M000079">path_parts</a></li>
+                <li><a href="#M000077">path_parts</a></li>
                 
             </ul>
         </dd>
@@ -122,9 +122,9 @@
             <div class="sectiontitle">Instance Public methods</div>
             
             <div class="method">
-                <div class="title" id="M000063">
+                <div class="title" id="M000067">
                     
-                    <a name="M000063"></a><b>add</b>(path, object=FakeDir.new)
+                    <a name="M000067"></a><b>add</b>(path, object=FakeDir.new)
                     
                 </div>
                 
@@ -133,12 +133,12 @@
                 
                 <div class="sourcecode">
                     <p class="source-link">
-                        Source: <a href="javascript:toggleSource('M000063_source')" id="l_M000063_source">show</a>
+                        Source: <a href="javascript:toggleSource('M000067_source')" id="l_M000067_source">show</a>
                         
-                        | <a href="http://github.com/defunkt/fakefs/blob/25c3b4e632aa9b7e6c46a56a1d3acd0ac5f892ad/lib/fakefs/file_system.rb#L35" target="_blank" class="github_url">on GitHub</a>
+                        | <a href="http://github.com/defunkt/fakefs/blob/600b1150ef498636c42979abbd394f434fa37568/lib/fakefs/file_system.rb#L35" target="_blank" class="github_url">on GitHub</a>
                         
                     </p>
-                    <div id="M000063_source" class="dyn-source">
+                    <div id="M000067_source" class="dyn-source">
                         <pre><span class="ruby-comment cmt"># File lib/fakefs/file_system.rb, line 35</span>
     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">add</span>(<span class="ruby-identifier">path</span>, <span class="ruby-identifier">object</span>=<span class="ruby-constant">FakeDir</span>.<span class="ruby-identifier">new</span>)
       <span class="ruby-identifier">parts</span> = <span class="ruby-identifier">path_parts</span>(<span class="ruby-identifier">normalize_path</span>(<span class="ruby-identifier">path</span>))
@@ -157,9 +157,9 @@
             </div>
             
             <div class="method">
-                <div class="title" id="M000075">
+                <div class="title" id="M000076">
                     
-                    <a name="M000075"></a><b>chdir</b>(dir, &amp;blk)
+                    <a name="M000076"></a><b>chdir</b>(dir, &amp;blk)
                     
                 </div>
                 
@@ -168,13 +168,13 @@
                 
                 <div class="sourcecode">
                     <p class="source-link">
-                        Source: <a href="javascript:toggleSource('M000075_source')" id="l_M000075_source">show</a>
+                        Source: <a href="javascript:toggleSource('M000076_source')" id="l_M000076_source">show</a>
                         
-                        | <a href="http://github.com/defunkt/fakefs/blob/25c3b4e632aa9b7e6c46a56a1d3acd0ac5f892ad/lib/fakefs/file_system.rb#L74" target="_blank" class="github_url">on GitHub</a>
+                        | <a href="http://github.com/defunkt/fakefs/blob/600b1150ef498636c42979abbd394f434fa37568/lib/fakefs/file_system.rb#L75" target="_blank" class="github_url">on GitHub</a>
                         
                     </p>
-                    <div id="M000075_source" class="dyn-source">
-                        <pre><span class="ruby-comment cmt"># File lib/fakefs/file_system.rb, line 74</span>
+                    <div id="M000076_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/file_system.rb, line 75</span>
     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">chdir</span>(<span class="ruby-identifier">dir</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">blk</span>)
       <span class="ruby-identifier">new_dir</span> = <span class="ruby-identifier">find</span>(<span class="ruby-identifier">dir</span>)
       <span class="ruby-identifier">dir_levels</span>.<span class="ruby-identifier">push</span> <span class="ruby-identifier">dir</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">blk</span>
@@ -192,9 +192,9 @@
             </div>
             
             <div class="method">
-                <div class="title" id="M000060">
+                <div class="title" id="M000061">
                     
-                    <a name="M000060"></a><b>clear</b>()
+                    <a name="M000061"></a><b>clear</b>()
                     
                 </div>
                 
@@ -203,12 +203,12 @@
                 
                 <div class="sourcecode">
                     <p class="source-link">
-                        Source: <a href="javascript:toggleSource('M000060_source')" id="l_M000060_source">show</a>
+                        Source: <a href="javascript:toggleSource('M000061_source')" id="l_M000061_source">show</a>
                         
-                        | <a href="http://github.com/defunkt/fakefs/blob/25c3b4e632aa9b7e6c46a56a1d3acd0ac5f892ad/lib/fakefs/file_system.rb#L13" target="_blank" class="github_url">on GitHub</a>
+                        | <a href="http://github.com/defunkt/fakefs/blob/600b1150ef498636c42979abbd394f434fa37568/lib/fakefs/file_system.rb#L13" target="_blank" class="github_url">on GitHub</a>
                         
                     </p>
-                    <div id="M000060_source" class="dyn-source">
+                    <div id="M000061_source" class="dyn-source">
                         <pre><span class="ruby-comment cmt"># File lib/fakefs/file_system.rb, line 13</span>
     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">clear</span>
       <span class="ruby-ivar">@dir_levels</span> = <span class="ruby-keyword kw">nil</span>
@@ -220,9 +220,9 @@
             </div>
             
             <div class="method">
-                <div class="title" id="M000064">
+                <div class="title" id="M000068">
                     
-                    <a name="M000064"></a><b>clone</b>(path)
+                    <a name="M000068"></a><b>clone</b>(path)
                     
                 </div>
                 
@@ -238,12 +238,12 @@ copies directories and files from the real filesystem into our fake one
                 
                 <div class="sourcecode">
                     <p class="source-link">
-                        Source: <a href="javascript:toggleSource('M000064_source')" id="l_M000064_source">show</a>
+                        Source: <a href="javascript:toggleSource('M000068_source')" id="l_M000068_source">show</a>
                         
-                        | <a href="http://github.com/defunkt/fakefs/blob/25c3b4e632aa9b7e6c46a56a1d3acd0ac5f892ad/lib/fakefs/file_system.rb#L49" target="_blank" class="github_url">on GitHub</a>
+                        | <a href="http://github.com/defunkt/fakefs/blob/600b1150ef498636c42979abbd394f434fa37568/lib/fakefs/file_system.rb#L49" target="_blank" class="github_url">on GitHub</a>
                         
                     </p>
-                    <div id="M000064_source" class="dyn-source">
+                    <div id="M000068_source" class="dyn-source">
                         <pre><span class="ruby-comment cmt"># File lib/fakefs/file_system.rb, line 49</span>
     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">clone</span>(<span class="ruby-identifier">path</span>)
       <span class="ruby-identifier">path</span>    = <span class="ruby-constant">File</span>.<span class="ruby-identifier">expand_path</span>(<span class="ruby-identifier">path</span>)
@@ -269,9 +269,9 @@ copies directories and files from the real filesystem into our fake one
             </div>
             
             <div class="method">
-                <div class="title" id="M000081">
+                <div class="title" id="M000085">
                     
-                    <a name="M000081"></a><b>current_dir</b>()
+                    <a name="M000085"></a><b>current_dir</b>()
                     
                 </div>
                 
@@ -280,13 +280,13 @@ copies directories and files from the real filesystem into our fake one
                 
                 <div class="sourcecode">
                     <p class="source-link">
-                        Source: <a href="javascript:toggleSource('M000081_source')" id="l_M000081_source">show</a>
+                        Source: <a href="javascript:toggleSource('M000085_source')" id="l_M000085_source">show</a>
                         
-                        | <a href="http://github.com/defunkt/fakefs/blob/25c3b4e632aa9b7e6c46a56a1d3acd0ac5f892ad/lib/fakefs/file_system.rb#L99" target="_blank" class="github_url">on GitHub</a>
+                        | <a href="http://github.com/defunkt/fakefs/blob/600b1150ef498636c42979abbd394f434fa37568/lib/fakefs/file_system.rb#L100" target="_blank" class="github_url">on GitHub</a>
                         
                     </p>
-                    <div id="M000081_source" class="dyn-source">
-                        <pre><span class="ruby-comment cmt"># File lib/fakefs/file_system.rb, line 99</span>
+                    <div id="M000085_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/file_system.rb, line 100</span>
     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">current_dir</span>
       <span class="ruby-identifier">find</span>(<span class="ruby-identifier">normalize_path</span>(<span class="ruby-value str">'.'</span>))
     <span class="ruby-keyword kw">end</span></pre>
@@ -296,9 +296,9 @@ copies directories and files from the real filesystem into our fake one
             </div>
             
             <div class="method">
-                <div class="title" id="M000074">
+                <div class="title" id="M000075">
                     
-                    <a name="M000074"></a><b>delete</b>(path)
+                    <a name="M000075"></a><b>delete</b>(path)
                     
                 </div>
                 
@@ -307,16 +307,17 @@ copies directories and files from the real filesystem into our fake one
                 
                 <div class="sourcecode">
                     <p class="source-link">
-                        Source: <a href="javascript:toggleSource('M000074_source')" id="l_M000074_source">show</a>
+                        Source: <a href="javascript:toggleSource('M000075_source')" id="l_M000075_source">show</a>
                         
-                        | <a href="http://github.com/defunkt/fakefs/blob/25c3b4e632aa9b7e6c46a56a1d3acd0ac5f892ad/lib/fakefs/file_system.rb#L68" target="_blank" class="github_url">on GitHub</a>
+                        | <a href="http://github.com/defunkt/fakefs/blob/600b1150ef498636c42979abbd394f434fa37568/lib/fakefs/file_system.rb#L68" target="_blank" class="github_url">on GitHub</a>
                         
                     </p>
-                    <div id="M000074_source" class="dyn-source">
+                    <div id="M000075_source" class="dyn-source">
                         <pre><span class="ruby-comment cmt"># File lib/fakefs/file_system.rb, line 68</span>
     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">delete</span>(<span class="ruby-identifier">path</span>)
       <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">node</span> = <span class="ruby-constant">FileSystem</span>.<span class="ruby-identifier">find</span>(<span class="ruby-identifier">path</span>)
         <span class="ruby-identifier">node</span>.<span class="ruby-identifier">delete</span>
+        <span class="ruby-keyword kw">true</span>
       <span class="ruby-keyword kw">end</span>
     <span class="ruby-keyword kw">end</span></pre>
                     </div>
@@ -325,9 +326,9 @@ copies directories and files from the real filesystem into our fake one
             </div>
             
             <div class="method">
-                <div class="title" id="M000058">
+                <div class="title" id="M000056">
                     
-                    <a name="M000058"></a><b>dir_levels</b>()
+                    <a name="M000056"></a><b>dir_levels</b>()
                     
                 </div>
                 
@@ -336,12 +337,12 @@ copies directories and files from the real filesystem into our fake one
                 
                 <div class="sourcecode">
                     <p class="source-link">
-                        Source: <a href="javascript:toggleSource('M000058_source')" id="l_M000058_source">show</a>
+                        Source: <a href="javascript:toggleSource('M000056_source')" id="l_M000056_source">show</a>
                         
-                        | <a href="http://github.com/defunkt/fakefs/blob/25c3b4e632aa9b7e6c46a56a1d3acd0ac5f892ad/lib/fakefs/file_system.rb#L5" target="_blank" class="github_url">on GitHub</a>
+                        | <a href="http://github.com/defunkt/fakefs/blob/600b1150ef498636c42979abbd394f434fa37568/lib/fakefs/file_system.rb#L5" target="_blank" class="github_url">on GitHub</a>
                         
                     </p>
-                    <div id="M000058_source" class="dyn-source">
+                    <div id="M000056_source" class="dyn-source">
                         <pre><span class="ruby-comment cmt"># File lib/fakefs/file_system.rb, line 5</span>
     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">dir_levels</span>
       <span class="ruby-ivar">@dir_levels</span> <span class="ruby-operator">||=</span> []
@@ -352,36 +353,9 @@ copies directories and files from the real filesystem into our fake one
             </div>
             
             <div class="method">
-                <div class="title" id="M000061">
-                    
-                    <a name="M000061"></a><b>files</b>()
-                    
-                </div>
-                
-                
-                
-                
-                <div class="sourcecode">
-                    <p class="source-link">
-                        Source: <a href="javascript:toggleSource('M000061_source')" id="l_M000061_source">show</a>
-                        
-                        | <a href="http://github.com/defunkt/fakefs/blob/25c3b4e632aa9b7e6c46a56a1d3acd0ac5f892ad/lib/fakefs/file_system.rb#L18" target="_blank" class="github_url">on GitHub</a>
-                        
-                    </p>
-                    <div id="M000061_source" class="dyn-source">
-                        <pre><span class="ruby-comment cmt"># File lib/fakefs/file_system.rb, line 18</span>
-    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">files</span>
-      <span class="ruby-identifier">fs</span>.<span class="ruby-identifier">values</span>
-    <span class="ruby-keyword kw">end</span></pre>
-                    </div>
-                </div>
-                
-            </div>
-            
-            <div class="method">
                 <div class="title" id="M000062">
                     
-                    <a name="M000062"></a><b>find</b>(path)
+                    <a name="M000062"></a><b>files</b>()
                     
                 </div>
                 
@@ -392,10 +366,37 @@ copies directories and files from the real filesystem into our fake one
                     <p class="source-link">
                         Source: <a href="javascript:toggleSource('M000062_source')" id="l_M000062_source">show</a>
                         
-                        | <a href="http://github.com/defunkt/fakefs/blob/25c3b4e632aa9b7e6c46a56a1d3acd0ac5f892ad/lib/fakefs/file_system.rb#L22" target="_blank" class="github_url">on GitHub</a>
+                        | <a href="http://github.com/defunkt/fakefs/blob/600b1150ef498636c42979abbd394f434fa37568/lib/fakefs/file_system.rb#L18" target="_blank" class="github_url">on GitHub</a>
                         
                     </p>
                     <div id="M000062_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/file_system.rb, line 18</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">files</span>
+      <span class="ruby-identifier">fs</span>.<span class="ruby-identifier">values</span>
+    <span class="ruby-keyword kw">end</span></pre>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="method">
+                <div class="title" id="M000063">
+                    
+                    <a name="M000063"></a><b>find</b>(path)
+                    
+                </div>
+                
+                
+                
+                
+                <div class="sourcecode">
+                    <p class="source-link">
+                        Source: <a href="javascript:toggleSource('M000063_source')" id="l_M000063_source">show</a>
+                        
+                        | <a href="http://github.com/defunkt/fakefs/blob/600b1150ef498636c42979abbd394f434fa37568/lib/fakefs/file_system.rb#L22" target="_blank" class="github_url">on GitHub</a>
+                        
+                    </p>
+                    <div id="M000063_source" class="dyn-source">
                         <pre><span class="ruby-comment cmt"># File lib/fakefs/file_system.rb, line 22</span>
     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">find</span>(<span class="ruby-identifier">path</span>)
       <span class="ruby-identifier">parts</span> = <span class="ruby-identifier">path_parts</span>(<span class="ruby-identifier">normalize_path</span>(<span class="ruby-identifier">path</span>))
@@ -415,9 +416,9 @@ copies directories and files from the real filesystem into our fake one
             </div>
             
             <div class="method">
-                <div class="title" id="M000059">
+                <div class="title" id="M000060">
                     
-                    <a name="M000059"></a><b>fs</b>()
+                    <a name="M000060"></a><b>fs</b>()
                     
                 </div>
                 
@@ -426,15 +427,15 @@ copies directories and files from the real filesystem into our fake one
                 
                 <div class="sourcecode">
                     <p class="source-link">
-                        Source: <a href="javascript:toggleSource('M000059_source')" id="l_M000059_source">show</a>
+                        Source: <a href="javascript:toggleSource('M000060_source')" id="l_M000060_source">show</a>
                         
-                        | <a href="http://github.com/defunkt/fakefs/blob/25c3b4e632aa9b7e6c46a56a1d3acd0ac5f892ad/lib/fakefs/file_system.rb#L9" target="_blank" class="github_url">on GitHub</a>
+                        | <a href="http://github.com/defunkt/fakefs/blob/600b1150ef498636c42979abbd394f434fa37568/lib/fakefs/file_system.rb#L9" target="_blank" class="github_url">on GitHub</a>
                         
                     </p>
-                    <div id="M000059_source" class="dyn-source">
+                    <div id="M000060_source" class="dyn-source">
                         <pre><span class="ruby-comment cmt"># File lib/fakefs/file_system.rb, line 9</span>
     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">fs</span>
-      <span class="ruby-ivar">@fs</span> <span class="ruby-operator">||=</span> <span class="ruby-constant">FakeDir</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value str">'.'</span>)
+      <span class="ruby-ivar">@fs</span> <span class="ruby-operator">||=</span> <span class="ruby-constant">FakeDir</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value str">'/'</span>)
     <span class="ruby-keyword kw">end</span></pre>
                     </div>
                 </div>
@@ -442,9 +443,9 @@ copies directories and files from the real filesystem into our fake one
             </div>
             
             <div class="method">
-                <div class="title" id="M000080">
+                <div class="title" id="M000082">
                     
-                    <a name="M000080"></a><b>normalize_path</b>(path)
+                    <a name="M000082"></a><b>normalize_path</b>(path)
                     
                 </div>
                 
@@ -453,13 +454,13 @@ copies directories and files from the real filesystem into our fake one
                 
                 <div class="sourcecode">
                     <p class="source-link">
-                        Source: <a href="javascript:toggleSource('M000080_source')" id="l_M000080_source">show</a>
+                        Source: <a href="javascript:toggleSource('M000082_source')" id="l_M000082_source">show</a>
                         
-                        | <a href="http://github.com/defunkt/fakefs/blob/25c3b4e632aa9b7e6c46a56a1d3acd0ac5f892ad/lib/fakefs/file_system.rb#L90" target="_blank" class="github_url">on GitHub</a>
+                        | <a href="http://github.com/defunkt/fakefs/blob/600b1150ef498636c42979abbd394f434fa37568/lib/fakefs/file_system.rb#L91" target="_blank" class="github_url">on GitHub</a>
                         
                     </p>
-                    <div id="M000080_source" class="dyn-source">
-                        <pre><span class="ruby-comment cmt"># File lib/fakefs/file_system.rb, line 90</span>
+                    <div id="M000082_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/file_system.rb, line 91</span>
     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">normalize_path</span>(<span class="ruby-identifier">path</span>)
       <span class="ruby-keyword kw">if</span> <span class="ruby-constant">Pathname</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">path</span>).<span class="ruby-identifier">absolute?</span>
         <span class="ruby-constant">File</span>.<span class="ruby-identifier">expand_path</span>(<span class="ruby-identifier">path</span>)
@@ -474,9 +475,9 @@ copies directories and files from the real filesystem into our fake one
             </div>
             
             <div class="method">
-                <div class="title" id="M000079">
+                <div class="title" id="M000077">
                     
-                    <a name="M000079"></a><b>path_parts</b>(path)
+                    <a name="M000077"></a><b>path_parts</b>(path)
                     
                 </div>
                 
@@ -485,13 +486,13 @@ copies directories and files from the real filesystem into our fake one
                 
                 <div class="sourcecode">
                     <p class="source-link">
-                        Source: <a href="javascript:toggleSource('M000079_source')" id="l_M000079_source">show</a>
+                        Source: <a href="javascript:toggleSource('M000077_source')" id="l_M000077_source">show</a>
                         
-                        | <a href="http://github.com/defunkt/fakefs/blob/25c3b4e632aa9b7e6c46a56a1d3acd0ac5f892ad/lib/fakefs/file_system.rb#L86" target="_blank" class="github_url">on GitHub</a>
+                        | <a href="http://github.com/defunkt/fakefs/blob/600b1150ef498636c42979abbd394f434fa37568/lib/fakefs/file_system.rb#L87" target="_blank" class="github_url">on GitHub</a>
                         
                     </p>
-                    <div id="M000079_source" class="dyn-source">
-                        <pre><span class="ruby-comment cmt"># File lib/fakefs/file_system.rb, line 86</span>
+                    <div id="M000077_source" class="dyn-source">
+                        <pre><span class="ruby-comment cmt"># File lib/fakefs/file_system.rb, line 87</span>
     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">path_parts</span>(<span class="ruby-identifier">path</span>)
       <span class="ruby-identifier">path</span>.<span class="ruby-identifier">split</span>(<span class="ruby-constant">File</span><span class="ruby-operator">::</span><span class="ruby-constant">PATH_SEPARATOR</span>).<span class="ruby-identifier">reject</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">part</span><span class="ruby-operator">|</span> <span class="ruby-identifier">part</span>.<span class="ruby-identifier">empty?</span> }
     <span class="ruby-keyword kw">end</span></pre>
