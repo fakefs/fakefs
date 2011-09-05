@@ -2,8 +2,13 @@ module FakeFS
   class Dir
     include Enumerable
 
+    def self._check_for_valid_file(path)
+      raise Errno::ENOENT, "No such file or directory - #{path}" unless FileSystem.find(path)
+    end
+
     def initialize(string)
-      raise Errno::ENOENT, string unless FileSystem.find(string)
+      self.class._check_for_valid_file(string)
+
       @path = string
       @open = true
       @pointer = 0
@@ -65,13 +70,15 @@ module FakeFS
     end
 
     def self.delete(string)
-      raise Errno::ENOENT, "No such file or directory - #{string}" unless FileSystem.find(string)
+      _check_for_valid_file(string)
       raise Errno::ENOTEMPTY, "Directory not empty - #{string}" unless FileSystem.find(string).values.empty?
+
       FileSystem.delete(string)
     end
 
     def self.entries(dirname)
-      raise Errno::ENOENT, "No such file or directory - #{dirname}" unless FileSystem.find(dirname)
+      _check_for_valid_file(dirname)
+
       Dir.new(dirname).map { |file| File.basename(file) }
     end
 
@@ -87,8 +94,12 @@ module FakeFS
     def self.mkdir(string, integer = 0)
       parent = string.split('/')
       parent.pop
-      raise Errno::ENOENT, "No such file or directory - #{string}" unless parent.join == "" || FileSystem.find(parent.join('/'))
+
+      joined_parent_path = parent.join
+
+      _check_for_valid_file(joined_parent_path) unless joined_parent_path == ""
       raise Errno::EEXIST, "File exists - #{string}" if File.exists?(string)
+
       FileUtils.mkdir_p(string)
     end
 
