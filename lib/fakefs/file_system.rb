@@ -121,7 +121,8 @@ module FakeFS
           directories_under(dir)
         end
       else
-        dir.reject {|k,v| /\A#{pattern.gsub('?','.').gsub('*', '.*')}\Z/ !~ k }.values
+        regexp_pattern = /\A#{pattern.gsub('?','.').gsub('*', '.*').gsub(/\{(.*?)\}/) { "(#{$1.gsub(',', '|')})" }}\Z/
+        dir.reject {|k,v| regexp_pattern !~ k }.values
       end
 
       if parts.empty? # we're done recursing
