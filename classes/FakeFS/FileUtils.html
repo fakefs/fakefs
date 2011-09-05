@@ -45,15 +45,15 @@
                 
                 <li><a href="#M000145">cd</a>,</li>
                 
-                <li><a href="#M000149">chdir</a>,</li>
+                <li><a href="#M000146">chdir</a>,</li>
                 
                 <li><a href="#M000142">chown</a>,</li>
                 
                 <li><a href="#M000143">chown_R</a>,</li>
                 
-                <li><a href="#M000134">cp</a>,</li>
+                <li><a href="#M000132">cp</a>,</li>
                 
-                <li><a href="#M000140">cp_r</a></li>
+                <li><a href="#M000133">cp_r</a></li>
                 
             </ul>
         </dd>
@@ -62,9 +62,9 @@
         <dd>
             <ul>
                 
-                <li><a href="#M000131">ln_s</a>,</li>
+                <li><a href="#M000118">ln_s</a>,</li>
                 
-                <li><a href="#M000133">ln_sf</a></li>
+                <li><a href="#M000131">ln_sf</a></li>
                 
             </ul>
         </dd>
@@ -73,13 +73,13 @@
         <dd>
             <ul>
                 
-                <li><a href="#M000112">makedirs</a>,</li>
+                <li><a href="#M000103">makedirs</a>,</li>
                 
-                <li><a href="#M000113">mkdir</a>,</li>
+                <li><a href="#M000104">mkdir</a>,</li>
                 
-                <li><a href="#M000110">mkdir_p</a>,</li>
+                <li><a href="#M000101">mkdir_p</a>,</li>
                 
-                <li><a href="#M000111">mkpath</a>,</li>
+                <li><a href="#M000102">mkpath</a>,</li>
                 
                 <li><a href="#M000141">mv</a></li>
                 
@@ -90,15 +90,15 @@
         <dd>
             <ul>
                 
-                <li><a href="#M000127">rm</a>,</li>
+                <li><a href="#M000114">rm</a>,</li>
                 
-                <li><a href="#M000130">rm_f</a>,</li>
+                <li><a href="#M000117">rm_f</a>,</li>
                 
-                <li><a href="#M000129">rm_r</a>,</li>
+                <li><a href="#M000116">rm_r</a>,</li>
                 
-                <li><a href="#M000128">rm_rf</a>,</li>
+                <li><a href="#M000115">rm_rf</a>,</li>
                 
-                <li><a href="#M000114">rmdir</a></li>
+                <li><a href="#M000105">rmdir</a></li>
                 
             </ul>
         </dd>
@@ -139,7 +139,7 @@
                 <div class="aka">
                     This method is also aliased as
                     
-                    <a href="FileUtils.html#M000149">chdir</a>
+                    <a href="FileUtils.html#M000146">chdir</a>
                     
                 </div>
                 
@@ -163,9 +163,9 @@
             </div>
             
             <div class="method">
-                <div class="title" id="M000149">
+                <div class="title" id="M000146">
                     
-                    <a name="M000149"></a><b>chdir</b>(dir)
+                    <a name="M000146"></a><b>chdir</b>(dir)
                     
                 </div>
                 
@@ -241,9 +241,9 @@ Alias for <a href="FileUtils.html#M000145">cd</a>
             </div>
             
             <div class="method">
-                <div class="title" id="M000134">
+                <div class="title" id="M000132">
                     
-                    <a name="M000134"></a><b>cp</b>(src, dest)
+                    <a name="M000132"></a><b>cp</b>(src, dest)
                     
                 </div>
                 
@@ -252,12 +252,12 @@ Alias for <a href="FileUtils.html#M000145">cd</a>
                 
                 <div class="sourcecode">
                     <p class="source-link">
-                        Source: <a href="javascript:toggleSource('M000134_source')" id="l_M000134_source">show</a>
+                        Source: <a href="javascript:toggleSource('M000132_source')" id="l_M000132_source">show</a>
                         
                         | <a href="http://github.com/defunkt/fakefs/blob/4da1d58d66a729c2e40947c2212109cbbde39b16/lib/fakefs/fileutils.rb#L58" target="_blank" class="github_url">on GitHub</a>
                         
                     </p>
-                    <div id="M000134_source" class="dyn-source">
+                    <div id="M000132_source" class="dyn-source">
                         <pre><span class="ruby-comment cmt"># File lib/fakefs/fileutils.rb, line 58</span>
     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">cp</span>(<span class="ruby-identifier">src</span>, <span class="ruby-identifier">dest</span>)
       <span class="ruby-identifier">dst_file</span> = <span class="ruby-constant">FileSystem</span>.<span class="ruby-identifier">find</span>(<span class="ruby-identifier">dest</span>)
@@ -284,9 +284,9 @@ Alias for <a href="FileUtils.html#M000145">cd</a>
             </div>
             
             <div class="method">
-                <div class="title" id="M000140">
+                <div class="title" id="M000133">
                     
-                    <a name="M000140"></a><b>cp_r</b>(src, dest)
+                    <a name="M000133"></a><b>cp_r</b>(src, dest)
                     
                 </div>
                 
@@ -295,12 +295,12 @@ Alias for <a href="FileUtils.html#M000145">cd</a>
                 
                 <div class="sourcecode">
                     <p class="source-link">
-                        Source: <a href="javascript:toggleSource('M000140_source')" id="l_M000140_source">show</a>
+                        Source: <a href="javascript:toggleSource('M000133_source')" id="l_M000133_source">show</a>
                         
                         | <a href="http://github.com/defunkt/fakefs/blob/4da1d58d66a729c2e40947c2212109cbbde39b16/lib/fakefs/fileutils.rb#L78" target="_blank" class="github_url">on GitHub</a>
                         
                     </p>
-                    <div id="M000140_source" class="dyn-source">
+                    <div id="M000133_source" class="dyn-source">
                         <pre><span class="ruby-comment cmt"># File lib/fakefs/fileutils.rb, line 78</span>
     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">cp_r</span>(<span class="ruby-identifier">src</span>, <span class="ruby-identifier">dest</span>)
       <span class="ruby-comment cmt"># This error sucks, but it conforms to the original Ruby</span>
@@ -335,9 +335,9 @@ Alias for <a href="FileUtils.html#M000145">cd</a>
             </div>
             
             <div class="method">
-                <div class="title" id="M000131">
+                <div class="title" id="M000118">
                     
-                    <a name="M000131"></a><b>ln_s</b>(target, path, options = {})
+                    <a name="M000118"></a><b>ln_s</b>(target, path, options = {})
                     
                 </div>
                 
@@ -346,12 +346,12 @@ Alias for <a href="FileUtils.html#M000145">cd</a>
                 
                 <div class="sourcecode">
                     <p class="source-link">
-                        Source: <a href="javascript:toggleSource('M000131_source')" id="l_M000131_source">show</a>
+                        Source: <a href="javascript:toggleSource('M000118_source')" id="l_M000118_source">show</a>
                         
                         | <a href="http://github.com/defunkt/fakefs/blob/4da1d58d66a729c2e40947c2212109cbbde39b16/lib/fakefs/fileutils.rb#L41" target="_blank" class="github_url">on GitHub</a>
                         
                     </p>
-                    <div id="M000131_source" class="dyn-source">
+                    <div id="M000118_source" class="dyn-source">
                         <pre><span class="ruby-comment cmt"># File lib/fakefs/fileutils.rb, line 41</span>
     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">ln_s</span>(<span class="ruby-identifier">target</span>, <span class="ruby-identifier">path</span>, <span class="ruby-identifier">options</span> = {})
       <span class="ruby-identifier">options</span> = { <span class="ruby-identifier">:force</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-keyword kw">false</span> }.<span class="ruby-identifier">merge</span>(<span class="ruby-identifier">options</span>)
@@ -371,9 +371,9 @@ Alias for <a href="FileUtils.html#M000145">cd</a>
             </div>
             
             <div class="method">
-                <div class="title" id="M000133">
+                <div class="title" id="M000131">
                     
-                    <a name="M000133"></a><b>ln_sf</b>(target, path)
+                    <a name="M000131"></a><b>ln_sf</b>(target, path)
                     
                 </div>
                 
@@ -382,12 +382,12 @@ Alias for <a href="FileUtils.html#M000145">cd</a>
                 
                 <div class="sourcecode">
                     <p class="source-link">
-                        Source: <a href="javascript:toggleSource('M000133_source')" id="l_M000133_source">show</a>
+                        Source: <a href="javascript:toggleSource('M000131_source')" id="l_M000131_source">show</a>
                         
                         | <a href="http://github.com/defunkt/fakefs/blob/4da1d58d66a729c2e40947c2212109cbbde39b16/lib/fakefs/fileutils.rb#L54" target="_blank" class="github_url">on GitHub</a>
                         
                     </p>
-                    <div id="M000133_source" class="dyn-source">
+                    <div id="M000131_source" class="dyn-source">
                         <pre><span class="ruby-comment cmt"># File lib/fakefs/fileutils.rb, line 54</span>
     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">ln_sf</span>(<span class="ruby-identifier">target</span>, <span class="ruby-identifier">path</span>)
       <span class="ruby-identifier">ln_s</span>(<span class="ruby-identifier">target</span>, <span class="ruby-identifier">path</span>, { <span class="ruby-identifier">:force</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-keyword kw">true</span> })
@@ -398,15 +398,15 @@ Alias for <a href="FileUtils.html#M000145">cd</a>
             </div>
             
             <div class="method">
-                <div class="title" id="M000112">
+                <div class="title" id="M000103">
                     
-                    <a name="M000112"></a><b>makedirs</b>(path, options = {})
+                    <a name="M000103"></a><b>makedirs</b>(path, options = {})
                     
                 </div>
                 
                 <div class="description">
                   <p>
-Alias for <a href="FileUtils.html#M000110">mkdir_p</a>
+Alias for <a href="FileUtils.html#M000101">mkdir_p</a>
 </p>
 
                 </div>
@@ -416,9 +416,9 @@ Alias for <a href="FileUtils.html#M000110">mkdir_p</a>
             </div>
             
             <div class="method">
-                <div class="title" id="M000113">
+                <div class="title" id="M000104">
                     
-                    <a name="M000113"></a><b>mkdir</b>(path)
+                    <a name="M000104"></a><b>mkdir</b>(path)
                     
                 </div>
                 
@@ -427,12 +427,12 @@ Alias for <a href="FileUtils.html#M000110">mkdir_p</a>
                 
                 <div class="sourcecode">
                     <p class="source-link">
-                        Source: <a href="javascript:toggleSource('M000113_source')" id="l_M000113_source">show</a>
+                        Source: <a href="javascript:toggleSource('M000104_source')" id="l_M000104_source">show</a>
                         
                         | <a href="http://github.com/defunkt/fakefs/blob/4da1d58d66a729c2e40947c2212109cbbde39b16/lib/fakefs/fileutils.rb#L11" target="_blank" class="github_url">on GitHub</a>
                         
                     </p>
-                    <div id="M000113_source" class="dyn-source">
+                    <div id="M000104_source" class="dyn-source">
                         <pre><span class="ruby-comment cmt"># File lib/fakefs/fileutils.rb, line 11</span>
     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">mkdir</span>(<span class="ruby-identifier">path</span>)
       <span class="ruby-identifier">parent</span> = <span class="ruby-identifier">path</span>.<span class="ruby-identifier">split</span>(<span class="ruby-value str">'/'</span>)
@@ -447,9 +447,9 @@ Alias for <a href="FileUtils.html#M000110">mkdir_p</a>
             </div>
             
             <div class="method">
-                <div class="title" id="M000110">
+                <div class="title" id="M000101">
                     
-                    <a name="M000110"></a><b>mkdir_p</b>(path, options = {})
+                    <a name="M000101"></a><b>mkdir_p</b>(path, options = {})
                     
                 </div>
                 
@@ -457,9 +457,9 @@ Alias for <a href="FileUtils.html#M000110">mkdir_p</a>
                 <div class="aka">
                     This method is also aliased as
                     
-                    <a href="FileUtils.html#M000111">mkpath</a>
+                    <a href="FileUtils.html#M000102">mkpath</a>
                     
-                    <a href="FileUtils.html#M000112">makedirs</a>
+                    <a href="FileUtils.html#M000103">makedirs</a>
                     
                 </div>
                 
@@ -467,12 +467,12 @@ Alias for <a href="FileUtils.html#M000110">mkdir_p</a>
                 
                 <div class="sourcecode">
                     <p class="source-link">
-                        Source: <a href="javascript:toggleSource('M000110_source')" id="l_M000110_source">show</a>
+                        Source: <a href="javascript:toggleSource('M000101_source')" id="l_M000101_source">show</a>
                         
                         | <a href="http://github.com/defunkt/fakefs/blob/4da1d58d66a729c2e40947c2212109cbbde39b16/lib/fakefs/fileutils.rb#L5" target="_blank" class="github_url">on GitHub</a>
                         
                     </p>
-                    <div id="M000110_source" class="dyn-source">
+                    <div id="M000101_source" class="dyn-source">
                         <pre><span class="ruby-comment cmt"># File lib/fakefs/fileutils.rb, line 5</span>
     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">mkdir_p</span>(<span class="ruby-identifier">path</span>, <span class="ruby-identifier">options</span> = {})
       <span class="ruby-constant">FileSystem</span>.<span class="ruby-identifier">add</span>(<span class="ruby-identifier">path</span>, <span class="ruby-constant">FakeDir</span>.<span class="ruby-identifier">new</span>)
@@ -483,15 +483,15 @@ Alias for <a href="FileUtils.html#M000110">mkdir_p</a>
             </div>
             
             <div class="method">
-                <div class="title" id="M000111">
+                <div class="title" id="M000102">
                     
-                    <a name="M000111"></a><b>mkpath</b>(path, options = {})
+                    <a name="M000102"></a><b>mkpath</b>(path, options = {})
                     
                 </div>
                 
                 <div class="description">
                   <p>
-Alias for <a href="FileUtils.html#M000110">mkdir_p</a>
+Alias for <a href="FileUtils.html#M000101">mkdir_p</a>
 </p>
 
                 </div>
@@ -536,9 +536,9 @@ Alias for <a href="FileUtils.html#M000110">mkdir_p</a>
             </div>
             
             <div class="method">
-                <div class="title" id="M000127">
+                <div class="title" id="M000114">
                     
-                    <a name="M000127"></a><b>rm</b>(list, options = {})
+                    <a name="M000114"></a><b>rm</b>(list, options = {})
                     
                 </div>
                 
@@ -546,11 +546,11 @@ Alias for <a href="FileUtils.html#M000110">mkdir_p</a>
                 <div class="aka">
                     This method is also aliased as
                     
-                    <a href="FileUtils.html#M000128">rm_rf</a>
+                    <a href="FileUtils.html#M000115">rm_rf</a>
                     
-                    <a href="FileUtils.html#M000129">rm_r</a>
+                    <a href="FileUtils.html#M000116">rm_r</a>
                     
-                    <a href="FileUtils.html#M000130">rm_f</a>
+                    <a href="FileUtils.html#M000117">rm_f</a>
                     
                 </div>
                 
@@ -558,12 +558,12 @@ Alias for <a href="FileUtils.html#M000110">mkdir_p</a>
                 
                 <div class="sourcecode">
                     <p class="source-link">
-                        Source: <a href="javascript:toggleSource('M000127_source')" id="l_M000127_source">show</a>
+                        Source: <a href="javascript:toggleSource('M000114_source')" id="l_M000114_source">show</a>
                         
                         | <a href="http://github.com/defunkt/fakefs/blob/4da1d58d66a729c2e40947c2212109cbbde39b16/lib/fakefs/fileutils.rb#L31" target="_blank" class="github_url">on GitHub</a>
                         
                     </p>
-                    <div id="M000127_source" class="dyn-source">
+                    <div id="M000114_source" class="dyn-source">
                         <pre><span class="ruby-comment cmt"># File lib/fakefs/fileutils.rb, line 31</span>
     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">rm</span>(<span class="ruby-identifier">list</span>, <span class="ruby-identifier">options</span> = {})
       <span class="ruby-constant">Array</span>(<span class="ruby-identifier">list</span>).<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">path</span><span class="ruby-operator">|</span>
@@ -576,15 +576,15 @@ Alias for <a href="FileUtils.html#M000110">mkdir_p</a>
             </div>
             
             <div class="method">
-                <div class="title" id="M000130">
+                <div class="title" id="M000117">
                     
-                    <a name="M000130"></a><b>rm_f</b>(list, options = {})
+                    <a name="M000117"></a><b>rm_f</b>(list, options = {})
                     
                 </div>
                 
                 <div class="description">
                   <p>
-Alias for <a href="FileUtils.html#M000127">rm</a>
+Alias for <a href="FileUtils.html#M000114">rm</a>
 </p>
 
                 </div>
@@ -594,15 +594,15 @@ Alias for <a href="FileUtils.html#M000127">rm</a>
             </div>
             
             <div class="method">
-                <div class="title" id="M000129">
+                <div class="title" id="M000116">
                     
-                    <a name="M000129"></a><b>rm_r</b>(list, options = {})
+                    <a name="M000116"></a><b>rm_r</b>(list, options = {})
                     
                 </div>
                 
                 <div class="description">
                   <p>
-Alias for <a href="FileUtils.html#M000127">rm</a>
+Alias for <a href="FileUtils.html#M000114">rm</a>
 </p>
 
                 </div>
@@ -612,15 +612,15 @@ Alias for <a href="FileUtils.html#M000127">rm</a>
             </div>
             
             <div class="method">
-                <div class="title" id="M000128">
+                <div class="title" id="M000115">
                     
-                    <a name="M000128"></a><b>rm_rf</b>(list, options = {})
+                    <a name="M000115"></a><b>rm_rf</b>(list, options = {})
                     
                 </div>
                 
                 <div class="description">
                   <p>
-Alias for <a href="FileUtils.html#M000127">rm</a>
+Alias for <a href="FileUtils.html#M000114">rm</a>
 </p>
 
                 </div>
@@ -630,9 +630,9 @@ Alias for <a href="FileUtils.html#M000127">rm</a>
             </div>
             
             <div class="method">
-                <div class="title" id="M000114">
+                <div class="title" id="M000105">
                     
-                    <a name="M000114"></a><b>rmdir</b>(list, options = {})
+                    <a name="M000105"></a><b>rmdir</b>(list, options = {})
                     
                 </div>
                 
@@ -641,12 +641,12 @@ Alias for <a href="FileUtils.html#M000127">rm</a>
                 
                 <div class="sourcecode">
                     <p class="source-link">
-                        Source: <a href="javascript:toggleSource('M000114_source')" id="l_M000114_source">show</a>
+                        Source: <a href="javascript:toggleSource('M000105_source')" id="l_M000105_source">show</a>
                         
                         | <a href="http://github.com/defunkt/fakefs/blob/4da1d58d66a729c2e40947c2212109cbbde39b16/lib/fakefs/fileutils.rb#L19" target="_blank" class="github_url">on GitHub</a>
                         
                     </p>
-                    <div id="M000114_source" class="dyn-source">
+                    <div id="M000105_source" class="dyn-source">
                         <pre><span class="ruby-comment cmt"># File lib/fakefs/fileutils.rb, line 19</span>
     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">rmdir</span>(<span class="ruby-identifier">list</span>, <span class="ruby-identifier">options</span> = {})
       <span class="ruby-identifier">list</span> = [ <span class="ruby-identifier">list</span> ] <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">list</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Array</span>)
