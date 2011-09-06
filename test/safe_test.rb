@@ -22,6 +22,7 @@ class FakeFSSafeTest < Test::Unit::TestCase
 
   def test_FakeFS_method_returns_value_of_yield
     result = FakeFS do
+      FileUtils.mkdir_p('/path/to')
       path = '/path/to/file.txt'
       File.open(path, 'w') { |f| f.write "Yatta!" }
       File.read(path)

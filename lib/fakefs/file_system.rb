@@ -7,7 +7,7 @@ module FakeFS
     end
 
     def clear
-      @fs = FakeDir.new('.')
+      @fs = FakeDir.new('/')
       @current_dir = "/"
     end
 
@@ -97,7 +97,11 @@ module FakeFS
       File.expand_path(path)
     end
 
-    attr_accessor :current_dir
+    attr_writer :current_dir
+
+    def current_dir
+      @current_dir || "/"
+    end
 
 
 
