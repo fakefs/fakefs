@@ -96,15 +96,7 @@ module FakeFS
     end
 
     def self.mkdir(string, integer = 0)
-      parent = string.split('/')
-      parent.pop
-
-      joined_parent_path = parent.join
-
-      _check_for_valid_file(joined_parent_path) unless joined_parent_path == ""
-      raise Errno::EEXIST, "File exists - #{string}" if File.exists?(string)
-
-      FileUtils.mkdir_p(string)
+      FileUtils.mkdir(string)
     end
 
     def self.open(string, &block)
