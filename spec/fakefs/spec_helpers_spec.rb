@@ -53,5 +53,44 @@ module FakeFS
         end
       end
     end
+
+    describe SpecHelpers::All do
+      describe "when extending" do
+        context "before :all" do
+          it "should call it" do
+            @rspec_example_group.should_receive(:before).with(:all)
+            @rspec_example_group.extend FakeFS::SpecHelpers::All
+          end
+
+          it "should call FakeFS.activate!" do
+            FakeFS.should_receive(:activate!)
+            @rspec_example_group.extend FakeFS::SpecHelpers::All
+          end
+        end
+
+        context "after :each" do
+          it "should call it" do
+            @rspec_example_group.should_receive(:after).with(:all)
+            @rspec_example_group.extend FakeFS::SpecHelpers::All
+          end
+
+          it "should call FakeFS.deactivate!" do
+            FakeFS.should_receive(:deactivate!)
+            @rspec_example_group.extend FakeFS::SpecHelpers::All
+          end
+        end
+      end
+
+      describe "when including" do
+        context "before :all" do
+          it "should call it" do
+            @rspec_example_group.should_receive(:before)
+            @rspec_example_group.class_eval do
+              include FakeFS::SpecHelpers::All
+            end
+          end
+        end
+      end
+    end
   end
 end
