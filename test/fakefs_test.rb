@@ -495,27 +495,45 @@ class FakeFSTest < Test::Unit::TestCase
     assert File.ctime('foo').is_a?(Time)
   end
 
-  def test_ctime_and_mtime_are_equal_for_new_files
+  def test_raises_error_on_atime_if_file_does_not_exist
+    assert_raise Errno::ENOENT do
+      File.atime('file.txt')
+    end
+  end
+
+  def test_can_return_atime_on_existing_file
+    File.open("foo", "w") { |f| f << "some content" }
+    assert File.atime('foo').is_a?(Time)
+  end
+
+  def test_ctime_mtime_and_atime_are_equal_for_new_files
     File.open("foo", "w") { |f| f << "some content" }
     ctime = File.ctime("foo")
     mtime = File.mtime("foo")
+    atime = File.atime("foo")
     assert ctime.is_a?(Time)
     assert mtime.is_a?(Time)
+    assert atime.is_a?(Time)
     assert_equal ctime, mtime
+    assert_equal ctime, atime
 
     File.open("foo", "r") do |f|
       assert_equal ctime, f.ctime
       assert_equal mtime, f.mtime
+      assert_equal atime, f.atime
     end
   end
 
-  def test_ctime_and_mtime_are_equal_for_new_directories
+  def test_ctime_mtime_and_atime_are_equal_for_new_directories
     FileUtils.mkdir_p("foo")
     ctime = File.ctime("foo")
     mtime = File.mtime("foo")
+    atime = File.atime("foo")
     assert ctime.is_a?(Time)
     assert mtime.is_a?(Time)
+    assert atime.is_a?(Time)
     assert_equal ctime, mtime
+    assert_equal ctime, atime
   end
 
   def test_file_ctime_is_equal_to_file_stat_ctime
@@ -538,6 +556,16 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal File.stat("foo").mtime, File.mtime("foo")
   end
 
+  def test_file_atime_is_equal_to_file_stat_atime
+    File.open("foo", "w") { |f| f << "some content" }
+    assert_equal File.stat("foo").atime, File.atime("foo")
+  end
+
+  def test_directory_atime_is_equal_to_directory_stat_atime
+    FileUtils.mkdir_p("foo")
+    assert_equal File.stat("foo").atime, File.atime("foo")
+  end
+
   def test_utime_raises_error_if_path_does_not_exist
     assert_raise Errno::ENOENT do
       File.utime(Time.now, Time.now, '/path/to/file.txt')
@@ -552,6 +580,7 @@ class FakeFSTest < Test::Unit::TestCase
     end
     File.utime(time, time, path)
     assert_equal time, File.mtime('file.txt')
+    assert_equal time, File.atime('file.txt')
   end
 
   def test_utime_returns_number_of_paths
@@ -562,6 +591,21 @@ class FakeFSTest < Test::Unit::TestCase
       end
     end
     assert_equal 2, File.utime(Time.now, Time.now, path1, path2)
+  end
+
+  def test_file_a_time_updated_when_file_is_read
+    old_atime = Time.now - 300
+
+    path = "file.txt"
+    File.open(path, "w") do |f|
+      f << "Hello"
+    end
+
+    File.utime(old_atime, File.mtime(path), path)
+
+    assert_equal File.atime(path), old_atime
+    File.read(path)
+    assert File.atime(path) != old_atime
   end
 
   def test_can_read_with_File_readlines
