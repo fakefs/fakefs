@@ -57,8 +57,8 @@ module FakeFS
       @contents[integer]
     end
 
-    def self.[](pattern)
-      glob(pattern)
+    def self.[](*pattern)
+      glob pattern
     end
 
     def self.exists?(path)
@@ -91,8 +91,14 @@ module FakeFS
     end
 
     def self.glob(pattern, &block)
-      files = [FileSystem.find(pattern) || []].flatten.map(&:to_s).sort
-      block_given? ? files.each { |file| block.call(file) } : files
+      matches_for_pattern = lambda { |matcher| [FileSystem.find(matcher) || []].flatten.map{|e| e.to_s}.sort  }
+
+      if pattern.is_a? Array
+        files = pattern.collect { |matcher| matches_for_pattern.call matcher }.flatten
+      else
+        files = matches_for_pattern.call pattern
+      end
+      return block_given? ? files.each { |file| block.call(file) } : files
     end
 
     def self.mkdir(string, integer = 0)
