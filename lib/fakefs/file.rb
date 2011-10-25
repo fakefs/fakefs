@@ -69,9 +69,18 @@ module FakeFS
       end
     end
 
+    def self.atime(path)
+      if exists?(path)
+        FileSystem.find(path).atime
+      else
+        raise Errno::ENOENT
+      end
+    end
+
     def self.utime(atime, mtime, *paths)
       paths.each do |path|
         if exists?(path)
+          FileSystem.find(path).atime = atime
           FileSystem.find(path).mtime = mtime
         else
           raise Errno::ENOENT
@@ -143,6 +152,7 @@ module FakeFS
     def self.read(path)
       file = new(path)
       if file.exists?
+        FileSystem.find(path).atime = Time.now
         file.read
       else
         raise Errno::ENOENT
@@ -225,7 +235,7 @@ module FakeFS
     end
 
     class Stat
-      attr_reader :ctime, :mtime
+      attr_reader :ctime, :mtime, :atime
 
       def initialize(file, __lstat = false)
         if !File.exists?(file)
@@ -237,6 +247,7 @@ module FakeFS
         @__lstat   = __lstat
         @ctime     = @fake_file.ctime
         @mtime     = @fake_file.mtime
+        @atime     = @fake_file.atime
       end
 
       def symlink?
@@ -326,7 +337,7 @@ module FakeFS
     end
 
     def atime
-      raise NotImplementedError
+      self.class.atime(@path)
     end
 
     def chmod(mode_int)

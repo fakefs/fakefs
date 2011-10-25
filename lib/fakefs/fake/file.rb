@@ -1,6 +1,6 @@
 module FakeFS
   class FakeFile
-    attr_accessor :name, :parent, :content, :mtime
+    attr_accessor :name, :parent, :content, :mtime, :atime
     attr_reader :ctime
 
     class Inode
@@ -34,6 +34,7 @@ module FakeFS
       @inode  = Inode.new(self)
       @ctime  = Time.now
       @mtime  = @ctime
+      @atime  = @ctime
     end
 
     attr_accessor :inode
