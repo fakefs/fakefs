@@ -91,7 +91,12 @@ module FakeFS
     end
 
     def self.glob(pattern, &block)
-      files = [FileSystem.find(pattern) || []].flatten.map(&:to_s).sort
+      files = [FileSystem.find(pattern) || []].flatten.map{|e| e.to_s}.sort
+      unless pattern.start_with?("/") 
+        files.map! {|s| s.sub("#{pwd}/", "") }
+      end
+      files.map! {|s| s.gsub("//", "/")}
+
       block_given? ? files.each { |file| block.call(file) } : files
     end
 
@@ -120,7 +125,7 @@ module FakeFS
     end
 
     def self.pwd
-      FileSystem.current_dir.to_s
+      FileSystem.current_dir
     end
 
     # This code has been borrowed from Rubinius

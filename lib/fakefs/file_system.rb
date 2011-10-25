@@ -2,24 +2,23 @@ module FakeFS
   module FileSystem
     extend self
 
-    def dir_levels
-      @dir_levels ||= []
-    end
-
     def fs
       @fs ||= FakeDir.new('/')
     end
 
     def clear
-      @dir_levels = nil
-      @fs = nil
+      @fs = FakeDir.new('/')
+      @current_dir = "/"
     end
 
     def files
       fs.values
     end
 
+    # returns the object at the given path in the fake filesystem (ie a FakeFile/Dir/Symlink)
+    # path is resolved with normalize_path
     def find(path)
+      return fs if path == "/"
       parts = path_parts(normalize_path(path))
       return fs if parts.empty? # '/'
 
@@ -63,6 +62,7 @@ module FakeFS
           FileUtils.ln_s()
         end
       end
+      @current_dir = "/"
     end
 
     def delete(path)
@@ -73,33 +73,37 @@ module FakeFS
     end
 
     def chdir(dir, &blk)
-      new_dir = find(dir)
-      dir_levels.push dir if blk
+      new_dir = normalize_path(dir)
+      old_current_dir = @current_dir
+      raise Errno::ENOENT, dir unless find(new_dir)
+      @current_dir = new_dir
 
-      raise Errno::ENOENT, dir unless new_dir
-
-      dir_levels.push dir if !blk
-      blk.call if blk
-    ensure
-      dir_levels.pop if blk
+      if blk then
+        begin
+          blk.call
+        ensure
+          @current_dir = old_current_dir
+        end
+      end
     end
 
     def path_parts(path)
       path.split(File::PATH_SEPARATOR).reject { |part| part.empty? }
     end
 
+    # expands path into an absolute path with no empty or dot components.
+    # Uses File.expand_path to do this
     def normalize_path(path)
-      if Pathname.new(path).absolute?
-        File.expand_path(path)
-      else
-        parts = dir_levels + [path]
-        File.expand_path(File.join(*parts))
-      end
+      File.expand_path(path)
     end
 
+    attr_writer :current_dir
+
     def current_dir
-      find(normalize_path('.'))
+      @current_dir || "/"
     end
+
+
 
     private
 

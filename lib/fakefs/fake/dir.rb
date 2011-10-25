@@ -28,14 +28,17 @@ module FakeFS
       clone
     end
 
+
+      
+
     def to_s
-      if parent && parent.to_s != '.'
-        File.join(parent.to_s, name)
-      elsif parent && parent.to_s == '.'
-        "#{File::PATH_SEPARATOR}#{name}"
+      if parent
+        result = File.join(parent.to_s, name).gsub("//", "/")
       else
-        name
+        result = name
       end
+      result = "/" if result == "."
+      result
     end
 
     def delete(node = self)
@@ -45,5 +48,28 @@ module FakeFS
         super(node.name)
       end
     end
+
+    def inspect_tree
+      inspect_tree_helper(0)
+    end
+
+    def inspect_tree_helper(indent = 0)
+      in_s = " " * indent
+      result = in_s + "#{name}/"
+      self.values.each do |value|
+        case value 
+        when FakeDir
+          result += "\n#{in_s}  " + value.inspect_tree_helper(indent + 2)
+        when FakeFile
+          result += "\n#{in_s}  " + value.name
+        when FakeSymlink
+          result += "\n#{in_s}  " + value.name + " -> " + value.target
+        end
+      end
+      result
+    end
+        
+      
+
   end
 end
