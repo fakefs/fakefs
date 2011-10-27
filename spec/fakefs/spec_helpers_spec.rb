@@ -68,7 +68,7 @@ module FakeFS
           end
         end
 
-        context "after :each" do
+        context "after :all" do
           it "should call it" do
             @rspec_example_group.should_receive(:after).with(:all)
             @rspec_example_group.extend FakeFS::SpecHelpers::All
@@ -76,6 +76,11 @@ module FakeFS
 
           it "should call FakeFS.deactivate!" do
             FakeFS.should_receive(:deactivate!)
+            @rspec_example_group.extend FakeFS::SpecHelpers::All
+          end
+
+          it "should not call FakeFS::FileSystem.clear" do
+            FakeFS::FileSystem.should_not_receive(:clear)
             @rspec_example_group.extend FakeFS::SpecHelpers::All
           end
         end
