@@ -4,34 +4,42 @@ RealFileUtils       = FileUtils
 RealDir             = Dir
 
 module FakeFS
-  def self.activate!
-    Object.class_eval do
-      remove_const(:Dir)
-      remove_const(:File)
-      remove_const(:FileTest)
-      remove_const(:FileUtils)
+  class << self
+    def activate!
+      remove_constants
 
-      const_set(:Dir,       FakeFS::Dir)
-      const_set(:File,      FakeFS::File)
-      const_set(:FileUtils, FakeFS::FileUtils)
-      const_set(:FileTest,  FakeFS::FileTest)
+      Object.class_eval do
+        const_set(:Dir,       FakeFS::Dir)
+        const_set(:File,      FakeFS::File)
+        const_set(:FileUtils, FakeFS::FileUtils)
+        const_set(:FileTest,  FakeFS::FileTest)
+      end
+      true
     end
-    true
-  end
 
-  def self.deactivate!
-    Object.class_eval do
-      remove_const(:Dir)
-      remove_const(:File)
-      remove_const(:FileTest)
-      remove_const(:FileUtils)
+    def deactivate!
+      remove_constants
 
-      const_set(:Dir,       RealDir)
-      const_set(:File,      RealFile)
-      const_set(:FileTest,  RealFileTest)
-      const_set(:FileUtils, RealFileUtils)
+      Object.class_eval do
+        const_set(:Dir,       RealDir)
+        const_set(:File,      RealFile)
+        const_set(:FileTest,  RealFileTest)
+        const_set(:FileUtils, RealFileUtils)
+      end
+      true
     end
-    true
+
+    private
+
+      def modified_constants
+        [:Dir, :File, :FileUtils, :FileTest].sort!
+      end
+
+      def remove_constants
+        Object.class_exec(modified_constants) do |constants|
+          constants.map { |c| remove_const(c) }
+        end
+      end
   end
 end
 
