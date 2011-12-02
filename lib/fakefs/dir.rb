@@ -91,7 +91,7 @@ module FakeFS
     end
 
     def self.glob(pattern, &block)
-      matches_for_pattern = lambda { |matcher| [FileSystem.find(matcher) || []].flatten.map{|e| e.to_s}.sort  }
+      matches_for_pattern = lambda { |matcher| [FileSystem.find(matcher) || []].flatten.map{|e| Dir.pwd.match(%r[\A/?\z]) ? e.to_s : e.to_s.match(%r[\A#{Dir.pwd}/?]).post_match}.sort  }
 
       if pattern.is_a? Array
         files = pattern.collect { |matcher| matches_for_pattern.call matcher }.flatten
