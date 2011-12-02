@@ -752,6 +752,10 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal ['/path/bar', '/path/foo'], Dir['/path/{foo,bar}']
 
     assert_equal ['/path/bar', '/path/bar2'], Dir['/path/bar{2,}']
+
+    Dir.chdir '/path' do
+      assert_equal ['foo'], Dir['foo']
+    end
   end
 
   def test_dir_glob_handles_root
