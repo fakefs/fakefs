@@ -101,6 +101,10 @@ module FakeFS
       return block_given? ? files.each { |file| block.call(file) } : files
     end
 
+    def self.home(user = nil)
+      RealDir.home(user)
+    end
+
     def self.mkdir(string, integer = 0)
       parent = string.split('/')
       parent.pop
