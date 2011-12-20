@@ -1861,4 +1861,14 @@ class FakeFSTest < Test::Unit::TestCase
       end
     end
   end
+  
+  if RUBY_VERSION >= "1.9.3"
+    def test_advise
+      File.open("foo", 'w') do |f|
+        assert_nothing_raised do
+          f.advise(:normal, 0, 0)
+        end
+      end
+    end
+  end
 end

@@ -392,6 +392,11 @@ module FakeFS
       end
     end
 
+    if RUBY_VERSION >= "1.9.3"
+      def advise(advice, offset=0, len=0)
+      end
+    end
+    
   private
 
     def check_modes!
