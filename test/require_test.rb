@@ -61,6 +61,7 @@ class RequireTest < Test::Unit::TestCase
   
   def test_requires_file_from_absolute_path
     FakeFS::Require.activate!
+    FileUtils.mkdir_p @dir + "/an/absolute"
     
     path = @dir + "/an/absolute/path"
     File.open(path + ".rb", "w") {|f|
@@ -242,6 +243,7 @@ class RequireTest < Test::Unit::TestCase
   
   def test_load_file_from_absolute_path
     FakeFS::Require.activate! :load => true
+    FileUtils.mkdir_p @dir + "/an/absolute"
     
     path = @dir + "/an/absolute/path.rb"
     File.open(path, "w") {|f|
