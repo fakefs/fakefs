@@ -6,3 +6,10 @@ begin
   require 'redgreen'
 rescue LoadError
 end
+
+def act_on_real_fs
+  raise ArgumentError unless block_given?
+  FakeFS.deactivate!
+  yield
+  FakeFS.activate!
+end
