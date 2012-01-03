@@ -105,7 +105,7 @@ module FakeFS
       parent = string.split('/')
       parent.pop
 
-      joined_parent_path = parent.join
+      joined_parent_path = parent.join("/")
 
       _check_for_valid_file(joined_parent_path) unless joined_parent_path == ""
       raise Errno::EEXIST, "File exists - #{string}" if File.exists?(string)

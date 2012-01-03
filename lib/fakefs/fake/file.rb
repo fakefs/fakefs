@@ -5,7 +5,8 @@ module FakeFS
 
     class Inode
       def initialize(file_owner)
-        @content = ""
+        #1.9.3 when possible set default external encoding
+        @content = "".respond_to?(:encode) ? "".encode(Encoding.default_external) : ""
         @links   = [file_owner]
       end
 

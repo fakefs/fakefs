@@ -647,6 +647,21 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal "Yatta!", File.new(path).read
   end
 
+  if RUBY_VERSION >= "1.9" 
+    def test_file_object_has_default_external_encoding
+      Encoding.default_external = "UTF-8"
+      path = 'file.txt'
+      File.open(path, 'w'){|f| f.write 'Yatta!' }
+      assert_equal "UTF-8", File.new(path).read.encoding.name
+    end
+  end
+
+  def test_file_object_initialization_with_mode_in_hash_parameter
+    assert_nothing_raised do
+      File.open("file.txt", {:mode => "w"}){ |f| f.write 'Yatta!' }
+    end
+  end
+
   def test_file_read_errors_appropriately
     assert_raise Errno::ENOENT do
       File.read('anything')
@@ -1132,24 +1147,18 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_clone_clones_directories
-    FakeFS.deactivate!
-    RealFileUtils.mkdir_p(here('subdir'))
-    FakeFS.activate!
+    act_on_real_fs { RealFileUtils.mkdir_p(here('subdir')) }
 
     FileSystem.clone(here('subdir'))
 
     assert File.exists?(here('subdir')), 'subdir was cloned'
     assert File.directory?(here('subdir')), 'subdir is a directory'
   ensure
-    FakeFS.deactivate!
-    RealFileUtils.rm_rf(here('subdir'))
-    FakeFS.activate!
+    act_on_real_fs { RealFileUtils.rm_rf(here('subdir')) }
   end
 
   def test_clone_clones_dot_files_even_hard_to_find_ones
-    FakeFS.deactivate!
-    RealFileUtils.mkdir_p(here('subdir/.bar/baz/.quux/foo'))
-    FakeFS.activate!
+    act_on_real_fs { RealFileUtils.mkdir_p(here('subdir/.bar/baz/.quux/foo')) }
 
     assert !File.exists?(here('subdir'))
 
@@ -1157,9 +1166,20 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal ['.bar'], FileSystem.find(here('subdir')).keys
     assert_equal ['foo'], FileSystem.find(here('subdir/.bar/baz/.quux')).keys
   ensure
-    FakeFS.deactivate!
-    RealFileUtils.rm_rf(here('subdir'))
-    FakeFS.activate!
+    act_on_real_fs { RealFileUtils.rm_rf(here('subdir')) }
+  end
+
+  def test_clone_with_target_specified
+    act_on_real_fs { RealFileUtils.mkdir_p(here('subdir/.bar/baz/.quux/foo')) }
+
+    assert !File.exists?(here('subdir'))
+
+    FileSystem.clone(here('subdir'), here('subdir2'))
+    assert !File.exists?(here('subdir'))
+    assert_equal ['.bar'], FileSystem.find(here('subdir2')).keys
+    assert_equal ['foo'], FileSystem.find(here('subdir2/.bar/baz/.quux')).keys
+  ensure
+    act_on_real_fs { RealFileUtils.rm_rf(here('subdir')) }
   end
 
   def test_putting_a_dot_at_end_copies_the_contents
@@ -1462,6 +1482,12 @@ class FakeFSTest < Test::Unit::TestCase
   def test_directory_mkdir
     Dir.mkdir('/path')
     assert File.exists?('/path')
+  end
+
+  def test_directory_mkdir_nested
+    Dir.mkdir("/tmp")
+    Dir.mkdir("/tmp/stream20120103-11847-xc8pb.lock")
+    assert File.exists?("/tmp/stream20120103-11847-xc8pb.lock")
   end
 
   def test_directory_mkdir_relative
