@@ -56,50 +56,58 @@ module FakeFS
     end
 
     def cp(src, dest)
-      dst_file = FileSystem.find(dest)
-      src_file = FileSystem.find(src)
-
-      if !src_file
-        raise Errno::ENOENT, src
+      if src.is_a?(Array) && !File.directory?(dest)
+        raise Errno::ENOTDIR, dest
       end
 
-      if File.directory? src_file
-        raise Errno::EISDIR, src
-      end
+      Array(src).each do |src|
+        dst_file = FileSystem.find(dest)
+        src_file = FileSystem.find(src)
 
-      if dst_file && File.directory?(dst_file)
-        FileSystem.add(File.join(dest, src), src_file.entry.clone(dst_file))
-      else
-        FileSystem.delete(dest)
-        FileSystem.add(dest, src_file.entry.clone)
+        if !src_file
+          raise Errno::ENOENT, src
+        end
+
+        if File.directory? src_file
+          raise Errno::EISDIR, src
+        end
+
+        if dst_file && File.directory?(dst_file)
+          FileSystem.add(File.join(dest, src), src_file.entry.clone(dst_file))
+        else
+          FileSystem.delete(dest)
+          FileSystem.add(dest, src_file.entry.clone)
+        end
       end
     end
 
     def cp_r(src, dest)
-      # This error sucks, but it conforms to the original Ruby
-      # method.
-      raise "unknown file type: #{src}" unless dir = FileSystem.find(src)
+      Array(src).each do |src|
+        # This error sucks, but it conforms to the original Ruby
+        # method.
+        raise "unknown file type: #{src}" unless dir = FileSystem.find(src)
 
-      new_dir = FileSystem.find(dest)
+        new_dir = FileSystem.find(dest)
 
-      if new_dir && !File.directory?(dest)
-        raise Errno::EEXIST, dest
-      end
-
-      if !new_dir && !FileSystem.find(dest+'/../')
-        raise Errno::ENOENT, dest
-      end
-
-      # This last bit is a total abuse and should be thought hard
-      # about and cleaned up.
-      if new_dir
-        if src[-2..-1] == '/.'
-          dir.values.each{|f| new_dir[f.name] = f.clone(new_dir) }
-        else
-          new_dir[dir.name] = dir.entry.clone(new_dir)
+        if new_dir && !File.directory?(dest)
+          raise Errno::EEXIST, dest
         end
-      else
-        FileSystem.add(dest, dir.entry.clone)
+
+        if !new_dir && !FileSystem.find(dest+'/../')
+          raise Errno::ENOENT, dest
+        end
+
+        # This last bit is a total abuse and should be thought hard
+        # about and cleaned up.
+        if new_dir
+          if src[-2..-1] == '/.'
+            dir.values.each{|f| new_dir[f.name] = f.clone(new_dir) }
+          else
+            new_dir[dir.name] = dir.entry.clone(new_dir)
+          end
+        else
+          FileSystem.add(dest, dir.entry.clone)
+        end
       end
     end
 

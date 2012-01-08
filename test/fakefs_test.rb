@@ -1036,6 +1036,25 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal 'bar', File.read('baz/foo')
   end
 
+  def test_cp_array_of_files_into_directory
+    File.open('foo', 'w') { |f| f.write 'footext' }
+    File.open('bar', 'w') { |f| f.write 'bartext' }
+    FileUtils.mkdir_p 'destdir'
+    FileUtils.cp(%w(foo bar), 'destdir')
+
+    assert_equal 'footext', File.read('destdir/foo')
+    assert_equal 'bartext', File.read('destdir/bar')
+  end
+
+  def test_cp_fails_on_array_of_files_into_non_directory
+    File.open('foo', 'w') { |f| f.write 'footext' }
+
+    exception = assert_raise(Errno::ENOTDIR) do
+      FileUtils.cp(%w(foo), 'baz')
+    end
+    assert_equal "Not a directory - baz", exception.to_s
+  end
+
   def test_cp_overwrites_dest_file
     File.open('foo', 'w') {|f| f.write 'FOO' }
     File.open('bar', 'w') {|f| f.write 'BAR' }
@@ -1091,6 +1110,26 @@ class FakeFSTest < Test::Unit::TestCase
     assert_raises(Errno::ENOENT) do
       FileUtils.cp_r('subdir', 'nope/something')
     end
+  end
+
+  def test_cp_r_array_of_files
+    FileUtils.mkdir_p 'subdir'
+    File.open('foo', 'w') { |f| f.write 'footext' }
+    File.open('bar', 'w') { |f| f.write 'bartext' }
+    FileUtils.cp_r(%w(foo bar), 'subdir')
+
+    assert_equal 'footext', File.open('subdir/foo') { |f| f.read }
+    assert_equal 'bartext', File.open('subdir/bar') { |f| f.read }
+  end
+
+  def test_cp_r_array_of_directories
+    %w(foo bar subdir).each { |d| FileUtils.mkdir_p d }
+    File.open('foo/baz', 'w') { |f| f.write 'baztext' }
+    File.open('bar/quux', 'w') { |f| f.write 'quuxtext' }
+
+    FileUtils.cp_r(%w(foo bar), 'subdir')
+    assert_equal 'baztext', File.open('subdir/foo/baz') { |f| f.read }
+    assert_equal 'quuxtext', File.open('subdir/bar/quux') { |f| f.read }
   end
 
   def test_cp_r_only_copies_into_directories
