@@ -1824,6 +1824,57 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal path, "/this/is/what/we"
     assert_equal filename, "expect.txt"
   end
+  
+  #########################
+  def test_file_default_mode
+    FileUtils.touch "foo"
+    assert_equal File.stat("foo").mode, (0100000 + 0666 - File.umask)    
+  end
+  
+  def test_dir_default_mode
+    Dir.mkdir "bar"
+    assert_equal File.stat("bar").mode, (0100000 + 0777 - File.umask)
+  end
+  
+  def test_file_default_uid_and_gid
+    FileUtils.touch "foo"
+    assert_equal File.stat("foo").uid, Process.uid
+    assert_equal File.stat("foo").gid, Process.gid
+  end
+  
+  def test_file_chmod_of_file
+    FileUtils.touch "foo"
+    File.chmod 0600, "foo"
+    assert_equal File.stat("foo").mode, 0100600
+    File.new("foo").chmod 0644
+    assert_equal File.stat("foo").mode, 0100644
+  end
+  
+  def test_file_chmod_of_dir
+    Dir.mkdir "bar"
+    File.chmod 0777, "bar"
+    assert_equal File.stat("bar").mode, 0100777
+    File.new("bar").chmod 01700
+    assert_equal File.stat("bar").mode, 0101700
+  end
+  
+  def test_file_chown_of_file
+    FileUtils.touch "foo"
+    File.chown 1337, 1338, "foo"
+    assert_equal File.stat("foo").uid, 1337
+    assert_equal File.stat("foo").gid, 1338
+  end
+  
+  def test_file_chown_of_dir
+    Dir.mkdir "bar"
+    File.chown 1337, 1338, "bar"
+    assert_equal File.stat("bar").uid, 1337
+    assert_equal File.stat("bar").gid, 1338
+  end 
+  
+  def test_file_umask
+    assert_equal File.umask, RealFile.umask
+  end
 
 
   def here(fname)
