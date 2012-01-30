@@ -145,7 +145,7 @@ module FakeFS
       list = Array(list)
       list.each do |file|
         chmod(mode, file)
-        FileSystem.find("#{file}/**/**").each do |f|
+        [FileSystem.find("#{file}/**/**")].flatten.each do |f|
           chmod(mode, f.to_s)
         end      
       end

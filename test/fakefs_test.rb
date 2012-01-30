@@ -750,6 +750,10 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal File.stat("/path/file1").mode, 0100600
     assert_equal File.stat("/path/sub").mode, 0100600
     assert_equal File.stat("/path/sub/file2").mode, 0100600
+    
+    FileUtils.mkdir_p "/path2"
+    FileUtils.touch "/path2/hej"
+    assert_equal ["/path2"], FileUtils.chmod_R(0600, "/path2")
   end
 
   def test_dir_globs_paths
