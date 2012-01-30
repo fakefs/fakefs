@@ -690,29 +690,39 @@ class FakeFSTest < Test::Unit::TestCase
     good = 'file.txt'
     bad = 'nofile.txt'
     File.open(good,'w') { |f| f.write "foo" }
+    username = Etc.getpwuid(Process.uid).name
+    groupname = Etc.getgrgid(Process.gid).name
 
-    out = FileUtils.chown('noone', 'nogroup', good, :verbose => true)
+    out = FileUtils.chown(1337, 1338, good, :verbose => true)
     assert_equal [good], out
+    assert_equal File.stat(good).uid, 1337
+    assert_equal File.stat(good).gid, 1338
     assert_raises(Errno::ENOENT) do
-      FileUtils.chown('noone', 'nogroup', bad, :verbose => true)
+      FileUtils.chown(username, groupname, bad, :verbose => true)
     end
 
-    assert_equal [good], FileUtils.chown('noone', 'nogroup', good)
+    assert_equal [good], FileUtils.chown(username, groupname, good)
+    assert_equal File.stat(good).uid, Process.uid
+    assert_equal File.stat(good).gid, Process.gid
     assert_raises(Errno::ENOENT) do
-      FileUtils.chown('noone', 'nogroup', bad)
+      FileUtils.chown(username, groupname, bad)
     end
 
-    assert_equal [good], FileUtils.chown('noone', 'nogroup', [good])
+    assert_equal [good], FileUtils.chown(username, groupname, [good])
+    assert_equal File.stat(good).uid, Process.uid
+    assert_equal File.stat(good).gid, Process.gid
     assert_raises(Errno::ENOENT) do
-      FileUtils.chown('noone', 'nogroup', [good, bad])
+      FileUtils.chown(username, groupname, [good, bad])
     end
   end
 
   def test_can_chown_R_files
+    username = Etc.getpwuid(Process.uid).name
+    groupname = Etc.getgrgid(Process.gid).name
     FileUtils.mkdir_p '/path/'
     File.open('/path/foo', 'w') { |f| f.write 'foo' }
     File.open('/path/foobar', 'w') { |f| f.write 'foo' }
-    resp = FileUtils.chown_R('no', 'no', '/path')
+    resp = FileUtils.chown_R(username, groupname, '/path')
     assert_equal ['/path'], resp
   end
   

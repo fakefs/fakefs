@@ -118,7 +118,11 @@ module FakeFS
     def chown(user, group, list, options={})
       list = Array(list)
       list.each do |f|
-        unless File.exists?(f)
+        if File.exists?(f)
+          uid = (user.to_s.match(/[0-9]+/) ? user.to_i : Etc.getpwnam(user).uid)
+          gid = (group.to_s.match(/[0-9]+/) ? group.to_i : Etc.getgrnam(group).gid)
+          File.chown(uid, gid, f)
+        else
           raise Errno::ENOENT, f
         end
       end
