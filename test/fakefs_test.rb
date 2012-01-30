@@ -722,8 +722,11 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.mkdir_p '/path/'
     File.open('/path/foo', 'w') { |f| f.write 'foo' }
     File.open('/path/foobar', 'w') { |f| f.write 'foo' }
-    resp = FileUtils.chown_R(username, groupname, '/path')
-    assert_equal ['/path'], resp
+    assert_equal ['/path'], FileUtils.chown_R(username, groupname, '/path')
+    %w(/path /path/foo /path/foobar).each do |f|
+      assert_equal File.stat(f).uid, Process.uid
+      assert_equal File.stat(f).gid, Process.gid
+    end
   end
   
   def test_can_chmod_files

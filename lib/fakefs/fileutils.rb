@@ -130,7 +130,14 @@ module FakeFS
     end
 
     def chown_R(user, group, list, options={})
-      chown(user, group, list, options={})
+      list = Array(list)
+      list.each do |file|
+        chown(user, group, file)
+        [FileSystem.find("#{file}/**/**")].flatten.each do |f|
+          chown(user, group, f.to_s)
+        end      
+      end
+      list
     end
     
     def chmod(mode, list, options={})
