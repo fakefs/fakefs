@@ -128,6 +128,29 @@ module FakeFS
     def chown_R(user, group, list, options={})
       chown(user, group, list, options={})
     end
+    
+    def chmod(mode, list, options={})
+      list = Array(list)
+      list.each do |f|
+        if File.exists?(f)
+          File.chmod(mode, f)
+        else
+          raise Errno::ENOENT, f
+        end
+      end
+      list
+    end
+    
+    def chmod_R(mode, list, options={})
+      list = Array(list)
+      list.each do |file|
+        chmod(mode, file)
+        FileSystem.find("#{file}/**/**").each do |f|
+          chmod(mode, f.to_s)
+        end      
+      end
+      list
+    end
 
     def touch(list, options={})
       Array(list).each do |f|

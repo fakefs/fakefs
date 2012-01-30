@@ -715,6 +715,42 @@ class FakeFSTest < Test::Unit::TestCase
     resp = FileUtils.chown_R('no', 'no', '/path')
     assert_equal ['/path'], resp
   end
+  
+  def test_can_chmod_files
+    good = "file.txt"
+    bad = "nofile.txt"
+    FileUtils.touch(good)
+    
+    assert_equal [good], FileUtils.chmod(0600, good, :verbose => true)
+    assert_equal File.stat(good).mode, 0100600
+    assert_raises(Errno::ENOENT) do
+      FileUtils.chmod(0600, bad)
+    end
+    
+    assert_equal [good], FileUtils.chmod(0666, good)
+    assert_equal File.stat(good).mode, 0100666
+    assert_raises(Errno::ENOENT) do
+      FileUtils.chmod(0666, bad)
+    end
+    
+    assert_equal [good], FileUtils.chmod(0644, [good])
+    assert_equal File.stat(good).mode, 0100644
+    assert_raises(Errno::ENOENT) do
+      FileUtils.chmod(0644, bad)
+    end    
+  end
+  
+  def test_can_chmod_R_files
+    FileUtils.mkdir_p "/path/sub"
+    FileUtils.touch "/path/file1"
+    FileUtils.touch "/path/sub/file2"
+    
+    assert_equal ["/path"], FileUtils.chmod_R(0600, "/path")
+    assert_equal File.stat("/path").mode, 0100600
+    assert_equal File.stat("/path/file1").mode, 0100600
+    assert_equal File.stat("/path/sub").mode, 0100600
+    assert_equal File.stat("/path/sub/file2").mode, 0100600
+  end
 
   def test_dir_globs_paths
     FileUtils.mkdir_p '/path'
