@@ -392,6 +392,12 @@ module FakeFS
       end
     end
 
+    if defined?(FileMagic)
+      def content_type
+        'fake/file'
+      end
+    end
+
   private
 
     def check_modes!
