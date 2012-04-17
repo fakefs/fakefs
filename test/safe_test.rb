@@ -9,6 +9,15 @@ class FakeFSSafeTest < Test::Unit::TestCase
     FakeFS.activate!
   end
 
+  def test_FakeFS_activated_is_accurate
+    2.times do
+      FakeFS.deactivate!
+      assert !FakeFS.activated?
+      FakeFS.activate!
+      assert FakeFS.activated?
+    end
+  end
+
   def test_FakeFS_method_does_not_intrude_on_global_namespace
     path = 'file.txt'
 
@@ -29,6 +38,37 @@ class FakeFSSafeTest < Test::Unit::TestCase
     assert_equal result, "Yatta!"
   end
 
+  def test_FakeFS_method_does_not_deactivate_FakeFS_if_already_activated
+    FakeFS.activate!
+    FakeFS {}
+
+    assert FakeFS.activated?
+  end
+
+  def test_FakeFS_method_can_be_nested
+    FakeFS do
+      assert FakeFS.activated?
+      FakeFS do
+        assert FakeFS.activated?
+      end
+      assert FakeFS.activated?
+    end
+
+    assert !FakeFS.activated?
+  end
+
+  def test_FakeFS_method_can_be_nested_with_FakeFS_without
+    FakeFS do
+      assert FakeFS.activated?
+      FakeFS.without do
+        assert !FakeFS.activated?
+      end
+      assert FakeFS.activated?
+    end
+
+    assert !FakeFS.activated?
+  end
+
   def test_FakeFS_method_deactivates_FakeFS_when_block_raises_exception
     begin
       FakeFS do
@@ -37,8 +77,6 @@ class FakeFSSafeTest < Test::Unit::TestCase
     rescue
     end
 
-    assert_equal RealFile, File, "File is #{File} (should be #{RealFile})"
-    assert_equal RealFileUtils, FileUtils, "FileUtils is #{FileUtils} (should be #{RealFileUtils})"
-    assert_equal RealDir, Dir, "Dir is #{Dir} (should be #{RealDir})"
+    assert !FakeFS.activated?
   end
 end
