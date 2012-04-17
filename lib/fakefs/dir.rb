@@ -12,7 +12,7 @@ module FakeFS
       @path = string
       @open = true
       @pointer = 0
-      @contents = [ '.', '..', ] + FileSystem.find(@path).values
+      @contents = [ '.', '..', ] + FileSystem.find(@path).entries
     end
 
     def close
@@ -75,7 +75,7 @@ module FakeFS
 
     def self.delete(string)
       _check_for_valid_file(string)
-      raise Errno::ENOTEMPTY, "Directory not empty - #{string}" unless FileSystem.find(string).values.empty?
+      raise Errno::ENOTEMPTY, "Directory not empty - #{string}" unless FileSystem.find(string).empty?
 
       FileSystem.delete(string)
     end

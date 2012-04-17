@@ -23,7 +23,7 @@ module FakeFS
         parent.pop
         raise Errno::ENOENT, "No such file or directory - #{l}" unless parent.join == "" || FileSystem.find(parent.join('/'))
         raise Errno::ENOENT, l unless FileSystem.find(l)
-        raise Errno::ENOTEMPTY, l unless FileSystem.find(l).values.empty?
+        raise Errno::ENOTEMPTY, l unless FileSystem.find(l).empty?
         rm(l)
       end
     end
@@ -101,7 +101,7 @@ module FakeFS
         # about and cleaned up.
         if new_dir
           if src[-2..-1] == '/.'
-            dir.values.each{|f| new_dir[f.name] = f.clone(new_dir) }
+            dir.entries.each{|f| new_dir[f.name] = f.clone(new_dir) }
           else
             new_dir[dir.name] = dir.entry.clone(new_dir)
           end

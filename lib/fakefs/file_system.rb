@@ -16,7 +16,7 @@ module FakeFS
     end
 
     def files
-      fs.values
+      fs.entries
     end
 
     def find(path)
@@ -114,17 +114,16 @@ module FakeFS
         when ['*']
           parts = [] # end recursion
           directories_under(dir).map do |d|
-            d.values.select{|f| f.is_a?(FakeFile) || f.is_a?(FakeDir) }
+            d.entries.select{|f| f.is_a?(FakeFile) || f.is_a?(FakeDir) }
           end.flatten.uniq
         when []
           parts = [] # end recursion
-          dir.values.flatten.uniq
+          dir.entries.flatten.uniq
         else
           directories_under(dir)
         end
       else
-        regexp_pattern = /\A#{pattern.gsub('?','.').gsub('*', '.*').gsub(/\{(.*?)\}/) { "(#{$1.gsub(',', '|')})" }}\Z/
-        dir.reject {|k,v| regexp_pattern !~ k }.values
+        dir.matches /\A#{pattern.gsub('?','.').gsub('*', '.*').gsub(/\{(.*?)\}/) { "(#{$1.gsub(',', '|')})" }}\Z/
       end
 
       if parts.empty? # we're done recursing
@@ -135,7 +134,7 @@ module FakeFS
     end
 
     def directories_under(dir)
-      children = dir.values.select{|f| f.is_a? FakeDir}
+      children = dir.entries.select{|f| f.is_a? FakeDir}
       ([dir] + children + children.map{|c| directories_under(c)}).flatten.uniq
     end
   end
