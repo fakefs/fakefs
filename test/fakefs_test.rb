@@ -1582,6 +1582,18 @@ class FakeFSTest < Test::Unit::TestCase
     assert File.exists?("/tmp/stream20120103-11847-xc8pb.lock")
   end
 
+  def test_can_create_subdirectories_with_dir_mkdir
+    Dir.mkdir 'foo'
+    Dir.mkdir 'foo/bar'
+    assert Dir.exists?('foo/bar')
+  end
+
+  def test_can_create_absolute_subdirectories_with_dir_mkdir
+    Dir.mkdir '/foo'
+    Dir.mkdir '/foo/bar'
+    assert Dir.exists?('/foo/bar')
+  end
+
   def test_directory_mkdir_relative
     FileUtils.mkdir_p('/new/root')
     FileSystem.chdir('/new/root')
