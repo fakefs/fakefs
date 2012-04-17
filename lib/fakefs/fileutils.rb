@@ -11,7 +11,7 @@ module FakeFS
     def mkdir(path)
       parent = path.split('/')
       parent.pop
-      raise Errno::ENOENT, "No such file or directory - #{path}" unless parent.join == "" || FileSystem.find(parent.join('/'))
+      raise Errno::ENOENT, "No such file or directory - #{path}" unless parent.join == "" || parent.join == "." || FileSystem.find(parent.join('/'))
       raise Errno::EEXIST, "File exists - #{path}" if FileSystem.find(path)
       FileSystem.add(path, FakeDir.new)
     end
