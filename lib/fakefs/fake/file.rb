@@ -1,11 +1,12 @@
 module FakeFS
   class FakeFile
-    attr_accessor :name, :parent, :content, :mtime, :atime
+    attr_accessor :name, :parent, :content, :mtime, :atime, :mode, :uid, :gid
     attr_reader :ctime
 
     class Inode
       def initialize(file_owner)
-        @content = ""
+        #1.9.3 when possible set default external encoding
+        @content = "".respond_to?(:encode) ? "".encode(Encoding.default_external) : ""
         @links   = [file_owner]
       end
 
@@ -35,6 +36,9 @@ module FakeFS
       @ctime  = Time.now
       @mtime  = @ctime
       @atime  = @ctime
+      @mode   = 0100000 + (0666 - File.umask)
+      @uid    = Process.uid
+      @gid    = Process.gid      
     end
 
     attr_accessor :inode

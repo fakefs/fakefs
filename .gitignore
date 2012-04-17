@@ -1,3 +1,4 @@
 *.sw?
 pkg
 Gemfile.lock
+.rbenv-version

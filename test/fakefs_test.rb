@@ -647,6 +647,21 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal "Yatta!", File.new(path).read
   end
 
+  if RUBY_VERSION >= "1.9" 
+    def test_file_object_has_default_external_encoding
+      Encoding.default_external = "UTF-8"
+      path = 'file.txt'
+      File.open(path, 'w'){|f| f.write 'Yatta!' }
+      assert_equal "UTF-8", File.new(path).read.encoding.name
+    end
+  end
+
+  def test_file_object_initialization_with_mode_in_hash_parameter
+    assert_nothing_raised do
+      File.open("file.txt", {:mode => "w"}){ |f| f.write 'Yatta!' }
+    end
+  end
+
   def test_file_read_errors_appropriately
     assert_raise Errno::ENOENT do
       File.read('anything')
@@ -690,30 +705,83 @@ class FakeFSTest < Test::Unit::TestCase
     good = 'file.txt'
     bad = 'nofile.txt'
     File.open(good,'w') { |f| f.write "foo" }
+    username = Etc.getpwuid(Process.uid).name
+    groupname = Etc.getgrgid(Process.gid).name
 
-    out = FileUtils.chown('noone', 'nogroup', good, :verbose => true)
+    out = FileUtils.chown(1337, 1338, good, :verbose => true)
     assert_equal [good], out
+    assert_equal File.stat(good).uid, 1337
+    assert_equal File.stat(good).gid, 1338
     assert_raises(Errno::ENOENT) do
-      FileUtils.chown('noone', 'nogroup', bad, :verbose => true)
+      FileUtils.chown(username, groupname, bad, :verbose => true)
     end
 
-    assert_equal [good], FileUtils.chown('noone', 'nogroup', good)
+    assert_equal [good], FileUtils.chown(username, groupname, good)
+    assert_equal File.stat(good).uid, Process.uid
+    assert_equal File.stat(good).gid, Process.gid
     assert_raises(Errno::ENOENT) do
-      FileUtils.chown('noone', 'nogroup', bad)
+      FileUtils.chown(username, groupname, bad)
     end
 
-    assert_equal [good], FileUtils.chown('noone', 'nogroup', [good])
+    assert_equal [good], FileUtils.chown(username, groupname, [good])
+    assert_equal File.stat(good).uid, Process.uid
+    assert_equal File.stat(good).gid, Process.gid
     assert_raises(Errno::ENOENT) do
-      FileUtils.chown('noone', 'nogroup', [good, bad])
+      FileUtils.chown(username, groupname, [good, bad])
     end
   end
 
   def test_can_chown_R_files
+    username = Etc.getpwuid(Process.uid).name
+    groupname = Etc.getgrgid(Process.gid).name
     FileUtils.mkdir_p '/path/'
     File.open('/path/foo', 'w') { |f| f.write 'foo' }
     File.open('/path/foobar', 'w') { |f| f.write 'foo' }
-    resp = FileUtils.chown_R('no', 'no', '/path')
-    assert_equal ['/path'], resp
+    assert_equal ['/path'], FileUtils.chown_R(username, groupname, '/path')
+    %w(/path /path/foo /path/foobar).each do |f|
+      assert_equal File.stat(f).uid, Process.uid
+      assert_equal File.stat(f).gid, Process.gid
+    end
+  end
+  
+  def test_can_chmod_files
+    good = "file.txt"
+    bad = "nofile.txt"
+    FileUtils.touch(good)
+    
+    assert_equal [good], FileUtils.chmod(0600, good, :verbose => true)
+    assert_equal File.stat(good).mode, 0100600
+    assert_raises(Errno::ENOENT) do
+      FileUtils.chmod(0600, bad)
+    end
+    
+    assert_equal [good], FileUtils.chmod(0666, good)
+    assert_equal File.stat(good).mode, 0100666
+    assert_raises(Errno::ENOENT) do
+      FileUtils.chmod(0666, bad)
+    end
+    
+    assert_equal [good], FileUtils.chmod(0644, [good])
+    assert_equal File.stat(good).mode, 0100644
+    assert_raises(Errno::ENOENT) do
+      FileUtils.chmod(0644, bad)
+    end    
+  end
+  
+  def test_can_chmod_R_files
+    FileUtils.mkdir_p "/path/sub"
+    FileUtils.touch "/path/file1"
+    FileUtils.touch "/path/sub/file2"
+    
+    assert_equal ["/path"], FileUtils.chmod_R(0600, "/path")
+    assert_equal File.stat("/path").mode, 0100600
+    assert_equal File.stat("/path/file1").mode, 0100600
+    assert_equal File.stat("/path/sub").mode, 0100600
+    assert_equal File.stat("/path/sub/file2").mode, 0100600
+    
+    FileUtils.mkdir_p "/path2"
+    FileUtils.touch "/path2/hej"
+    assert_equal ["/path2"], FileUtils.chmod_R(0600, "/path2")
   end
 
   def test_dir_globs_paths
@@ -790,6 +858,10 @@ class FakeFSTest < Test::Unit::TestCase
     Dir.glob('*') { |file| yielded << file }
 
     assert_equal 2, yielded.size
+  end
+
+  def test_dir_home
+    assert_equal RealDir.home, Dir.home
   end
 
   def test_should_report_pos_as_0_when_opening
@@ -1036,6 +1108,25 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal 'bar', File.read('baz/foo')
   end
 
+  def test_cp_array_of_files_into_directory
+    File.open('foo', 'w') { |f| f.write 'footext' }
+    File.open('bar', 'w') { |f| f.write 'bartext' }
+    FileUtils.mkdir_p 'destdir'
+    FileUtils.cp(%w(foo bar), 'destdir')
+
+    assert_equal 'footext', File.read('destdir/foo')
+    assert_equal 'bartext', File.read('destdir/bar')
+  end
+
+  def test_cp_fails_on_array_of_files_into_non_directory
+    File.open('foo', 'w') { |f| f.write 'footext' }
+
+    exception = assert_raise(Errno::ENOTDIR) do
+      FileUtils.cp(%w(foo), 'baz')
+    end
+    assert_equal "Not a directory - baz", exception.to_s
+  end
+
   def test_cp_overwrites_dest_file
     File.open('foo', 'w') {|f| f.write 'FOO' }
     File.open('bar', 'w') {|f| f.write 'BAR' }
@@ -1093,6 +1184,26 @@ class FakeFSTest < Test::Unit::TestCase
     end
   end
 
+  def test_cp_r_array_of_files
+    FileUtils.mkdir_p 'subdir'
+    File.open('foo', 'w') { |f| f.write 'footext' }
+    File.open('bar', 'w') { |f| f.write 'bartext' }
+    FileUtils.cp_r(%w(foo bar), 'subdir')
+
+    assert_equal 'footext', File.open('subdir/foo') { |f| f.read }
+    assert_equal 'bartext', File.open('subdir/bar') { |f| f.read }
+  end
+
+  def test_cp_r_array_of_directories
+    %w(foo bar subdir).each { |d| FileUtils.mkdir_p d }
+    File.open('foo/baz', 'w') { |f| f.write 'baztext' }
+    File.open('bar/quux', 'w') { |f| f.write 'quuxtext' }
+
+    FileUtils.cp_r(%w(foo bar), 'subdir')
+    assert_equal 'baztext', File.open('subdir/foo/baz') { |f| f.read }
+    assert_equal 'quuxtext', File.open('subdir/bar/quux') { |f| f.read }
+  end
+
   def test_cp_r_only_copies_into_directories
     FileUtils.mkdir_p 'subdir'
     Dir.chdir('subdir') { File.open('foo', 'w') { |f| f.write 'footext' } }
@@ -1132,24 +1243,18 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_clone_clones_directories
-    FakeFS.deactivate!
-    RealFileUtils.mkdir_p(here('subdir'))
-    FakeFS.activate!
+    act_on_real_fs { RealFileUtils.mkdir_p(here('subdir')) }
 
     FileSystem.clone(here('subdir'))
 
     assert File.exists?(here('subdir')), 'subdir was cloned'
     assert File.directory?(here('subdir')), 'subdir is a directory'
   ensure
-    FakeFS.deactivate!
-    RealFileUtils.rm_rf(here('subdir'))
-    FakeFS.activate!
+    act_on_real_fs { RealFileUtils.rm_rf(here('subdir')) }
   end
 
   def test_clone_clones_dot_files_even_hard_to_find_ones
-    FakeFS.deactivate!
-    RealFileUtils.mkdir_p(here('subdir/.bar/baz/.quux/foo'))
-    FakeFS.activate!
+    act_on_real_fs { RealFileUtils.mkdir_p(here('subdir/.bar/baz/.quux/foo')) }
 
     assert !File.exists?(here('subdir'))
 
@@ -1157,9 +1262,20 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal ['.bar'], FileSystem.find(here('subdir')).keys
     assert_equal ['foo'], FileSystem.find(here('subdir/.bar/baz/.quux')).keys
   ensure
-    FakeFS.deactivate!
-    RealFileUtils.rm_rf(here('subdir'))
-    FakeFS.activate!
+    act_on_real_fs { RealFileUtils.rm_rf(here('subdir')) }
+  end
+
+  def test_clone_with_target_specified
+    act_on_real_fs { RealFileUtils.mkdir_p(here('subdir/.bar/baz/.quux/foo')) }
+
+    assert !File.exists?(here('subdir'))
+
+    FileSystem.clone(here('subdir'), here('subdir2'))
+    assert !File.exists?(here('subdir'))
+    assert_equal ['.bar'], FileSystem.find(here('subdir2')).keys
+    assert_equal ['foo'], FileSystem.find(here('subdir2/.bar/baz/.quux')).keys
+  ensure
+    act_on_real_fs { RealFileUtils.rm_rf(here('subdir')) }
   end
 
   def test_putting_a_dot_at_end_copies_the_contents
@@ -1462,6 +1578,29 @@ class FakeFSTest < Test::Unit::TestCase
   def test_directory_mkdir
     Dir.mkdir('/path')
     assert File.exists?('/path')
+  end
+
+  def test_directory_mkdir_nested
+    Dir.mkdir("/tmp")
+    Dir.mkdir("/tmp/stream20120103-11847-xc8pb.lock")
+    assert File.exists?("/tmp/stream20120103-11847-xc8pb.lock")
+  end
+
+  def test_can_create_subdirectories_with_dir_mkdir
+    Dir.mkdir 'foo'
+    Dir.mkdir 'foo/bar'
+    assert Dir.exists?('foo/bar')
+  end
+
+  def test_can_create_absolute_subdirectories_with_dir_mkdir
+    Dir.mkdir '/foo'
+    Dir.mkdir '/foo/bar'
+    assert Dir.exists?('/foo/bar')
+  end
+
+  def test_can_create_directories_starting_with_dot
+    Dir.mkdir './path'
+    assert File.exists? './path'
   end
 
   def test_directory_mkdir_relative
@@ -1824,6 +1963,57 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal path, "/this/is/what/we"
     assert_equal filename, "expect.txt"
   end
+  
+  #########################
+  def test_file_default_mode
+    FileUtils.touch "foo"
+    assert_equal File.stat("foo").mode, (0100000 + 0666 - File.umask)    
+  end
+  
+  def test_dir_default_mode
+    Dir.mkdir "bar"
+    assert_equal File.stat("bar").mode, (0100000 + 0777 - File.umask)
+  end
+  
+  def test_file_default_uid_and_gid
+    FileUtils.touch "foo"
+    assert_equal File.stat("foo").uid, Process.uid
+    assert_equal File.stat("foo").gid, Process.gid
+  end
+  
+  def test_file_chmod_of_file
+    FileUtils.touch "foo"
+    File.chmod 0600, "foo"
+    assert_equal File.stat("foo").mode, 0100600
+    File.new("foo").chmod 0644
+    assert_equal File.stat("foo").mode, 0100644
+  end
+  
+  def test_file_chmod_of_dir
+    Dir.mkdir "bar"
+    File.chmod 0777, "bar"
+    assert_equal File.stat("bar").mode, 0100777
+    File.new("bar").chmod 01700
+    assert_equal File.stat("bar").mode, 0101700
+  end
+  
+  def test_file_chown_of_file
+    FileUtils.touch "foo"
+    File.chown 1337, 1338, "foo"
+    assert_equal File.stat("foo").uid, 1337
+    assert_equal File.stat("foo").gid, 1338
+  end
+  
+  def test_file_chown_of_dir
+    Dir.mkdir "bar"
+    File.chown 1337, 1338, "bar"
+    assert_equal File.stat("bar").uid, 1337
+    assert_equal File.stat("bar").gid, 1338
+  end 
+  
+  def test_file_umask
+    assert_equal File.umask, RealFile.umask
+  end
 
 
   def here(fname)
@@ -1858,6 +2048,16 @@ class FakeFSTest < Test::Unit::TestCase
     def test_to_path
       File.new("foo", 'w') do |f|
         assert_equal "foo", f.to_path
+      end
+    end
+  end
+  
+  if RUBY_VERSION >= "1.9.3"
+    def test_advise
+      File.open("foo", 'w') do |f|
+        assert_nothing_raised do
+          f.advise(:normal, 0, 0)
+        end
       end
     end
   end

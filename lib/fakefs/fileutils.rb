@@ -11,7 +11,7 @@ module FakeFS
     def mkdir(path)
       parent = path.split('/')
       parent.pop
-      raise Errno::ENOENT, "No such file or directory - #{path}" unless parent.join == "" || FileSystem.find(parent.join('/'))
+      raise Errno::ENOENT, "No such file or directory - #{path}" unless parent.join == "" || parent.join == "." || FileSystem.find(parent.join('/'))
       raise Errno::EEXIST, "File exists - #{path}" if FileSystem.find(path)
       FileSystem.add(path, FakeDir.new)
     end
@@ -56,50 +56,58 @@ module FakeFS
     end
 
     def cp(src, dest)
-      dst_file = FileSystem.find(dest)
-      src_file = FileSystem.find(src)
-
-      if !src_file
-        raise Errno::ENOENT, src
+      if src.is_a?(Array) && !File.directory?(dest)
+        raise Errno::ENOTDIR, dest
       end
 
-      if File.directory? src_file
-        raise Errno::EISDIR, src
-      end
+      Array(src).each do |src|
+        dst_file = FileSystem.find(dest)
+        src_file = FileSystem.find(src)
 
-      if dst_file && File.directory?(dst_file)
-        FileSystem.add(File.join(dest, src), src_file.entry.clone(dst_file))
-      else
-        FileSystem.delete(dest)
-        FileSystem.add(dest, src_file.entry.clone)
+        if !src_file
+          raise Errno::ENOENT, src
+        end
+
+        if File.directory? src_file
+          raise Errno::EISDIR, src
+        end
+
+        if dst_file && File.directory?(dst_file)
+          FileSystem.add(File.join(dest, src), src_file.entry.clone(dst_file))
+        else
+          FileSystem.delete(dest)
+          FileSystem.add(dest, src_file.entry.clone)
+        end
       end
     end
 
     def cp_r(src, dest)
-      # This error sucks, but it conforms to the original Ruby
-      # method.
-      raise "unknown file type: #{src}" unless dir = FileSystem.find(src)
+      Array(src).each do |src|
+        # This error sucks, but it conforms to the original Ruby
+        # method.
+        raise "unknown file type: #{src}" unless dir = FileSystem.find(src)
 
-      new_dir = FileSystem.find(dest)
+        new_dir = FileSystem.find(dest)
 
-      if new_dir && !File.directory?(dest)
-        raise Errno::EEXIST, dest
-      end
-
-      if !new_dir && !FileSystem.find(dest+'/../')
-        raise Errno::ENOENT, dest
-      end
-
-      # This last bit is a total abuse and should be thought hard
-      # about and cleaned up.
-      if new_dir
-        if src[-2..-1] == '/.'
-          dir.values.each{|f| new_dir[f.name] = f.clone(new_dir) }
-        else
-          new_dir[dir.name] = dir.entry.clone(new_dir)
+        if new_dir && !File.directory?(dest)
+          raise Errno::EEXIST, dest
         end
-      else
-        FileSystem.add(dest, dir.entry.clone)
+
+        if !new_dir && !FileSystem.find(dest+'/../')
+          raise Errno::ENOENT, dest
+        end
+
+        # This last bit is a total abuse and should be thought hard
+        # about and cleaned up.
+        if new_dir
+          if src[-2..-1] == '/.'
+            dir.values.each{|f| new_dir[f.name] = f.clone(new_dir) }
+          else
+            new_dir[dir.name] = dir.entry.clone(new_dir)
+          end
+        else
+          FileSystem.add(dest, dir.entry.clone)
+        end
       end
     end
 
@@ -118,7 +126,11 @@ module FakeFS
     def chown(user, group, list, options={})
       list = Array(list)
       list.each do |f|
-        unless File.exists?(f)
+        if File.exists?(f)
+          uid = (user.to_s.match(/[0-9]+/) ? user.to_i : Etc.getpwnam(user).uid)
+          gid = (group.to_s.match(/[0-9]+/) ? group.to_i : Etc.getgrnam(group).gid)
+          File.chown(uid, gid, f)
+        else
           raise Errno::ENOENT, f
         end
       end
@@ -126,7 +138,37 @@ module FakeFS
     end
 
     def chown_R(user, group, list, options={})
-      chown(user, group, list, options={})
+      list = Array(list)
+      list.each do |file|
+        chown(user, group, file)
+        [FileSystem.find("#{file}/**/**")].flatten.each do |f|
+          chown(user, group, f.to_s)
+        end      
+      end
+      list
+    end
+    
+    def chmod(mode, list, options={})
+      list = Array(list)
+      list.each do |f|
+        if File.exists?(f)
+          File.chmod(mode, f)
+        else
+          raise Errno::ENOENT, f
+        end
+      end
+      list
+    end
+    
+    def chmod_R(mode, list, options={})
+      list = Array(list)
+      list.each do |file|
+        chmod(mode, file)
+        [FileSystem.find("#{file}/**/**")].flatten.each do |f|
+          chmod(mode, f.to_s)
+        end      
+      end
+      list
     end
 
     def touch(list, options={})
