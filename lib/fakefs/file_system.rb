@@ -46,19 +46,20 @@ module FakeFS
 
     # copies directories and files from the real filesystem
     # into our fake one
-    def clone(path)
+    def clone(path, target = nil)
       path    = File.expand_path(path)
       pattern = File.join(path, '**', '*')
       files   = RealFile.file?(path) ? [path] : [path] + RealDir.glob(pattern, RealFile::FNM_DOTMATCH)
 
       files.each do |f|
+        target_path = target ? f.gsub(path, target) : f
         if RealFile.file?(f)
           FileUtils.mkdir_p(File.dirname(f))
-          File.open(f, File::WRITE_ONLY) do |g|
+          File.open(target_path, File::WRITE_ONLY) do |g|
             g.print RealFile.open(f){|h| h.read }
           end
         elsif RealFile.directory?(f)
-          FileUtils.mkdir_p(f)
+          FileUtils.mkdir_p(target_path)
         elsif RealFile.symlink?(f)
           FileUtils.ln_s()
         end

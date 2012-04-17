@@ -275,7 +275,7 @@ module FakeFS
 
     def initialize(path, mode = READ_ONLY, perm = nil)
       @path = path
-      @mode = mode
+      @mode = mode.is_a?(Hash) ? (mode[:mode] || READ_ONLY) : mode
       @file = FileSystem.find(path)
       @autoclose = true
 
@@ -283,7 +283,7 @@ module FakeFS
 
       file_creation_mode? ? create_missing_file : check_file_existence!
 
-      super(@file.content, mode)
+      super(@file.content, @mode)
     end
 
     def exists?
