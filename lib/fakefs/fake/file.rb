@@ -1,6 +1,6 @@
 module FakeFS
   class FakeFile
-    attr_accessor :name, :parent, :content, :mtime, :atime
+    attr_accessor :name, :parent, :content, :mtime, :atime, :mode, :uid, :gid
     attr_reader :ctime
 
     class Inode
@@ -36,6 +36,9 @@ module FakeFS
       @ctime  = Time.now
       @mtime  = @ctime
       @atime  = @ctime
+      @mode   = 0100000 + (0666 - File.umask)
+      @uid    = Process.uid
+      @gid    = Process.gid      
     end
 
     attr_accessor :inode

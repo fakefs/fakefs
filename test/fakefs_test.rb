@@ -705,30 +705,83 @@ class FakeFSTest < Test::Unit::TestCase
     good = 'file.txt'
     bad = 'nofile.txt'
     File.open(good,'w') { |f| f.write "foo" }
+    username = Etc.getpwuid(Process.uid).name
+    groupname = Etc.getgrgid(Process.gid).name
 
-    out = FileUtils.chown('noone', 'nogroup', good, :verbose => true)
+    out = FileUtils.chown(1337, 1338, good, :verbose => true)
     assert_equal [good], out
+    assert_equal File.stat(good).uid, 1337
+    assert_equal File.stat(good).gid, 1338
     assert_raises(Errno::ENOENT) do
-      FileUtils.chown('noone', 'nogroup', bad, :verbose => true)
+      FileUtils.chown(username, groupname, bad, :verbose => true)
     end
 
-    assert_equal [good], FileUtils.chown('noone', 'nogroup', good)
+    assert_equal [good], FileUtils.chown(username, groupname, good)
+    assert_equal File.stat(good).uid, Process.uid
+    assert_equal File.stat(good).gid, Process.gid
     assert_raises(Errno::ENOENT) do
-      FileUtils.chown('noone', 'nogroup', bad)
+      FileUtils.chown(username, groupname, bad)
     end
 
-    assert_equal [good], FileUtils.chown('noone', 'nogroup', [good])
+    assert_equal [good], FileUtils.chown(username, groupname, [good])
+    assert_equal File.stat(good).uid, Process.uid
+    assert_equal File.stat(good).gid, Process.gid
     assert_raises(Errno::ENOENT) do
-      FileUtils.chown('noone', 'nogroup', [good, bad])
+      FileUtils.chown(username, groupname, [good, bad])
     end
   end
 
   def test_can_chown_R_files
+    username = Etc.getpwuid(Process.uid).name
+    groupname = Etc.getgrgid(Process.gid).name
     FileUtils.mkdir_p '/path/'
     File.open('/path/foo', 'w') { |f| f.write 'foo' }
     File.open('/path/foobar', 'w') { |f| f.write 'foo' }
-    resp = FileUtils.chown_R('no', 'no', '/path')
-    assert_equal ['/path'], resp
+    assert_equal ['/path'], FileUtils.chown_R(username, groupname, '/path')
+    %w(/path /path/foo /path/foobar).each do |f|
+      assert_equal File.stat(f).uid, Process.uid
+      assert_equal File.stat(f).gid, Process.gid
+    end
+  end
+  
+  def test_can_chmod_files
+    good = "file.txt"
+    bad = "nofile.txt"
+    FileUtils.touch(good)
+    
+    assert_equal [good], FileUtils.chmod(0600, good, :verbose => true)
+    assert_equal File.stat(good).mode, 0100600
+    assert_raises(Errno::ENOENT) do
+      FileUtils.chmod(0600, bad)
+    end
+    
+    assert_equal [good], FileUtils.chmod(0666, good)
+    assert_equal File.stat(good).mode, 0100666
+    assert_raises(Errno::ENOENT) do
+      FileUtils.chmod(0666, bad)
+    end
+    
+    assert_equal [good], FileUtils.chmod(0644, [good])
+    assert_equal File.stat(good).mode, 0100644
+    assert_raises(Errno::ENOENT) do
+      FileUtils.chmod(0644, bad)
+    end    
+  end
+  
+  def test_can_chmod_R_files
+    FileUtils.mkdir_p "/path/sub"
+    FileUtils.touch "/path/file1"
+    FileUtils.touch "/path/sub/file2"
+    
+    assert_equal ["/path"], FileUtils.chmod_R(0600, "/path")
+    assert_equal File.stat("/path").mode, 0100600
+    assert_equal File.stat("/path/file1").mode, 0100600
+    assert_equal File.stat("/path/sub").mode, 0100600
+    assert_equal File.stat("/path/sub/file2").mode, 0100600
+    
+    FileUtils.mkdir_p "/path2"
+    FileUtils.touch "/path2/hej"
+    assert_equal ["/path2"], FileUtils.chmod_R(0600, "/path2")
   end
 
   def test_dir_globs_paths
@@ -1849,6 +1902,57 @@ class FakeFSTest < Test::Unit::TestCase
     path,filename = File.split(filename)
     assert_equal path, "/this/is/what/we"
     assert_equal filename, "expect.txt"
+  end
+  
+  #########################
+  def test_file_default_mode
+    FileUtils.touch "foo"
+    assert_equal File.stat("foo").mode, (0100000 + 0666 - File.umask)    
+  end
+  
+  def test_dir_default_mode
+    Dir.mkdir "bar"
+    assert_equal File.stat("bar").mode, (0100000 + 0777 - File.umask)
+  end
+  
+  def test_file_default_uid_and_gid
+    FileUtils.touch "foo"
+    assert_equal File.stat("foo").uid, Process.uid
+    assert_equal File.stat("foo").gid, Process.gid
+  end
+  
+  def test_file_chmod_of_file
+    FileUtils.touch "foo"
+    File.chmod 0600, "foo"
+    assert_equal File.stat("foo").mode, 0100600
+    File.new("foo").chmod 0644
+    assert_equal File.stat("foo").mode, 0100644
+  end
+  
+  def test_file_chmod_of_dir
+    Dir.mkdir "bar"
+    File.chmod 0777, "bar"
+    assert_equal File.stat("bar").mode, 0100777
+    File.new("bar").chmod 01700
+    assert_equal File.stat("bar").mode, 0101700
+  end
+  
+  def test_file_chown_of_file
+    FileUtils.touch "foo"
+    File.chown 1337, 1338, "foo"
+    assert_equal File.stat("foo").uid, 1337
+    assert_equal File.stat("foo").gid, 1338
+  end
+  
+  def test_file_chown_of_dir
+    Dir.mkdir "bar"
+    File.chown 1337, 1338, "bar"
+    assert_equal File.stat("bar").uid, 1337
+    assert_equal File.stat("bar").gid, 1338
+  end 
+  
+  def test_file_umask
+    assert_equal File.umask, RealFile.umask
   end
 
 

@@ -233,9 +233,25 @@ module FakeFS
     def self.split(path)
       return RealFile.split(path)
     end
+    
+    def self.chmod(mode_int, filename)
+      FileSystem.find(filename).mode = 0100000 + mode_int
+    end
 
+    def self.chown(owner_int, group_int, filename)
+      file = FileSystem.find(filename)
+      owner_int.is_a?(Fixnum) or raise TypeError, "can't convert String into Integer"
+      group_int.is_a?(Fixnum) or raise TypeError, "can't convert String into Integer"
+      file.uid = owner_int
+      file.gid = group_int            
+    end
+        
+    def self.umask
+      RealFile.umask
+    end
+        
     class Stat
-      attr_reader :ctime, :mtime, :atime
+      attr_reader :ctime, :mtime, :atime, :mode, :uid, :gid
 
       def initialize(file, __lstat = false)
         if !File.exists?(file)
@@ -248,6 +264,9 @@ module FakeFS
         @ctime     = @fake_file.ctime
         @mtime     = @fake_file.mtime
         @atime     = @fake_file.atime
+        @mode      = @fake_file.mode
+        @uid       = @fake_file.uid
+        @gid       = @fake_file.gid
       end
 
       def symlink?
@@ -340,14 +359,6 @@ module FakeFS
       self.class.atime(@path)
     end
 
-    def chmod(mode_int)
-      raise NotImplementedError
-    end
-
-    def chown(owner_int, group_int)
-      raise NotImplementedError
-    end
-
     def ctime
       self.class.ctime(@path)
     end
@@ -358,6 +369,17 @@ module FakeFS
 
     def mtime
       self.class.mtime(@path)
+    end
+    
+    def chmod(mode_int)
+      @file.mode = 0100000 + mode_int
+    end
+    
+    def chown(owner_int, group_int)
+      owner_int.is_a?(Fixnum) or raise TypeError, "can't convert String into Integer"
+      group_int.is_a?(Fixnum) or raise TypeError, "can't convert String into Integer"
+      @file.uid = owner_int
+      @file.gid = group_int      
     end
 
     if RUBY_VERSION >= "1.9"

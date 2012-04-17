@@ -1,14 +1,18 @@
 module FakeFS
   class FakeDir < Hash
-    attr_accessor :name, :parent
-    attr_reader :ctime, :mtime, :atime
+    attr_accessor :name, :parent, :mode, :uid, :gid
+    attr_reader :ctime, :mtime, :atime, :content
 
     def initialize(name = nil, parent = nil)
-      @name   = name
-      @parent = parent
-      @ctime  = Time.now
-      @mtime  = @ctime
-      @atime  = @ctime
+      @name    = name
+      @parent  = parent
+      @ctime   = Time.now
+      @mtime   = @ctime
+      @atime   = @ctime
+      @mode    = 0100000 + (0777 - File.umask)
+      @uid     = Process.uid
+      @gid     = Process.gid
+      @content = ""
     end
 
     def entry
