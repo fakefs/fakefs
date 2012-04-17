@@ -1,5 +1,5 @@
 module FakeFS
-  class FakeDir < Hash
+  class FakeDir
     attr_accessor :name, :parent, :mode, :uid, :gid
     attr_reader :ctime, :mtime, :atime, :content
 
@@ -13,6 +13,7 @@ module FakeFS
       @uid     = Process.uid
       @gid     = Process.gid
       @content = ""
+      @entries = {}
     end
 
     def entry
@@ -20,12 +21,12 @@ module FakeFS
     end
 
     def inspect
-      "(FakeDir name:#{name.inspect} parent:#{parent.to_s.inspect} size:#{size})"
+      "(FakeDir name:#{name.inspect} parent:#{parent.to_s.inspect} size:#{@entries.size})"
     end
 
     def clone(parent = nil)
       clone = Marshal.load(Marshal.dump(self))
-      clone.each do |key, value|
+      clone.entries.each do |value|
         value.parent = clone
       end
       clone.parent = parent if parent
@@ -42,11 +43,31 @@ module FakeFS
       end
     end
 
+    def empty?
+      @entries.empty?
+    end
+
+    def entries
+      @entries.values
+    end
+
+    def matches(pattern)
+      @entries.reject {|k,v| pattern !~ k }.values
+    end
+
+    def [](name)
+      @entries[name]
+    end
+
+    def []=(name, value)
+      @entries[name] = value
+    end
+
     def delete(node = self)
       if node == self
         parent.delete(self)
       else
-        super(node.name)
+        @entries.delete(node.name)
       end
     end
   end

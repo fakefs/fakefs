@@ -931,14 +931,14 @@ class FakeFSTest < Test::Unit::TestCase
     # I know memes!
     FileUtils.mkdir_p '/path'
     assert_equal '/', FileSystem.fs.name
-    assert_equal({}, FileSystem.fs['path'])
+    assert_equal [], Dir.glob('/path/*')
     Dir.chdir '/path' do
       File.open('foo', 'w') { |f| f.write 'foo'}
       File.open('foobar', 'w') { |f| f.write 'foo'}
     end
 
     assert_equal '/', FileSystem.fs.name
-    assert_equal(['foo', 'foobar'], FileSystem.fs['path'].keys.sort)
+    assert_equal(['/path/foo', '/path/foobar'], Dir.glob('/path/*').sort)
 
     c = nil
     Dir.chdir '/path' do
@@ -955,16 +955,16 @@ class FakeFSTest < Test::Unit::TestCase
       File.open('foo', 'w') { |f| f.write 'foo'}
       File.open('/foobar', 'w') { |f| f.write 'foo'}
     end
-    assert_equal ['foo'], FileSystem.fs['path'].keys.sort
-    assert_equal ['foobar', 'path'], FileSystem.fs.keys.sort
+    assert_equal ['/path/foo'], Dir.glob('/path/*').sort
+    assert_equal ['/foobar', '/path'], Dir.glob('/*').sort
 
     Dir.chdir '/path' do
       FileUtils.rm('foo')
       FileUtils.rm('/foobar')
     end
 
-    assert_equal [], FileSystem.fs['path'].keys.sort
-    assert_equal ['path'], FileSystem.fs.keys.sort
+    assert_equal [], Dir.glob('/path/*').sort
+    assert_equal ['/path'], Dir.glob('/*').sort
   end
 
   def test_chdir_should_be_nestable
@@ -976,8 +976,8 @@ class FakeFSTest < Test::Unit::TestCase
       end
     end
 
-    assert_equal ['foo','me'], FileSystem.fs['path'].keys.sort
-    assert_equal ['foobar'], FileSystem.fs['path']['me'].keys.sort
+    assert_equal ['/path/foo','/path/me'], Dir.glob('/path/*').sort
+    assert_equal ['/path/me/foobar'], Dir.glob('/path/me/*').sort
   end
 
   def test_chdir_should_flop_over_and_die_if_the_dir_doesnt_exist
@@ -1012,23 +1012,23 @@ class FakeFSTest < Test::Unit::TestCase
       assert_equal ['/path'], FileSystem.dir_levels
     end
 
-    assert_equal(['foo', 'foobar'], FileSystem.fs['path'].keys.sort)
+    assert_equal(['/path/foo', '/path/foobar'], Dir.glob('/path/*').sort)
   end
 
   def test_chdir_with_no_block_is_awesome
     FileUtils.mkdir_p '/path'
     Dir.chdir('/path')
     FileUtils.mkdir_p 'subdir'
-    assert_equal ['subdir'], FileSystem.current_dir.keys
+    assert_equal ['subdir'], Dir.glob('*')
     Dir.chdir('subdir')
     File.open('foo', 'w') { |f| f.write 'foo'}
-    assert_equal ['foo'], FileSystem.current_dir.keys
+    assert_equal ['foo'], Dir.glob('*')
 
     assert_raises(Errno::ENOENT) do
       Dir.chdir('subsubdir')
     end
 
-    assert_equal ['foo'], FileSystem.current_dir.keys
+    assert_equal ['foo'], Dir.glob('*')
   end
 
   def test_current_dir_reflected_by_pwd
@@ -1259,8 +1259,8 @@ class FakeFSTest < Test::Unit::TestCase
     assert !File.exists?(here('subdir'))
 
     FileSystem.clone(here('subdir'))
-    assert_equal ['.bar'], FileSystem.find(here('subdir')).keys
-    assert_equal ['foo'], FileSystem.find(here('subdir/.bar/baz/.quux')).keys
+    assert_equal ['.', '..', '.bar'], Dir.entries(here('subdir'))
+    assert_equal ['.', '..', 'foo'], Dir.entries(here('subdir/.bar/baz/.quux'))
   ensure
     act_on_real_fs { RealFileUtils.rm_rf(here('subdir')) }
   end
@@ -1272,8 +1272,8 @@ class FakeFSTest < Test::Unit::TestCase
 
     FileSystem.clone(here('subdir'), here('subdir2'))
     assert !File.exists?(here('subdir'))
-    assert_equal ['.bar'], FileSystem.find(here('subdir2')).keys
-    assert_equal ['foo'], FileSystem.find(here('subdir2/.bar/baz/.quux')).keys
+    assert_equal ['.', '..', '.bar'], Dir.entries(here('subdir2'))
+    assert_equal ['.', '..', 'foo'], Dir.entries(here('subdir2/.bar/baz/.quux'))
   ensure
     act_on_real_fs { RealFileUtils.rm_rf(here('subdir')) }
   end
