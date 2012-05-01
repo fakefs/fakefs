@@ -101,8 +101,10 @@ module FakeFS
       return block_given? ? files.each { |file| block.call(file) } : files
     end
 
-    def self.home(user = nil)
-      RealDir.home(user)
+    if RUBY_VERSION >= "1.9"
+      def self.home(user = nil)
+        RealDir.home(user)
+      end
     end
 
     def self.mkdir(string, integer = 0)

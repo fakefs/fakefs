@@ -860,8 +860,10 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal 2, yielded.size
   end
 
-  def test_dir_home
-    assert_equal RealDir.home, Dir.home
+  if RUBY_VERSION >= "1.9"
+    def test_dir_home
+      assert_equal RealDir.home, Dir.home
+    end
   end
 
   def test_should_report_pos_as_0_when_opening
