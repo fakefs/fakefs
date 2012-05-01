@@ -70,11 +70,13 @@ FakeFS::SpecHelpers to turn FakeFS on and off in a given example group:
 See `lib/fakefs/spec_helpers.rb` for more info.
 
 
-Integrating with other file system libraries
+Integrating with other filesystem libraries
 --------------------------------------------
-Libraries like [FileMagic](https://rubygems.org/gems/ruby-filemagic) add
-additional functionality to the File class. These should be monkey-patched in
-your test harness' helper file.
+Third-party libraries may add methods to filesystem-related classes. FakeFS
+doesn't support these methods out of the box, but you can define fake versions
+yourself on the equivalent FakeFS classes. For example,
+[FileMagic](https://rubygems.org/gems/ruby-filemagic) adds `File#content_type`.
+A fake version can be provided as follows:
 
     module FakeFS
       class File
@@ -110,7 +112,7 @@ Speed?
 Installation
 ------------
 
-### [Gemcutter](http://gemcutter.org/)
+### [RubyGems](http://rubygems.org/)
 
     $ gem install fakefs
 
@@ -127,7 +129,7 @@ Once you've made your great commits:
 1. [Fork][0] FakeFS
 2. Create a topic branch - `git checkout -b my_branch`
 3. Push to your branch - `git push origin my_branch`
-4. Create an [Issue][1] with a link to your branch
+5. Open a [Pull Request][1]
 5. That's it!
 
 Meta
@@ -142,7 +144,7 @@ Meta
 * Gems: <http://gemcutter.org/gems/fakefs>
 
 [0]: http://help.github.com/forking/
-[1]: http://github.com/defunkt/fakefs/issues
+[1]: http://help.github.com/send-pull-requests/
 
 Releasing
 ---------
