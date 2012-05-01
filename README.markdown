@@ -140,8 +140,8 @@ Meta
 * Docs: <http://defunkt.github.com/fakefs>
 * Bugs: <http://github.com/defunkt/fakefs/issues>
 * List: <http://groups.google.com/group/fakefs>
-* Test: <http://runcoderun.com/defunkt/fakefs>
-* Gems: <http://gemcutter.org/gems/fakefs>
+* Test: <http://travisci.org/#!/defunkt/fakefs>
+* Gems: <http://rubygems.org/gems/fakefs>
 
 [0]: http://help.github.com/forking/
 [1]: http://help.github.com/send-pull-requests/
