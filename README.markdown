@@ -70,6 +70,21 @@ FakeFS::SpecHelpers to turn FakeFS on and off in a given example group:
 See `lib/fakefs/spec_helpers.rb` for more info.
 
 
+Integrating with other file system libraries
+--------------------------------------------
+Libraries like [FileMagic](https://rubygems.org/gems/ruby-filemagic) add
+additional functionality to the File class. These should be monkey-patched in
+your test harness' helper file.
+
+    module FakeFS
+      class File
+        def content_type
+          'fake/file'
+        end
+      end
+    end
+
+
 How is this different than MockFS?
 ----------------------------------
 
