@@ -28,6 +28,7 @@ Gem::Specification.new do |s|
     "lib/fakefs.rb",
     "lib/fakefs/base.rb",
     "lib/fakefs/dir.rb",
+    "lib/fakefs/pathname.rb",
     "lib/fakefs/fake/dir.rb",
     "lib/fakefs/fake/file.rb",
     "lib/fakefs/fake/symlink.rb",
