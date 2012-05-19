@@ -7,20 +7,24 @@ filesystem, you really want to test the behavior and not the implementation.
 If you're mocking and stubbing every call to FileUtils or File, you're
 tightly coupling your tests with the implementation.
 
-    def test_creates_directory
-      FileUtils.expects(:mkdir).with("directory").once
-      Library.add "directory"
-    end
+``` ruby
+def test_creates_directory
+  FileUtils.expects(:mkdir).with("directory").once
+  Library.add "directory"
+end
+```
 
 The above test will break if we decide to use `mkdir_p` in our code. Refactoring
 code shouldn't necessitate refactoring tests.
 
 With FakeFS:
 
-    def test_creates_directory
-      Library.add "directory"
-      assert File.directory?("directory")
-    end
+``` ruby
+def test_creates_directory
+  Library.add "directory"
+  assert File.directory?("directory")
+end
+```
 
 Woot.
 
@@ -28,24 +32,27 @@ Woot.
 Usage
 -----
 
-    require 'fakefs'
+``` ruby
+require 'fakefs'
 
-    # That's it.
-
+# That's it.
+```
 
 Don't Fake the FS Immediately
 -----------------------------
 
-    require 'fakefs/safe'
+``` ruby
+require 'fakefs/safe'
 
-    FakeFS.activate!
-    # your code
-    FakeFS.deactivate!
+FakeFS.activate!
+# your code
+FakeFS.deactivate!
 
-    # or
-    FakeFS do
-      # your code
-    end
+# or
+FakeFS do
+  # your code
+end
+```
 
 Rails
 -----
@@ -61,11 +68,13 @@ RSpec
 The above approach works with RSpec as well. In addition you may include
 FakeFS::SpecHelpers to turn FakeFS on and off in a given example group:
 
-    require 'fakefs/spec_helpers'
+``` ruby
+require 'fakefs/spec_helpers'
 
-    describe "my spec" do
-      include FakeFS::SpecHelpers
-    end
+describe "my spec" do
+  include FakeFS::SpecHelpers
+end
+```
 
 See `lib/fakefs/spec_helpers.rb` for more info.
 
@@ -78,14 +87,15 @@ yourself on the equivalent FakeFS classes. For example,
 [FileMagic](https://rubygems.org/gems/ruby-filemagic) adds `File#content_type`.
 A fake version can be provided as follows:
 
-    module FakeFS
-      class File
-        def content_type
-          'fake/file'
-        end
-      end
+``` ruby
+module FakeFS
+  class File
+    def content_type
+      'fake/file'
     end
-
+  end
+end
+```
 
 How is this different than MockFS?
 ----------------------------------
