@@ -101,6 +101,13 @@ class FakeFSTest < Test::Unit::TestCase
     assert File.directory?(sympath)
   end
 
+  def test_knows_directories_with_plusses_are_directories
+    plus_path = "/path/plus/one\+two/something"
+    FileUtils.mkdir_p(plus_path)
+    assert File.directory?(plus_path)
+    exit
+  end
+
   def test_knows_non_existent_directories_arent_directories
     path = 'does/not/exist/'
     assert_equal RealFile.directory?(path), File.directory?(path)
