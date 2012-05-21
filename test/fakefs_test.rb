@@ -96,10 +96,10 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_knows_directories_are_directories_with_periods
-    FileUtils.mkdir_p(periodPath = "/path/to/periodfiles/one.one")
+    FileUtils.mkdir_p(period_path = "/path/to/periodfiles/one.one")
     FileUtils.mkdir("/path/to/periodfiles/one-one")
 
-    assert File.directory?(periodPath)
+    assert File.directory?(period_path)
   end
 
   def test_knows_symlink_directories_are_directories
