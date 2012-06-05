@@ -1059,7 +1059,7 @@ class FakeFSTest < Test::Unit::TestCase
 
   def test_mv_should_raise_error_on_missing_file
     assert_raise(Errno::ENOENT) do
-      FileUtils.mv 'blafgag', 'foo'
+      FileUtils.mv 'blafgag', 'destdir'
     end
     exception = assert_raise(Errno::ENOENT) do
       FileUtils.mv ['foo', 'bar'], 'destdir'
