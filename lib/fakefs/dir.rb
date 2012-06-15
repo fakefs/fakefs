@@ -120,7 +120,11 @@ module FakeFS
     end
 
     def self.tmpdir
-      '/tmp'
+      if OS.windows?
+        'C:\Users\Admin\AppData\Local\Temp'
+      else
+        '/tmp'
+      end
     end
 
     def self.pwd
