@@ -1,3 +1,5 @@
+require 'fakefs/os'
+
 module FakeFS
   class Dir
     include Enumerable
