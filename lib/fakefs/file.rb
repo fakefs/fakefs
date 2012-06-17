@@ -149,7 +149,7 @@ module FakeFS
       symlink.target
     end
 
-    def self.read(path)
+    def self.read(path, *args)
       file = new(path)
       if file.exists?
         FileSystem.find(path).atime = Time.now

@@ -412,6 +412,15 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal "Yatta!", File.read(path)
   end
 
+  def test_file_read_accepts_hashes
+    path = 'file.txt'
+    File.open(path, 'w') do |f|
+      f.write 'Yatta!'
+    end
+
+    assert_nothing_raised { File.read(path, :mode => 'r:UTF-8:-') }
+  end
+
   def test_can_write_to_files
     path = 'file.txt'
     File.open(path, 'w') do |f|
