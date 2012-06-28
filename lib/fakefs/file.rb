@@ -15,16 +15,16 @@ module FakeFS
 
     FILE_CREATION_MODES = MODES - [READ_ONLY, READ_WRITE]
 
-    MODE_BITMASK = RealFile::RDONLY   |
-                   RealFile::WRONLY   |
-                   RealFile::RDWR     |
-                   RealFile::APPEND   |
-                   RealFile::CREAT    |
-                   RealFile::EXCL     |
-                   RealFile::NONBLOCK |
-                   RealFile::TRUNC    |
-                   RealFile::NOCTTY   |
-                   RealFile::SYNC
+    #MODE_BITMASK = RealFile::RDONLY   |
+    #               RealFile::WRONLY   |
+    #               RealFile::RDWR     |
+    #               RealFile::APPEND   |
+    #               RealFile::CREAT    |
+    #               RealFile::EXCL     |
+    #               RealFile::NONBLOCK |
+    #               RealFile::TRUNC    |
+    #               RealFile::NOCTTY   |
+    #               RealFile::SYNC
 
     FILE_CREATION_BITMASK = RealFile::CREAT
 
