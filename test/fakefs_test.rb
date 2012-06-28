@@ -1815,7 +1815,7 @@ class FakeFSTest < Test::Unit::TestCase
     File.link("/foo", "/bar")
 
     File.unlink("/bar")
-    File.read("/foo") == "some_content"
+    assert_equal "some_content", File.read("/foo")
   end
 
   def test_link_reports_correct_stat_info_after_unlinking
