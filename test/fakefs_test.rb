@@ -71,6 +71,12 @@ class FakeFSTest < Test::Unit::TestCase
     end
   end
 
+  def test_unlink_doesnt_error_on_file_not_found_when_forced
+    assert_nothing_raised do
+      FileUtils.rm("/foo", :force => true)
+    end
+  end
+
   def test_can_delete_directories
     FileUtils.mkdir_p("/path/to/dir")
     FileUtils.rmdir("/path/to/dir")
