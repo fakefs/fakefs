@@ -6,3 +6,5 @@ docs
 pkg
 fakefs.gemspec
 .rbx
+.idea
+.bundle
