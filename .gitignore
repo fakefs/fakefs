@@ -2,3 +2,5 @@
 pkg
 Gemfile.lock
 .rbenv-version
+.idea
+.bundle
