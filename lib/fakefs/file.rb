@@ -277,6 +277,14 @@ module FakeFS
         File.directory?(@file)
       end
 
+      # assumes, like above, that all files are readable and writable
+      def readable?
+        true
+      end
+      def writable?
+        true
+      end
+
       def nlink
         @fake_file.links.size
       end
