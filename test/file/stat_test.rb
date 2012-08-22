@@ -54,6 +54,18 @@ class FileStatTest < Test::Unit::TestCase
     assert File::Stat.new("/foo").directory?
   end
 
+  def test_writable_is_true
+    touch("/foo")
+
+    assert File::Stat.new("/foo").writable?
+  end
+
+  def test_readable_is_true
+    touch("/foo")
+
+    assert File::Stat.new("/foo").readable?
+  end
+
   def test_one_file_has_hard_link
     touch "testfile"
     assert_equal 1, File.stat("testfile").nlink
