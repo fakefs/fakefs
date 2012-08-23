@@ -296,6 +296,10 @@ module FakeFS
           File.size(@file)
         end
       end
+
+      def zero?
+        size == 0
+      end
     end
 
     attr_reader :path
