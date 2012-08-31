@@ -656,7 +656,7 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal "Yatta!", File.new(path).read
   end
 
-  if RUBY_VERSION >= "1.9" 
+  if RUBY_VERSION >= "1.9"
     def test_file_object_has_default_external_encoding
       Encoding.default_external = "UTF-8"
       path = 'file.txt'
@@ -752,42 +752,42 @@ class FakeFSTest < Test::Unit::TestCase
       assert_equal File.stat(f).gid, Process.gid
     end
   end
-  
+
   def test_can_chmod_files
     good = "file.txt"
     bad = "nofile.txt"
     FileUtils.touch(good)
-    
+
     assert_equal [good], FileUtils.chmod(0600, good, :verbose => true)
     assert_equal File.stat(good).mode, 0100600
     assert_raises(Errno::ENOENT) do
       FileUtils.chmod(0600, bad)
     end
-    
+
     assert_equal [good], FileUtils.chmod(0666, good)
     assert_equal File.stat(good).mode, 0100666
     assert_raises(Errno::ENOENT) do
       FileUtils.chmod(0666, bad)
     end
-    
+
     assert_equal [good], FileUtils.chmod(0644, [good])
     assert_equal File.stat(good).mode, 0100644
     assert_raises(Errno::ENOENT) do
       FileUtils.chmod(0644, bad)
-    end    
+    end
   end
-  
+
   def test_can_chmod_R_files
     FileUtils.mkdir_p "/path/sub"
     FileUtils.touch "/path/file1"
     FileUtils.touch "/path/sub/file2"
-    
+
     assert_equal ["/path"], FileUtils.chmod_R(0600, "/path")
     assert_equal File.stat("/path").mode, 0100600
     assert_equal File.stat("/path/file1").mode, 0100600
     assert_equal File.stat("/path/sub").mode, 0100600
     assert_equal File.stat("/path/sub/file2").mode, 0100600
-    
+
     FileUtils.mkdir_p "/path2"
     FileUtils.touch "/path2/hej"
     assert_equal ["/path2"], FileUtils.chmod_R(0600, "/path2")
@@ -917,18 +917,15 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal 1, fp.pos
   end
 
-  # Every method in File is in FakeFS::File
-  RealFile.instance_methods.each do |method_name|
-    define_method "test_should_have_method_#{method_name}_from_real_file_class" do
+  def test_every_method_in_file_is_in_fake_fs_file
+    RealFile.instance_methods.each do |method_name|
       assert File.instance_methods.include?(method_name)
     end
   end
 
-  # No methods which are in StringIO that aren't in File are included into
-  # FakeFS::File (because of inheritence)
-  uniq_string_io_methods = StringIO.instance_methods - RealFile.instance_methods
-  uniq_string_io_methods.each do |method_name|
-    define_method "test_file_should_not_respond_to_#{method_name}" do
+  def test_file_should_not_respond_to_string_io_unique_methods
+    uniq_string_io_methods = StringIO.instance_methods - RealFile.instance_methods
+    uniq_string_io_methods.each do |method_name|
       assert !File.instance_methods.include?(method_name)
     end
   end
@@ -1974,24 +1971,24 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal path, "/this/is/what/we"
     assert_equal filename, "expect.txt"
   end
-  
+
   #########################
   def test_file_default_mode
     FileUtils.touch "foo"
-    assert_equal File.stat("foo").mode, (0100000 + 0666 - File.umask)    
+    assert_equal File.stat("foo").mode, (0100000 + 0666 - File.umask)
   end
-  
+
   def test_dir_default_mode
     Dir.mkdir "bar"
     assert_equal File.stat("bar").mode, (0100000 + 0777 - File.umask)
   end
-  
+
   def test_file_default_uid_and_gid
     FileUtils.touch "foo"
     assert_equal File.stat("foo").uid, Process.uid
     assert_equal File.stat("foo").gid, Process.gid
   end
-  
+
   def test_file_chmod_of_file
     FileUtils.touch "foo"
     File.chmod 0600, "foo"
@@ -1999,7 +1996,7 @@ class FakeFSTest < Test::Unit::TestCase
     File.new("foo").chmod 0644
     assert_equal File.stat("foo").mode, 0100644
   end
-  
+
   def test_file_chmod_of_dir
     Dir.mkdir "bar"
     File.chmod 0777, "bar"
@@ -2007,21 +2004,21 @@ class FakeFSTest < Test::Unit::TestCase
     File.new("bar").chmod 01700
     assert_equal File.stat("bar").mode, 0101700
   end
-  
+
   def test_file_chown_of_file
     FileUtils.touch "foo"
     File.chown 1337, 1338, "foo"
     assert_equal File.stat("foo").uid, 1337
     assert_equal File.stat("foo").gid, 1338
   end
-  
+
   def test_file_chown_of_dir
     Dir.mkdir "bar"
     File.chown 1337, 1338, "bar"
     assert_equal File.stat("bar").uid, 1337
     assert_equal File.stat("bar").gid, 1338
-  end 
-  
+  end
+
   def test_file_umask
     assert_equal File.umask, RealFile.umask
   end
@@ -2062,7 +2059,7 @@ class FakeFSTest < Test::Unit::TestCase
       end
     end
   end
-  
+
   if RUBY_VERSION >= "1.9.3"
     def test_advise
       File.open("foo", 'w') do |f|
