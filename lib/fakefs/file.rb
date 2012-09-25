@@ -23,8 +23,8 @@ module FakeFS
                    RealFile::EXCL     |
                    RealFile::NONBLOCK |
                    RealFile::TRUNC    |
-                   RealFile::NOCTTY   |
-                   RealFile::SYNC
+                   (RealFile.const_defined?(:NOCTTY) ? RealFile::NOCTTY : 0)   |
+                   (RealFile.const_defined?(:SYNC) ? RealFile::SYNC : 0)
 
     FILE_CREATION_BITMASK = RealFile::CREAT
 
