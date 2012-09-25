@@ -1273,6 +1273,14 @@ class FakeFSTest < Test::Unit::TestCase
     act_on_real_fs { RealFileUtils.rm_rf(here('subdir')) }
   end
 
+  def test_dir_glob_on_clone_with_absolute_path
+    act_on_real_fs { RealFileUtils.mkdir_p(here('subdir/.bar/baz/.quux/foo')) }
+    FileUtils.mkdir_p '/path'
+    Dir.chdir('/path')
+    FileSystem.clone(here('subdir'), "/foo")
+    assert Dir.glob "/foo/*"
+  end
+
   def test_clone_with_target_specified
     act_on_real_fs { RealFileUtils.mkdir_p(here('subdir/.bar/baz/.quux/foo')) }
 
