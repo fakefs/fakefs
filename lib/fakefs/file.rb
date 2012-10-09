@@ -317,6 +317,11 @@ module FakeFS
     undef_method :size
     undef_method :string
     undef_method :string=
+    if RUBY_PLATFORM == 'java'
+      undef_method :to_channel
+      undef_method :to_outputstream
+      undef_method :to_inputstream
+    end
 
     def ioctl(integer_cmd, arg)
       raise NotImplementedError
