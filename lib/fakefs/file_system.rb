@@ -86,7 +86,7 @@ module FakeFS
     end
 
     def path_parts(path)
-      path.split(File::SEPARATOR).reject { |part| part.empty? }
+      drop_root(path.split(File::SEPARATOR)).reject { |part| part.empty? }
     end
 
     def normalize_path(path)
@@ -103,6 +103,14 @@ module FakeFS
     end
 
     private
+
+    def drop_root(path_parts)
+      # we need to remove parts from root dir at least for windows and jruby
+      return path_parts if path_parts.nil? || path_parts.empty?
+      root = File.expand_path('/').split(File::SEPARATOR).first
+      path_parts.shift if path_parts.first == root
+      path_parts
+    end
 
     def find_recurser(dir, parts)
       return [] unless dir.respond_to? :[]
