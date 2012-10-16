@@ -919,14 +919,14 @@ class FakeFSTest < Test::Unit::TestCase
 
   def test_every_method_in_file_is_in_fake_fs_file
     RealFile.instance_methods.each do |method_name|
-      assert File.instance_methods.include?(method_name)
+      assert File.instance_methods.include?(method_name), "#{method_name} method is not available in File :("
     end
   end
 
   def test_file_should_not_respond_to_string_io_unique_methods
     uniq_string_io_methods = StringIO.instance_methods - RealFile.instance_methods
     uniq_string_io_methods.each do |method_name|
-      assert !File.instance_methods.include?(method_name)
+      assert !File.instance_methods.include?(method_name), "File responds to #{method_name}"
     end
   end
 
