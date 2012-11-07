@@ -1,4 +1,4 @@
-FakeFS
+FakeFS [![build status](https://secure.travis-ci.org/defunkt/fakefs.png)](https://secure.travis-ci.org/defunkt/fakefs)
 ======
 
 Mocha is great. But when your library is all about manipulating the
