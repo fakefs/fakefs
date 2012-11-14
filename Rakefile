@@ -42,12 +42,6 @@ rescue LoadError
   puts "Install it with: gem install jeweler"
 end
 
-begin
-  require 'sdoc_helpers'
-rescue LoadError
-  puts "sdoc support not enabled. Please gem install sdoc-helpers."
-end
-
 desc "Build a gem"
 task :gem => [ :gemspec, :build ]
 

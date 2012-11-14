@@ -21,11 +21,6 @@ GEM
     rspec-expectations (2.12.0)
       diff-lcs (~> 1.1.3)
     rspec-mocks (2.12.0)
-    sdoc (0.3.19)
-      json (>= 1.1.3)
-      rdoc (~> 3.10)
-    sdoc-helpers (0.1.4)
-      sdoc (~> 0.2)
 
 PLATFORMS
   ruby
@@ -34,4 +29,3 @@ DEPENDENCIES
   jeweler
   rdiscount
   rspec
-  sdoc-helpers

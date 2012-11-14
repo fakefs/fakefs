@@ -231,7 +231,7 @@ module FakeFS
     def self.split(path)
       return RealFile.split(path)
     end
-    
+
     def self.chmod(mode_int, filename)
       FileSystem.find(filename).mode = 0100000 + mode_int
     end
@@ -241,13 +241,13 @@ module FakeFS
       owner_int.is_a?(Fixnum) or raise TypeError, "can't convert String into Integer"
       group_int.is_a?(Fixnum) or raise TypeError, "can't convert String into Integer"
       file.uid = owner_int
-      file.gid = group_int            
+      file.gid = group_int
     end
-        
+
     def self.umask
       RealFile.umask
     end
-        
+
     class Stat
       attr_reader :ctime, :mtime, :atime, :mode, :uid, :gid
 
@@ -373,16 +373,16 @@ module FakeFS
     def mtime
       self.class.mtime(@path)
     end
-    
+
     def chmod(mode_int)
       @file.mode = 0100000 + mode_int
     end
-    
+
     def chown(owner_int, group_int)
       owner_int.is_a?(Fixnum) or raise TypeError, "can't convert String into Integer"
       group_int.is_a?(Fixnum) or raise TypeError, "can't convert String into Integer"
       @file.uid = owner_int
-      @file.gid = group_int      
+      @file.gid = group_int
     end
 
     if RUBY_VERSION >= "1.9"
@@ -410,26 +410,18 @@ module FakeFS
         @autoclose
       end
 
+      def autoclose?
+        @autoclose ? true : false
+      end
+
+      def autoclose=(autoclose)
+        @autoclose = autoclose
+      end
+
       alias_method :fdatasync, :flush
 
       def size
         File.size(@path)
-      end
-
-      def fdatasync
-        raise NotImplementedError
-      end
-
-      def size
-        raise NotImplementedError
-      end
-
-      def autoclose?
-        raise NotImplementedError
-      end
-
-      def autoclose=(*args)
-        raise NotImplementedError
       end
     end
 
@@ -437,7 +429,7 @@ module FakeFS
       def advise(advice, offset=0, len=0)
       end
     end
-    
+
   private
 
     def check_modes!
