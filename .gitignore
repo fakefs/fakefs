@@ -3,3 +3,5 @@ pkg
 Gemfile.lock
 .rbenv-version
 docs
+pkg
+fakefs.gemspec
