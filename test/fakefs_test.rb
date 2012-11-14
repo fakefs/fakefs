@@ -529,7 +529,8 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_ctime_mtime_and_atime_are_equal_for_new_files
-    File.open("foo", "w") { |f| f << "some content" }
+    FileUtils.touch('foo')
+
     ctime = File.ctime("foo")
     mtime = File.mtime("foo")
     atime = File.atime("foo")

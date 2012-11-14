@@ -143,11 +143,11 @@ module FakeFS
         chown(user, group, file)
         [FileSystem.find("#{file}/**/**")].flatten.each do |f|
           chown(user, group, f.to_s)
-        end      
+        end
       end
       list
     end
-    
+
     def chmod(mode, list, options={})
       list = Array(list)
       list.each do |f|
@@ -159,26 +159,27 @@ module FakeFS
       end
       list
     end
-    
+
     def chmod_R(mode, list, options={})
       list = Array(list)
       list.each do |file|
         chmod(mode, file)
         [FileSystem.find("#{file}/**/**")].flatten.each do |f|
           chmod(mode, f.to_s)
-        end      
+        end
       end
       list
     end
 
     def touch(list, options={})
       Array(list).each do |f|
-        directory = File.dirname(f)
-        # FIXME this explicit check for '.' shouldn't need to happen
-        if File.exists?(directory) || directory == '.'
-          FileSystem.add(f, FakeFile.new)
+        if fs = FileSystem.find(f)
+          now = Time.now
+          fs.mtime = now
+          fs.atime = now
         else
-          raise Errno::ENOENT, f
+          f = File.open(f, 'w')
+          f.close
         end
       end
     end

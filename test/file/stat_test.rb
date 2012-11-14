@@ -90,4 +90,20 @@ class FileStatTest < Test::Unit::TestCase
     FileUtils.touch('testfile2')
     assert File.stat('testfile2').zero?, "testfile2 has size 0, but stat lied"
   end
+
+  def test_touch_modifies_mtime
+    FileUtils.touch("/foo")
+    mtime = File.mtime("/foo")
+
+    FileUtils.touch("/foo")
+    assert File.mtime("/foo") > mtime
+  end
+
+  def test_writing_to_file_modifies_mtime
+    FileUtils.touch("/foo")
+    mtime = File.mtime("/foo")
+
+    File.open('/foo', 'w') { |f| f << 'test' }
+    assert File.mtime("/foo") > mtime
+  end
 end

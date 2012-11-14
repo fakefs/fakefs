@@ -1,7 +1,7 @@
 module FakeFS
   class FakeDir
-    attr_accessor :name, :parent, :mode, :uid, :gid
-    attr_reader :ctime, :mtime, :atime, :content
+    attr_accessor :name, :parent, :mode, :uid, :gid, :mtime, :atime
+    attr_reader :ctime, :content
 
     def initialize(name = nil, parent = nil)
       @name    = name
