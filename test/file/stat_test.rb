@@ -54,6 +54,18 @@ class FileStatTest < Test::Unit::TestCase
     assert File::Stat.new("/foo").directory?
   end
 
+  def test_writable_is_true
+    touch("/foo")
+
+    assert File::Stat.new("/foo").writable?
+  end
+
+  def test_readable_is_true
+    touch("/foo")
+
+    assert File::Stat.new("/foo").readable?
+  end
+
   def test_one_file_has_hard_link
     touch "testfile"
     assert_equal 1, File.stat("testfile").nlink
@@ -69,5 +81,13 @@ class FileStatTest < Test::Unit::TestCase
   def test_file_size
     File.open('testfile', 'w') { |f| f << 'test' }
     assert_equal 4, File.stat('testfile').size
+  end
+
+  def test_file_zero?
+    File.open('testfile', 'w') { |f| f << 'test' }
+    refute File.stat('testfile').zero?, "testfile has size 4, not zero"
+
+    FileUtils.touch('testfile2')
+    assert File.stat('testfile2').zero?, "testfile2 has size 0, but stat lied"
   end
 end
