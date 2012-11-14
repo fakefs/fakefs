@@ -5,3 +5,4 @@ Gemfile.lock
 docs
 pkg
 fakefs.gemspec
+.rbx
