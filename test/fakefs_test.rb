@@ -1292,6 +1292,8 @@ class FakeFSTest < Test::Unit::TestCase
     Dir.chdir('/path')
     FileSystem.clone(here('subdir'), "/foo")
     assert Dir.glob "/foo/*"
+  ensure
+    act_on_real_fs { RealFileUtils.rm_rf(here('subdir')) }
   end
 
   def test_clone_with_target_specified
