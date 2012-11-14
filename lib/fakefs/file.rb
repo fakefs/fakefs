@@ -298,6 +298,12 @@ module FakeFS
       def zero?
         size == 0
       end
+
+      include Comparable
+
+      def <=>(other)
+        @mtime <=> other.mtime
+      end
     end
 
     attr_reader :path

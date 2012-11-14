@@ -2044,6 +2044,29 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal File.umask, RealFile.umask
   end
 
+  def test_file_stat_comparable
+    a_time = Time.new
+
+    same1 = File.new("s1", "w")
+    same2 = File.new("s2", "w")
+    different1 = File.new("d1", "w")
+    different2 = File.new("d2", "w")
+
+    FileSystem.find("s1").mtime = a_time
+    FileSystem.find("s2").mtime = a_time
+
+    FileSystem.find("d1").mtime = a_time
+    FileSystem.find("d2").mtime = a_time + 1
+
+    assert same1.mtime == same2.mtime
+    assert different1.mtime != different2.mtime
+
+    assert same1.stat == same2.stat
+    assert (same1.stat <=> same2.stat) == 0
+
+    assert different1.stat != different2.stat
+    assert (different1.stat <=> different2.stat) == -1
+  end
 
   def here(fname)
     RealFile.expand_path(File.join(RealFile.dirname(__FILE__), fname))
