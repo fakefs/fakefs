@@ -85,7 +85,7 @@ class FileStatTest < Test::Unit::TestCase
 
   def test_file_zero?
     File.open('testfile', 'w') { |f| f << 'test' }
-    refute File.stat('testfile').zero?, "testfile has size 4, not zero"
+    assert !File.stat('testfile').zero?, "testfile has size 4, not zero"
 
     FileUtils.touch('testfile2')
     assert File.stat('testfile2').zero?, "testfile2 has size 0, but stat lied"
