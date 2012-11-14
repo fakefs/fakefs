@@ -36,6 +36,7 @@ Gem::Specification.new do |s|
     "lib/fakefs/file_system.rb",
     "lib/fakefs/file_test.rb",
     "lib/fakefs/fileutils.rb",
+    "lib/fakefs/require.rb",
     "lib/fakefs/safe.rb",
     "lib/fakefs/spec_helpers.rb",
     "lib/fakefs/version.rb",
@@ -51,6 +52,7 @@ Gem::Specification.new do |s|
     "test/fake/symlink_test.rb",
     "test/fakefs_test.rb",
     "test/file/stat_test.rb",
+    "test/require_test.rb",
     "test/safe_test.rb",
     "test/test_helper.rb",
     "test/verify.rb"
