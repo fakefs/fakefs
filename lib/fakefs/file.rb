@@ -415,6 +415,22 @@ module FakeFS
       def size
         File.size(@path)
       end
+
+      def fdatasync
+        raise NotImplementedError
+      end
+
+      def size
+        raise NotImplementedError
+      end
+
+      def autoclose?
+        raise NotImplementedError
+      end
+
+      def autoclose=(*args)
+        raise NotImplementedError
+      end
     end
 
     if RUBY_VERSION >= "1.9.3"
