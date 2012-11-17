@@ -2069,6 +2069,14 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal File.stat("foo").gid, 1338
   end
 
+  def test_file_chown_of_file_negative_user_group
+    FileUtils.touch "foo"
+    File.chown 1337, 1338, "foo"
+    File.chown -1, -1, "foo"
+    assert_equal File.stat("foo").uid, 1337
+    assert_equal File.stat("foo").gid, 1338
+  end
+
   def test_file_umask
     assert_equal File.umask, RealFile.umask
   end
