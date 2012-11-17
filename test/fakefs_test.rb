@@ -752,6 +752,17 @@ class FakeFSTest < Test::Unit::TestCase
     assert_raises(Errno::ENOENT) do
       FileUtils.chown(username, groupname, [good, bad])
     end
+
+    # FileUtils.chown with nil user and nil group should not change anything
+    FileUtils.chown(username, groupname, good)
+    assert_equal File.stat(good).uid, Process.uid
+    assert_equal File.stat(good).gid, Process.gid
+    assert_equal [good], FileUtils.chown(nil, nil, [good])
+    assert_equal File.stat(good).uid, Process.uid
+    assert_equal File.stat(good).gid, Process.gid
+    assert_raises(Errno::ENOENT) do
+      FileUtils.chown(nil, nil, [good, bad])
+    end
   end
 
   def test_can_chown_R_files
@@ -2048,6 +2059,14 @@ class FakeFSTest < Test::Unit::TestCase
     File.chown 1337, 1338, "bar"
     assert_equal File.stat("bar").uid, 1337
     assert_equal File.stat("bar").gid, 1338
+  end
+
+  def test_file_chown_of_file_nil_user_group
+    FileUtils.touch "foo"
+    File.chown 1337, 1338, "foo"
+    File.chown nil, nil, "foo"
+    assert_equal File.stat("foo").uid, 1337
+    assert_equal File.stat("foo").gid, 1338
   end
 
   def test_file_umask

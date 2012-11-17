@@ -128,8 +128,16 @@ module FakeFS
       list = Array(list)
       list.each do |f|
         if File.exists?(f)
-          uid = (user.to_s.match(/[0-9]+/) ? user.to_i : Etc.getpwnam(user).uid)
-          gid = (group.to_s.match(/[0-9]+/) ? group.to_i : Etc.getgrnam(group).gid)
+          uid = if user
+                  user.to_s.match(/[0-9]+/) ? user.to_i : Etc.getpwnam(user).uid
+                else
+                  nil
+                end
+          gid = if group
+                  group.to_s.match(/[0-9]+/) ? group.to_i : Etc.getgrnam(group).gid
+                else
+                  nil
+                end
           File.chown(uid, gid, f)
         else
           raise Errno::ENOENT, f
