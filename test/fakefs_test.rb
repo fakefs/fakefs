@@ -2070,6 +2070,30 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal File.stat("foo").gid, 1338
   end
 
+  def test_file_instance_chown_nil_user_group
+    FileUtils.touch('foo')
+    File.chown(1337, 1338, 'foo')
+    assert_equal File.stat('foo').uid, 1337
+    assert_equal File.stat('foo').gid, 1338
+    file = File.open('foo')
+    file.chown nil, nil
+    assert_equal File.stat('foo').uid, 1337
+    assert_equal File.stat('foo').gid, 1338
+  end
+
+  def test_file_instance_chown_negative_user_group
+    FileUtils.touch('foo')
+    File.chown(1337, 1338, 'foo')
+    assert_equal File.stat('foo').uid, 1337
+    assert_equal File.stat('foo').gid, 1338
+    file = File.new('foo')
+    file.chown -1, -1
+    file.close
+    assert_equal File.stat('foo').uid, 1337
+    assert_equal File.stat('foo').gid, 1338
+  end
+
+
   def test_file_umask
     assert_equal File.umask, RealFile.umask
   end
