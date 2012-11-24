@@ -860,6 +860,24 @@ class FakeFSTest < Test::Unit::TestCase
     end
   end
 
+  def test_dir_glob_handles_paths_with_dotdot
+    FileUtils.mkdir_p '/path'
+    FileUtils.mkdir_p '/otherpath'
+
+    assert_equal ['/path/../path', '/path/../otherpath'], Dir['/path/../*']
+  end
+
+  def test_dir_glob_handles_paths_starting_with_dotdot
+    FileUtils.mkdir_p '/path'
+    FileUtils.mkdir_p '/otherpath'
+
+    Dir.chdir '/path' do
+      p FileSystem.find('../*').map {|e| e.to_s}
+      assert_equal ['..'], Dir['..']
+      assert_equal ['../path', '../otherpath'], Dir['../*']
+    end
+  end
+
   def test_dir_glob_handles_root
     FileUtils.mkdir_p '/path'
 
