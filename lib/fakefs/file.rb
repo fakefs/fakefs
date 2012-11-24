@@ -252,6 +252,16 @@ module FakeFS
       RealFile.umask
     end
 
+    def self.binread(file, length = nil, offset = 0)
+      contents = File.read(file)
+
+      if length
+        contents.slice(offset, length)
+      else
+        contents
+      end
+    end
+
     class Stat
       attr_reader :ctime, :mtime, :atime, :mode, :uid, :gid
 

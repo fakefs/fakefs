@@ -2129,6 +2129,16 @@ class FakeFSTest < Test::Unit::TestCase
     assert (different1.stat <=> different2.stat) == -1
   end
 
+  def test_file_binread_works
+    File.open("testfile", 'w') do |f|
+      f << "This is line one\nThis is line two\nThis is line three\nAnd so on...\n"
+    end
+
+    assert_equal File.binread("testfile"), "This is line one\nThis is line two\nThis is line three\nAnd so on...\n"
+    assert_equal File.binread("testfile", 20), "This is line one\nThi"
+    assert_equal File.binread("testfile", 20, 10), "ne one\nThis is line "
+  end
+
   def here(fname)
     RealFile.expand_path(File.join(RealFile.dirname(__FILE__), fname))
   end
