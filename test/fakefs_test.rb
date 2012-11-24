@@ -2183,5 +2183,32 @@ class FakeFSTest < Test::Unit::TestCase
         end
       end
     end
+
+    def test_file_write_can_write_a_file
+      File.write("testfile", "0123456789")
+      assert_equal File.read("testfile"), "0123456789"
+    end
+
+    def test_file_write_returns_the_length_written
+      assert_equal File.write("testfile", "0123456789"), 10
+    end
+
+    def test_file_write_truncates_file_if_offset_not_given
+      File.open("foo", 'w') do |f|
+        f << "foo"
+      end
+
+      File.write('foo', 'bar')
+      assert_equal File.read('foo'), 'bar'
+    end
+
+    def test_file_write_writes_at_offset_and_does_not_truncate
+      File.open("foo", 'w') do |f|
+        f << "foo"
+      end
+
+      File.write('foo', 'bar', 3)
+      assert_equal File.read('foo'), 'foobar'
+    end
   end
 end

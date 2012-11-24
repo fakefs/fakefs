@@ -470,6 +470,21 @@ module FakeFS
     if RUBY_VERSION >= "1.9.3"
       def advise(advice, offset=0, len=0)
       end
+
+      def self.write(filename, contents, offset = nil)
+        if offset
+          open(filename, 'a') do |f|
+            f.seek(offset)
+            f.write(contents)
+          end
+        else
+          open(filename, 'w') do |f|
+            f << contents
+          end
+        end
+
+        contents.length
+      end
     end
 
   private
