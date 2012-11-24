@@ -115,6 +115,7 @@ module FakeFS
       Array(src).each do |path|
         if target = FileSystem.find(path)
           dest_path = File.directory?(dest) ? File.join(dest, File.basename(path)) : dest
+          FileSystem.delete(dest_path)
           FileSystem.add(dest_path, target.entry.clone)
           FileSystem.delete(path)
         else
