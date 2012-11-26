@@ -180,6 +180,7 @@ module FakeFS
       alias_method :getwd, :pwd
       alias_method :rmdir, :delete
       alias_method :unlink, :delete
+      alias_method :exist?, :exists?
     end
   end
 end

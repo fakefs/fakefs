@@ -1705,6 +1705,14 @@ class FakeFSTest < Test::Unit::TestCase
     test.each { |t| assert yielded.include?(t) }
   end
 
+  def test_directory_exists
+    assert Dir.exists?('/this/path/should/be/here') == false
+    assert Dir.exist?('/this/path/should/be/here') == false
+    FileUtils.mkdir_p('/this/path/should/be/here')
+    assert Dir.exists?('/this/path/should/be/here') == true
+    assert Dir.exist?('/this/path/should/be/here') == true
+  end
+
   def test_tmpdir
     assert Dir.tmpdir == "/tmp"
   end
