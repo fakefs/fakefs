@@ -6,6 +6,10 @@ RealPathname        = Pathname
 
 module FakeFS
   @activated = false
+  Kernel.class_eval do
+    alias :original_open :open
+  end
+
   class << self
     def activated?
       @activated
@@ -26,6 +30,15 @@ module FakeFS
         const_set(:FileTest,  FakeFS::FileTest)
         const_set(:Pathname,  FakeFS::Pathname) if RUBY_VERSION >= "1.9.3"
       end
+      Kernel.class_eval do
+        def open(name, *rest, &block)
+          if name =~ /\|.*/
+            original_open(name, *rest, &block)
+          else
+            FakeFS::File.open(name, *rest, &block)
+          end
+        end
+      end
       true
     end
 
@@ -44,6 +57,11 @@ module FakeFS
         const_set(:FileTest,  RealFileTest)
         const_set(:FileUtils, RealFileUtils)
         const_set(:Pathname,  RealPathname) if RUBY_VERSION >= "1.9.3"
+      end
+      Kernel.class_eval do
+        def open(name, *rest, &block)
+          original_open(name, *rest, &block)
+        end
       end
       true
     end
