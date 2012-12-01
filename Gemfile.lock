@@ -9,6 +9,7 @@ GEM
       rake
       rdoc
     json (1.7.5)
+    minitest (4.3.0)
     rake (10.0.0)
     rdiscount (1.6.8)
     rdoc (3.12)
@@ -27,5 +28,6 @@ PLATFORMS
 
 DEPENDENCIES
   jeweler
+  minitest
   rdiscount
   rspec
