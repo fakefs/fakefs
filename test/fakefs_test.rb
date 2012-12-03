@@ -480,7 +480,7 @@ class FakeFSTest < Test::Unit::TestCase
     File.open(path, 'w') do |f|
       f << 'Yada Yada'
     end
-    assert File.size?(path)
+    assert_equal 9, File.size?(path)
     assert_nil File.size?("other.txt")
   end
 

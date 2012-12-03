@@ -94,7 +94,7 @@ module FakeFS
 
     def self.size?(path)
       if exists?(path) && !size(path).zero?
-        true
+        size(path)
       else
         nil
       end
