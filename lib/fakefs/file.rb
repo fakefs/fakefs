@@ -248,8 +248,8 @@ module FakeFS
       end
     end
 
-    def self.umask
-      RealFile.umask
+    def self.umask(*args)
+      RealFile.umask *args
     end
 
     def self.binread(file, length = nil, offset = 0)
