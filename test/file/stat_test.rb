@@ -34,24 +34,28 @@ class FileStatTest < Test::Unit::TestCase
     ln_s("/foo", "/bar")
 
     assert File::Stat.new("/bar").symlink?
+    assert File::Stat.new("/bar").ftype == "link"
   end
 
   def test_symlink_should_be_false_when_not_a_symlink
     FileUtils.touch("/foo")
 
     assert !File::Stat.new("/foo").symlink?
+    assert File::Stat.new("/foo").ftype == "file"
   end
 
   def test_should_return_false_for_directory_when_not_a_directory
     FileUtils.touch("/foo")
 
     assert !File::Stat.new("/foo").directory?
+    assert File::Stat.new("/foo").ftype == "file"
   end
 
   def test_should_return_true_for_directory_when_a_directory
     mkdir "/foo"
 
     assert File::Stat.new("/foo").directory?
+    assert File::Stat.new("/foo").ftype == "directory"
   end
 
   def test_writable_is_true
