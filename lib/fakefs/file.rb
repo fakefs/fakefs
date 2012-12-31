@@ -289,6 +289,12 @@ module FakeFS
         File.directory?(@file)
       end
 
+      def ftype
+        return 'link' if symlink?
+        return 'directory' if directory?
+        return 'file'
+      end
+
       # assumes, like above, that all files are readable and writable
       def readable?
         true
