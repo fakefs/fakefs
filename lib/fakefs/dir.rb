@@ -90,7 +90,7 @@ module FakeFS
       Dir.open(dirname) { |file| yield file }
     end
 
-    def self.glob(pattern, &block)
+    def self.glob(pattern, flags = 0, &block)
       matches_for_pattern = lambda do |matcher|
         [FileSystem.find(matcher) || []].flatten.map{|e|
           Dir.pwd.match(%r[\A/?\z]) || !e.to_s.match(%r[\A#{Dir.pwd}/?]) ? e.to_s : e.to_s.match(%r[\A#{Dir.pwd}/?]).post_match}.sort
