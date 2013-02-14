@@ -8,7 +8,7 @@ module FakeFS
     alias_method :mkpath, :mkdir_p
     alias_method :makedirs, :mkdir_p
 
-    def mkdir(path)
+    def mkdir(path, options = {})
       parent = path.split('/')
       parent.pop
       raise Errno::ENOENT, "No such file or directory - #{path}" unless parent.join == "" || parent.join == "." || FileSystem.find(parent.join('/'))
