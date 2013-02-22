@@ -894,6 +894,16 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal 2, yielded.size
   end
 
+  def test_copy_with_subdirectory
+    FileUtils.mkdir_p "/one/two/three/"
+    FileUtils.mkdir_p "/onebis/two/three/"
+    FileUtils.touch "/one/two/three/foo"
+    Dir.glob("/one/two/three/*") do |hook|
+        FileUtils.cp(hook, "/onebis/two/three/")
+    end
+    assert_equal ['/onebis/two/three/foo'], Dir['/onebis/two/three/*']
+  end
+
   if RUBY_VERSION >= "1.9"
     def test_dir_home
       assert_equal RealDir.home, Dir.home
