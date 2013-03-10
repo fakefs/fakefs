@@ -785,6 +785,7 @@ class FakeFSTest < Test::Unit::TestCase
 
     assert_equal [good], FileUtils.chmod(0600, good, :verbose => true)
     assert_equal File.stat(good).mode, 0100600
+    assert_equal File.executable?(good), false
     assert_raises(Errno::ENOENT) do
       FileUtils.chmod(0600, bad)
     end
@@ -800,6 +801,14 @@ class FakeFSTest < Test::Unit::TestCase
     assert_raises(Errno::ENOENT) do
       FileUtils.chmod(0644, bad)
     end
+
+    assert_equal [good], FileUtils.chmod(0744, [good])
+    assert_equal File.executable?(good), true
+
+    # This behaviour is unimplemented, the spec below is only to show that it
+    # is a deliberate YAGNI omission.
+    assert_equal [good], FileUtils.chmod(0477, [good])
+    assert_equal File.executable?(good), false
   end
 
   def test_can_chmod_R_files
