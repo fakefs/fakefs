@@ -1134,6 +1134,10 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal('binky', File.open('destdir/baz') {|f| f.read })
   end
 
+  def test_move_is_alias_for_mv
+    assert_equal FileUtils.method(:move), FileUtils.method(:mv)
+  end
+
   def test_cp_actually_works
     File.open('foo', 'w') {|f| f.write 'bar' }
     FileUtils.cp('foo', 'baz')
