@@ -123,6 +123,7 @@ module FakeFS
         end
       end
     end
+    alias_method :move, :mv
 
     def chown(user, group, list, options={})
       list = Array(list)
