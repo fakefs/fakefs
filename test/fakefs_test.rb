@@ -492,6 +492,27 @@ class FakeFSTest < Test::Unit::TestCase
     assert_nil File.size?("file.txt")
   end
 
+  def test_zero_on_empty_file
+    path = 'file.txt'
+    File.open(path, 'w') do |f|
+      f << ''
+    end
+    assert_equal true, File.zero?(path)
+  end
+
+  def test_zero_on_non_empty_file
+    path = 'file.txt'
+    File.open(path, 'w') do |f|
+      f << 'Not empty'
+    end
+    assert_equal false, File.zero?(path)
+  end
+
+  def test_zero_on_non_existent_file
+    path = 'file_does_not_exist.txt'
+    assert_equal false, File.zero?(path)
+  end
+
   def test_raises_error_on_mtime_if_file_does_not_exist
     assert_raise Errno::ENOENT do
       File.mtime('/path/to/file.txt')

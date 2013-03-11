@@ -100,6 +100,14 @@ module FakeFS
       end
     end
 
+    def self.zero?(path)
+      if exists?(path) and size(path) == 0
+        true
+      else
+        false
+      end
+    end
+
     def self.const_missing(name)
       RealFile.const_get(name)
     end
