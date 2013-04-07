@@ -193,8 +193,8 @@ module FakeFS
       end
     end
 
-    def cd(dir)
-      FileSystem.chdir(dir)
+    def cd(dir, &block)
+      FileSystem.chdir(dir, &block)
     end
     alias_method :chdir, :cd
   end
