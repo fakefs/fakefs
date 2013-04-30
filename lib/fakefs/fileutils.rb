@@ -37,6 +37,9 @@ module FakeFS
     alias_method :rm_rf, :rm
     alias_method :rm_r, :rm
     alias_method :rm_f, :rm
+    alias_method :remove, :rm
+    alias_method :rmtree, :rm_rf
+    alias_method :safe_unlink, :rm_f
 
     def ln_s(target, path, options = {})
       options = { :force => false }.merge(options)
@@ -54,6 +57,8 @@ module FakeFS
     def ln_sf(target, path)
       ln_s(target, path, { :force => true })
     end
+
+    alias_method :symlink, :ln_s
 
     def cp(src, dest)
       if src.is_a?(Array) && !File.directory?(dest)
@@ -80,6 +85,8 @@ module FakeFS
         end
       end
     end
+
+    alias_method :copy, :cp
 
     def cp_r(src, dest)
       Array(src).each do |src|
@@ -123,6 +130,8 @@ module FakeFS
         end
       end
     end
+
+    alias_method :move, :mv
 
     def chown(user, group, list, options={})
       list = Array(list)

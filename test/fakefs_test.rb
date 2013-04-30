@@ -91,6 +91,15 @@ class FakeFSTest < Test::Unit::TestCase
     assert File.exists?("bar") == false
   end
 
+  def test_remove_aliases
+    assert_equal FileUtils.method(:rm_f), FileUtils.method(:rm)
+    assert_equal FileUtils.method(:rm_r), FileUtils.method(:rm)
+    assert_equal FileUtils.method(:rm_rf), FileUtils.method(:rm)
+    assert_equal FileUtils.method(:remove), FileUtils.method(:rm)
+    assert_equal FileUtils.method(:rmtree), FileUtils.method(:rm)
+    assert_equal FileUtils.method(:safe_unlink), FileUtils.method(:rm)
+  end
+
   def test_knows_directories_exist
     FileUtils.mkdir_p(path = "/path/to/dir")
     assert File.exists?(path)
@@ -218,6 +227,10 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.mkdir_p(target = "/path/to/target")
     FileUtils.ln_s(target, link = "/path/to/symlink")
     assert File.symlink?(link)
+  end
+
+  def test_symlink_aliases
+    assert_equal FileUtils.method(:symlink), FileUtils.method(:ln_s)
   end
 
   def test_can_create_files_in_current_dir
@@ -1134,6 +1147,10 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal('binky', File.open('destdir/baz') {|f| f.read })
   end
 
+  def test_mv_aliases
+    assert_equal FileUtils.method(:move), FileUtils.method(:mv)
+  end
+
   def test_cp_actually_works
     File.open('foo', 'w') {|f| f.write 'bar' }
     FileUtils.cp('foo', 'baz')
@@ -1187,6 +1204,10 @@ class FakeFSTest < Test::Unit::TestCase
     assert_raise Errno::EISDIR do
       FileUtils.cp('baz', 'bar')
     end
+  end
+
+  def test_cp_aliases
+    assert_equal FileUtils.method(:copy), FileUtils.method(:cp)
   end
 
   def test_cp_r_doesnt_tangle_files_together
