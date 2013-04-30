@@ -96,8 +96,8 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal FileUtils.method(:rm_r), FileUtils.method(:rm)
     assert_equal FileUtils.method(:rm_rf), FileUtils.method(:rm)
     assert_equal FileUtils.method(:remove), FileUtils.method(:rm)
-    assert_equal FileUtils.method(:rmtree), FileUtils.method(:rm)
-    assert_equal FileUtils.method(:safe_unlink), FileUtils.method(:rm)
+    assert_equal FileUtils.method(:rmtree), FileUtils.method(:rm_rf)
+    assert_equal FileUtils.method(:safe_unlink), FileUtils.method(:rm_f)
   end
 
   def test_knows_directories_exist
