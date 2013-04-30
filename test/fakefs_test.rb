@@ -28,6 +28,12 @@ class FakeFSTest < Test::Unit::TestCase
     assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']
   end
 
+  def test_can_create_a_list_of_directories_with_file_utils_mkdir_p
+    FileUtils.mkdir_p(["/path/to/dir1", "/path/to/dir2"])
+    assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir1']
+    assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir2']
+  end
+
   def test_can_create_directories_with_options
     FileUtils.mkdir_p("/path/to/dir", :mode => 0755)
     assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']
@@ -37,6 +43,13 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.mkdir_p("/path/to/dir")
     FileUtils.mkdir("/path/to/dir/subdir")
     assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']['subdir']
+  end
+
+  def test_can_create_a_list_of_directories_with_file_utils_mkdir
+    FileUtils.mkdir_p("/path/to/dir")
+    FileUtils.mkdir(["/path/to/dir/subdir1", "/path/to/dir/subdir2"])
+    assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']['subdir1']
+    assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']['subdir2']
   end
 
   def test_raises_error_when_creating_a_new_dir_with_mkdir_in_non_existent_path
