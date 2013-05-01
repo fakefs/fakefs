@@ -79,5 +79,6 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<jeweler>, [">= 0"])
     s.add_dependency(%q<rdiscount>, [">= 0"])
   end
+  s.license = "MIT"
 end
 
