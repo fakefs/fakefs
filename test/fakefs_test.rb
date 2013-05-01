@@ -2213,6 +2213,10 @@ class FakeFSTest < Test::Unit::TestCase
 
   def test_file_umask
     assert_equal File.umask, RealFile.umask
+    File.umask(1234)
+
+    assert_equal File.umask, RealFile.umask
+    assert_equal File.umask, 1234
   end
 
   def test_file_stat_comparable
