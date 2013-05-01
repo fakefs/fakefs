@@ -101,11 +101,7 @@ module FakeFS
     end
 
     def self.zero?(path)
-      if exists?(path) and size(path) == 0
-        true
-      else
-        false
-      end
+      exists?(path) && size(path) == 0
     end
 
     def self.const_missing(name)
