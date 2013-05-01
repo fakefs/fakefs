@@ -94,7 +94,7 @@ module FakeFS
 
     alias_method :copy, :cp
 
-    def cp_r(src, dest)
+    def cp_r(src, dest, options={})
       Array(src).each do |src|
         # This error sucks, but it conforms to the original Ruby
         # method.

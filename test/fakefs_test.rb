@@ -896,11 +896,23 @@ class FakeFSTest < Test::Unit::TestCase
     end
   end
 
+  def test_file_utils_cp_r_takes_ignored_options
+    FileUtils.touch "/foo"
+
+    FileUtils.cp_r '/foo', '/bar', :verbose => true
+    assert_equal Dir.glob("/*").sort, ["/bar", "/foo"]
+  end
+
   def test_dir_glob_handles_root
     FileUtils.mkdir_p '/path'
 
     # this fails. the root dir should be named '/' but it is '.'
     assert_equal ['/'], Dir['/']
+  end
+
+  def test_dir_glob_takes_optional_flags
+    FileUtils.touch "/foo"
+    assert_equal Dir.glob("/*", 0), ["/foo"]
   end
 
   def test_dir_glob_handles_recursive_globs
