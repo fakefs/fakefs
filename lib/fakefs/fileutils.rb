@@ -11,7 +11,7 @@ module FakeFS
     alias_method :mkpath, :mkdir_p
     alias_method :makedirs, :mkdir_p
 
-    def mkdir(list)
+    def mkdir(list, ignored_options={})
       list = [ list ] unless list.is_a?(Array)
       list.each do |path|
         parent = path.split('/')

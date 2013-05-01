@@ -162,6 +162,11 @@ class FakeFSTest < Test::Unit::TestCase
     assert File.exists?(path)
   end
 
+  def test_file_utils_mkdir_takes_options
+    FileUtils.mkdir("/foo", :some => :option)
+    assert File.exists?("/foo")
+  end
+
   def test_symlink_with_missing_refferent_does_not_exist
     File.symlink('/foo', '/bar')
     assert !File.exists?('/bar')
