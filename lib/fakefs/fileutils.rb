@@ -84,7 +84,7 @@ module FakeFS
         end
 
         if dst_file && File.directory?(dst_file)
-          FileSystem.add(File.join(dest, src), src_file.entry.clone(dst_file))
+          FileSystem.add(File.join(dest, File.basename(src)), src_file.entry.clone(dst_file))
         else
           FileSystem.delete(dest)
           FileSystem.add(dest, src_file.entry.clone)
