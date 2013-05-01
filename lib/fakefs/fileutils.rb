@@ -46,6 +46,7 @@ module FakeFS
     alias_method :remove, :rm
     alias_method :rmtree, :rm_rf
     alias_method :safe_unlink, :rm_f
+    alias_method :remove_entry_secure, :rm_rf
 
     def ln_s(target, path, options = {})
       options = { :force => false }.merge(options)
