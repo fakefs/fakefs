@@ -2,18 +2,24 @@ module FakeFS
   module FileUtils
     extend self
 
-    def mkdir_p(path, options = {})
-      FileSystem.add(path, FakeDir.new)
+    def mkdir_p(list, options = {})
+      list = [ list ] unless list.is_a?(Array)
+      list.each do |path|
+        FileSystem.add(path, FakeDir.new)
+      end
     end
     alias_method :mkpath, :mkdir_p
     alias_method :makedirs, :mkdir_p
 
-    def mkdir(path)
-      parent = path.split('/')
-      parent.pop
-      raise Errno::ENOENT, "No such file or directory - #{path}" unless parent.join == "" || parent.join == "." || FileSystem.find(parent.join('/'))
-      raise Errno::EEXIST, "File exists - #{path}" if FileSystem.find(path)
-      FileSystem.add(path, FakeDir.new)
+    def mkdir(list)
+      list = [ list ] unless list.is_a?(Array)
+      list.each do |path|
+        parent = path.split('/')
+        parent.pop
+        raise Errno::ENOENT, "No such file or directory - #{path}" unless parent.join == "" || parent.join == "." || FileSystem.find(parent.join('/'))
+        raise Errno::EEXIST, "File exists - #{path}" if FileSystem.find(path)
+        FileSystem.add(path, FakeDir.new)
+      end
     end
 
     def rmdir(list, options = {})
