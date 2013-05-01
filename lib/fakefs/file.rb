@@ -249,7 +249,9 @@ module FakeFS
     # Not exactly right, returns true if the file is chmod +x for owner. In the
     # context of when you would use fakefs, this is usually what you want.
     def self.executable?(filename)
-      (FileSystem.find(filename).mode - 0100000) & 0100 != 0
+      file = FileSystem.find(filename)
+      return false unless file
+      (file.mode - 0100000) & 0100 != 0
     end
 
     def self.chown(owner_int, group_int, filename)
