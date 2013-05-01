@@ -787,6 +787,10 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal RealFile.file?('does/not/exist.txt'), File.file?('does/not/exist.txt')
   end
 
+  def test_executable_returns_false_for_non_existent_files
+    assert !File.executable?('/does/not/exist')
+  end
+
   def test_can_chown_files
     good = 'file.txt'
     bad = 'nofile.txt'
