@@ -28,6 +28,16 @@ class FakeFSTest < Test::Unit::TestCase
     assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']
   end
 
+  def test_can_cd_to_directory_with_block
+    FileUtils.mkdir_p("/path/to/dir")
+    new_path = nil
+    FileUtils.cd("/path/to") do
+      new_path = Dir.getwd
+    end
+
+    assert_equal new_path, "/path/to"
+  end
+
   def test_can_create_a_list_of_directories_with_file_utils_mkdir_p
     FileUtils.mkdir_p(["/path/to/dir1", "/path/to/dir2"])
     assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir1']
