@@ -977,7 +977,7 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.mkdir_p "/onebis/two/three/"
     FileUtils.touch "/one/two/three/foo"
     Dir.glob("/one/two/three/*") do |hook|
-        FileUtils.cp(hook, "/onebis/two/three/")
+      FileUtils.cp(hook, "/onebis/two/three/")
     end
     assert_equal ['/onebis/two/three/foo'], Dir['/onebis/two/three/*']
   end
