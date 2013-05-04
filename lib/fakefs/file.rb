@@ -94,10 +94,14 @@ module FakeFS
 
     def self.size?(path)
       if exists?(path) && !size(path).zero?
-        true
+        size(path)
       else
         nil
       end
+    end
+
+    def self.zero?(path)
+      exists?(path) && size(path) == 0
     end
 
     def self.const_missing(name)
@@ -236,6 +240,12 @@ module FakeFS
       FileSystem.find(filename).mode = 0100000 + mode_int
     end
 
+    # Not exactly right, returns true if the file is chmod +x for owner. In the
+    # context of when you would use fakefs, this is usually what you want.
+    def self.executable?(filename)
+      (FileSystem.find(filename).mode - 0100000) & 0100 != 0
+    end
+
     def self.chown(owner_int, group_int, filename)
       file = FileSystem.find(filename)
       if owner_int && owner_int != -1
@@ -248,8 +258,8 @@ module FakeFS
       end
     end
 
-    def self.umask
-      RealFile.umask
+    def self.umask(*args)
+      RealFile.umask(*args)
     end
 
     def self.binread(file, length = nil, offset = 0)

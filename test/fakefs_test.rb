@@ -28,6 +28,22 @@ class FakeFSTest < Test::Unit::TestCase
     assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']
   end
 
+  def test_can_cd_to_directory_with_block
+    FileUtils.mkdir_p("/path/to/dir")
+    new_path = nil
+    FileUtils.cd("/path/to") do
+      new_path = Dir.getwd
+    end
+
+    assert_equal new_path, "/path/to"
+  end
+
+  def test_can_create_a_list_of_directories_with_file_utils_mkdir_p
+    FileUtils.mkdir_p(["/path/to/dir1", "/path/to/dir2"])
+    assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir1']
+    assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir2']
+  end
+
   def test_can_create_directories_with_options
     FileUtils.mkdir_p("/path/to/dir", :mode => 0755)
     assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']
@@ -37,6 +53,13 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.mkdir_p("/path/to/dir")
     FileUtils.mkdir("/path/to/dir/subdir")
     assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']['subdir']
+  end
+
+  def test_can_create_a_list_of_directories_with_file_utils_mkdir
+    FileUtils.mkdir_p("/path/to/dir")
+    FileUtils.mkdir(["/path/to/dir/subdir1", "/path/to/dir/subdir2"])
+    assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']['subdir1']
+    assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']['subdir2']
   end
 
   def test_raises_error_when_creating_a_new_dir_with_mkdir_in_non_existent_path
@@ -91,6 +114,16 @@ class FakeFSTest < Test::Unit::TestCase
     assert File.exists?("bar") == false
   end
 
+  def test_remove_aliases
+    assert_equal FileUtils.method(:rm_f), FileUtils.method(:rm)
+    assert_equal FileUtils.method(:rm_r), FileUtils.method(:rm)
+    assert_equal FileUtils.method(:rm_rf), FileUtils.method(:rm)
+    assert_equal FileUtils.method(:remove), FileUtils.method(:rm)
+    assert_equal FileUtils.method(:rmtree), FileUtils.method(:rm_rf)
+    assert_equal FileUtils.method(:safe_unlink), FileUtils.method(:rm_f)
+    assert_equal FileUtils.method(:remove_entry_secure), FileUtils.method(:rm_rf)
+  end
+
   def test_knows_directories_exist
     FileUtils.mkdir_p(path = "/path/to/dir")
     assert File.exists?(path)
@@ -128,6 +161,11 @@ class FakeFSTest < Test::Unit::TestCase
       FileUtils.mkdir("/path/to")
     end
     assert File.exists?(path)
+  end
+
+  def test_file_utils_mkdir_takes_options
+    FileUtils.mkdir("/foo", :some => :option)
+    assert File.exists?("/foo")
   end
 
   def test_symlink_with_missing_refferent_does_not_exist
@@ -218,6 +256,10 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.mkdir_p(target = "/path/to/target")
     FileUtils.ln_s(target, link = "/path/to/symlink")
     assert File.symlink?(link)
+  end
+
+  def test_symlink_aliases
+    assert_equal FileUtils.method(:symlink), FileUtils.method(:ln_s)
   end
 
   def test_can_create_files_in_current_dir
@@ -480,7 +522,7 @@ class FakeFSTest < Test::Unit::TestCase
     File.open(path, 'w') do |f|
       f << 'Yada Yada'
     end
-    assert File.size?(path)
+    assert_equal 9, File.size?(path)
     assert_nil File.size?("other.txt")
   end
 
@@ -490,6 +532,27 @@ class FakeFSTest < Test::Unit::TestCase
       f << ''
     end
     assert_nil File.size?("file.txt")
+  end
+
+  def test_zero_on_empty_file
+    path = 'file.txt'
+    File.open(path, 'w') do |f|
+      f << ''
+    end
+    assert_equal true, File.zero?(path)
+  end
+
+  def test_zero_on_non_empty_file
+    path = 'file.txt'
+    File.open(path, 'w') do |f|
+      f << 'Not empty'
+    end
+    assert_equal false, File.zero?(path)
+  end
+
+  def test_zero_on_non_existent_file
+    path = 'file_does_not_exist.txt'
+    assert_equal false, File.zero?(path)
   end
 
   def test_raises_error_on_mtime_if_file_does_not_exist
@@ -785,6 +848,7 @@ class FakeFSTest < Test::Unit::TestCase
 
     assert_equal [good], FileUtils.chmod(0600, good, :verbose => true)
     assert_equal File.stat(good).mode, 0100600
+    assert_equal File.executable?(good), false
     assert_raises(Errno::ENOENT) do
       FileUtils.chmod(0600, bad)
     end
@@ -800,6 +864,14 @@ class FakeFSTest < Test::Unit::TestCase
     assert_raises(Errno::ENOENT) do
       FileUtils.chmod(0644, bad)
     end
+
+    assert_equal [good], FileUtils.chmod(0744, [good])
+    assert_equal File.executable?(good), true
+
+    # This behaviour is unimplemented, the spec below is only to show that it
+    # is a deliberate YAGNI omission.
+    assert_equal [good], FileUtils.chmod(0477, [good])
+    assert_equal File.executable?(good), false
   end
 
   def test_can_chmod_R_files
@@ -860,11 +932,23 @@ class FakeFSTest < Test::Unit::TestCase
     end
   end
 
+  def test_file_utils_cp_r_takes_ignored_options
+    FileUtils.touch "/foo"
+
+    FileUtils.cp_r '/foo', '/bar', :verbose => true
+    assert_equal Dir.glob("/*").sort, ["/bar", "/foo"]
+  end
+
   def test_dir_glob_handles_root
     FileUtils.mkdir_p '/path'
 
     # this fails. the root dir should be named '/' but it is '.'
     assert_equal ['/'], Dir['/']
+  end
+
+  def test_dir_glob_takes_optional_flags
+    FileUtils.touch "/foo"
+    assert_equal Dir.glob("/*", 0), ["/foo"]
   end
 
   def test_dir_glob_handles_recursive_globs
@@ -892,6 +976,16 @@ class FakeFSTest < Test::Unit::TestCase
     Dir.glob('*') { |file| yielded << file }
 
     assert_equal 2, yielded.size
+  end
+
+  def test_copy_with_subdirectory
+    FileUtils.mkdir_p "/one/two/three/"
+    FileUtils.mkdir_p "/onebis/two/three/"
+    FileUtils.touch "/one/two/three/foo"
+    Dir.glob("/one/two/three/*") do |hook|
+      FileUtils.cp(hook, "/onebis/two/three/")
+    end
+    assert_equal ['/onebis/two/three/foo'], Dir['/onebis/two/three/*']
   end
 
   if RUBY_VERSION >= "1.9"
@@ -1134,6 +1228,10 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal('binky', File.open('destdir/baz') {|f| f.read })
   end
 
+  def test_mv_aliases
+    assert_equal FileUtils.method(:move), FileUtils.method(:mv)
+  end
+
   def test_cp_actually_works
     File.open('foo', 'w') {|f| f.write 'bar' }
     FileUtils.cp('foo', 'baz')
@@ -1187,6 +1285,10 @@ class FakeFSTest < Test::Unit::TestCase
     assert_raise Errno::EISDIR do
       FileUtils.cp('baz', 'bar')
     end
+  end
+
+  def test_cp_aliases
+    assert_equal FileUtils.method(:copy), FileUtils.method(:cp)
   end
 
   def test_cp_r_doesnt_tangle_files_together
@@ -2111,6 +2213,10 @@ class FakeFSTest < Test::Unit::TestCase
 
   def test_file_umask
     assert_equal File.umask, RealFile.umask
+    File.umask(1234)
+
+    assert_equal File.umask, RealFile.umask
+    assert_equal File.umask, 1234
   end
 
   def test_file_stat_comparable

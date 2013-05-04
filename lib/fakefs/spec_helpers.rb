@@ -9,6 +9,10 @@
 #     ...
 #   end
 #
+# By default, including FakeFS::SpecHelpers will run for each example inside a describe block.
+# If you want to turn on FakeFS one time only for all your examples, you will need to
+# include FakeFS::SpecHelpers::All.
+#
 # Alternatively, you can include FakeFS::SpecHelpers in all your example groups using RSpec's
 # configuration block in your spec helper:
 #
@@ -23,23 +27,37 @@
 require 'fakefs/safe'
 
 module FakeFS
+  def use_fakefs(describe_block, opts)
+    describe_block.before opts[:with] do
+      FakeFS.activate!
+    end
+
+    describe_block.after opts[:with] do
+      FakeFS.deactivate!
+      FakeFS::FileSystem.clear if opts[:with] == :each
+    end
+  end
+
   module SpecHelpers
+    include ::FakeFS
+
     def self.extended(example_group)
-      example_group.use_fakefs(example_group)
+      example_group.use_fakefs(example_group, :with => :each)
     end
 
     def self.included(example_group)
       example_group.extend self
     end
 
-    def use_fakefs(describe_block)
-      describe_block.before :each do
-        FakeFS.activate!
+    module All
+      include ::FakeFS
+
+      def self.extended(example_group)
+        example_group.use_fakefs(example_group, :with => :all)
       end
 
-      describe_block.after :each do
-        FakeFS.deactivate!
-        FakeFS::FileSystem.clear
+      def self.included(example_group)
+        example_group.extend self
       end
     end
   end
