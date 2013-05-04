@@ -444,6 +444,10 @@ module FakeFS
     end
 
     if RUBY_VERSION >= "1.9"
+      def self.realpath(*args)
+        RealFile.realpath(*args)
+      end
+
       def binmode?
         raise NotImplementedError
       end
