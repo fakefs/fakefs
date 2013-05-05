@@ -113,9 +113,9 @@ class FileStatTest < Test::Unit::TestCase
 
   def test_responds_to_realpath_only_on_1_9
     if RUBY_VERSION > '1.9'
-      assert !File.respond_to?(:realpath)
-    else
       assert File.respond_to?(:realpath)
+    else
+      assert !File.respond_to?(:realpath)
     end
   end
 end
