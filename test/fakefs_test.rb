@@ -114,14 +114,19 @@ class FakeFSTest < Test::Unit::TestCase
     assert File.exists?("bar") == false
   end
 
-  def test_remove_aliases
-    assert_equal FileUtils.method(:rm_f), FileUtils.method(:rm)
-    assert_equal FileUtils.method(:rm_r), FileUtils.method(:rm)
-    assert_equal FileUtils.method(:rm_rf), FileUtils.method(:rm)
-    assert_equal FileUtils.method(:remove), FileUtils.method(:rm)
-    assert_equal FileUtils.method(:rmtree), FileUtils.method(:rm_rf)
-    assert_equal FileUtils.method(:safe_unlink), FileUtils.method(:rm_f)
-    assert_equal FileUtils.method(:remove_entry_secure), FileUtils.method(:rm_rf)
+  def test_aliases_exist
+    assert File.respond_to?(:unlink)
+    assert FileUtils.respond_to?(:rm_f)
+    assert FileUtils.respond_to?(:rm_r)
+    assert FileUtils.respond_to?(:rm)
+    assert FileUtils.respond_to?(:rm_rf)
+    assert FileUtils.respond_to?(:symlink)
+    assert FileUtils.respond_to?(:move)
+    assert FileUtils.respond_to?(:copy)
+    assert FileUtils.respond_to?(:remove)
+    assert FileUtils.respond_to?(:rmtree)
+    assert FileUtils.respond_to?(:safe_unlink)
+    assert FileUtils.respond_to?(:remove_entry_secure)
   end
 
   def test_knows_directories_exist
@@ -256,10 +261,6 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.mkdir_p(target = "/path/to/target")
     FileUtils.ln_s(target, link = "/path/to/symlink")
     assert File.symlink?(link)
-  end
-
-  def test_symlink_aliases
-    assert_equal FileUtils.method(:symlink), FileUtils.method(:ln_s)
   end
 
   def test_can_create_files_in_current_dir
@@ -1228,10 +1229,6 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal('binky', File.open('destdir/baz') {|f| f.read })
   end
 
-  def test_mv_aliases
-    assert_equal FileUtils.method(:move), FileUtils.method(:mv)
-  end
-
   def test_cp_actually_works
     File.open('foo', 'w') {|f| f.write 'bar' }
     FileUtils.cp('foo', 'baz')
@@ -1285,10 +1282,6 @@ class FakeFSTest < Test::Unit::TestCase
     assert_raise Errno::EISDIR do
       FileUtils.cp('baz', 'bar')
     end
-  end
-
-  def test_cp_aliases
-    assert_equal FileUtils.method(:copy), FileUtils.method(:cp)
   end
 
   def test_cp_r_doesnt_tangle_files_together
@@ -1962,10 +1955,6 @@ class FakeFSTest < Test::Unit::TestCase
     assert_raises Errno::ENOENT do
       File.delete("/foo")
     end
-  end
-
-  def test_unlink_is_alias_for_delete
-    assert_equal File.method(:unlink), File.method(:delete)
   end
 
   def test_unlink_removes_only_one_file_content
