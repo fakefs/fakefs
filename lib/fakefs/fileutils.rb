@@ -2,18 +2,24 @@ module FakeFS
   module FileUtils
     extend self
 
-    def mkdir_p(path, options = {})
-      FileSystem.add(path, FakeDir.new)
+    def mkdir_p(list, options = {})
+      list = [ list ] unless list.is_a?(Array)
+      list.each do |path|
+        FileSystem.add(path, FakeDir.new)
+      end
     end
     alias_method :mkpath, :mkdir_p
     alias_method :makedirs, :mkdir_p
 
-    def mkdir(path)
-      parent = path.split('/')
-      parent.pop
-      raise Errno::ENOENT, "No such file or directory - #{path}" unless parent.join == "" || parent.join == "." || FileSystem.find(parent.join('/'))
-      raise Errno::EEXIST, "File exists - #{path}" if FileSystem.find(path)
-      FileSystem.add(path, FakeDir.new)
+    def mkdir(list, ignored_options={})
+      list = [ list ] unless list.is_a?(Array)
+      list.each do |path|
+        parent = path.split('/')
+        parent.pop
+        raise Errno::ENOENT, "No such file or directory - #{path}" unless parent.join == "" || parent.join == "." || FileSystem.find(parent.join('/'))
+        raise Errno::EEXIST, "File exists - #{path}" if FileSystem.find(path)
+        FileSystem.add(path, FakeDir.new)
+      end
     end
 
     def rmdir(list, options = {})
@@ -37,7 +43,10 @@ module FakeFS
     alias_method :rm_rf, :rm
     alias_method :rm_r, :rm
     alias_method :rm_f, :rm
-    alias_method :remove_entry_secure, :rm
+    alias_method :remove, :rm
+    alias_method :rmtree, :rm_rf
+    alias_method :safe_unlink, :rm_f
+    alias_method :remove_entry_secure, :rm_rf
 
     def ln_s(target, path, options = {})
       options = { :force => false }.merge(options)
@@ -55,6 +64,8 @@ module FakeFS
     def ln_sf(target, path)
       ln_s(target, path, { :force => true })
     end
+
+    alias_method :symlink, :ln_s
 
     def cp(src, dest)
       if src.is_a?(Array) && !File.directory?(dest)
@@ -74,7 +85,7 @@ module FakeFS
         end
 
         if dst_file && File.directory?(dst_file)
-          FileSystem.add(File.join(dest, src), src_file.entry.clone(dst_file))
+          FileSystem.add(File.join(dest, File.basename(src)), src_file.entry.clone(dst_file))
         else
           FileSystem.delete(dest)
           FileSystem.add(dest, src_file.entry.clone)
@@ -82,7 +93,9 @@ module FakeFS
       end
     end
 
-    def cp_r(src, dest)
+    alias_method :copy, :cp
+
+    def cp_r(src, dest, options={})
       Array(src).each do |src|
         # This error sucks, but it conforms to the original Ruby
         # method.
@@ -124,6 +137,8 @@ module FakeFS
         end
       end
     end
+
+    alias_method :move, :mv
 
     def chown(user, group, list, options={})
       list = Array(list)
@@ -194,8 +209,8 @@ module FakeFS
       end
     end
 
-    def cd(dir)
-      FileSystem.chdir(dir)
+    def cd(dir, &block)
+      FileSystem.chdir(dir, &block)
     end
     alias_method :chdir, :cd
   end
