@@ -206,7 +206,7 @@ module FakeFS
         else
           f = File.open(f, 'w')
           f.close
-          FileSystem.find(f).mtime(mtime) if mtime
+          FileSystem.find(f).mtime = mtime if mtime
         end
       end
     end
