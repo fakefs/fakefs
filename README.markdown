@@ -128,10 +128,6 @@ Installation
 
     $ gem install fakefs
 
-### [Rip](http://hellorip.com)
-
-    $ rip install git://github.com/defunkt/fakefs.git
-
 
 Contributing
 ------------
