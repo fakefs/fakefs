@@ -127,6 +127,8 @@ class FakeFSTest < Test::Unit::TestCase
     assert FileUtils.respond_to?(:rmtree)
     assert FileUtils.respond_to?(:safe_unlink)
     assert FileUtils.respond_to?(:remove_entry_secure)
+    assert FileUtils.respond_to?(:cmp)
+    assert FileUtils.respond_to?(:identical?)
   end
 
   def test_knows_directories_exist
@@ -702,7 +704,25 @@ class FakeFSTest < Test::Unit::TestCase
       f.puts ["woot","toot"]
     end
 
-    assert_equal %w(Yatta! Gatta! woot toot), File.readlines(path)
+    assert_equal ["Yatta!\n", "Gatta!\n", "woot\n", "toot\n"], File.readlines(path)
+  end
+
+  def test_can_read_with_File_readlines_and_only_empty_lines
+    path = 'file.txt'
+    File.open(path, 'w') do |f|
+      f.write "\n"
+    end
+
+    assert_equal ["\n"], File.readlines(path)
+  end
+
+  def test_can_read_with_File_readlines_and_new_lines
+    path = 'file.txt'
+    File.open(path, 'w') do |f|
+      f.write "this\nis\na\ntest\n"
+    end
+
+    assert_equal ["this\n", "is\n", "a\n", "test\n"], File.readlines(path)
   end
 
   def test_File_close_disallows_further_access
@@ -2244,6 +2264,27 @@ class FakeFSTest < Test::Unit::TestCase
 
   def here(fname)
     RealFile.expand_path(File.join(RealFile.dirname(__FILE__), fname))
+  end
+
+  def test_file_utils_compare_file
+    file1 = 'file1.txt'
+    file2 = 'file2.txt'
+    file3 = 'file3.txt'
+    content = "This is my \n file\content\n"
+    File.open(file1, 'w') do |f|
+      f.write content
+    end
+    File.open(file3, 'w') do |f|
+      f.write "#{content} with additional content"
+    end
+
+    FileUtils.cp file1, file2
+
+    assert_equal FileUtils.compare_file(file1, file2), true
+    assert_equal FileUtils.compare_file(file1, file3), false
+    assert_raises Errno::ENOENT do
+      FileUtils.compare_file(file1, "file4.txt")
+    end
   end
 
   if RUBY_VERSION >= "1.9.2"

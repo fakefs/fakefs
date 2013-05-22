@@ -213,5 +213,12 @@ module FakeFS
       FileSystem.chdir(dir, &block)
     end
     alias_method :chdir, :cd
+
+    def compare_file(file1, file2)
+      # we do a strict comparison of both files content
+      File.readlines(file1) == File.readlines(file2)
+    end
+    alias_method :cmp, :compare_file
+    alias_method :identical?, :compare_file
   end
 end
