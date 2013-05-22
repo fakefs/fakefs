@@ -704,7 +704,25 @@ class FakeFSTest < Test::Unit::TestCase
       f.puts ["woot","toot"]
     end
 
-    assert_equal %w(Yatta! Gatta! woot toot), File.readlines(path)
+    assert_equal ["Yatta!\n", "Gatta!\n", "woot\n", "toot\n"], File.readlines(path)
+  end
+
+  def test_can_read_with_File_readlines_and_only_empty_lines
+    path = 'file.txt'
+    File.open(path, 'w') do |f|
+      f.write "\n"
+    end
+
+    assert_equal ["\n"], File.readlines(path)
+  end
+
+  def test_can_read_with_File_readlines_and_new_lines
+    path = 'file.txt'
+    File.open(path, 'w') do |f|
+      f.write "this\nis\na\ntest\n"
+    end
+
+    assert_equal ["this\n", "is\n", "a\n", "test\n"], File.readlines(path)
   end
 
   def test_File_close_disallows_further_access

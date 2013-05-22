@@ -162,7 +162,13 @@ module FakeFS
     end
 
     def self.readlines(path)
-      read(path).split("\n")
+      file = new(path)
+      if file.exists?
+        FileSystem.find(path).atime = Time.now
+        file.readlines
+      else
+        raise Errno::ENOENT
+      end
     end
 
     def self.rename(source, dest)
