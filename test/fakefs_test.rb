@@ -1284,6 +1284,12 @@ class FakeFSTest < Test::Unit::TestCase
     end
   end
 
+  def test_copy_file_works
+    File.open('foo', 'w') {|f| f.write 'bar' }
+    FileUtils.copy_file('foo', 'baz', :ignore_param_1, :ignore_param_2)
+    assert_equal 'bar', File.read('baz')
+  end
+
   def test_cp_r_doesnt_tangle_files_together
     File.open('foo', 'w') { |f| f.write 'bar' }
     FileUtils.cp_r('foo', 'baz')
