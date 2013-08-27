@@ -95,6 +95,11 @@ module FakeFS
 
     alias_method :copy, :cp
 
+    def copy_file(src, dest, preserve = false, dereference = true)
+      # Not a perfect match, but similar to what regular FileUtils does.
+      cp(src, dest)
+    end
+
     def cp_r(src, dest, options={})
       Array(src).each do |src|
         # This error sucks, but it conforms to the original Ruby
