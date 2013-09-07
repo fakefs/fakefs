@@ -791,6 +791,14 @@ class FakeFSTest < Test::Unit::TestCase
     end
   end
 
+  def test_file_read_errors_on_directory
+    FileUtils.mkdir_p("a_directory")
+
+    assert_raise Errno::EISDIR do
+      File.read("a_directory")
+    end
+  end
+
   def test_knows_files_are_files
     path = 'file.txt'
     File.open(path, 'w') do |f|

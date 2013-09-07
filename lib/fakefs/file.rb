@@ -153,12 +153,12 @@ module FakeFS
 
     def self.read(path, *args)
       file = new(path)
-      if file.exists?
-        FileSystem.find(path).atime = Time.now
-        file.read
-      else
-        raise Errno::ENOENT
-      end
+
+      raise Errno::ENOENT if !file.exists?
+      raise Errno::EISDIR, "Is a directory - #{path}" if directory?(path)
+
+      FileSystem.find(path).atime = Time.now
+      file.read
     end
 
     def self.readlines(path)
