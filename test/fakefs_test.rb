@@ -564,6 +564,22 @@ class FakeFSTest < Test::Unit::TestCase
     end
   end
 
+  def test_can_set_mtime_on_new_file_touch_with_param
+    time = Time.new(2002, 10, 31, 2, 2, 2, "+02:00")
+    FileUtils.touch("foo.txt", :mtime => time)
+
+    assert_equal File.mtime("foo.txt"), time
+  end
+
+  def test_can_set_mtime_on_existing_file_touch_with_param
+    FileUtils.touch("foo.txt")
+
+    time = Time.new(2002, 10, 31, 2, 2, 2, "+02:00")
+    FileUtils.touch("foo.txt", :mtime => time)
+
+    assert_equal File.mtime("foo.txt"), time
+  end
+
   def test_can_return_mtime_on_existing_file
     path = 'file.txt'
     File.open(path, 'w') do |f|

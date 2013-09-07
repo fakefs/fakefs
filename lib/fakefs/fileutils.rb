@@ -205,11 +205,16 @@ module FakeFS
       Array(list).each do |f|
         if fs = FileSystem.find(f)
           now = Time.now
-          fs.mtime = now
+          fs.mtime = options[:mtime] || now
           fs.atime = now
         else
-          f = File.open(f, 'w')
-          f.close
+          file = File.open(f, 'w')
+          file.close
+
+          if mtime = options[:mtime]
+            fs = FileSystem.find(f)
+            fs.mtime = mtime
+          end
         end
       end
     end
