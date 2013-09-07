@@ -147,7 +147,6 @@ Meta
 * Home: <http://github.com/defunkt/fakefs>
 * Docs: <http://defunkt.github.com/fakefs>
 * Bugs: <http://github.com/defunkt/fakefs/issues>
-* List: <http://groups.google.com/group/fakefs>
 * Test: <http://travisci.org/#!/defunkt/fakefs>
 * Gems: <http://rubygems.org/gems/fakefs>
 
