@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "fakefs"
-  s.version = "0.4.2"
+  s.version = "0.4.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Chris Wanstrath", "Scott Taylor", "Jeff Hodges", "Pat Nakajima"]
-  s.date = "2012-11-24"
+  s.date = "2013-09-07"
   s.description = "A fake filesystem. Use it in your tests."
   s.email = "chris@ozmm.org"
   s.extra_rdoc_files = [
@@ -79,6 +79,5 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<jeweler>, [">= 0"])
     s.add_dependency(%q<rdiscount>, [">= 0"])
   end
-  s.license = "MIT"
 end
 
