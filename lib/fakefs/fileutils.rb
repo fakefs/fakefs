@@ -202,14 +202,16 @@ module FakeFS
     end
 
     def touch(list, options={})
+      mtime = options[:mtime]
       Array(list).each do |f|
         if fs = FileSystem.find(f)
           now = Time.now
-          fs.mtime = now
+          fs.mtime = mtime || now
           fs.atime = now
         else
           f = File.open(f, 'w')
           f.close
+          FileSystem.find(f).mtime = mtime if mtime
         end
       end
     end
