@@ -515,6 +515,14 @@ module FakeFS
       end
     end
 
+    def read(length = nil, buffer = nil)
+      read_buf = super(length, buffer)
+      if @mode == 'rb' || @mode.include?('binary')
+        read_buf = read_buf.force_encoding('ASCII-8BIT')
+      end
+      read_buf
+    end
+
   private
 
     def check_modes!
