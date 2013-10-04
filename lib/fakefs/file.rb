@@ -517,7 +517,7 @@ module FakeFS
 
     def read(length = nil, buf = "")
       read_buf = super(length, buf)
-      if binary_mode? #we do not use binmode? since it is not present on Ruby 1.8.7 
+      if read_buf.respond_to?(:force_encoding) && binary_mode? #change to binary only for ruby 1.9.3
         read_buf = read_buf.force_encoding('ASCII-8BIT')
       end
       read_buf
