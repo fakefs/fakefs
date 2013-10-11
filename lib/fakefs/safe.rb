@@ -9,5 +9,6 @@ require 'fakefs/fileutils'
 require 'fakefs/file'
 require 'fakefs/file_test'
 require 'fakefs/dir'
+require 'fakefs/io'
 require 'fakefs/pathname' if RUBY_VERSION >= "1.9.3"
 
