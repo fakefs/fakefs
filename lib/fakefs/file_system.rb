@@ -92,9 +92,11 @@ module FakeFS
     def normalize_path(path)
       if Pathname.new(path).absolute?
         File.expand_path(path)
+      elsif dir_levels.empty?
+        File.expand_path(path)
       else
         parts = dir_levels + [path]
-        File.expand_path(File.join(*parts))
+        parts.inject {|base, part| Pathname(base) + part }.expand_path.to_s
       end
     end
 
