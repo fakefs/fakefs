@@ -80,7 +80,7 @@ module FakeFS
       FileSystem.delete(string)
     end
 
-    def self.entries(dirname)
+    def self.entries(dirname, opts = {})
       _check_for_valid_file(dirname)
 
       Dir.new(dirname).map { |file| File.basename(file) }
