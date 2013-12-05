@@ -1156,6 +1156,19 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal ['/path/me/foobar'], Dir.glob('/path/me/*').sort
   end
 
+  def test_chdir_should_be_nestable_with_absolute_paths
+    FileUtils.mkdir_p '/path/me'
+    Dir.chdir '/path' do
+      File.open('foo', 'w') { |f| f.write 'foo'}
+      Dir.chdir '/path/me' do
+        File.open('foobar', 'w') { |f| f.write 'foo'}
+      end
+    end
+
+    assert_equal ['/path/foo','/path/me'], Dir.glob('/path/*').sort
+    assert_equal ['/path/me/foobar'], Dir.glob('/path/me/*').sort
+  end
+
   def test_chdir_should_flop_over_and_die_if_the_dir_doesnt_exist
     assert_raise(Errno::ENOENT) do
       Dir.chdir('/nope') do
