@@ -1787,6 +1787,26 @@ class FakeFSTest < Test::Unit::TestCase
     test.each { |t| assert yielded.include?(t) }
   end
 
+  def test_directory_foreach_relative_paths
+    test = ['.', '..', 'file_1', 'file_2', 'file_3', 'file_4', 'file_5' ]
+
+    FileUtils.mkdir_p('/this/path/should/be/here')
+
+    test.each do |f|
+      FileUtils.touch("/this/path/should/be/here/#{f}")
+    end
+
+    yielded = []
+    Dir.chdir '/this/path/should/be' do
+      Dir.foreach('here') do |dir|
+        yielded << dir
+      end
+    end
+
+    assert yielded.size == test.size, 'wrong number of files yielded'
+    test.each { |t| assert yielded.include?(t), "#{t} was not included in #{yielded.inspect}" }
+  end
+
   def test_directory_mkdir
     Dir.mkdir('/path')
     assert File.exists?('/path')

@@ -9,7 +9,7 @@ module FakeFS
     def initialize(string)
       self.class._check_for_valid_file(string)
 
-      @path = string
+      @path = FileSystem.normalize_path(string)
       @open = true
       @pointer = 0
       @contents = [ '.', '..', ] + FileSystem.find(@path).entries
@@ -44,7 +44,13 @@ module FakeFS
       raise IOError, "closed directory" if @pointer == nil
       n = @contents[@pointer]
       @pointer += 1
-      n.to_s.gsub(path + '/', '') if n
+      if n
+        if n.to_s[0, path.size+1] == path+'/'
+          n.to_s[path.size+1..-1]
+        else
+          n.to_s
+        end
+      end
     end
 
     def rewind
