@@ -1242,6 +1242,20 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal '/path/subdir', Dir.getwd
   end
 
+  def test_current_dir_reflected_by_expand_path
+    FileUtils.mkdir_p '/path'
+    Dir.chdir '/path'
+
+    assert_equal '/path', File.expand_path('.')
+    assert_equal '/path/foo', File.expand_path('foo')
+
+    FileUtils.mkdir_p 'subdir'
+    Dir.chdir 'subdir'
+
+    assert_equal '/path/subdir', File.expand_path('.')
+    assert_equal '/path/subdir/foo', File.expand_path('foo')
+  end
+
   def test_file_open_defaults_to_read
     File.open('foo','w') { |f| f.write 'bar' }
     assert_equal 'bar', File.open('foo') { |f| f.read }

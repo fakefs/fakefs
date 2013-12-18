@@ -134,8 +134,9 @@ module FakeFS
       end
     end
 
-    def self.expand_path(*args)
-      RealFile.expand_path(*args)
+    def self.expand_path(file_name, *args)
+      args = [ FileSystem.current_dir.to_s ] if args.empty?
+      RealFile.expand_path(file_name, *args)
     end
 
     def self.basename(*args)

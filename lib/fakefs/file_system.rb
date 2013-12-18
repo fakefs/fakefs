@@ -47,7 +47,7 @@ module FakeFS
     # copies directories and files from the real filesystem
     # into our fake one
     def clone(path, target = nil)
-      path    = File.expand_path(path)
+      path    = RealFile.expand_path(path)
       pattern = File.join(path, '**', '*')
       files   = RealFile.file?(path) ? [path] : [path] + RealDir.glob(pattern, RealFile::FNM_DOTMATCH)
 
@@ -91,17 +91,17 @@ module FakeFS
 
     def normalize_path(path)
       if Pathname.new(path).absolute?
-        File.expand_path(path)
+        RealFile.expand_path(path)
       elsif dir_levels.empty?
-        File.expand_path(path)
+        RealFile.expand_path(path)
       else
         parts = dir_levels + [path]
-        parts.inject {|base, part| Pathname(base) + part }.expand_path.to_s
+        RealFile.expand_path(parts.inject {|base, part| Pathname(base) + part }.to_s)
       end
     end
 
     def current_dir
-      find(normalize_path('.'))
+      find('.')
     end
 
     private
@@ -109,7 +109,7 @@ module FakeFS
     def drop_root(path_parts)
       # we need to remove parts from root dir at least for windows and jruby
       return path_parts if path_parts.nil? || path_parts.empty?
-      root = File.expand_path('/').split(File::SEPARATOR).first
+      root = RealFile.expand_path('/').split(File::SEPARATOR).first
       path_parts.shift if path_parts.first == root
       path_parts
     end
