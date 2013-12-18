@@ -520,6 +520,14 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal 9, File.size(path)
   end
 
+  def test_can_get_correct_size_for_files_with_multibyte_characters
+    path = 'file.txt'
+    File.open(path, 'wb') do |f|
+      f << "Y\xC3\xA1da" # Yáda
+    end
+    assert_equal 5, File.size(path)
+  end
+
   def test_can_check_if_file_has_size?
     path = 'file.txt'
     File.open(path, 'w') do |f|
