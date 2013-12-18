@@ -531,7 +531,7 @@ module FakeFS
 
     def binary_mode?
       @mode.is_a?(String) && (@mode.include?('b') || @mode.include?('binary')) && !@mode.include?('bom')
-    end 
+    end
 
     def check_file_existence!
       raise Errno::ENOENT, @path unless @file
