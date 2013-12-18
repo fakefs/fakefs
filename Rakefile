@@ -36,6 +36,7 @@ begin
     gemspec.authors     = ["Chris Wanstrath", "Scott Taylor", "Jeff Hodges", "Pat Nakajima"]
     gemspec.has_rdoc    = false
     gemspec.version     = FakeFS::Version.to_s
+    gemspec.license     = 'MIT'
   end
 rescue LoadError
   puts "Jeweler not available."
