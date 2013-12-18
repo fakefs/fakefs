@@ -487,6 +487,13 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal 'Yada Yada', File.read(path)
   end
 
+  def test_can_write_to_files_using_io
+    path = 'file.txt'
+    IO.write(path, 'Yada Yada')
+
+    assert_equal 'Yada Yada', File.read(path)
+  end
+
   def test_raises_error_when_opening_with_binary_mode_only
     assert_raise ArgumentError do
       File.open("/foo", "b")
@@ -768,6 +775,15 @@ class FakeFSTest < Test::Unit::TestCase
     end
 
     assert_equal "Yatta!", File.new(path).read
+  end
+
+  def test_can_read_using_io
+    path = 'file.txt'
+    File.open(path, 'w') do |f|
+      f.write "Yatta!"
+    end
+
+    assert_equal "Yatta!", IO.read(path)
   end
 
   if RUBY_VERSION >= "1.9"

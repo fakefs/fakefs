@@ -18,12 +18,14 @@ module FakeFS
         remove_const(:File)
         remove_const(:FileTest)
         remove_const(:FileUtils)
+        remove_const(:IO)
         remove_const(:Pathname) if RUBY_VERSION >= "1.9.3"
 
         const_set(:Dir,       FakeFS::Dir)
         const_set(:File,      FakeFS::File)
         const_set(:FileUtils, FakeFS::FileUtils)
         const_set(:FileTest,  FakeFS::FileTest)
+        const_set(:IO,        FakeFS::IO)
         const_set(:Pathname,  FakeFS::Pathname) if RUBY_VERSION >= "1.9.3"
       end
       true
