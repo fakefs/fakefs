@@ -515,11 +515,23 @@ module FakeFS
       end
     end
 
+    def read(length = nil, buf = "")
+      read_buf = super(length, buf)
+      if read_buf.respond_to?(:force_encoding) && binary_mode? #change to binary only for ruby 1.9.3
+        read_buf = read_buf.force_encoding('ASCII-8BIT')
+      end
+      read_buf
+    end
+
   private
 
     def check_modes!
       StringIO.new("", @mode)
     end
+
+    def binary_mode?
+      @mode.is_a?(String) && (@mode.include?('b') || @mode.include?('binary')) && !@mode.include?('bom')
+    end 
 
     def check_file_existence!
       raise Errno::ENOENT, @path unless @file
