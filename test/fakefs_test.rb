@@ -1206,7 +1206,7 @@ class FakeFSTest < Test::Unit::TestCase
       rescue Errno::ENOENT
       end
 
-      assert_equal ['/path'], FileSystem.dir_levels
+      assert_equal ['/', '/path'], FileSystem.dir_levels
     end
 
     assert_equal(['/path/foo', '/path/foobar'], Dir.glob('/path/*').sort)

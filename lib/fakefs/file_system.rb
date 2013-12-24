@@ -3,7 +3,7 @@ module FakeFS
     extend self
 
     def dir_levels
-      @dir_levels ||= []
+      @dir_levels ||= ['/']
     end
 
     def fs
@@ -91,8 +91,6 @@ module FakeFS
 
     def normalize_path(path)
       if Pathname.new(path).absolute?
-        RealFile.expand_path(path)
-      elsif dir_levels.empty?
         RealFile.expand_path(path)
       else
         parts = dir_levels + [path]
