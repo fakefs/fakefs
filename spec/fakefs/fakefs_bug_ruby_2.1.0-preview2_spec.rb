@@ -6,10 +6,12 @@ RSpec.configure do |c|
   c.include(FakeFS::SpecHelpers, :fakefs => true)
 end
 
-describe 'Find.find', :fakefs => true do
-  it 'does not give an ArgumentError' do
-    FileUtils.mkdir_p('/tmp/foo')
-    found = Find.find('/tmp').to_a
-    expect(found).to eq(%w(/tmp /tmp/foo))
+if RUBY_VERSION >= '2.1'
+  describe 'Find.find', :fakefs => true do
+    it 'does not give an ArgumentError' do
+      FileUtils.mkdir_p('/tmp/foo')
+      found = Find.find('/tmp').to_a
+      expect(found).to eq(%w(/tmp /tmp/foo))
+    end
   end
 end
