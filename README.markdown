@@ -147,7 +147,7 @@ Meta
 
 * Code: `git clone git://github.com/defunkt/fakefs.git`
 * Home: <http://github.com/defunkt/fakefs>
-* Docs: <http://defunkt.github.com/fakefs>
+* Docs: <http://rdoc.info/github/defunkt/fakefs>
 * Bugs: <http://github.com/defunkt/fakefs/issues>
 * Test: <http://travisci.org/#!/defunkt/fakefs>
 * Gems: <http://rubygems.org/gems/fakefs>
