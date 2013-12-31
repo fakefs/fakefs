@@ -1529,6 +1529,48 @@ class FakeFSTest < Test::Unit::TestCase
     act_on_real_fs { RealFileUtils.rm_rf(here('subdir')) }
   end
 
+  def test_clone_with_file_symlinks
+    original = here('subdir/test-file')
+    symlink  = here('subdir/test-file.txt')
+
+    act_on_real_fs do
+      RealDir.mkdir(RealFile.dirname(original))
+      RealFile.open(original, 'w') {|f| f << 'stuff' }
+      RealFileUtils.ln_s original, symlink
+      assert RealFile.symlink?(symlink), 'real symlink is in place'
+    end
+
+    assert !File.exists?(original), 'file does not already exist'
+
+    FileSystem.clone(File.dirname(original))
+    assert File.symlink?(symlink), 'symlinks are cloned as symlinks'
+    assert_equal 'stuff', File.read(symlink)
+  ensure
+    act_on_real_fs { RealFileUtils.rm_rf File.dirname(original) }
+  end
+
+  def test_clone_with_dir_symlinks
+    original = here('subdir/dir')
+    symlink  = here('subdir/dir.link')
+    original_file = File.join(original, 'test-file')
+    symlink_file  = File.join(symlink, 'test-file')
+
+    act_on_real_fs do
+      RealFileUtils.mkdir_p(original)
+      RealFile.open(original_file, 'w') {|f| f << 'stuff' }
+      RealFileUtils.ln_s original, symlink
+      assert RealFile.symlink?(symlink), 'real symlink is in place'
+    end
+
+    assert !File.exists?(original_file), 'file does not already exist'
+
+    FileSystem.clone(File.dirname(original))
+    assert File.symlink?(symlink), 'symlinks are cloned as symlinks'
+    assert_equal 'stuff', File.read(symlink_file)
+  ensure
+    act_on_real_fs { RealFileUtils.rm_rf File.dirname(original) }
+  end
+
   def test_putting_a_dot_at_end_copies_the_contents
     FileUtils.mkdir_p 'subdir'
     Dir.chdir('subdir') { File.open('foo', 'w') { |f| f.write 'footext' } }
