@@ -8,3 +8,4 @@ fakefs.gemspec
 .rbx
 .idea
 .bundle
+Gemfile.lock
