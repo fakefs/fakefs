@@ -7,7 +7,7 @@ module FakeFS
     end
 
     def inspect
-      "symlink(#{target.split('/').last})"
+      "symlink(#{name} -> #{target.split('/').last})"
     end
 
     def entry
