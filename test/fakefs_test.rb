@@ -68,6 +68,21 @@ class FakeFSTest < Test::Unit::TestCase
     end
   end
 
+  def test_raises_error_when_creating_a_new_dir_over_existing_file
+    File.open("file", "w") {|f| f << "This is a file, not a directory." }
+
+    assert_raise Errno::EEXIST do
+      FileUtils.mkdir_p("file/subdir")
+    end
+
+    FileUtils.mkdir("dir")
+    File.open("dir/subfile", "w") {|f| f << "This is a file inside a directory." }
+
+    assert_raise Errno::EEXIST do
+      FileUtils.mkdir_p("dir/subfile/subdir")
+    end
+  end
+
   def test_can_create_directories_with_mkpath
     FileUtils.mkpath("/path/to/dir")
     assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']

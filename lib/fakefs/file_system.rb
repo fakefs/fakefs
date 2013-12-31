@@ -36,9 +36,11 @@ module FakeFS
       parts = path_parts(normalize_path(path))
 
       d = parts[0...-1].inject(fs) do |dir, part|
+        assert_dir dir[part] if dir[part]
         dir[part] ||= FakeDir.new(part, dir)
       end
 
+      assert_dir d
       object.name = parts.last
       object.parent = d
       d[parts.last] ||= object
@@ -144,6 +146,10 @@ module FakeFS
     def directories_under(dir)
       children = dir.entries.select{|f| f.is_a? FakeDir}
       ([dir] + children + children.map{|c| directories_under(c)}).flatten.uniq
+    end
+
+    def assert_dir(dir)
+      raise Errno::EEXIST, dir.name unless dir.is_a?(FakeDir)
     end
   end
 end
