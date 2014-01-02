@@ -2304,6 +2304,16 @@ class FakeFSTest < Test::Unit::TestCase
     assert !FileTest.file?('/path/to/somedir')
   end
 
+  def test_filetest_writable_returns_correct_values
+    assert !FileTest.writable?('not-here.txt'), 'missing files are not writable'
+
+    FileUtils.touch 'here.txt'
+    assert FileTest.writable?('here.txt'), 'existing files are writable'
+
+    FileUtils.mkdir 'dir'
+    assert FileTest.writable?('dir'), 'directories are writable'
+  end
+
   def test_pathname_exists_returns_correct_value
     FileUtils.touch "foo"
     assert Pathname.new("foo").exist?
