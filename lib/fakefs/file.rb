@@ -308,6 +308,10 @@ module FakeFS
         File.directory?(@file)
       end
 
+      def file?
+        File.file?(@file)
+      end
+
       def ftype
         return 'link' if symlink?
         return 'directory' if directory?
@@ -318,6 +322,7 @@ module FakeFS
       def readable?
         true
       end
+
       def writable?
         true
       end

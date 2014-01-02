@@ -23,10 +23,15 @@ class FileStatTest < Test::Unit::TestCase
     File.link(*args)
   end
 
-  def test_file_stat_init_with_non_existant_file
+  def test_file_stat_init_with_non_existent_file
     assert_raises(Errno::ENOENT) do
       File::Stat.new("/foo")
     end
+  end
+
+  def test_file_should_be_true_when_file
+    touch("/foo")
+    assert File::Stat.new("/foo").file?
   end
 
   def test_symlink_should_be_true_when_symlink
