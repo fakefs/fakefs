@@ -67,10 +67,16 @@ module FakeFS
 
     alias_method :symlink, :ln_s
 
-    def cp(src, dest)
+    def cp(src, dest, options={})
       if src.is_a?(Array) && !File.directory?(dest)
         raise Errno::ENOTDIR, dest
       end
+
+      # handle `verbose' flag
+      RealFileUtils.cp src, dest, options.merge(:noop => true)
+
+      # handle `noop' flag
+      return if options[:noop]
 
       Array(src).each do |src|
         dst_file = FileSystem.find(dest)
@@ -91,6 +97,8 @@ module FakeFS
           FileSystem.add(dest, src_file.entry.clone)
         end
       end
+
+      return nil
     end
 
     alias_method :copy, :cp

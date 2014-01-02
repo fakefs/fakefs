@@ -1006,6 +1006,23 @@ class FakeFSTest < Test::Unit::TestCase
     end
   end
 
+  def test_file_utils_cp_allows_verbose_option
+    File.open('foo', 'w') {|f| f << 'TEST' }
+    assert_equal "cp foo bar\n", capture_stderr { FileUtils.cp 'foo', 'bar', :verbose => true }
+  end
+
+  def test_file_utils_cp_allows_noop_option
+    File.open('foo', 'w') {|f| f << 'TEST' }
+    FileUtils.cp 'foo', 'bar', :noop => true
+    assert !File.exist?('bar'), 'does not actually copy'
+  end
+
+  def test_file_utils_cp_raises_on_invalid_option
+    assert_raises ArgumentError do
+      FileUtils.cp 'foo', 'bar', :whatisthis => "I don't know"
+    end
+  end
+
   def test_file_utils_cp_r_takes_ignored_options
     FileUtils.touch "/foo"
 
