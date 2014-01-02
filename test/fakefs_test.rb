@@ -1131,8 +1131,17 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal 1, fp.pos
   end
 
+  OMITTED_FILE_METHODS = [
+    # omit methods from io/console
+    :raw, :raw!, :cooked, :cooked!,
+    :echo?, :echo=, :noecho,
+    :winsize, :winsize=,
+    :getch,
+    :iflush, :ioflush, :oflush
+  ]
+
   def test_every_method_in_file_is_in_fake_fs_file
-    RealFile.instance_methods.each do |method_name|
+    (RealFile.instance_methods - OMITTED_FILE_METHODS).each do |method_name|
       assert File.instance_methods.include?(method_name), "#{method_name} method is not available in File :("
     end
   end
