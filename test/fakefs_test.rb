@@ -1350,6 +1350,46 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal('binky', File.open('destdir/baz') {|f| f.read })
   end
 
+  def test_mv_accepts_verbose_option
+    FileUtils.touch 'foo'
+    assert_equal "mv foo bar\n", capture_stderr { FileUtils.mv 'foo', 'bar', :verbose => true }
+  end
+
+  def test_mv_accepts_noop_option
+    FileUtils.touch 'foo'
+    FileUtils.mv 'foo', 'bar', :noop => true
+    assert File.exist?('foo'), 'does not remove src'
+    assert !File.exist?('bar'), 'does not create target'
+  end
+
+  def test_mv_raises_when_moving_file_onto_directory
+    FileUtils.mkdir_p 'dir/stuff'
+    FileUtils.touch 'stuff'
+    assert_raises Errno::EEXIST do
+      FileUtils.mv 'stuff', 'dir'
+    end
+  end
+
+  def test_mv_raises_when_moving_to_non_existent_directory
+    FileUtils.touch 'stuff'
+    assert_raises Errno::ENOENT do
+      FileUtils.mv 'stuff', '/this/path/is/not/here'
+    end
+  end
+
+  def test_mv_ignores_failures_when_using_force
+    FileUtils.mkdir_p 'dir/stuff'
+    FileUtils.touch %w[stuff other]
+    FileUtils.mv %w[stuff other], 'dir', :force => true
+    assert File.exist?('stuff'), 'failed move remains where it was'
+    assert File.exist?('dir/other'), 'successful one is moved'
+    assert !File.exist?('other'), 'successful one is moved'
+
+    FileUtils.mv 'stuff', '/this/path/is/not/here', :force => true
+    assert File.exist?('stuff'), 'failed move remains where it was'
+    assert !File.exist?('/this/path/is/not/here'), 'nothing is created for a failed move'
+  end
+
   def test_cp_actually_works
     File.open('foo', 'w') {|f| f.write 'bar' }
     FileUtils.cp('foo', 'baz')

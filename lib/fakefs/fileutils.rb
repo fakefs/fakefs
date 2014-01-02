@@ -147,16 +147,30 @@ module FakeFS
     end
 
     def mv(src, dest, options={})
+      # handle `verbose' flag
+      RealFileUtils.mv src, dest, options.merge(:noop => true)
+
+      # handle `noop' flag
+      return if options[:noop]
+
       Array(src).each do |path|
         if target = FileSystem.find(path)
           dest_path = File.directory?(dest) ? File.join(dest, File.basename(path)) : dest
-          FileSystem.delete(dest_path)
-          FileSystem.add(dest_path, target.entry.clone)
-          FileSystem.delete(path)
+          if File.directory?(dest_path)
+            raise Errno::EEXIST, dest_path unless options[:force]
+          elsif File.directory?(File.dirname(dest_path))
+            FileSystem.delete(dest_path)
+            FileSystem.add(dest_path, target.entry.clone)
+            FileSystem.delete(path)
+          else
+            raise Errno::ENOENT, dest_path unless options[:force]
+          end
         else
           raise Errno::ENOENT, path
         end
       end
+
+      return nil
     end
 
     alias_method :move, :mv
