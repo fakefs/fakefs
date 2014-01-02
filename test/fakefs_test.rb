@@ -1023,11 +1023,15 @@ class FakeFSTest < Test::Unit::TestCase
     end
   end
 
-  def test_file_utils_cp_r_takes_ignored_options
+  def test_file_utils_cp_r_allows_verbose_option
     FileUtils.touch "/foo"
+    assert_equal "cp -r /foo /bar\n", capture_stderr { FileUtils.cp_r '/foo', '/bar', :verbose => true }
+  end
 
-    FileUtils.cp_r '/foo', '/bar', :verbose => true
-    assert_equal Dir.glob("/*").sort, ["/bar", "/foo"]
+  def test_file_utils_cp_r_allows_noop_option
+    FileUtils.touch "/foo"
+    FileUtils.cp_r '/foo', '/bar', :noop => true
+    assert !File.exist?('/bar'), 'does not actually copy'
   end
 
   def test_dir_glob_handles_root

@@ -109,6 +109,12 @@ module FakeFS
     end
 
     def cp_r(src, dest, options={})
+      # handle `verbose' flag
+      RealFileUtils.cp_r src, dest, options.merge(:noop => true)
+
+      # handle `noop' flag
+      return if options[:noop]
+
       Array(src).each do |src|
         # This error sucks, but it conforms to the original Ruby
         # method.
@@ -136,6 +142,8 @@ module FakeFS
           FileSystem.add(dest, dir.entry.clone)
         end
       end
+
+      return nil
     end
 
     def mv(src, dest, options={})
