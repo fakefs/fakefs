@@ -156,7 +156,7 @@ module FakeFS
       file = new(path)
 
       raise Errno::ENOENT if !file.exists?
-      raise Errno::EISDIR, "Is a directory - #{path}" if directory?(path)
+      raise Errno::EISDIR, path if directory?(path)
 
       FileSystem.find(path).atime = Time.now
       file.read
@@ -174,16 +174,16 @@ module FakeFS
 
     def self.rename(source, dest)
       if directory?(source) && file?(dest)
-        raise Errno::ENOTDIR, "Not a directory - #{source} or #{dest}"
+        raise Errno::ENOTDIR, "#{source} or #{dest}"
       elsif file?(source) && directory?(dest)
-        raise Errno::EISDIR, "Is a directory - #{source} or #{dest}"
+        raise Errno::EISDIR, "#{source} or #{dest}"
       end
 
       if target = FileSystem.find(source)
         FileSystem.add(dest, target.entry.clone)
         FileSystem.delete(source)
       else
-        raise Errno::ENOENT,  "No such file or directory - #{source} or #{dest}"
+        raise Errno::ENOENT, "#{source} or #{dest}"
       end
 
       0
@@ -191,15 +191,15 @@ module FakeFS
 
     def self.link(source, dest)
       if directory?(source)
-        raise Errno::EPERM, "Operation not permitted - #{source} or #{dest}"
+        raise Errno::EPERM, "#{source} or #{dest}"
       end
 
       if !exists?(source)
-        raise Errno::ENOENT, "No such file or directory - #{source} or #{dest}"
+        raise Errno::ENOENT, "#{source} or #{dest}"
       end
 
       if exists?(dest)
-        raise Errno::EEXIST, "File exists - #{source} or #{dest}"
+        raise Errno::EEXIST, "#{source} or #{dest}"
       end
 
       source = FileSystem.find(source)
@@ -211,7 +211,7 @@ module FakeFS
 
     def self.delete(file_name, *additional_file_names)
       if !exists?(file_name)
-        raise Errno::ENOENT, "No such file or directory - #{file_name}"
+        raise Errno::ENOENT, file_name
       end
 
       FileUtils.rm(file_name)
@@ -286,7 +286,7 @@ module FakeFS
 
       def initialize(file, __lstat = false)
         if !File.exists?(file)
-          raise(Errno::ENOENT, "No such file or directory - #{file}")
+          raise Errno::ENOENT, file
         end
 
         @file      = file
@@ -553,7 +553,7 @@ module FakeFS
     # Create a missing file if the path is valid.
     #
     def create_missing_file
-      raise Errno::EISDIR, "Is a directory - #{path}" if File.directory?(@path)
+      raise Errno::EISDIR, path if File.directory?(@path)
 
       if !File.exists?(@path) # Unnecessary check, probably.
         dirname = RealFile.dirname @path
@@ -562,7 +562,7 @@ module FakeFS
           dir = FileSystem.find dirname
 
           unless dir.kind_of? FakeDir
-            raise Errno::ENOENT, "No such file or directory - #{path}"
+            raise Errno::ENOENT, path
           end
         end
 

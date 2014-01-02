@@ -16,8 +16,8 @@ module FakeFS
       list.each do |path|
         parent = path.split('/')
         parent.pop
-        raise Errno::ENOENT, "No such file or directory - #{path}" unless parent.join == "" || parent.join == "." || FileSystem.find(parent.join('/'))
-        raise Errno::EEXIST, "File exists - #{path}" if FileSystem.find(path)
+        raise Errno::ENOENT, path unless parent.join == "" || parent.join == "." || FileSystem.find(parent.join('/'))
+        raise Errno::EEXIST, path if FileSystem.find(path)
         FileSystem.add(path, FakeDir.new)
       end
     end
@@ -27,7 +27,7 @@ module FakeFS
       list.each do |l|
         parent = l.split('/')
         parent.pop
-        raise Errno::ENOENT, "No such file or directory - #{l}" unless parent.join == "" || FileSystem.find(parent.join('/'))
+        raise Errno::ENOENT, l unless parent.join == "" || FileSystem.find(parent.join('/'))
         raise Errno::ENOENT, l unless FileSystem.find(l)
         raise Errno::ENOTEMPTY, l unless FileSystem.find(l).empty?
         rm(l)
