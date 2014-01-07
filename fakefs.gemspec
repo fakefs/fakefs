@@ -6,7 +6,7 @@ require 'fakefs/version'
 Gem::Specification.new do |spec|
   spec.name          = "fakefs"
   spec.version       = FakeFS::Version.to_s
-  spec.authors       = ["Chris Wanstrath", "Scott Taylor", "Jeff Hodges", "Pat Nakajima"]
+  spec.authors       = ["Chris Wanstrath", "Scott Taylor", "Jeff Hodges", "Pat Nakajima", "Brian Donovan"]
   spec.email         = ["chris@ozmm.org"]
   spec.description   = %q{A fake filesystem. Use it in your tests.}
   spec.summary       = %q{A fake filesystem. Use it in your tests.}
