@@ -153,13 +153,17 @@ module FakeFS
     end
 
     def self.read(path, *args)
-      file = new(path)
+      options = args[-1].is_a?(Hash) ? args.pop : {}
+      length = args.size > 0 ? args.shift : nil
+      offset = args.size > 0 ? args.shift : 0
+      file = new(path, options)
 
       raise Errno::ENOENT if !file.exists?
       raise Errno::EISDIR, path if directory?(path)
 
       FileSystem.find(path).atime = Time.now
-      file.read
+      file.seek(offset)
+      file.read(length)
     end
 
     def self.readlines(path)
@@ -272,13 +276,7 @@ module FakeFS
     end
 
     def self.binread(file, length = nil, offset = 0)
-      contents = File.read(file)
-
-      if length
-        contents.slice(offset, length)
-      else
-        contents
-      end
+      contents = File.read(file, length, offset, :mode => 'rb:ASCII-8BIT')
     end
 
     class Stat
