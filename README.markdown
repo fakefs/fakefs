@@ -59,7 +59,8 @@ end
 Rails
 -----
 
-If you are using fakefs in a rails project with bundler, you'll probably want to specify the following in your Gemfile:
+If you are using fakefs in a rails project with bundler, you'll probably want
+to specify the following in your Gemfile:
 
 ``` ruby
 gem "fakefs", :require => "fakefs/safe"
@@ -115,6 +116,15 @@ Caveats
 FakeFS internally uses the `Pathname` and `FileUtils` constants. If you use
 these in your app, be certain you're properly requiring them and not counting
 on FakeFS' own require.
+
+As of v0.5.0, FakeFS's current working directory (i.e. `Dir.pwd`) is
+independent of the real working directory. Previously if the real working
+directory were, for example, `/Users/donovan/Desktop`, then FakeFS would use
+that as the fake working directory too, even though it most likely didn't
+exist. This caused all kinds of subtle bugs. Now the default working directory
+is the only thing that is guaranteed to exist, namely the root (i.e. `/`). This
+may be important when upgrading from v0.4.x to v0.5.x, especially if you depend
+on the real working directory while using FakeFS.
 
 
 Speed?
