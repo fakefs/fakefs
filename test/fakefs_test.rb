@@ -2330,6 +2330,11 @@ class FakeFSTest < Test::Unit::TestCase
     assert !Pathname.new("bar").exist?
   end
 
+  def test_pathname_method_is_faked
+    FileUtils.mkdir_p '/path'
+    assert Pathname('/path').exist?, 'Pathname() method is faked'
+  end
+
   def test_dir_mktmpdir
     FileUtils.mkdir '/tmp'
 

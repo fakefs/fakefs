@@ -4,6 +4,16 @@ RealFileUtils       = FileUtils
 RealDir             = Dir
 RealPathname        = Pathname
 
+def RealPathname(*args)
+  RealPathname.new(*args)
+end
+
+if RUBY_VERSION >= "1.9.3"
+  def Pathname(*args)
+    Pathname.new(*args)
+  end
+end
+
 module FakeFS
   @activated = false
   class << self
