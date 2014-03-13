@@ -391,6 +391,10 @@ module FakeFS
       undef_method :to_inputstream
     end
 
+    def is_a?(klass)
+      RealFile.allocate.is_a?(klass)
+    end
+
     def ioctl(integer_cmd, arg)
       raise NotImplementedError
     end

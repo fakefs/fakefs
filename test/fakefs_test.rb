@@ -1158,6 +1158,12 @@ class FakeFSTest < Test::Unit::TestCase
     assert stringio.respond_to?(:size)
   end
 
+  def test_is_not_a_stringio
+    File.open("foo", "w") do |f|
+      assert !f.is_a?(StringIO), 'File is not a StringIO'
+    end
+  end
+
   def test_chdir_changes_directories_like_a_boss
     # I know memes!
     FileUtils.mkdir_p '/path'
