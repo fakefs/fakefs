@@ -22,8 +22,8 @@ module FakeFS
       File.join(parent.to_s, name)
     end
 
-    def respond_to?(method)
-      entry.respond_to?(method)
+    def respond_to?(method, include_private = false)
+      entry.respond_to?(method, include_private)
     end
 
   private
