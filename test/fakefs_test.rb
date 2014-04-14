@@ -823,6 +823,17 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal contents, expected_contents
   end
 
+  def test_file_object_initialization_with_brackets_in_filename
+    # 日本語
+    filename = "\u65e5\u672c\u8a9e.txt"
+    expected_contents = "Yokudekimashita"
+    assert_nothing_raised do
+      File.open(filename, {:mode => "w"}){ |f| f.write "#{expected_contents}" }
+    end
+    contents = File.open("/#{filename}").read()
+    assert_equal contents, expected_contents
+  end
+
   def test_file_read_errors_appropriately
     assert_raise Errno::ENOENT do
       File.read('anything')
