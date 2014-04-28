@@ -13,5 +13,9 @@ class TempfileTest < Test::Unit::TestCase
         end
       end
     end
+  else
+    def test_noop
+      # TODO: Remove me when we add non-2.1 tests.
+    end
   end
 end
