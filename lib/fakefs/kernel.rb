@@ -31,8 +31,8 @@ module FakeFS
         # This is a system command
         ::FakeFS::Kernel.captives[:original][:open].call(*args, &block)
       else
-        name, rest = *args
-        FakeFS::File.open(name, *rest, &block)
+        name = args.shift
+        FakeFS::File.open(name, *args, &block)
       end
     end
 
