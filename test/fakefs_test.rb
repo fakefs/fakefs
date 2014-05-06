@@ -2482,6 +2482,18 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal File.stat('foo').gid, 1338
   end
 
+  def test_file_instance_absolute_path_with_absolute_path
+    FileUtils.touch('foo')
+    file = File.new('foo')
+    assert_equal file.absolute_path('/foo/bar'), '/foo/bar'
+  end
+
+  def test_file_instance_absolute_path_with_relative_path
+    FileUtils.touch('foo')
+    file = File.new('foo')
+    assert file.absolute_path('foo/bar') != '/foo/bar'
+  end
+
 
   def test_file_umask
     assert_equal File.umask, RealFile.umask
