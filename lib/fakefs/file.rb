@@ -27,8 +27,8 @@ module FakeFS
     FILE_CREATION_BITMASK = RealFile::CREAT
 
 
-    def absolute_path(path)
-      RealFile.absolute_path(path)
+    def self.absolute_path(file)
+      RealFile.absolute_path(file)
     end
 
     def self.extname(path)

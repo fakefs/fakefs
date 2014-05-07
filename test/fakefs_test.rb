@@ -1719,6 +1719,16 @@ class FakeFSTest < Test::Unit::TestCase
     end
   end
 
+  def test_absolute_path_with_absolute_path
+    FileUtils.touch('foo')
+    assert_equal '/foo/bar', File.absolute_path('/foo/bar')
+  end
+
+  def test_absolute_path_with_relative_path
+    FileUtils.touch('foo')
+    assert_equal "#{Dir.getwd}/foo/bar", File.absolute_path('foo/bar')
+  end
+
   def test_extname
     assert File.extname("test.doc") == ".doc"
   end
@@ -2481,19 +2491,6 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal File.stat('foo').uid, 1337
     assert_equal File.stat('foo').gid, 1338
   end
-
-  def test_file_instance_absolute_path_with_absolute_path
-    FileUtils.touch('foo')
-    file = File.new('foo')
-    assert_equal file.absolute_path('/foo/bar'), '/foo/bar'
-  end
-
-  def test_file_instance_absolute_path_with_relative_path
-    FileUtils.touch('foo')
-    file = File.new('foo')
-    assert file.absolute_path('foo/bar') != '/foo/bar'
-  end
-
 
   def test_file_umask
     assert_equal File.umask, RealFile.umask
