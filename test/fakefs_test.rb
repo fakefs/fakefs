@@ -1719,21 +1719,6 @@ class FakeFSTest < Test::Unit::TestCase
     end
   end
 
-  def test_absolute_path_with_absolute_path
-    FileUtils.touch('foo')
-    assert_equal '/foo/bar', File.absolute_path('/foo/bar')
-  end
-
-  def test_absolute_path_with_absolute_path_with_dir_name
-    FileUtils.touch('foo')
-    assert_equal '/foo/bar', File.absolute_path('/foo/bar', '/dir')
-  end
-
-  def test_absolute_path_with_relative_path_with_dir_name
-    FileUtils.touch('foo')
-    assert_equal "/dir/foo/bar", File.absolute_path('foo/bar', '/dir')
-  end
-
   def test_extname
     assert File.extname("test.doc") == ".doc"
   end
@@ -2563,6 +2548,24 @@ class FakeFSTest < Test::Unit::TestCase
       FileUtils.compare_file(file1, "file4.txt")
     end
   end
+
+  if RUBY_VERSION >= "1.9.1"
+    def test_absolute_path_with_absolute_path
+      FileUtils.touch('foo')
+      assert_equal '/foo/bar', File.absolute_path('/foo/bar')
+    end
+
+    def test_absolute_path_with_absolute_path_with_dir_name
+      FileUtils.touch('foo')
+      assert_equal '/foo/bar', File.absolute_path('/foo/bar', '/dir')
+    end
+
+    def test_absolute_path_with_relative_path_with_dir_name
+      FileUtils.touch('foo')
+      assert_equal "/dir/foo/bar", File.absolute_path('foo/bar', '/dir')
+    end
+  end
+
 
   if RUBY_VERSION >= "1.9.2"
     def test_file_size
