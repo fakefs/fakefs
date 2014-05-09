@@ -2560,6 +2560,11 @@ class FakeFSTest < Test::Unit::TestCase
       assert_equal '/foo/bar', File.absolute_path('/foo/bar', '/dir')
     end
 
+    def test_absolute_path_with_relative_path
+      FileUtils.touch('foo')
+      assert_equal "#{Dir.getwd}/foo/bar", File.absolute_path('foo/bar')
+    end
+
     def test_absolute_path_with_relative_path_with_dir_name
       FileUtils.touch('foo')
       assert_equal "/dir/foo/bar", File.absolute_path('foo/bar', '/dir')
