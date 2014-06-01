@@ -2200,10 +2200,8 @@ class FakeFSTest < Test::Unit::TestCase
     assert !File.exists?("/bar")
   end
 
-  def test_delete_raises_argument_error_with_no_filename_given
-    assert_raises ArgumentError do
-      File.delete
-    end
+  def test_delete_returns_zero_when_no_filename_given
+    assert_equal 0, File.delete
   end
 
   def test_delete_returns_number_one_when_given_one_arg
