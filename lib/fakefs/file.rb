@@ -503,6 +503,10 @@ module FakeFS
       def size
         File.size(@path)
       end
+
+      def self.realdirpath(*args)
+        RealFile.realdirpath(*args)
+      end
     end
 
     if RUBY_VERSION >= "1.9.3"
