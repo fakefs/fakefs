@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require "test_helper"
 
 class FakeFSTest < Test::Unit::TestCase
@@ -2131,6 +2132,13 @@ class FakeFSTest < Test::Unit::TestCase
   def test_rename_with_missing_source_raises_error
     assert_raises(Errno::ENOENT) do
       File.rename("/no_such_file", "/bar")
+    end
+  end
+
+  def test_rename_with_missing_dest_directory_raises_error
+    FileUtils.touch("/foo")
+    assert_raises(Errno::ENOENT) do
+      File.rename("/foo", "/bar/foo")
     end
   end
 

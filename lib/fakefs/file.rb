@@ -177,6 +177,8 @@ module FakeFS
         raise Errno::ENOTDIR, "#{source} or #{dest}"
       elsif file?(source) && directory?(dest)
         raise Errno::EISDIR, "#{source} or #{dest}"
+      elsif !exist?(dirname(dest))
+        raise Errno::ENOENT, "#{source} or #{dest}"
       end
 
       if target = FileSystem.find(source)
