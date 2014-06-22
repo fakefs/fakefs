@@ -35,6 +35,7 @@ module FakeFS
         const_set(:FileUtils, FakeFS::FileUtils)
         const_set(:FileTest,  FakeFS::FileTest)
         const_set(:Pathname,  FakeFS::Pathname) if RUBY_VERSION >= "1.9.3"
+        ::FakeFS::Kernel.hijack!
       end
       true
     end
@@ -54,6 +55,7 @@ module FakeFS
         const_set(:FileTest,  RealFileTest)
         const_set(:FileUtils, RealFileUtils)
         const_set(:Pathname,  RealPathname) if RUBY_VERSION >= "1.9.3"
+        ::FakeFS::Kernel.unhijack!
       end
       true
     end

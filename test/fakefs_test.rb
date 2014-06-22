@@ -810,6 +810,30 @@ class FakeFSTest < Test::Unit::TestCase
     end
   end
 
+  def test_file_object_initialization_with_brackets_in_filename
+    filename = "bracket[1](2).txt"
+    expected_contents = "Yokudekimashita"
+    assert_nothing_raised do
+      File.open(filename, {:mode => "w"}){ |f| f.write "#{expected_contents}" }
+    end
+    the_file = Dir["/*"]
+    assert_equal the_file.length, 1
+    assert_equal the_file[0], "/#{filename}"
+    contents = File.open("/#{filename}").read()
+    assert_equal contents, expected_contents
+  end
+
+  def test_file_object_initialization_with_brackets_in_filename
+    # 日本語
+    filename = "\u65e5\u672c\u8a9e.txt"
+    expected_contents = "Yokudekimashita"
+    assert_nothing_raised do
+      File.open(filename, {:mode => "w"}){ |f| f.write "#{expected_contents}" }
+    end
+    contents = File.open("/#{filename}").read()
+    assert_equal contents, expected_contents
+  end
+
   def test_file_read_errors_appropriately
     assert_raise Errno::ENOENT do
       File.read('anything')
@@ -2596,7 +2620,7 @@ class FakeFSTest < Test::Unit::TestCase
 
     def test_can_read_binary_data_in_binary_mode
       File.open('foo', 'wb') { |f| f << "\u0000\u0000\u0000\u0003\u0000\u0003\u0000\xA3\u0000\u0000\u0000y\u0000\u0000\u0000\u0000\u0000" }
-      assert_equal "\x00\x00\x00\x03\x00\x03\x00\xA3\x00\x00\x00y\x00\x00\x00\x00\x00", File.open("foo", "rb").read
+      assert_equal "\x00\x00\x00\x03\x00\x03\x00\xA3\x00\x00\x00y\x00\x00\x00\x00\x00".force_encoding('ASCII-8BIT'), File.open("foo", "rb").read
     end
 
     def test_can_read_binary_data_in_non_binary_mode
