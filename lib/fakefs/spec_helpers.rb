@@ -18,7 +18,7 @@
 #
 #   require 'fakefs/spec_helpers'
 #
-#   Spec::Runner.configure do |config|
+#   RSpec.configure do |config|
 #     config.include FakeFS::SpecHelpers
 #   end
 #
