@@ -26,6 +26,7 @@ module FakeFS
 
     FILE_CREATION_BITMASK = RealFile::CREAT
 
+
     def self.extname(path)
       RealFile.extname(path)
     end
@@ -483,6 +484,12 @@ module FakeFS
       end
     end
 
+    if RUBY_VERSION >= "1.9.1"
+      def self.absolute_path(file_name, dir_name = Dir.getwd)
+        RealFile.absolute_path(file_name, dir_name)
+      end
+    end
+
     if RUBY_VERSION >= "1.9.2"
       attr_writer :autoclose
 
@@ -532,6 +539,7 @@ module FakeFS
       end
       read_buf
     end
+
 
   private
 

@@ -2488,7 +2488,6 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal File.stat('foo').gid, 1338
   end
 
-
   def test_file_umask
     assert_equal File.umask, RealFile.umask
     File.umask(0740)
@@ -2555,6 +2554,25 @@ class FakeFSTest < Test::Unit::TestCase
       FileUtils.compare_file(file1, "file4.txt")
     end
   end
+
+  if RUBY_VERSION >= "1.9.1"
+    def test_absolute_path_with_absolute_path
+      assert_equal '/foo/bar', File.absolute_path('/foo/bar')
+    end
+
+    def test_absolute_path_with_absolute_path_with_dir_name
+      assert_equal '/foo/bar', File.absolute_path('/foo/bar', '/dir')
+    end
+
+    def test_absolute_path_with_relative_path
+      assert_equal "#{Dir.getwd}foo/bar", File.absolute_path('foo/bar')
+    end
+
+    def test_absolute_path_with_relative_path_with_dir_name
+      assert_equal "/dir/foo/bar", File.absolute_path('foo/bar', '/dir')
+    end
+  end
+
 
   if RUBY_VERSION >= "1.9.2"
     def test_file_size
