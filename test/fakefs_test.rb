@@ -495,6 +495,17 @@ class FakeFSTest < Test::Unit::TestCase
     assert_nothing_raised { File.read(path, :mode => 'r:UTF-8:-') }
   end
 
+  def test_file_read_respects_args
+    path = 'file.txt'
+    File.open(path, 'w') do |f|
+      f.write 'Yatta!'
+    end
+
+    assert_equal 'Ya', File.read(path, 2)
+    assert_equal 'at', File.read(path, 2, 1)
+    assert_equal 'atta!', File.read(path, nil, 1)
+  end
+
   def test_can_write_to_files
     path = 'file.txt'
     File.open(path, 'w') do |f|
@@ -2615,6 +2626,26 @@ class FakeFSTest < Test::Unit::TestCase
       end
     end
 
+    def test_file_read_respects_hashes
+      path = 'file.txt'
+      File.open(path, 'w') do |f|
+        f.write 'Yatta!'
+      end
+
+      assert_equal 'ASCII-8BIT', File.read(path, :mode => 'rb').encoding.to_s
+    end
+
+    def test_file_read_respects_args_and_hashes
+      path = 'file.txt'
+      File.open(path, 'w') do |f|
+        f.write 'Yatta!'
+      end
+
+      result = File.read(path, 2, 1, :mode => 'rb')
+      assert_equal 'at', result
+      assert_equal 'ASCII-8BIT', result.encoding.to_s
+    end
+
     def test_file_write_can_write_a_file
       File.write("testfile", "0123456789")
       assert_equal File.read("testfile"), "0123456789"
@@ -2650,6 +2681,11 @@ class FakeFSTest < Test::Unit::TestCase
     def test_can_read_binary_data_in_non_binary_mode
       File.open('foo_non_bin', 'wb') { |f| f << "\u0000\u0000\u0000\u0003\u0000\u0003\u0000\xA3\u0000\u0000\u0000y\u0000\u0000\u0000\u0000\u0000" }
       assert_equal "\x00\x00\x00\x03\x00\x03\x00\xA3\x00\x00\x00y\x00\x00\x00\x00\x00".force_encoding('UTF-8'), File.open("foo_non_bin", "r").read
+    end
+
+    def test_can_read_binary_data_using_binread
+      File.open('foo', 'wb') { |f| f << "\u0000\u0000\u0000\u0003\u0000\u0003\u0000\xA3\u0000\u0000\u0000y\u0000\u0000\u0000\u0000\u0000" }
+      assert_equal "\x00\x00\x00\x03\x00\x03\x00\xA3\x00\x00\x00y\x00\x00\x00\x00\x00".force_encoding('ASCII-8BIT'), File.binread("foo")
     end
   end
 end
