@@ -211,18 +211,16 @@ module FakeFS
       0
     end
 
-    def self.delete(file_name, *additional_file_names)
-      if !exists?(file_name)
-        raise Errno::ENOENT, file_name
-      end
+    def self.delete(*file_names)
+      file_names.each do |file_name|
+        if !exists?(file_name)
+          raise Errno::ENOENT, file_name
+        end
 
-      FileUtils.rm(file_name)
-
-      additional_file_names.each do |file_name|
         FileUtils.rm(file_name)
       end
 
-      additional_file_names.size + 1
+      file_names.size
     end
 
     class << self
