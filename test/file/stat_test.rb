@@ -116,6 +116,26 @@ class FileStatTest < Test::Unit::TestCase
     assert File.mtime("/foo") > mtime
   end
 
+  def test_responds_to_world_writable
+    FileUtils.touch("/foo")
+    puts File::Stat.new("/foo").world_writable?
+    assert File::Stat.new("/foo").world_writable? == 511
+  end
+
+  def test_responds_to_world_readable
+    FileUtils.touch("/foo")
+    puts File::Stat.new("/foo").world_readable?
+    assert File::Stat.new("/foo").world_readable? == 511, "#{File::Stat.new("/foo").world_readable?}"
+  end
+
+  def test_responds_to_world_readable
+    FakeFS do
+      require 'tempfile'
+      FileUtils.mkdir_p('/tmp')
+      ::Tempfile.open('test', '/tmp')
+    end
+  end
+
   def test_responds_to_realpath_only_on_1_9
     if RUBY_VERSION > '1.9'
       assert File.respond_to?(:realpath)
