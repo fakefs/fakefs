@@ -329,11 +329,11 @@ module FakeFS
       # World_writable and readable are platform dependent
       # usually comparing with S_IROTH defined on compilation (MRI)
       def world_writable?
-        511
+        0777
       end
 
       def world_readable?
-        511
+        0777
       end
 
       def nlink
