@@ -1331,7 +1331,7 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal '/path/subdir', Dir.getwd
   end
 
-  def test_current_dir_reflected_by_expand_path
+  def test_current_dir_reflected_by_expand_path_with_relative_paths
     FileUtils.mkdir_p '/path'
     Dir.chdir '/path'
 
@@ -1343,6 +1343,22 @@ class FakeFSTest < Test::Unit::TestCase
 
     assert_equal '/path/subdir', File.expand_path('.')
     assert_equal '/path/subdir/foo', File.expand_path('foo')
+  end
+
+  def test_expand_path_with_parent_dir
+    FakeFS.deactivate!
+    real = File.expand_path('../other.file',__FILE__)
+    FakeFS.activate!
+    fake = File.expand_path('../other.file',__FILE__)
+    assert_equal real, fake
+  end
+
+  def test_expand_path_works_with_absolute_paths
+    FakeFS.deactivate!
+    home = File.expand_path('~')
+    FakeFS.activate!
+    assert_equal "#{home}/dir/subdir", File.expand_path('subdir', '~/dir')
+    assert_equal '/somewhere/else', File.expand_path('else', '/somewhere')
   end
 
   def test_file_open_defaults_to_read
