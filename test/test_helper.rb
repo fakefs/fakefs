@@ -14,6 +14,18 @@ def act_on_real_fs
   FakeFS.activate!
 end
 
+def touch_files filenames, options={}
+  dir = options[:dir]
+  filenames.each do |filename|
+    path = dir ? dir + '/' + filename : filename
+    touch_file path
+  end
+end
+
+def touch_file path
+  FileUtils.touch path
+end
+
 def capture_stderr
   real_stderr, $stderr = $stderr, StringIO.new
 

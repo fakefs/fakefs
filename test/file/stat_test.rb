@@ -34,33 +34,38 @@ class FileStatTest < Test::Unit::TestCase
     assert File::Stat.new("/foo").file?
   end
 
+  def test_file_stat_returns_file_stat_object
+    FileUtils.touch("/foo")
+    assert_equal File::Stat, File.stat("/foo").class
+  end
+
   def test_symlink_should_be_true_when_symlink
     touch("/foo")
     ln_s("/foo", "/bar")
 
     assert File::Stat.new("/bar").symlink?
-    assert File::Stat.new("/bar").ftype == "link"
+    assert_equal File::Stat.new("/bar").ftype, "link"
   end
 
   def test_symlink_should_be_false_when_not_a_symlink
     FileUtils.touch("/foo")
 
     assert !File::Stat.new("/foo").symlink?
-    assert File::Stat.new("/foo").ftype == "file"
+    assert_equal File::Stat.new("/foo").ftype, "file"
   end
 
   def test_should_return_false_for_directory_when_not_a_directory
     FileUtils.touch("/foo")
 
     assert !File::Stat.new("/foo").directory?
-    assert File::Stat.new("/foo").ftype == "file"
+    assert_equal File::Stat.new("/foo").ftype, "file"
   end
 
   def test_should_return_true_for_directory_when_a_directory
     mkdir "/foo"
 
     assert File::Stat.new("/foo").directory?
-    assert File::Stat.new("/foo").ftype == "directory"
+    assert_equal File::Stat.new("/foo").ftype, "directory"
   end
 
   def test_writable_is_true
@@ -118,17 +123,39 @@ class FileStatTest < Test::Unit::TestCase
 
   def test_responds_to_world_writable
     FileUtils.touch("/foo")
-    puts File::Stat.new("/foo").world_writable?
-    assert File::Stat.new("/foo").world_writable? == 0777
+    assert_equal File::Stat.new("/foo").world_writable?, 0777
   end
 
   def test_responds_to_world_readable
     FileUtils.touch("/foo")
-    puts File::Stat.new("/foo").world_readable?
-    assert File::Stat.new("/foo").world_readable? == 0777, "#{File::Stat.new("/foo").world_readable?}"
+    assert_equal File::Stat.new("/foo").world_readable?, 0777
   end
 
-  def test_responds_to_world_readable
+  def test_file_stat_comparable
+    now = Time.new
+
+    same1 = File.new("s1", "w")
+    same2 = File.new("s2", "w")
+    different1 = File.new("d1", "w")
+    different2 = File.new("d2", "w")
+
+    FileSystem.find("s1").mtime = now
+    FileSystem.find("s2").mtime = now
+
+    FileSystem.find("d1").mtime = now
+    FileSystem.find("d2").mtime = now + 1
+
+    assert_equal same1.mtime, same2.mtime
+    assert_not_equal different1.mtime, different2.mtime
+
+    assert_equal same1.stat, same2.stat
+    assert_equal (same1.stat <=> same2.stat), 0
+
+    assert_not_equal different1.stat, different2.stat
+    assert_equal (different1.stat <=> different2.stat), -1
+  end
+
+  def test_can_open_new_tempfile
     FakeFS do
       require 'tempfile'
       FileUtils.mkdir_p('/tmp')

@@ -32,18 +32,12 @@ class KernelTest < Test::Unit::TestCase
     end
   end
 
-  def test_fake_kernel_can_do_stuff
+  def test_fake_kernel_can_write_and_read
     FakeFS do
       FileUtils.mkdir_p('/tmp')
       File.open('/tmp/a', 'w+') { |f| f.puts 'test' }
 
-      begin
-      puts open('/tmp/a').read
-      rescue Exception => e
-        puts e
-        puts e.backtrace
-        raise e
-      end
+      assert_equal "test\n", open('/tmp/a').read
     end
   end
 
