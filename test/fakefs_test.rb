@@ -1331,7 +1331,7 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal '/path/subdir', Dir.getwd
   end
 
-  def test_current_dir_reflected_by_expand_path
+  def test_current_dir_reflected_by_expand_path_with_relative_paths
     FileUtils.mkdir_p '/path'
     Dir.chdir '/path'
 
