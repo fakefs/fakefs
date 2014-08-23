@@ -37,7 +37,7 @@ module FakeFS
 
     def self.exist?(path)
       if(File.symlink?(path)) then
-        referent = File.fake_expand_path(File.readlink(path), File.dirname(path))
+        referent = File.expand_path(File.readlink(path), File.dirname(path))
         exist?(referent)
       else
         !!FileSystem.find(path)
@@ -137,11 +137,6 @@ module FakeFS
 
     def self.expand_path(file_name, dir_string=FileSystem.current_dir.to_s)
       RealFile.expand_path(file_name, RealFile.expand_path(dir_string, Dir.pwd))
-    end
-
-    def self.fake_expand_path(file_name, dir_string=FileSystem.current_dir.to_s)
-      dir_string = FileSystem.find(dir_string).to_s
-      RealFile.expand_path(file_name, dir_string)
     end
 
     def self.basename(*args)
