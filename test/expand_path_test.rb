@@ -41,6 +41,6 @@ class ExpandPathTest < Test::Unit::TestCase
     fake_expand_path = File.expand_path(*args)
     FakeFS.deactivate!
 
-    refute_equal real_expand_path, fake_expand_path
+    assert_not_equal real_expand_path, fake_expand_path
   end
 end
