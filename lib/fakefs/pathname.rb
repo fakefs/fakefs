@@ -677,8 +677,8 @@ module FakeFS
       # See <tt>File.extname</tt>.  Returns the file's extension.
       def extname() File.extname(@path) end
 
-      # See <tt>File.expand_path</tt>.
-      def expand_path(*args) self.class.new(File.expand_path(@path, *args)) end
+      # See <tt>File.fake_expand_path</tt>.
+      def fake_expand_path(*args) self.class.new(File.fake_expand_path(@path, *args)) end
 
       # See <tt>File.split</tt>.  Returns the #dirname and the #basename in an
       # Array.
