@@ -1345,6 +1345,14 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal '/path/subdir/foo', File.expand_path('foo')
   end
 
+  def test_expand_path_with_parent_dir
+    FakeFS.deactivate!
+    real = File.expand_path('../other.file',__FILE__)
+    FakeFS.activate!
+    fake = File.expand_path('../other.file',__FILE__)
+    assert_equal real, fake
+  end
+
   def test_expand_path_works_with_absolute_paths
     FakeFS.deactivate!
     home = File.expand_path('~')
