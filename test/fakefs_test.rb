@@ -746,14 +746,11 @@ class FakeFSTest < Test::Unit::TestCase
     assert_equal '/', FileSystem.fs.name
     assert_equal [], Dir.glob('/path/*')
     Dir.chdir '/path' do
-      File.write 'foo', 'foo'
-      touch_file 'foobar'
+      touch_file 'foo'
     end
 
     assert_equal '/', FileSystem.fs.name
-    assert_exist ['/path/foo', '/path/foobar']
-
-    assert_equal 'foo', File.read('/path/foo')
+    assert_exists '/path/foo'
   end
 
   def test_chdir_shouldnt_keep_us_from_absolute_paths
