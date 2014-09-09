@@ -118,13 +118,16 @@ class FileStatTest < Test::Unit::TestCase
 
   def test_responds_to_world_writable
     FileUtils.touch("/foo")
-    puts File::Stat.new("/foo").world_writable?
     assert File::Stat.new("/foo").world_writable? == 0777
+  end
+
+  def test_responds_to_sticky
+    FileUtils.touch("/foo")
+    assert File::Stat.new("/foo").sticky? == true
   end
 
   def test_responds_to_world_readable
     FileUtils.touch("/foo")
-    puts File::Stat.new("/foo").world_readable?
     assert File::Stat.new("/foo").world_readable? == 0777, "#{File::Stat.new("/foo").world_readable?}"
   end
 

@@ -38,10 +38,8 @@ class KernelTest < Test::Unit::TestCase
       File.open('/tmp/a', 'w+') { |f| f.puts 'test' }
 
       begin
-      puts open('/tmp/a').read
+      open('/tmp/a').read
       rescue Exception => e
-        puts e
-        puts e.backtrace
         raise e
       end
     end
@@ -53,4 +51,3 @@ class KernelTest < Test::Unit::TestCase
   end
 
 end
-
