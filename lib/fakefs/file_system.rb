@@ -88,7 +88,7 @@ module FakeFS
     end
 
     def path_parts(path)
-      drop_root(path.split(File::SEPARATOR)).reject { |part| part.empty? }
+      drop_root(path.split(File::SEPARATOR)).reject(&:empty?)
     end
 
     def normalize_path(path)
