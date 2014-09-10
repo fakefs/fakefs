@@ -11,32 +11,32 @@ module FakeFS
     alias_method :mkpath, :mkdir_p
     alias_method :makedirs, :mkdir_p
 
-    def mkdir(list, ignored_options={})
+    def mkdir(list, ignored_options = {})
       list = [ list ] unless list.is_a?(Array)
       list.each do |path|
         parent = path.split('/')
         parent.pop
-        raise Errno::ENOENT, path unless parent.join == "" || parent.join == "." || FileSystem.find(parent.join('/'))
-        raise Errno::EEXIST, path if FileSystem.find(path)
+        fail Errno::ENOENT, path unless parent.join == "" || parent.join == "." || FileSystem.find(parent.join('/'))
+        fail Errno::EEXIST, path if FileSystem.find(path)
         FileSystem.add(path, FakeDir.new)
       end
     end
 
-    def rmdir(list, options = {})
+    def rmdir(list, _options = {})
       list = [ list ] unless list.is_a?(Array)
       list.each do |l|
         parent = l.split('/')
         parent.pop
-        raise Errno::ENOENT, l unless parent.join == "" || FileSystem.find(parent.join('/'))
-        raise Errno::ENOENT, l unless FileSystem.find(l)
-        raise Errno::ENOTEMPTY, l unless FileSystem.find(l).empty?
+        fail Errno::ENOENT, l unless parent.join == "" || FileSystem.find(parent.join('/'))
+        fail Errno::ENOENT, l unless FileSystem.find(l)
+        fail Errno::ENOTEMPTY, l unless FileSystem.find(l).empty?
         rm(l)
       end
     end
 
     def rm(list, options = {})
       Array(list).each do |path|
-        FileSystem.delete(path) or (!options[:force] && raise(Errno::ENOENT.new(path)))
+        FileSystem.delete(path) or (!options[:force] && fail(Errno::ENOENT.new(path)))
       end
     end
 
@@ -51,11 +51,11 @@ module FakeFS
     def ln_s(target, path, options = {})
       options = { :force => false }.merge(options)
       (FileSystem.find(path) && !options[:force]) ?
-        raise(Errno::EEXIST, path) :
+        fail(Errno::EEXIST, path) :
         FileSystem.delete(path)
 
       if !options[:force] && !Dir.exists?(File.dirname(path))
-        raise Errno::ENOENT, path
+        fail Errno::ENOENT, path
       end
 
       FileSystem.add(path, FakeSymlink.new(target))
@@ -67,9 +67,9 @@ module FakeFS
 
     alias_method :symlink, :ln_s
 
-    def cp(src, dest, options={})
+    def cp(src, dest, options = {})
       if src.is_a?(Array) && !File.directory?(dest)
-        raise Errno::ENOTDIR, dest
+        fail Errno::ENOTDIR, dest
       end
 
       # handle `verbose' flag
@@ -83,11 +83,11 @@ module FakeFS
         src_file = FileSystem.find(src)
 
         if !src_file
-          raise Errno::ENOENT, src
+          fail Errno::ENOENT, src
         end
 
         if File.directory? src_file
-          raise Errno::EISDIR, src
+          fail Errno::EISDIR, src
         end
 
         if dst_file && File.directory?(dst_file)
@@ -98,7 +98,7 @@ module FakeFS
         end
       end
 
-      return nil
+      nil
     end
 
     alias_method :copy, :cp
@@ -108,7 +108,7 @@ module FakeFS
       cp(src, dest)
     end
 
-    def cp_r(src, dest, options={})
+    def cp_r(src, dest, options = {})
       # handle `verbose' flag
       RealFileUtils.cp_r src, dest, options.merge(:noop => true)
 
@@ -118,23 +118,23 @@ module FakeFS
       Array(src).each do |src|
         # This error sucks, but it conforms to the original Ruby
         # method.
-        raise "unknown file type: #{src}" unless dir = FileSystem.find(src)
+        fail "unknown file type: #{src}" unless dir = FileSystem.find(src)
 
         new_dir = FileSystem.find(dest)
 
         if new_dir && !File.directory?(dest)
-          raise Errno::EEXIST, dest
+          fail Errno::EEXIST, dest
         end
 
         if !new_dir && !FileSystem.find(dest+'/../')
-          raise Errno::ENOENT, dest
+          fail Errno::ENOENT, dest
         end
 
         # This last bit is a total abuse and should be thought hard
         # about and cleaned up.
         if new_dir
           if src[-2..-1] == '/.'
-            dir.entries.each{|f| new_dir[f.name] = f.clone(new_dir) }
+            dir.entries.each{ |f| new_dir[f.name] = f.clone(new_dir) }
           else
             new_dir[dir.name] = dir.entry.clone(new_dir)
           end
@@ -143,61 +143,65 @@ module FakeFS
         end
       end
 
-      return nil
+      nil
     end
 
-    def mv(src, dest, options={})
+    def mv(src, dest, options = {})
       # handle `verbose' flag
-      RealFileUtils.mv src, dest, options.merge(:noop => true)
+      RealFileUtils.mv(src, dest, options.merge(noop: true))
 
       # handle `noop' flag
       return if options[:noop]
 
       Array(src).each do |path|
-        if target = FileSystem.find(path)
-          dest_path = File.directory?(dest) ? File.join(dest, File.basename(path)) : dest
+        if (target = FileSystem.find(path)) == true
+          dest_path = File.join(
+            dest, File.basename(path)) if File.directory?(dest)
+          dest_path ||= dest
+
           if File.directory?(dest_path)
-            raise Errno::EEXIST, dest_path unless options[:force]
+            fail Errno::EEXIST, dest_path unless options[:force]
           elsif File.directory?(File.dirname(dest_path))
             FileSystem.delete(dest_path)
             FileSystem.add(dest_path, target.entry.clone)
             FileSystem.delete(path)
           else
-            raise Errno::ENOENT, dest_path unless options[:force]
+            fail Errno::ENOENT, dest_path unless options[:force]
           end
         else
-          raise Errno::ENOENT, path
+          fail Errno::ENOENT, path
         end
       end
 
-      return nil
+      nil
     end
 
     alias_method :move, :mv
 
-    def chown(user, group, list, options={})
+    def chown(user, group, list, _options = {})
       list = Array(list)
       list.each do |f|
-        if File.exists?(f)
+        if File.exist?(f)
           uid = if user
                   user.to_s.match(/[0-9]+/) ? user.to_i : Etc.getpwnam(user).uid
                 else
                   nil
                 end
           gid = if group
-                  group.to_s.match(/[0-9]+/) ? group.to_i : Etc.getgrnam(group).gid
+                  group.to_i if group.to_s.match(/[0-9]+/)
+                  Etc.getgrnam(group).gid unless group.to_s.match(/[0-9]+/)
                 else
                   nil
                 end
           File.chown(uid, gid, f)
         else
-          raise Errno::ENOENT, f
+          fail Errno::ENOENT, f
         end
       end
       list
     end
 
-    def chown_R(user, group, list, options={})
+    def chown_R(user, group, list, _options = {})
       list = Array(list)
       list.each do |file|
         chown(user, group, file)
@@ -208,19 +212,19 @@ module FakeFS
       list
     end
 
-    def chmod(mode, list, options={})
+    def chmod(mode, list, _options = {})
       list = Array(list)
       list.each do |f|
-        if File.exists?(f)
+        if File.exist?(f)
           File.chmod(mode, f)
         else
-          raise Errno::ENOENT, f
+          fail Errno::ENOENT, f
         end
       end
       list
     end
 
-    def chmod_R(mode, list, options={})
+    def chmod_R(mode, list, _options = {})
       list = Array(list)
       list.each do |file|
         chmod(mode, file)
@@ -231,17 +235,16 @@ module FakeFS
       list
     end
 
-    def touch(list, options={})
+    def touch(list, options = {})
       Array(list).each do |f|
-        if fs = FileSystem.find(f)
+        if (fs = FileSystem.find(f)) == true
           now = Time.now
           fs.mtime = options[:mtime] || now
           fs.atime = now
         else
           file = File.open(f, 'w')
           file.close
-
-          if mtime = options[:mtime]
+          if (mtime = options[:mtime]) == true
             fs = FileSystem.find(f)
             fs.mtime = mtime
           end
@@ -252,6 +255,7 @@ module FakeFS
     def cd(dir, &block)
       FileSystem.chdir(dir, &block)
     end
+
     alias_method :chdir, :cd
 
     def compare_file(file1, file2)
