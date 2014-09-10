@@ -1,5 +1,6 @@
-require "test_helper"
+require 'test_helper'
 
+# FakeFS safe test class
 class FakeFSSafeTest < Test::Unit::TestCase
   def setup
     FakeFS.deactivate!
@@ -22,20 +23,20 @@ class FakeFSSafeTest < Test::Unit::TestCase
     path = 'file.txt'
 
     FakeFS do
-      File.open(path, 'w') { |f| f.write "Yatta!" }
-      assert File.exists?(path)
+      File.open(path, 'w') { |f| f.write 'Yatta!' }
+      assert File.exist?(path)
     end
 
-    assert ! File.exists?(path)
+    assert !File.exist?(path)
   end
 
   def test_FakeFS_method_returns_value_of_yield
     result = FakeFS do
-      File.open('myfile.txt', 'w') { |f| f.write "Yatta!" }
+      File.open('myfile.txt', 'w') { |f| f.write 'Yatta!' }
       File.read('myfile.txt')
     end
 
-    assert_equal result, "Yatta!"
+    assert_equal result, 'Yatta!'
   end
 
   def test_FakeFS_method_does_not_deactivate_FakeFS_if_already_activated
@@ -72,9 +73,10 @@ class FakeFSSafeTest < Test::Unit::TestCase
   def test_FakeFS_method_deactivates_FakeFS_when_block_raises_exception
     begin
       FakeFS do
-        raise 'boom!'
+        fail 'boom!'
       end
     rescue
+      'Nothing to do'
     end
 
     assert !FakeFS.activated?

@@ -2,7 +2,6 @@ $LOAD_PATH.unshift File.join(File.dirname(__FILE__))
 $LOAD_PATH.unshift File.join(File.dirname(__FILE__), 'test')
 
 require 'bundler/setup'
-
 require 'rake/testtask'
 
 Rake::TestTask.new do |t|
@@ -19,7 +18,15 @@ rescue LoadError
   puts "Spec task can't be loaded. `gem install rspec`"
 end
 
-task default: [:test, :spec]
+begin
+  require 'rubocop/rake_task'
+  desc 'Run RuboCop'
+  RuboCop::RakeTask.new(:rubocop)
+rescue LoadError
+  puts "Rubocop task can't be loaded. `gem install rubocop`"
+end
+
+task default: [:rubocop, :test, :spec]
 
 desc 'Push a new version to rubygems.org'
 task :publish do

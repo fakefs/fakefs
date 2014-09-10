@@ -1,6 +1,7 @@
 require 'test_helper'
 require 'tempfile'
 
+# Tempfile test class
 class TempfileTest < Test::Unit::TestCase
   include FakeFS
 

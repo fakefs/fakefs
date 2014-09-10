@@ -1,6 +1,7 @@
 module FakeFS
+  # Version module
   module Version
-    VERSION = "0.5.3"
+    VERSION = '0.5.3'
 
     def self.to_s
       VERSION

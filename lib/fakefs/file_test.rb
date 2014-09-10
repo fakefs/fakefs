@@ -1,4 +1,5 @@
 module FakeFS
+  # FileTest
   module FileTest
     extend self
 

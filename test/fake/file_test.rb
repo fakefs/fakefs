@@ -1,5 +1,6 @@
-require "test_helper"
+require 'test_helper'
 
+# Fake File test class
 class FakeFileTest < Test::Unit::TestCase
   include FakeFS
 
@@ -10,12 +11,12 @@ class FakeFileTest < Test::Unit::TestCase
   end
 
   def test_fake_file_has_empty_content_by_default
-    assert_equal "", @file.content
+    assert_equal '', @file.content
   end
 
   def test_fake_file_can_read_and_write_to_content
-    @file.content = "foobar"
-    assert_equal "foobar", @file.content
+    @file.content = 'foobar'
+    assert_equal 'foobar', @file.content
   end
 
   def test_fake_file_has_1_link_by_default
@@ -64,9 +65,9 @@ class FakeFileTest < Test::Unit::TestCase
 
     @file.link other_file
 
-    @file.content = "foobar"
+    @file.content = 'foobar'
 
-    assert_equal "foobar", other_file.content
+    assert_equal 'foobar', other_file.content
   end
 
   def test_clone_creates_new_inode
@@ -77,15 +78,15 @@ class FakeFileTest < Test::Unit::TestCase
   def test_cloning_does_not_use_same_content_object
     clone = @file.clone
 
-    clone.content = "foo"
-    @file.content = "bar"
+    clone.content = 'foo'
+    @file.content = 'bar'
 
-    assert_equal "foo", clone.content
-    assert_equal "bar", @file.content
+    assert_equal 'foo', clone.content
+    assert_equal 'bar', @file.content
   end
 
   def test_raises_an_error_with_the_correct_path
-    path = "/some/non/existing/file"
+    path = '/some/non/existing/file'
     begin
       FakeFS::File.new path
       msg = nil

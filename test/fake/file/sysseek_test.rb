@@ -1,5 +1,6 @@
-require "test_helper"
+require 'test_helper'
 
+# File SysSeek test class
 class FileSysSeek < Test::Unit::TestCase
   def setup
     FakeFS.activate!
@@ -11,11 +12,11 @@ class FileSysSeek < Test::Unit::TestCase
   end
 
   def test_should_seek_to_position
-    file = File.open("foo", "w") do |f|
-      f << "0123456789"
+    File.open('foo', 'w') do |f|
+      f << '0123456789'
     end
 
-    File.open("foo", "r") do |f|
+    File.open('foo', 'r') do |f|
       f.sysseek(3)
       assert_equal 3, f.pos
 
@@ -25,20 +26,20 @@ class FileSysSeek < Test::Unit::TestCase
   end
 
   def test_seek_returns_offset_into_file
-    File.open("foo", "w") do |f|
+    File.open('foo', 'w') do |f|
       # 66 chars long
-      str = "0123456789" +
-            "0123456789" +
-            "0123456789" +
-            "0123456789" +
-            "0123456789" +
-            "0123456789" +
-            "012345"
+      str = '0123456789' \
+            '0123456789' \
+            '0123456789' \
+            '0123456789' \
+            '0123456789' \
+            '0123456789' \
+            '012345'
 
       f << str
     end
 
-    f = File.open("foo")
+    f = File.open('foo')
     assert_equal 53, f.sysseek(-13, IO::SEEK_END)
   end
 end

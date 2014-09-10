@@ -1,9 +1,11 @@
 module FakeFS
+  # FakeFs Dir class
   class Dir
     include Enumerable
+    attr_reader :path
 
     def self._check_for_valid_file(path)
-      raise Errno::ENOENT, path unless FileSystem.find(path)
+      fail Errno::ENOENT, path unless FileSystem.find(path)
     end
 
     def initialize(string)
@@ -12,7 +14,7 @@ module FakeFS
       @path = FileSystem.normalize_path(string)
       @open = true
       @pointer = 0
-      @contents = [ '.', '..', ] + FileSystem.find(@path).entries
+      @contents = ['.', '..'] + FileSystem.find(@path).entries
     end
 
     def close
@@ -22,14 +24,10 @@ module FakeFS
       nil
     end
 
-    def each(&block)
-      while f = read
+    def each(&_block)
+      while (f = read)
         yield f
       end
-    end
-
-    def path
-      @path
     end
 
     def pos
@@ -41,15 +39,15 @@ module FakeFS
     end
 
     def read
-      raise IOError, "closed directory" if @pointer == nil
+      fail IOError, 'closed directory' if @pointer.nil?
       n = @contents[@pointer]
       @pointer += 1
-      if n
-        if n.to_s[0, path.size+1] == path+'/'
-          n.to_s[path.size+1..-1]
-        else
-          n.to_s
-        end
+      return unless n
+
+      if n.to_s[0, path.size + 1] == path + '/'
+        n.to_s[path.size + 1..-1]
+      else
+        n.to_s
       end
     end
 
@@ -58,7 +56,7 @@ module FakeFS
     end
 
     def seek(integer)
-      raise IOError, "closed directory" if @pointer == nil
+      fail IOError, 'closed directory' if @pointer.nil?
       @pointer = integer
       @contents[integer]
     end
@@ -68,59 +66,68 @@ module FakeFS
     end
 
     def self.exists?(path)
-      File.exists?(path) && File.directory?(path)
+      File.exist?(path) && File.directory?(path)
     end
 
     def self.chdir(dir, &blk)
       FileSystem.chdir(dir, &blk)
     end
 
-    def self.chroot(string)
-      raise NotImplementedError
+    def self.chroot(_string)
+      fail NotImplementedError
     end
 
     def self.delete(string)
       _check_for_valid_file(string)
-      raise Errno::ENOTEMPTY, string unless FileSystem.find(string).empty?
+      fail Errno::ENOTEMPTY, string unless FileSystem.find(string).empty?
 
       FileSystem.delete(string)
     end
 
-    def self.entries(dirname, opts = {})
+    def self.entries(dirname, _opts = {})
       _check_for_valid_file(dirname)
 
       Dir.new(dirname).map { |file| File.basename(file) }
     end
 
-    def self.foreach(dirname, &block)
+    def self.foreach(dirname, &_block)
       Dir.open(dirname) { |file| yield file }
     end
 
-    def self.glob(pattern, flags = 0, &block)
+    def self.glob(pattern, _flags = 0, &block)
       matches_for_pattern = lambda do |matcher|
-        [FileSystem.find(matcher) || []].flatten.map{|e|
-          Dir.pwd.match(%r[\A/?\z]) || !e.to_s.match(%r[\A#{Dir.pwd}/?]) ? e.to_s : e.to_s.match(%r[\A#{Dir.pwd}/?]).post_match}.sort
+        [FileSystem.find(matcher) || []].flatten.map do |e|
+          if Dir.pwd.match(/\A\/?\z/) ||
+            !e.to_s.match(/\A#{Dir.pwd}\/?/)
+            e.to_s
+          else
+            e.to_s.match(/\A#{Dir.pwd}\/?/).post_match
+          end
+        end.sort
       end
 
       if pattern.is_a? Array
-        files = pattern.collect { |matcher| matches_for_pattern.call matcher }.flatten
+        files = pattern.map do |matcher|
+          matches_for_pattern.call matcher
+        end.flatten
       else
         files = matches_for_pattern.call pattern
       end
-      return block_given? ? files.each { |file| block.call(file) } : files
+
+      block_given? ? files.each { |file| block.call(file) } : files
     end
 
-    if RUBY_VERSION >= "1.9"
+    if RUBY_VERSION >= '1.9'
       def self.home(user = nil)
         RealDir.home(user)
       end
     end
 
-    def self.mkdir(string, integer = 0)
+    def self.mkdir(string, _integer = 0)
       FileUtils.mkdir(string)
     end
 
-    def self.open(string, &block)
+    def self.open(string, &_block)
       if block_given?
         Dir.new(string).each { |file| yield(file) }
       else
@@ -137,6 +144,7 @@ module FakeFS
     end
 
     if RUBY_VERSION >= '2.1'
+      # Tmpname module
       module Tmpname # :nodoc:
         module_function
 
@@ -148,21 +156,22 @@ module FakeFS
           case prefix_suffix
           when String
             prefix = prefix_suffix
-            suffix = ""
+            suffix = ''
           when Array
             prefix = prefix_suffix[0]
             suffix = prefix_suffix[1]
           else
-            raise ArgumentError, "unexpected prefix_suffix: #{prefix_suffix.inspect}"
+            fail ArgumentError,
+                 "unexpected prefix_suffix: #{prefix_suffix.inspect}"
           end
-          t = Time.now.strftime("%Y%m%d")
-          path = "#{prefix}#{t}-#{$$}-#{rand(0x100000000).to_s(36)}"
+          t = Time.now.strftime('%Y%m%d')
+          path = "#{prefix}#{t}-#{$PID}-#{rand(0x100000000).to_s(36)}"
           path << "-#{n}" if n
           path << suffix
         end
 
         def create(basename, *rest)
-          if opts = Hash.try_convert(rest[-1])
+          if (opts = Hash.try_convert(rest[-1]))
             opts = opts.dup if rest.pop.equal?(opts)
             max_try = opts.delete(:max_try)
             opts = [opts]
@@ -170,10 +179,10 @@ module FakeFS
             opts = []
           end
           tmpdir, = *rest
-          if $SAFE > 0 and tmpdir.tainted?
+          if $SAFE > 0 && tmpdir.tainted?
             tmpdir = '/tmp'
           else
-            tmpdir ||= tmpdir()
+            tmpdir ||= self.tmpdir
           end
           n = nil
           begin
@@ -182,8 +191,9 @@ module FakeFS
           rescue Errno::EEXIST
             n ||= 0
             n += 1
-            retry if !max_try or n < max_try
-            raise "cannot generate temporary name using `#{basename}' under `#{tmpdir}'"
+            retry if !max_try || n < max_try
+            raise "cannot generate temporary name using `#{basename}' " \
+              "under `#{tmpdir}'"
           end
           path
         end
@@ -194,23 +204,23 @@ module FakeFS
     def self.mktmpdir(prefix_suffix = nil, tmpdir = nil)
       case prefix_suffix
       when nil
-        prefix = "d"
-        suffix = ""
+        prefix = 'd'
+        suffix = ''
       when String
         prefix = prefix_suffix
-        suffix = ""
+        suffix = ''
       when Array
         prefix = prefix_suffix[0]
         suffix = prefix_suffix[1]
       else
-        raise ArgumentError, "unexpected prefix_suffix: #{prefix_suffix.inspect}"
+        fail ArgumentError, "unexpected prefix_suffix: #{prefix_suffix.inspect}"
       end
 
-      t = Time.now.strftime("%Y%m%d")
+      t = Time.now.strftime('%Y%m%d')
       n = nil
 
       begin
-        path = "#{tmpdir}/#{prefix}#{t}-#{$$}-#{rand(0x100000000).to_s(36)}"
+        path = "#{tmpdir}/#{prefix}#{t}-#{$PID}-#{rand(0x100000000).to_s(36)}"
         path << "-#{n}" if n
         path << suffix
         mkdir(path, 0700)
