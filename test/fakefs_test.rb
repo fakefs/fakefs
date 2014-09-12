@@ -116,6 +116,12 @@ class FakeFSTest < Test::Unit::TestCase
     end
   end
 
+  def test_unlink_doesnt_error_on_file_not_found_with_rm_rf
+    assert_nothing_raised do
+      FileUtils.rm_rf("/foo")
+    end
+  end
+
   def test_can_delete_directories
     FileUtils.mkdir_p("/path/to/dir")
     FileUtils.rmdir("/path/to/dir")
@@ -135,7 +141,6 @@ class FakeFSTest < Test::Unit::TestCase
     assert FileUtils.respond_to?(:rm_f)
     assert FileUtils.respond_to?(:rm_r)
     assert FileUtils.respond_to?(:rm)
-    assert FileUtils.respond_to?(:rm_rf)
     assert FileUtils.respond_to?(:symlink)
     assert FileUtils.respond_to?(:move)
     assert FileUtils.respond_to?(:copy)
