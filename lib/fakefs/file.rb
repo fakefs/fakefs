@@ -307,12 +307,16 @@ module FakeFS
         'file'
       end
 
-      # assumes, like above, that all files are readable and writable
+      # assumes, like above, that all files are readable, writable and sticky
       def readable?
         true
       end
 
       def writable?
+        true
+      end
+
+      def sticky?
         true
       end
 
