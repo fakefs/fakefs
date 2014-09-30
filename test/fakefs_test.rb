@@ -293,6 +293,10 @@ class FakeFSTest < Test::Unit::TestCase
     assert File.writable?(path)
   end
 
+  def test_nothing_is_sticky
+    assert !File.sticky?('/')
+  end
+
   def test_can_create_files_in_existing_dir
     FileUtils.mkdir_p '/path/to'
     path = '/path/to/file.txt'

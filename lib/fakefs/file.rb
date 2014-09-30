@@ -50,6 +50,11 @@ module FakeFS
       # Assuming that everyone can read and write files
       alias_method :readable?, :exist?
       alias_method :writable?, :exist?
+
+      # Assume nothing is sticky.
+      def sticky?(_path)
+        false
+      end
     end
 
     def self.mtime(path)
@@ -307,7 +312,7 @@ module FakeFS
         'file'
       end
 
-      # assumes, like above, that all files are readable, writable and sticky
+      # assumes, like above, that all files are readable and writable.
       def readable?
         true
       end
@@ -316,8 +321,9 @@ module FakeFS
         true
       end
 
+      # Assume nothing is sticky.
       def sticky?
-        true
+        false
       end
 
       # World_writable and readable are platform dependent

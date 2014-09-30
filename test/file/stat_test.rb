@@ -123,8 +123,8 @@ class FileStatTest < Test::Unit::TestCase
   end
 
   def test_responds_to_sticky
-    FileUtils.touch("/foo")
-    assert File::Stat.new("/foo").sticky? == true
+    FileUtils.touch('/foo')
+    assert !File::Stat.new('/foo').sticky?
   end
 
   def test_responds_to_world_readable
