@@ -133,7 +133,7 @@ module FakeFS
           directories_under(dir)
         end
       else
-        dir.matches /\A#{pattern.gsub('.', '\.').gsub('?','.').gsub('*', '.*').gsub('[', '\[').gsub(']', '\]').gsub('(', '\(').gsub(')', '\)').gsub(/\{(.*?)\}/) { "(#{$1.gsub(',', '|')})" }}\Z/
+        dir.matches(/\A#{pattern.gsub('.', '\.').gsub('?','.').gsub('*', '.*').gsub('(', '\(').gsub(')', '\)').gsub(/\{(.*?)\}/) { "(#{$1.gsub(',', '|')})" }}\Z/)
       end
 
       if parts.empty? # we're done recursing
