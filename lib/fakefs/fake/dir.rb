@@ -1,4 +1,5 @@
 module FakeFS
+  # Fake Dir class
   class FakeDir
     attr_accessor :name, :parent, :mode, :uid, :gid, :mtime, :atime
     attr_reader :ctime, :content
@@ -12,7 +13,7 @@ module FakeFS
       @mode    = 0100000 + (0777 - File.umask)
       @uid     = Process.uid
       @gid     = Process.gid
-      @content = ""
+      @content = ''
       @entries = {}
     end
 
@@ -21,7 +22,8 @@ module FakeFS
     end
 
     def inspect
-      "(FakeDir name:#{name.inspect} parent:#{parent.to_s.inspect} size:#{@entries.size})"
+      "(FakeDir name:#{name.inspect} " \
+      "parent:#{parent.to_s.inspect} size:#{@entries.size})"
     end
 
     def clone(parent = nil)
@@ -52,7 +54,7 @@ module FakeFS
     end
 
     def matches(pattern)
-      @entries.reject {|k,v| pattern !~ k }.values
+      @entries.reject { |k, _v| pattern !~ k }.values
     end
 
     def [](name)

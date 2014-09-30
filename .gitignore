@@ -7,4 +7,6 @@ pkg
 .rbx
 .idea
 .bundle
+.project
+.ruby-version
 Gemfile.lock

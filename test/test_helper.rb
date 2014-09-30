@@ -5,10 +5,11 @@ require 'test/unit'
 begin
   require 'redgreen'
 rescue LoadError
+  'Nothing to do'
 end
 
 def act_on_real_fs
-  raise ArgumentError unless block_given?
+  fail ArgumentError unless block_given?
   FakeFS.deactivate!
   yield
   FakeFS.activate!

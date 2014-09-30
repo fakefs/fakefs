@@ -1,4 +1,5 @@
 module FakeFS
+  # FileSystem module
   module FileSystem
     extend self
 
@@ -32,10 +33,10 @@ module FakeFS
       end
     end
 
-    def add(path, object=FakeDir.new)
+    def add(path, object = FakeDir.new)
       parts = path_parts(normalize_path(path))
 
-      d = parts[0...-1].inject(fs) do |dir, part|
+      d = parts[0...-1].reduce(fs) do |dir, part|
         assert_dir dir[part] if dir[part]
         dir[part] ||= FakeDir.new(part, dir)
       end
@@ -60,7 +61,7 @@ module FakeFS
         elsif RealFile.file?(f)
           FileUtils.mkdir_p(File.dirname(f))
           File.open(target_path, File::WRITE_ONLY) do |g|
-            g.print RealFile.open(f){|h| h.read }
+            g.print RealFile.open(f) { |h| h.read }
           end
         elsif RealFile.directory?(f)
           FileUtils.mkdir_p(target_path)
@@ -69,26 +70,25 @@ module FakeFS
     end
 
     def delete(path)
-      if node = FileSystem.find(path)
-        node.delete
-        true
-      end
+      return unless (node = FileSystem.find(path))
+      node.delete
+      true
     end
 
     def chdir(dir, &blk)
       new_dir = find(dir)
       dir_levels.push dir if blk
 
-      raise Errno::ENOENT, dir unless new_dir
+      fail Errno::ENOENT, dir unless new_dir
 
-      dir_levels.push dir if !blk
+      dir_levels.push dir unless blk
       blk.call if blk
     ensure
       dir_levels.pop if blk
     end
 
     def path_parts(path)
-      drop_root(path.split(File::SEPARATOR)).reject { |part| part.empty? }
+      drop_root(path.split(File::SEPARATOR)).reject(&:empty?)
     end
 
     def normalize_path(path)
@@ -96,7 +96,9 @@ module FakeFS
         RealFile.expand_path(path)
       else
         parts = dir_levels + [path]
-        RealFile.expand_path(parts.inject {|base, part| Pathname(base) + part }.to_s)
+        RealFile.expand_path(parts.reduce do |base, part|
+                               Pathname(base) + part
+                             end.to_s)
       end
     end
 
@@ -117,39 +119,40 @@ module FakeFS
     def find_recurser(dir, parts)
       return [] unless dir.respond_to? :[]
 
-      pattern , *parts = parts
+      pattern, *parts = parts
       matches = case pattern
-      when '**'
-        case parts
-        when ['*']
-          parts = [] # end recursion
-          directories_under(dir).map do |d|
-            d.entries.select{|f| f.is_a?(FakeFile) || f.is_a?(FakeDir) }
-          end.flatten.uniq
-        when []
-          parts = [] # end recursion
-          dir.entries.flatten.uniq
-        else
-          directories_under(dir)
-        end
-      else
-        dir.matches(/\A#{pattern.gsub('.', '\.').gsub('?','.').gsub('*', '.*').gsub('(', '\(').gsub(')', '\)').gsub(/\{(.*?)\}/) { "(#{$1.gsub(',', '|')})" }}\Z/)
-      end
+                  when '**'
+                    case parts
+                    when ['*']
+                      parts = [] # end recursion
+                      directories_under(dir).map do |d|
+                        d.entries.select{|f| f.is_a?(FakeFile) || f.is_a?(FakeDir) }
+                      end.flatten.uniq
+                    when []
+                      parts = [] # end recursion
+                      dir.entries.flatten.uniq
+                    else
+                      directories_under(dir)
+                    end
+                  else
+                    dir.matches(/\A#{pattern.gsub('.', '\.').gsub('?','.').gsub('*', '.*').gsub('(', '\(').gsub(')', '\)').gsub(/\{(.*?)\}/) { "(#{$1.gsub(',', '|')})" }}\Z/)
+                  end
 
       if parts.empty? # we're done recursing
         matches
       else
-        matches.map{|entry| find_recurser(entry, parts) }
+        matches.map { |entry| find_recurser(entry, parts) }
       end
     end
 
     def directories_under(dir)
-      children = dir.entries.select{|f| f.is_a? FakeDir}
-      ([dir] + children + children.map{|c| directories_under(c)}).flatten.uniq
+      children = dir.entries.select { |f| f.is_a? FakeDir }
+      ([dir] + children + children.map { |c| directories_under(c) })
+        .flatten.uniq
     end
 
     def assert_dir(dir)
-      raise Errno::EEXIST, dir.name unless dir.is_a?(FakeDir)
+      fail Errno::EEXIST, dir.name unless dir.is_a?(FakeDir)
     end
   end
 end

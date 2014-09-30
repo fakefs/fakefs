@@ -1,29 +1,31 @@
 module FakeFS
+  # Kernel Module
   module Kernel
+    @captives = { original: {}, hijacked: {} }
 
-    @captives = { :original => {}, :hijacked => {}}
     class << self
       attr_accessor :captives
     end
 
     def self.hijack!
-      captives[:hijacked].each do |name,prc|
+      captives[:hijacked].each do |name, prc|
         ::Kernel.send(:define_method, name.to_sym, &prc)
       end
     end
 
     def self.unhijack!
-      captives[:original].each do |name,prc|
-        ::Kernel.send(:define_method, name.to_sym, Proc.new do |*args, &block|
+      captives[:original].each do |name, _prc|
+        ::Kernel.send(:define_method, name.to_sym, proc do |*args, &block|
           ::FakeFS::Kernel.captives[:original][name].call(*args, &block)
         end)
       end
     end
 
     private
-    def self.hijack name, &block
+
+    def self.hijack(name, &block)
       captives[:original][name] = ::Kernel.method(name.to_sym)
-      captives[:hijacked][name] = block || Proc.new { |args| }
+      captives[:hijacked][name] = block || proc { |_args| }
     end
 
     hijack :open do |*args, &block|
@@ -35,6 +37,5 @@ module FakeFS
         FakeFS::File.open(name, *args, &block)
       end
     end
-
   end
 end

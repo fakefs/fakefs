@@ -1,4 +1,5 @@
 module FakeFS
+  # Fake symlink class
   class FakeSymlink
     attr_accessor :name, :target, :parent
 
@@ -26,7 +27,7 @@ module FakeFS
       entry.respond_to?(method, include_private)
     end
 
-  private
+    private
 
     def method_missing(*args, &block)
       entry.send(*args, &block)
