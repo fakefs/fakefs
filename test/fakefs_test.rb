@@ -1094,9 +1094,9 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_dir_glob_ending_in_group_and_wildcard
-    FileUtils.mkdir_p "/tmp/python-3.4.1"
-    FileUtils.mkdir_p "/tmp/python-2.7.8"
-    assert_equal ['/tmp/python-2.7.8', '/tmp/python-3.4.1'], Dir.glob("/tmp/python-[0-9]*")
+    FileUtils.mkdir_p '/tmp/python-3.4.1'
+    FileUtils.mkdir_p '/tmp/python-2.7.8'
+    assert_equal ['/tmp/python-2.7.8', '/tmp/python-3.4.1'], Dir.glob('/tmp/python-[0-9]*')
   end
 
   def test_dir_glob_with_block

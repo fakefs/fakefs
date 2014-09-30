@@ -52,7 +52,11 @@ module FakeFS
     def clone(path, target = nil)
       path    = RealFile.expand_path(path)
       pattern = File.join(path, '**', '*')
-      files   = RealFile.file?(path) ? [path] : [path] + RealDir.glob(pattern, RealFile::FNM_DOTMATCH)
+      files   = if RealFile.file?(path)
+                  [path]
+                else
+                  [path] + RealDir.glob(pattern, RealFile::FNM_DOTMATCH)
+                end
 
       files.each do |f|
         target_path = target ? f.gsub(path, target) : f
@@ -121,22 +125,32 @@ module FakeFS
 
       pattern, *parts = parts
       matches = case pattern
-                  when '**'
-                    case parts
-                    when ['*']
-                      parts = [] # end recursion
-                      directories_under(dir).map do |d|
-                        d.entries.select{|f| f.is_a?(FakeFile) || f.is_a?(FakeDir) }
-                      end.flatten.uniq
-                    when []
-                      parts = [] # end recursion
-                      dir.entries.flatten.uniq
-                    else
-                      directories_under(dir)
-                    end
+                when '**'
+                  case parts
+                  when ['*']
+                    parts = [] # end recursion
+                    directories_under(dir).map do |d|
+                      d.entries.select do |f|
+                        f.is_a?(FakeFile) || f.is_a?(FakeDir)
+                      end
+                    end.flatten.uniq
+                  when []
+                    parts = [] # end recursion
+                    dir.entries.flatten.uniq
                   else
-                    dir.matches(/\A#{pattern.gsub('.', '\.').gsub('?','.').gsub('*', '.*').gsub('(', '\(').gsub(')', '\)').gsub(/\{(.*?)\}/) { "(#{$1.gsub(',', '|')})" }}\Z/)
+                    directories_under(dir)
                   end
+                else
+                  regex_body = pattern.gsub('.', '\.')
+                    .gsub('?', '.')
+                    .gsub('*', '.*')
+                    .gsub('(', '\(')
+                    .gsub(')', '\)')
+                    .gsub(/\{(.*?)\}/) do
+                      "(#{Regexp.last_match[1].gsub(',', '|')})"
+                    end
+                  dir.matches(/\A#{regex_body}\Z/)
+                end
 
       if parts.empty? # we're done recursing
         matches
