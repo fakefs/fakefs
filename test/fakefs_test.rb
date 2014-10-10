@@ -1002,6 +1002,7 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.mkdir_p '/path'
     File.open('/path/foo', 'w') { |f| f.write 'foo' }
     File.open('/path/foobar', 'w') { |f| f.write 'foo' }
+    File.open('/path/.bar', 'w') { |f| f.write 'foo' }
 
     FileUtils.mkdir_p '/path/bar'
     File.open('/path/bar/baz', 'w') { |f| f.write 'foo' }
@@ -1009,6 +1010,9 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.cp_r '/path/bar', '/path/bar2'
 
     assert_equal ['/path'], Dir['/path']
+    assert_equal ['/path/.bar'], Dir['**/{.*}']
+    assert_equal ['/path/.bar'], Dir['/path**/{.*}']
+    assert_equal ['/path/.bar'], Dir['/path/{.*}']
     assert_equal %w( /path/bar /path/bar2 /path/foo /path/foobar ), Dir['/path/*']
 
     assert_equal ['/path/bar/baz'], Dir['/path/bar/*']

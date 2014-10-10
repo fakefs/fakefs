@@ -131,7 +131,8 @@ module FakeFS
                     parts = [] # end recursion
                     directories_under(dir).map do |d|
                       d.entries.select do |f|
-                        f.is_a?(FakeFile) || f.is_a?(FakeDir)
+                        (f.is_a?(FakeFile) || f.is_a?(FakeDir)) &&
+                          f.name.match(/\A(?!\.)/)
                       end
                     end.flatten.uniq
                   when []
@@ -149,6 +150,7 @@ module FakeFS
                     .gsub(/\{(.*?)\}/) do
                       "(#{Regexp.last_match[1].gsub(',', '|')})"
                     end
+                    .gsub(/\A\./, '(?!\.).')
                   dir.matches(/\A#{regex_body}\Z/)
                 end
 
