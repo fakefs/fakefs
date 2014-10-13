@@ -587,13 +587,13 @@ module FakeFS
         base_directory = base_directory.cleanpath.to_s
         dest_prefix = dest_directory
         dest_names = []
-        while (r = chop_basename(dest_prefix)) == true
+        while (r = chop_basename(dest_prefix))
           dest_prefix, basename = r
           dest_names.unshift basename if basename != '.'
         end
         base_prefix = base_directory
         base_names = []
-        while (r = chop_basename(base_prefix)) == true
+        while (r = chop_basename(base_prefix))
           base_prefix, basename = r
           base_names.unshift basename if basename != '.'
         end
