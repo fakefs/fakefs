@@ -149,8 +149,6 @@ class FileStatTest < Test::Unit::TestCase
   end
 
   def test_responds_to_realdirpath_when_greater_than_1_9_2
-    if RUBY_VERSION > '1.9.2'
-      assert File.respond_to?(:realdirpath)
-    end
+    assert File.respond_to?(:realdirpath) if RUBY_VERSION >= '1.9.2'
   end
 end
