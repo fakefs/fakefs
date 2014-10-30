@@ -2,7 +2,7 @@ require 'spec_helper'
 
 # FakeFs module for tests
 module FakeFS
-  describe SpecHelpers do
+  RSpec.describe SpecHelpers do
     before do
       @rspec_example_group = Class.new do
         def self.before(_sym = :each)
@@ -18,29 +18,29 @@ module FakeFS
     describe 'when extending' do
       context 'before each' do
         it 'should call it' do
-          @rspec_example_group.should_receive(:before).with(:each)
+          expect(@rspec_example_group).to receive(:before).with(:each)
           @rspec_example_group.extend FakeFS::SpecHelpers
         end
 
         it 'should call FakeFS.activate!' do
-          FakeFS.should_receive(:activate!)
+          expect(FakeFS).to receive(:activate!)
           @rspec_example_group.extend FakeFS::SpecHelpers
         end
       end
 
       context 'after each' do
         it 'should call it' do
-          @rspec_example_group.should_receive(:after).with(:each)
+          expect(@rspec_example_group).to receive(:after).with(:each)
           @rspec_example_group.extend FakeFS::SpecHelpers
         end
 
         it 'should deactivate fakefs' do
-          FakeFS.should_receive(:deactivate!)
+          expect(FakeFS).to receive(:deactivate!)
           @rspec_example_group.extend FakeFS::SpecHelpers
         end
 
         it 'should clear the fakefs filesystem for the next run' do
-          FakeFS::FileSystem.should_receive(:clear)
+          expect(FakeFS::FileSystem).to receive(:clear)
           @rspec_example_group.extend FakeFS::SpecHelpers
         end
       end
@@ -48,7 +48,7 @@ module FakeFS
 
     describe 'when including' do
       it 'should call before :each' do
-        @rspec_example_group.should_receive(:before)
+        expect(@rspec_example_group).to receive(:before)
         @rspec_example_group.class_eval do
           include FakeFS::SpecHelpers
         end
@@ -59,29 +59,29 @@ module FakeFS
       describe 'when extending' do
         context 'before :all' do
           it 'should call it' do
-            @rspec_example_group.should_receive(:before).with(:all)
+            expect(@rspec_example_group).to receive(:before).with(:all)
             @rspec_example_group.extend FakeFS::SpecHelpers::All
           end
 
           it 'should call FakeFS.activate!' do
-            FakeFS.should_receive(:activate!)
+            expect(FakeFS).to receive(:activate!)
             @rspec_example_group.extend FakeFS::SpecHelpers::All
           end
         end
 
         context 'after :all' do
           it 'should call it' do
-            @rspec_example_group.should_receive(:after).with(:all)
+            expect(@rspec_example_group).to receive(:after).with(:all)
             @rspec_example_group.extend FakeFS::SpecHelpers::All
           end
 
           it 'should call FakeFS.deactivate!' do
-            FakeFS.should_receive(:deactivate!)
+            expect(FakeFS).to receive(:deactivate!)
             @rspec_example_group.extend FakeFS::SpecHelpers::All
           end
 
           it 'should not call FakeFS::FileSystem.clear' do
-            FakeFS::FileSystem.should_not_receive(:clear)
+            expect(FakeFS::FileSystem).to_not receive(:clear)
             @rspec_example_group.extend FakeFS::SpecHelpers::All
           end
         end
@@ -90,7 +90,7 @@ module FakeFS
       describe 'when including' do
         context 'before :all' do
           it 'should call it' do
-            @rspec_example_group.should_receive(:before)
+            expect(@rspec_example_group).to receive(:before)
             @rspec_example_group.class_eval do
               include FakeFS::SpecHelpers::All
             end
