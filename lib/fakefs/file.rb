@@ -517,15 +517,15 @@ module FakeFS
       def advise(_advice, _offset = 0, _len = 0)
       end
 
-      def self.write(filename, contents, offset = nil, open_args={})
-        offset, open_args = nil, offset if offset.kind_of?(Hash)
+      def self.write(filename, contents, offset = nil, open_args = {})
+        offset, open_args = nil, offset if offset.is_a?(Hash)
         mode = offset ? 'a' : 'w'
         if open_args.size > 0
           if open_args[:open_args]
-            args = [ filename, *open_args[:open_args] ]
+            args = [filename, *open_args[:open_args]]
           else
             mode = open_args[:mode] || mode
-            args = [filename, mode , open_args]
+            args = [filename, mode, open_args]
           end
         else
           args = [filename, mode]
