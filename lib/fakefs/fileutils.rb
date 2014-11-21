@@ -6,7 +6,26 @@ module FakeFS
     def mkdir_p(list, _options = {})
       list = [list] unless list.is_a?(Array)
       list.each do |path|
+        # FileSystem.add call adds all the necessary parent directories but
+        # can't set their mode. Thus, we have to collect created directories
+        # here and set the mode later.
+        if options[:mode]
+          created_dirs = []
+          dir = path
+
+          until Dir.exists?(dir)
+            created_dirs << dir
+            dir = File.dirname(dir)
+          end
+        end
+
         FileSystem.add(path, FakeDir.new)
+
+        if options[:mode]
+          created_dirs.each do |dir|
+            File.chmod(options[:mode], dir)
+          end
+        end
       end
     end
 
@@ -44,11 +63,13 @@ module FakeFS
           (!options[:force] && fail(Errno::ENOENT, path))
       end
     end
-
-    alias_method :rm_rf, :rm
     alias_method :rm_r, :rm
     alias_method :rm_f, :rm
     alias_method :remove, :rm
+
+    def rm_rf(list, options = {})
+      rm_r(list, options.merge(:force => true))
+    end
     alias_method :rmtree, :rm_rf
     alias_method :safe_unlink, :rm_f
     alias_method :remove_entry_secure, :rm_rf
