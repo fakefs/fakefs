@@ -13,7 +13,7 @@ module FakeFS
           created_dirs = []
           dir = path
 
-          until Dir.exists?(dir)
+          until Dir.exist?(dir)
             created_dirs << dir
             dir = File.dirname(dir)
           end
@@ -21,10 +21,9 @@ module FakeFS
 
         FileSystem.add(path, FakeDir.new)
 
-        if options[:mode]
-          created_dirs.each do |dir|
-            File.chmod(options[:mode], dir)
-          end
+        next unless options[:mode]
+        created_dirs.each do |d|
+          File.chmod(options[:mode], d)
         end
       end
     end
@@ -38,7 +37,8 @@ module FakeFS
         parent = path.split('/')
         parent.pop
         fail Errno::ENOENT, path unless parent.join == '' ||
-          parent.join == '.' || FileSystem.find(parent.join('/'))
+                                        parent.join == '.' ||
+                                        FileSystem.find(parent.join('/'))
         fail Errno::EEXIST, path if FileSystem.find(path)
         FileSystem.add(path, FakeDir.new)
       end
@@ -50,7 +50,7 @@ module FakeFS
         parent = l.split('/')
         parent.pop
         fail Errno::ENOENT, l unless parent.join == '' ||
-          FileSystem.find(parent.join('/'))
+                                     FileSystem.find(parent.join('/'))
         fail Errno::ENOENT, l unless FileSystem.find(l)
         fail Errno::ENOTEMPTY, l unless FileSystem.find(l).empty?
         rm(l)
@@ -68,7 +68,7 @@ module FakeFS
     alias_method :remove, :rm
 
     def rm_rf(list, options = {})
-      rm_r(list, options.merge(:force => true))
+      rm_r(list, options.merge(force: true))
     end
     alias_method :rmtree, :rm_rf
     alias_method :safe_unlink, :rm_f

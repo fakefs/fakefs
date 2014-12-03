@@ -119,7 +119,7 @@ class FakeFSTest < Test::Unit::TestCase
 
   def test_unlink_doesnt_error_on_file_not_found_with_rm_rf
     assert_nothing_raised do
-      FileUtils.rm_rf("/foo")
+      FileUtils.rm_rf('/foo')
     end
   end
 

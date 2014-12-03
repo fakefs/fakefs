@@ -132,7 +132,7 @@ module FakeFS
                     directories_under(dir).map do |d|
                       d.entries.select do |f|
                         (f.is_a?(FakeFile) || f.is_a?(FakeDir)) &&
-                          f.name.match(/\A(?!\.)/)
+                        f.name.match(/\A(?!\.)/)
                       end
                     end.flatten.uniq
                   when []
@@ -143,14 +143,14 @@ module FakeFS
                   end
                 else
                   regex_body = pattern.gsub('.', '\.')
-                    .gsub('?', '.')
-                    .gsub('*', '.*')
-                    .gsub('(', '\(')
-                    .gsub(')', '\)')
-                    .gsub(/\{(.*?)\}/) do
-                      "(#{Regexp.last_match[1].gsub(',', '|')})"
-                    end
-                    .gsub(/\A\./, '(?!\.).')
+                               .gsub('?', '.')
+                               .gsub('*', '.*')
+                               .gsub('(', '\(')
+                               .gsub(')', '\)')
+                               .gsub(/\{(.*?)\}/) do
+                                 "(#{Regexp.last_match[1].gsub(',', '|')})"
+                               end
+                               .gsub(/\A\./, '(?!\.).')
                   dir.matches(/\A#{regex_body}\Z/)
                 end
 

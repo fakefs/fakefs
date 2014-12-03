@@ -454,8 +454,8 @@ module FakeFS
           prefix1, basename1 = r1
           next if basename1 == '.'
           if basename1 == '..' ||
-              basename_list2.empty? ||
-              basename_list2.first != '..'
+             basename_list2.empty? ||
+             basename_list2.first != '..'
             prefix1 += basename1
             break
           end
