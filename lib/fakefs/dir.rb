@@ -98,7 +98,7 @@ module FakeFS
       matches_for_pattern = lambda do |matcher|
         [FileSystem.find(matcher) || []].flatten.map do |e|
           if Dir.pwd.match(/\A\/?\z/) ||
-            !e.to_s.match(/\A#{Dir.pwd}\/?/)
+             !e.to_s.match(/\A#{Dir.pwd}\/?/)
             e.to_s
           else
             e.to_s.match(/\A#{Dir.pwd}\/?/).post_match

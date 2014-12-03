@@ -7,21 +7,19 @@ AllCops:
   Exclude:
     - files/**/*
     - templates/**/*
+    - etc/**/*
 MethodLength:
   Exclude:
     - lib/**/*
     - test/**/*.rb
     - spec/**/*.rb
 ClassLength:
-  Exclude:
-    - lib/**/*
-    - test/**/*
+  Enabled: false
 LineLength:
   Exclude:
     - test/**/*
 ParameterLists:
-  Exclude:
-    - lib/**/*
+  Enabled: false
 Metrics/CyclomaticComplexity:
   Severity: warning
   Max: 20
@@ -29,22 +27,19 @@ Metrics/PerceivedComplexity:
   Severity: warning
   Max: 20
 Lint/Eval:
-  Exclude:
-    - lib/**/*
+  Enabled: false
 Metrics/BlockNesting:
   Severity: warning
   Max: 4
+Metrics/AbcSize:
+  Enabled: false
 Style/PredicateName:
   Exclude:
     - lib/fakefs/file.rb
 Style/MethodName:
-  Exclude:
-    - lib/**/*.rb
-    - test/**/*.rb
+  Enabled: false
 Style/ModuleFunction:
-  Exclude:
-    - lib/**/*.rb
-    - test/**/*.rb
+  Enabled: false
 TrivialAccessors:
   Enabled: true
   ExactNameMatch: true

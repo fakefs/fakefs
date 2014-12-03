@@ -3,17 +3,17 @@ module FakeFS
   module FileUtils
     extend self
 
-    def mkdir_p(list, _options = {})
+    def mkdir_p(list, options = {})
       list = [list] unless list.is_a?(Array)
       list.each do |path|
         # FileSystem.add call adds all the necessary parent directories but
         # can't set their mode. Thus, we have to collect created directories
         # here and set the mode later.
-        if _options[:mode]
+        if options[:mode]
           created_dirs = []
           dir = path
 
-          until Dir.exists?(dir)
+          until Dir.exist?(dir)
             created_dirs << dir
             dir = File.dirname(dir)
           end
@@ -21,10 +21,9 @@ module FakeFS
 
         FileSystem.add(path, FakeDir.new)
 
-        if _options[:mode]
-          created_dirs.each do |dir|
-            File.chmod(_options[:mode], dir)
-          end
+        next unless options[:mode]
+        created_dirs.each do |d|
+          File.chmod(options[:mode], d)
         end
       end
     end
@@ -38,7 +37,8 @@ module FakeFS
         parent = path.split('/')
         parent.pop
         fail Errno::ENOENT, path unless parent.join == '' ||
-          parent.join == '.' || FileSystem.find(parent.join('/'))
+                                        parent.join == '.' ||
+                                        FileSystem.find(parent.join('/'))
         fail Errno::EEXIST, path if FileSystem.find(path)
         FileSystem.add(path, FakeDir.new)
       end
@@ -50,7 +50,7 @@ module FakeFS
         parent = l.split('/')
         parent.pop
         fail Errno::ENOENT, l unless parent.join == '' ||
-          FileSystem.find(parent.join('/'))
+                                     FileSystem.find(parent.join('/'))
         fail Errno::ENOENT, l unless FileSystem.find(l)
         fail Errno::ENOTEMPTY, l unless FileSystem.find(l).empty?
         rm(l)
@@ -68,7 +68,7 @@ module FakeFS
     alias_method :remove, :rm
 
     def rm_rf(list, options = {})
-      rm_r(list, options.merge(:force => true))
+      rm_r(list, options.merge(force: true))
     end
     alias_method :rmtree, :rm_rf
     alias_method :safe_unlink, :rm_f
@@ -201,14 +201,10 @@ module FakeFS
           uid = if user
                   user.to_s.match(/[0-9]+/) ? user.to_i :
                     Etc.getpwnam(user).uid
-                else
-                  nil
                 end
           gid = if group
                   group.to_s.match(/[0-9]+/) ? group.to_i :
                     Etc.getgrnam(group).gid
-                else
-                  nil
                 end
           File.chown(uid, gid, f)
         else
