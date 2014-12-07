@@ -9,7 +9,7 @@ module FakeFS
         # FileSystem.add call adds all the necessary parent directories but
         # can't set their mode. Thus, we have to collect created directories
         # here and set the mode later.
-        if options[:mode]
+        if _options[:mode]
           created_dirs = []
           dir = path
 
@@ -21,9 +21,9 @@ module FakeFS
 
         FileSystem.add(path, FakeDir.new)
 
-        if options[:mode]
+        if _options[:mode]
           created_dirs.each do |dir|
-            File.chmod(options[:mode], dir)
+            File.chmod(_options[:mode], dir)
           end
         end
       end
