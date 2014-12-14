@@ -872,6 +872,27 @@ class FakeFSTest < Test::Unit::TestCase
     assert File.file?(path)
   end
 
+  def test_size_returns_size
+    first_file = 'first.txt'
+    File.open(first_file, 'w') do |f|
+      f.write '12345678'
+    end
+
+    assert_equal File.size?(first_file), 8
+
+    File.open(first_file, 'w') do |f|
+      f.write 'abcd'
+    end
+
+    assert_equal File.size?(first_file), 4
+
+    second_file = 'second.txt'
+    File.open(second_file, 'w') do |f|
+      f.write '1'
+    end
+    assert_equal File.size?(second_file), 1
+  end
+
   def test_File_io_returns_self
     f = File.open('foo', 'w')
     assert_equal f, f.to_io
