@@ -2620,6 +2620,12 @@ class FakeFSTest < Test::Unit::TestCase
     end
   end
 
+  def test_fnmatch
+    assert_equal File.fnmatch?('test','test'), true
+    assert_equal File.fnmatch('nope', 'blargh'), false
+    assert_equal File.fnmatch?('nope', 'blargh'), File.fnmatch('nope', 'blargh')
+  end
+
   if RUBY_VERSION >= '1.9.1'
     def test_absolute_path_with_absolute_path
       assert_equal '/foo/bar', File.absolute_path('/foo/bar')

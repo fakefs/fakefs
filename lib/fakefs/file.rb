@@ -276,6 +276,15 @@ module FakeFS
       File.read(file, length, offset, mode: 'rb:ASCII-8BIT')
     end
 
+    def self.fnmatch?( pattern, path, flags = 0)
+      RealFile.fnmatch?( pattern, path, flags )
+    end
+
+    class << self
+      alias_method :fnmatch, :fnmatch?
+    end
+
+
     # FakeFS Stat class
     class Stat
       attr_reader :ctime, :mtime, :atime, :mode, :uid, :gid
