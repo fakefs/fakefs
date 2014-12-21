@@ -3,7 +3,7 @@ module FakeFS
   module FileUtils
     extend self
 
-    def mkdir_p(list, _options = {})
+    def mkdir_p(list, options = {})
       list = [list] unless list.is_a?(Array)
       list.each do |path|
         # FileSystem.add call adds all the necessary parent directories but
