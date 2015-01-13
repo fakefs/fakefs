@@ -26,7 +26,7 @@ rescue LoadError
   puts "Rubocop task can't be loaded. `gem install rubocop`"
 end
 
-task default: [:rubocop, :test, :spec]
+task default: [:test, :spec]
 
 desc 'Push a new version to rubygems.org'
 task :publish do
