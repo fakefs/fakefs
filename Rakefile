@@ -29,14 +29,22 @@ end
 task default: [:test, :spec]
 
 desc 'Push a new version to rubygems.org'
-task :publish do
-  abort('Tests failed!') unless system('rake test')
-  Rake::Task[:release].invoke
-end
+task :publish => [:test, :spec, :update_contributors, :release]
 
 desc 'Update contributors'
 task :update_contributors do
   git_rank_contributors = "#{File.dirname(File.expand_path(__FILE__))}/etc/git-rank-contributors"
 
   sh "#{git_rank_contributors} > CONTRIBUTORS"
+  if `git status | grep CONTRIBUTORS`.strip.length > 0
+    sh "git add CONTRIBUTORS"
+    sh "git commit -m 'Updates contributors for release'"
+  end
+end
+
+desc 'Release a new version'
+task :release do
+  sh "gem build fakefs.gemspec"
+
+  sh "gem push fakefs-*.gem"
 end
