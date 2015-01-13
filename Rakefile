@@ -36,5 +36,7 @@ end
 
 desc 'Update contributors'
 task :update_contributors do
-  sh 'git-rank-contributors > CONTRIBUTORS'
+  git_rank_contributors = "#{File.dirname(File.expand_path(__FILE__))}/etc/git-rank-contributors"
+
+  sh "#{git_rank_contributors} > CONTRIBUTORS"
 end
