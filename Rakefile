@@ -53,6 +53,7 @@ desc 'tag'
 task :tag do
   version = FakeFS::Version::VERSION
   sh "git tag v#{version}"
+  sh "git push --tags"
 end
 
 desc 'Run git push'
