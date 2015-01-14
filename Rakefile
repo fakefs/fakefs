@@ -3,6 +3,7 @@ $LOAD_PATH.unshift File.join(File.dirname(__FILE__), 'test')
 
 require 'bundler/setup'
 require 'rake/testtask'
+require File.expand_path(File.join(File.dirname(__FILE__), "lib", "fakefs", "version"))
 
 Rake::TestTask.new do |t|
   t.libs << 'test'
@@ -29,7 +30,7 @@ end
 task default: [:test, :spec]
 
 desc 'Push a new version to rubygems.org'
-task :publish => [:test, :spec, :update_contributors, :release]
+task :publish => [:test, :spec, :update_contributors, :tag, :release, :push]
 
 desc 'Update contributors'
 task :update_contributors do
@@ -45,6 +46,16 @@ end
 desc 'Release a new version'
 task :release do
   sh "gem build fakefs.gemspec"
-
   sh "gem push fakefs-*.gem"
+end
+
+desc 'tag'
+task :tag do
+  version = FakeFS::Version::VERSION
+  sh "git tag v#{version}"
+end
+
+desc 'Run git push'
+task :push do
+  sh "git push origin master"
 end
