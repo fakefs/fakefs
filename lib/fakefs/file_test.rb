@@ -15,6 +15,10 @@ module FakeFS
       File.file?(file_name)
     end
 
+    def size?(file_name)
+      File.size?(file_name)
+    end
+
     def writable?(file_name)
       File.writable?(file_name)
     end
