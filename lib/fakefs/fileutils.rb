@@ -9,7 +9,7 @@ module FakeFS
         # FileSystem.add call adds all the necessary parent directories but
         # can't set their mode. Thus, we have to collect created directories
         # here and set the mode later.
-        if _options[:mode]
+        if options[:mode]
           created_dirs = []
           dir = path
 
@@ -201,14 +201,10 @@ module FakeFS
           uid = if user
                   user.to_s.match(/[0-9]+/) ? user.to_i :
                     Etc.getpwnam(user).uid
-                else
-                  nil
                 end
           gid = if group
                   group.to_s.match(/[0-9]+/) ? group.to_i :
                     Etc.getgrnam(group).gid
-                else
-                  nil
                 end
           File.chown(uid, gid, f)
         else

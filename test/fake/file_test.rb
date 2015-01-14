@@ -97,16 +97,16 @@ class FakeFileTest < Test::Unit::TestCase
   end
 
   def test_file_size_question_works
-    assert_nil FileTest.size?("does-not-exist.txt")
+    assert_nil FileTest.size?('does-not-exist.txt')
 
-    File.open("empty.txt", 'w') do |f|
+    File.open('empty.txt', 'w') do |f|
       f << ''
     end
-    assert_nil FileTest.size?("empty.txt")
+    assert_nil FileTest.size?('empty.txt')
 
-    File.open("one-char.txt", 'w') do |f|
+    File.open('one-char.txt', 'w') do |f|
       f << 'a'
     end
-    assert_equal 1, FileTest.size?("one-char.txt")
+    assert_equal 1, FileTest.size?('one-char.txt')
   end
 end
