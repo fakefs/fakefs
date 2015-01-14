@@ -629,8 +629,8 @@ module FakeFS
       # This method has existed since 1.8.1.
       #
       def each_line(*args, &block) # :yield: line
-        File.readlines(@path, *args).each do |line|
-          yield line
+        File.open(@path, 'r') do |io|
+          io.each_line(*args, &block)
         end
       end
 
@@ -651,13 +651,13 @@ module FakeFS
         File.readlines(@path, *args)
       end
 
-      # See <tt>IO.sysopen</tt>.
+      # See <tt>IO.sysopen</tt>. Not supported by fakefs.
       def sysopen(*args)
-        1  # XXX do it somehow better
+        raise NotImplementedError, 'sysopen is not supported by fakefs'
       end
     end
 
-    # Pathnam class
+    # Pathname class
     class Pathname    # * File *
       # See <tt>File.atime</tt>.  Returns last access time.
       def atime

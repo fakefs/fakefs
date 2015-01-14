@@ -2424,18 +2424,6 @@ class FakeFSTest < Test::Unit::TestCase
     assert FileTest.writable?('dir'), 'directories are writable'
   end
 
-  def test_pathname_exists_returns_correct_value
-    FileUtils.touch 'foo'
-    assert Pathname.new('foo').exist?
-
-    assert !Pathname.new('bar').exist?
-  end
-
-  def test_pathname_method_is_faked
-    FileUtils.mkdir_p '/path'
-    assert Pathname('/path').exist?, 'Pathname() method is faked'
-  end
-
   def test_dir_mktmpdir
     FileUtils.mkdir '/tmp'
 
