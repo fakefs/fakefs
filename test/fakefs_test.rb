@@ -2621,7 +2621,7 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_fnmatch
-    assert_equal File.fnmatch?('test','test'), true
+    assert_equal File.fnmatch?('test', 'test'), true
     assert_equal File.fnmatch('nope', 'blargh'), false
     assert_equal File.fnmatch?('nope', 'blargh'), File.fnmatch('nope', 'blargh')
   end
