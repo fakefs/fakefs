@@ -652,8 +652,8 @@ module FakeFS
       end
 
       # See <tt>IO.sysopen</tt>. Not supported by fakefs.
-      def sysopen(*args)
-        raise NotImplementedError, 'sysopen is not supported by fakefs'
+      def sysopen(*_args)
+        fail NotImplementedError, 'sysopen is not supported by fakefs'
       end
     end
 
