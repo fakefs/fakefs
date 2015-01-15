@@ -1202,7 +1202,8 @@ class FakeFSTest < Minitest::Test
     :echo?, :echo=, :noecho,
     :winsize, :winsize=,
     :getch,
-    :iflush, :ioflush, :oflush
+    :iflush, :ioflush, :oflush,
+    :pathconf
   ]
 
   def test_every_method_in_file_is_in_fake_fs_file
@@ -2735,6 +2736,24 @@ class FakeFSTest < Minitest::Test
     def test_can_read_binary_data_using_binread
       File.open('foo', 'wb') { |f| f << "\u0000\u0000\u0000\u0003\u0000\u0003\u0000\xA3\u0000\u0000\u0000y\u0000\u0000\u0000\u0000\u0000" }
       assert_equal "\x00\x00\x00\x03\x00\x03\x00\xA3\x00\x00\x00y\x00\x00\x00\x00\x00".force_encoding('ASCII-8BIT'), File.binread('foo')
+    end
+  end
+
+  if RUBY_VERSION >= '2.2.0'
+    def test_raises_error_on_birthtime_if_file_does_not_exist
+      assert_raises Errno::ENOENT do
+        File.birthtime('file.txt')
+      end
+    end
+
+    def test_can_return_birthtime_on_existing_file
+      File.open('foo', 'w') { |f| f << 'some content' }
+      assert File.birthtime('foo').is_a?(Time)
+    end
+
+    def test_file_birthtime_is_equal_to_file_stat_birthtime
+      File.open('foo', 'w') { |f| f << 'some content' }
+      assert_equal File.stat('foo').birthtime, File.birthtime('foo')
     end
   end
 end
