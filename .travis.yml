@@ -12,5 +12,4 @@ matrix:
     - rvm: jruby
     - rvm: rbx-19mode
 before_install:
-  - gem update --system 2.1.11
   - gem --version
