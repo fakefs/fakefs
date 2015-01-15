@@ -1,7 +1,7 @@
 require 'test_helper'
 
 # File stat test class
-class FileStatTest < Test::Unit::TestCase
+class FileStatTest < Minitest::Test
   include FakeFS
 
   def setup
@@ -46,14 +46,14 @@ class FileStatTest < Test::Unit::TestCase
   def test_symlink_should_be_false_when_not_a_symlink
     FileUtils.touch('/foo')
 
-    assert !File::Stat.new('/foo').symlink?
+    refute File::Stat.new('/foo').symlink?
     assert File::Stat.new('/foo').ftype == 'file'
   end
 
   def test_should_return_false_for_directory_when_not_a_directory
     FileUtils.touch('/foo')
 
-    assert !File::Stat.new('/foo').directory?
+    refute File::Stat.new('/foo').directory?
     assert File::Stat.new('/foo').ftype == 'file'
   end
 
@@ -95,7 +95,7 @@ class FileStatTest < Test::Unit::TestCase
 
   def test_file_zero?
     File.open('testfile', 'w') { |f| f << 'test' }
-    assert !File.stat('testfile').zero?, 'testfile has size 4, not zero'
+    refute File.stat('testfile').zero?, 'testfile has size 4, not zero'
 
     FileUtils.touch('testfile2')
     assert File.stat('testfile2').zero?, 'testfile2 has size 0, but stat lied'
@@ -124,7 +124,7 @@ class FileStatTest < Test::Unit::TestCase
 
   def test_responds_to_sticky
     FileUtils.touch('/foo')
-    assert !File::Stat.new('/foo').sticky?
+    refute File::Stat.new('/foo').sticky?
   end
 
   def test_responds_to_world_readable
@@ -144,7 +144,7 @@ class FileStatTest < Test::Unit::TestCase
     if RUBY_VERSION > '1.9'
       assert File.respond_to?(:realpath)
     else
-      assert !File.respond_to?(:realpath)
+      refute File.respond_to?(:realpath)
     end
   end
 
@@ -152,7 +152,7 @@ class FileStatTest < Test::Unit::TestCase
     if RUBY_VERSION >= '1.9.2'
       assert File.respond_to?(:realdirpath)
     else
-      assert !File.respond_to?(:realdirpath)
+      refute File.respond_to?(:realdirpath)
     end
   end
 end

@@ -1,7 +1,7 @@
 require 'test_helper'
 
 # File stat test class
-class FileStat < Test::Unit::TestCase
+class FileStat < Minitest::Test
   def setup
     FakeFS.activate!
     FakeFS::FileSystem.clear
@@ -35,7 +35,7 @@ class FileStat < Test::Unit::TestCase
     File.open('foo', 'w') { |f| f << 'some content' }
     File.symlink 'foo', 'my_symlink'
 
-    assert_not_equal File.lstat('my_symlink').size, File.lstat('foo').size
+    refute_equal File.lstat('my_symlink').size, File.lstat('foo').size
   end
 
   def test_should_report_on_symlink_itself_with_size_instance_method
@@ -45,7 +45,7 @@ class FileStat < Test::Unit::TestCase
     file = File.open('foo')
     symlink = File.open('my_symlink')
 
-    assert_not_equal file.lstat.size, symlink.lstat.size
+    refute_equal file.lstat.size, symlink.lstat.size
   end
 
   def test_symlink_size_is_size_of_path_pointed_to

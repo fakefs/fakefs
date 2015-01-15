@@ -1,12 +1,7 @@
 $LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
 require 'fakefs/safe'
-require 'test/unit'
-
-begin
-  require 'redgreen'
-rescue LoadError
-  'Nothing to do'
-end
+require 'minitest/autorun'
+require 'minitest/rg'
 
 def act_on_real_fs
   fail ArgumentError unless block_given?

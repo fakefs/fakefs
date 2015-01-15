@@ -1,7 +1,7 @@
 require 'test_helper'
 
 # Kernel test class
-class KernelTest < Test::Unit::TestCase
+class KernelTest < Minitest::Test
   include FakeFS
   def setup
     FakeFS.deactivate!
