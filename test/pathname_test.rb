@@ -1,7 +1,7 @@
 require 'test_helper'
 
 # Fake Pathname test class
-class FakePathnameTest < Test::Unit::TestCase
+class FakePathnameTest < Minitest::Test
   include FakeFS
 
   def setup
@@ -17,7 +17,7 @@ class FakePathnameTest < Test::Unit::TestCase
   end
 
   def test_filetest_exists_returns_correct_value
-    assert !@pathname.exist?
+    refute @pathname.exist?
 
     File.write(@path, '')
 
@@ -70,6 +70,6 @@ class FakePathnameTest < Test::Unit::TestCase
   end
 
   def test_io_sysopen_is_unsupported
-    assert_raise(NotImplementedError) { @pathname.sysopen }
+    assert_raises(NotImplementedError) { @pathname.sysopen }
   end
 end

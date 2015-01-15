@@ -2,8 +2,10 @@
 require 'test_helper'
 
 # FakeFS tests
-class FakeFSTest < Test::Unit::TestCase
+class FakeFSTest < Minitest::Test
   include FakeFS
+
+  i_suck_and_my_tests_are_order_dependent!
 
   def setup
     FakeFS.activate!
@@ -73,14 +75,14 @@ class FakeFSTest < Test::Unit::TestCase
   def test_raises_error_when_creating_a_new_dir_over_existing_file
     File.open('file', 'w') { |f| f << 'This is a file, not a directory.' }
 
-    assert_raise Errno::EEXIST do
+    assert_raises Errno::EEXIST do
       FileUtils.mkdir_p('file/subdir')
     end
 
     FileUtils.mkdir('dir')
     File.open('dir/subfile', 'w') { |f| f << 'This is a file inside a directory.' }
 
-    assert_raise Errno::EEXIST do
+    assert_raises Errno::EEXIST do
       FileUtils.mkdir_p('dir/subfile/subdir')
     end
   end
@@ -106,21 +108,17 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_unlink_errors_on_file_not_found
-    assert_raise Errno::ENOENT do
+    assert_raises Errno::ENOENT do
       FileUtils.rm('/foo')
     end
   end
 
   def test_unlink_doesnt_error_on_file_not_found_when_forced
-    assert_nothing_raised do
-      FileUtils.rm('/foo', force: true)
-    end
+    FileUtils.rm('/foo', force: true)
   end
 
   def test_unlink_doesnt_error_on_file_not_found_with_rm_rf
-    assert_nothing_raised do
-      FileUtils.rm_rf('/foo')
-    end
+    FileUtils.rm_rf('/foo')
   end
 
   def test_can_delete_directories
@@ -199,7 +197,7 @@ class FakeFSTest < Test::Unit::TestCase
 
   def test_symlink_with_missing_refferent_does_not_exist
     File.symlink('/foo', '/bar')
-    assert !File.exist?('/bar')
+    refute File.exist?('/bar')
   end
 
   def test_can_create_symlinks
@@ -251,7 +249,7 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.touch('/file')
     FileUtils.mkdir_p('/a/b')
     FileUtils.ln_s('../../file_foo', '/a/b/symlink')
-    assert !File.exist?('/a/b/symlink')
+    refute File.exist?('/a/b/symlink')
   end
 
   def test_symlink_with_relative_path_has_correct_target
@@ -274,9 +272,9 @@ class FakeFSTest < Test::Unit::TestCase
   def test_symlink_to_symlinks_should_raise_error_if_dir_doesnt_exist
     FileUtils.mkdir_p(target = '/path/to/foo/target')
 
-    assert !Dir.exist?('/path/to/bar')
+    refute Dir.exist?('/path/to/bar')
 
-    assert_raise Errno::ENOENT do
+    assert_raises Errno::ENOENT do
       FileUtils.ln_s(target, '/path/to/bar/symlink')
     end
   end
@@ -299,7 +297,7 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_nothing_is_sticky
-    assert !File.sticky?('/')
+    refute File.sticky?('/')
   end
 
   def test_can_create_files_in_existing_dir
@@ -496,7 +494,8 @@ class FakeFSTest < Test::Unit::TestCase
       f.write 'Yatta!'
     end
 
-    assert_nothing_raised { File.read(path, mode: 'r:UTF-8:-') }
+    # nothing raised
+    File.read(path, mode: 'r:UTF-8:-')
   end
 
   def test_file_read_respects_args
@@ -519,7 +518,7 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_raises_error_when_opening_with_binary_mode_only
-    assert_raise ArgumentError do
+    assert_raises ArgumentError do
       File.open('/foo', 'b')
     end
   end
@@ -598,7 +597,7 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_raises_error_on_mtime_if_file_does_not_exist
-    assert_raise Errno::ENOENT do
+    assert_raises Errno::ENOENT do
       File.mtime('/path/to/file.txt')
     end
   end
@@ -630,7 +629,7 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_raises_error_on_ctime_if_file_does_not_exist
-    assert_raise Errno::ENOENT do
+    assert_raises Errno::ENOENT do
       File.ctime('file.txt')
     end
   end
@@ -641,7 +640,7 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_raises_error_on_atime_if_file_does_not_exist
-    assert_raise Errno::ENOENT do
+    assert_raises Errno::ENOENT do
       File.atime('file.txt')
     end
   end
@@ -713,7 +712,7 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_utime_raises_error_if_path_does_not_exist
-    assert_raise Errno::ENOENT do
+    assert_raises Errno::ENOENT do
       File.utime(Time.now, Time.now, '/path/to/file.txt')
     end
   end
@@ -787,7 +786,7 @@ class FakeFSTest < Test::Unit::TestCase
     file = File.open(path, 'w')
     file.write 'Yada'
     file.close
-    assert_raise IOError do
+    assert_raises IOError do
       file.read
     end
   end
@@ -797,7 +796,7 @@ class FakeFSTest < Test::Unit::TestCase
     file = File.open(path, 'w')
     file.write 'Yada'
     file.close
-    assert_raise IOError do
+    assert_raises IOError do
       file << 'foo'
     end
   end
@@ -821,17 +820,14 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_file_object_initialization_with_mode_in_hash_parameter
-    assert_nothing_raised do
-      File.open('file.txt', mode: 'w') { |f| f.write 'Yatta!' }
-    end
+    File.open('file.txt', mode: 'w') { |f| f.write 'Yatta!' }
   end
 
   def test_file_object_initialization_with_brackets_in_filename
     filename = 'bracket[1](2).txt'
     expected_contents = 'Yokudekimashita'
-    assert_nothing_raised do
-      File.open(filename, mode: 'w') { |f| f.write "#{expected_contents}" }
-    end
+    # nothing raised
+    File.open(filename, mode: 'w') { |f| f.write "#{expected_contents}" }
     the_file = Dir['/*']
     assert_equal the_file.length, 1
     assert_equal the_file[0], "/#{filename}"
@@ -842,15 +838,14 @@ class FakeFSTest < Test::Unit::TestCase
   def test_file_object_initialization_with_brackets_in_filename
     filename = "\u65e5\u672c\u8a9e.txt"
     expected_contents = 'Yokudekimashita'
-    assert_nothing_raised do
-      File.open(filename,  mode: 'w') { |f| f.write "#{expected_contents}" }
-    end
+    # nothing raised
+    File.open(filename,  mode: 'w') { |f| f.write "#{expected_contents}" }
     contents = File.open("/#{filename}").read
     assert_equal contents, expected_contents
   end
 
   def test_file_read_errors_appropriately
-    assert_raise Errno::ENOENT do
+    assert_raises Errno::ENOENT do
       File.read('anything')
     end
   end
@@ -858,7 +853,7 @@ class FakeFSTest < Test::Unit::TestCase
   def test_file_read_errors_on_directory
     FileUtils.mkdir_p('a_directory')
 
-    assert_raise Errno::EISDIR do
+    assert_raises Errno::EISDIR do
       File.read('a_directory')
     end
   end
@@ -918,7 +913,7 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_executable_returns_false_for_non_existent_files
-    assert !File.executable?('/does/not/exist')
+    refute File.executable?('/does/not/exist')
   end
 
   def test_can_chown_files
@@ -1078,7 +1073,7 @@ class FakeFSTest < Test::Unit::TestCase
   def test_file_utils_cp_allows_noop_option
     File.open('foo', 'w') { |f| f << 'TEST' }
     FileUtils.cp 'foo', 'bar', noop: true
-    assert !File.exist?('bar'), 'does not actually copy'
+    refute File.exist?('bar'), 'does not actually copy'
   end
 
   def test_file_utils_cp_raises_on_invalid_option
@@ -1095,7 +1090,7 @@ class FakeFSTest < Test::Unit::TestCase
   def test_file_utils_cp_r_allows_noop_option
     FileUtils.touch '/foo'
     FileUtils.cp_r '/foo', '/bar', noop: true
-    assert !File.exist?('/bar'), 'does not actually copy'
+    refute File.exist?('/bar'), 'does not actually copy'
   end
 
   def test_dir_glob_handles_root
@@ -1219,7 +1214,7 @@ class FakeFSTest < Test::Unit::TestCase
   def test_file_should_not_respond_to_string_io_unique_methods
     uniq_string_io_methods = StringIO.instance_methods - RealFile.instance_methods
     uniq_string_io_methods.each do |method_name|
-      assert !File.instance_methods.include?(method_name), "File responds to #{method_name}"
+      refute File.instance_methods.include?(method_name), "File responds to #{method_name}"
     end
   end
 
@@ -1230,7 +1225,7 @@ class FakeFSTest < Test::Unit::TestCase
 
   def test_is_not_a_stringio
     File.open('foo', 'w') do |f|
-      assert !f.is_a?(StringIO), 'File is not a StringIO'
+      refute f.is_a?(StringIO), 'File is not a StringIO'
     end
   end
 
@@ -1301,7 +1296,7 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_chdir_should_flop_over_and_die_if_the_dir_doesnt_exist
-    assert_raise(Errno::ENOENT) do
+    assert_raises(Errno::ENOENT) do
       Dir.chdir('/nope') do
         1
       end
@@ -1411,10 +1406,10 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_mv_should_raise_error_on_missing_file
-    assert_raise(Errno::ENOENT) do
+    assert_raises(Errno::ENOENT) do
       FileUtils.mv 'blafgag', 'foo'
     end
-    exception = assert_raise(Errno::ENOENT) do
+    exception = assert_raises(Errno::ENOENT) do
       FileUtils.mv %w(foo bar), 'destdir'
     end
     assert_equal 'No such file or directory - foo', exception.message
@@ -1465,7 +1460,7 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.touch 'foo'
     FileUtils.mv 'foo', 'bar', noop: true
     assert File.exist?('foo'), 'does not remove src'
-    assert !File.exist?('bar'), 'does not create target'
+    refute File.exist?('bar'), 'does not create target'
   end
 
   def test_mv_raises_when_moving_file_onto_directory
@@ -1489,11 +1484,11 @@ class FakeFSTest < Test::Unit::TestCase
     FileUtils.mv %w(stuff other), 'dir', force: true
     assert File.exist?('stuff'), 'failed move remains where it was'
     assert File.exist?('dir/other'), 'successful one is moved'
-    assert !File.exist?('other'), 'successful one is moved'
+    refute File.exist?('other'), 'successful one is moved'
 
     FileUtils.mv 'stuff', '/this/path/is/not/here', force: true
     assert File.exist?('stuff'), 'failed move remains where it was'
-    assert !File.exist?('/this/path/is/not/here'), 'nothing is created for a failed move'
+    refute File.exist?('/this/path/is/not/here'), 'nothing is created for a failed move'
   end
 
   def test_cp_actually_works
@@ -1523,7 +1518,7 @@ class FakeFSTest < Test::Unit::TestCase
   def test_cp_fails_on_array_of_files_into_non_directory
     File.open('foo', 'w') { |f| f.write 'footext' }
 
-    exception = assert_raise(Errno::ENOTDIR) do
+    exception = assert_raises(Errno::ENOTDIR) do
       FileUtils.cp(%w(foo), 'baz')
     end
     assert_equal 'Not a directory - baz', exception.to_s
@@ -1538,7 +1533,7 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_cp_fails_on_no_source
-    assert_raise Errno::ENOENT do
+    assert_raises Errno::ENOENT do
       FileUtils.cp('foo', 'baz')
     end
   end
@@ -1546,7 +1541,7 @@ class FakeFSTest < Test::Unit::TestCase
   def test_cp_fails_on_directory_copy
     FileUtils.mkdir_p 'baz'
 
-    assert_raise Errno::EISDIR do
+    assert_raises Errno::EISDIR do
       FileUtils.cp('baz', 'bar')
     end
   end
@@ -1567,7 +1562,7 @@ class FakeFSTest < Test::Unit::TestCase
   def test_cp_r_should_raise_error_on_missing_file
     # Yes, this error sucks, but it conforms to the original Ruby
     # method.
-    assert_raise(RuntimeError) do
+    assert_raises(RuntimeError) do
       FileUtils.cp_r 'blafgag', 'foo'
     end
   end
@@ -1643,7 +1638,7 @@ class FakeFSTest < Test::Unit::TestCase
 
   def test_clone_clones_normal_files
     RealFile.open(here('foo'), 'w') { |f| f.write 'bar' }
-    assert !File.exist?(here('foo'))
+    refute File.exist?(here('foo'))
     FileSystem.clone(here('foo'))
     assert_equal 'bar', File.open(here('foo')) { |f| f.read }
   ensure
@@ -1664,7 +1659,7 @@ class FakeFSTest < Test::Unit::TestCase
   def test_clone_clones_dot_files_even_hard_to_find_ones
     act_on_real_fs { RealFileUtils.mkdir_p(here('subdir/.bar/baz/.quux/foo')) }
 
-    assert !File.exist?(here('subdir'))
+    refute File.exist?(here('subdir'))
 
     FileSystem.clone(here('subdir'))
     assert_equal ['.', '..', '.bar'], Dir.entries(here('subdir'))
@@ -1686,10 +1681,10 @@ class FakeFSTest < Test::Unit::TestCase
   def test_clone_with_target_specified
     act_on_real_fs { RealFileUtils.mkdir_p(here('subdir/.bar/baz/.quux/foo')) }
 
-    assert !File.exist?(here('subdir'))
+    refute File.exist?(here('subdir'))
 
     FileSystem.clone(here('subdir'), here('subdir2'))
-    assert !File.exist?(here('subdir'))
+    refute File.exist?(here('subdir'))
     assert_equal ['.', '..', '.bar'], Dir.entries(here('subdir2'))
     assert_equal ['.', '..', 'foo'], Dir.entries(here('subdir2/.bar/baz/.quux'))
   ensure
@@ -1707,7 +1702,7 @@ class FakeFSTest < Test::Unit::TestCase
       assert RealFile.symlink?(symlink), 'real symlink is in place'
     end
 
-    assert !File.exist?(original), 'file does not already exist'
+    refute File.exist?(original), 'file does not already exist'
 
     FileSystem.clone(File.dirname(original))
     assert File.symlink?(symlink), 'symlinks are cloned as symlinks'
@@ -1729,7 +1724,7 @@ class FakeFSTest < Test::Unit::TestCase
       assert RealFile.symlink?(symlink), 'real symlink is in place'
     end
 
-    assert !File.exist?(original_file), 'file does not already exist'
+    refute File.exist?(original_file), 'file does not already exist'
 
     FileSystem.clone(File.dirname(original))
     assert File.symlink?(symlink), 'symlinks are cloned as symlinks'
@@ -1794,9 +1789,8 @@ class FakeFSTest < Test::Unit::TestCase
   def test_new_directory
     FileUtils.mkdir_p('/this/path/should/be/here')
 
-    assert_nothing_raised do
-      Dir.new('/this/path/should/be/here')
-    end
+    # nothing raised
+    Dir.new('/this/path/should/be/here')
   end
 
   def test_new_directory_does_not_work_if_dir_path_cannot_be_found
@@ -1909,19 +1903,19 @@ class FakeFSTest < Test::Unit::TestCase
     dir = Dir.new('/this/path/should/be/here')
 
     d = dir.read
-    assert_not_nil d
+    refute_nil d
     d = dir.read
-    assert_not_nil d
+    refute_nil d
     d = dir.read
-    assert_not_nil d
+    refute_nil d
     d = dir.read
-    assert_not_nil d
+    refute_nil d
     d = dir.read
-    assert_not_nil d
+    refute_nil d
     d = dir.read
-    assert_not_nil d
+    refute_nil d
     d = dir.read
-    assert_not_nil d
+    refute_nil d
     d = dir.read
     assert_nil d
   end
@@ -2260,7 +2254,7 @@ class FakeFSTest < Test::Unit::TestCase
 
     File.delete('/foo')
 
-    assert !File.exist?('/foo')
+    refute File.exist?('/foo')
   end
 
   def test_can_delete_multiple_files_with_delete
@@ -2269,8 +2263,8 @@ class FakeFSTest < Test::Unit::TestCase
 
     File.delete('/foo', '/bar')
 
-    assert !File.exist?('/foo')
-    assert !File.exist?('/bar')
+    refute File.exist?('/foo')
+    refute File.exist?('/bar')
   end
 
   def test_delete_returns_zero_when_no_filename_given
@@ -2319,7 +2313,7 @@ class FakeFSTest < Test::Unit::TestCase
     File.unlink('/bar')
 
     assert File.exist?('/foo')
-    assert !File.exist?('/bar')
+    refute File.exist?('/bar')
   end
 
   def test_delete_works_with_symlink_source
@@ -2328,7 +2322,7 @@ class FakeFSTest < Test::Unit::TestCase
 
     File.unlink('/foo')
 
-    assert !File.exist?('/foo')
+    refute File.exist?('/foo')
   end
 
   def test_file_seek_returns_0
@@ -2389,7 +2383,7 @@ class FakeFSTest < Test::Unit::TestCase
     assert FileTest.exist?('/path/to/')
 
     FileUtils.rmdir('/path/to/dir')
-    assert !FileTest.exist?('/path/to/dir')
+    refute FileTest.exist?('/path/to/dir')
   end
 
   def test_filetest_directory_returns_correct_values
@@ -2397,7 +2391,7 @@ class FakeFSTest < Test::Unit::TestCase
     assert FileTest.directory?('/path/to/somedir')
 
     FileUtils.rm_r '/path/to/somedir'
-    assert !FileTest.directory?('/path/to/somedir')
+    refute FileTest.directory?('/path/to/somedir')
   end
 
   def test_filetest_file_returns_correct_values
@@ -2408,14 +2402,14 @@ class FakeFSTest < Test::Unit::TestCase
     assert FileTest.file?(path)
 
     FileUtils.rm path
-    assert !FileTest.file?(path)
+    refute FileTest.file?(path)
 
     FileUtils.mkdir_p '/path/to/somedir'
-    assert !FileTest.file?('/path/to/somedir')
+    refute FileTest.file?('/path/to/somedir')
   end
 
   def test_filetest_readable_returns_correct_values
-    assert !FileTest.readable?('not-here.txt'), 'missing files are not readable'
+    refute FileTest.readable?('not-here.txt'), 'missing files are not readable'
 
     FileUtils.touch 'here.txt'
     assert FileTest.readable?('here.txt'), 'existing files are readable'
@@ -2425,7 +2419,7 @@ class FakeFSTest < Test::Unit::TestCase
   end
 
   def test_filetest_writable_returns_correct_values
-    assert !FileTest.writable?('not-here.txt'), 'missing files are not writable'
+    refute FileTest.writable?('not-here.txt'), 'missing files are not writable'
 
     FileUtils.touch 'here.txt'
     assert FileTest.writable?('here.txt'), 'existing files are writable'
@@ -2445,7 +2439,7 @@ class FakeFSTest < Test::Unit::TestCase
       tmpdir = t
       assert File.directory?(t)
     end
-    assert !File.directory?(tmpdir)
+    refute File.directory?(tmpdir)
   end
 
   def test_activating_returns_true
@@ -2653,9 +2647,8 @@ class FakeFSTest < Test::Unit::TestCase
     def test_fdatasync
       File.open('foo', 'w') do |f|
         f << 'Yada Yada'
-        assert_nothing_raised do
-          f.fdatasync
-        end
+        # nothing raised
+        f.fdatasync
       end
     end
 
@@ -2677,9 +2670,8 @@ class FakeFSTest < Test::Unit::TestCase
   if RUBY_VERSION >= '1.9.3'
     def test_advise
       File.open('foo', 'w') do |f|
-        assert_nothing_raised do
-          f.advise(:normal, 0, 0)
-        end
+        # nothing raised
+        f.advise(:normal, 0, 0)
       end
     end
 

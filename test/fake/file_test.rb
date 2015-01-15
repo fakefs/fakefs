@@ -1,7 +1,7 @@
 require 'test_helper'
 
 # Fake File test class
-class FakeFileTest < Test::Unit::TestCase
+class FakeFileTest < Minitest::Test
   include FakeFS
 
   def setup
@@ -72,7 +72,7 @@ class FakeFileTest < Test::Unit::TestCase
 
   def test_clone_creates_new_inode
     clone = @file.clone
-    assert !clone.inode.equal?(@file.inode)
+    refute clone.inode.equal?(@file.inode)
   end
 
   def test_cloning_does_not_use_same_content_object

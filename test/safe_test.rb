@@ -1,7 +1,7 @@
 require 'test_helper'
 
 # FakeFS safe test class
-class FakeFSSafeTest < Test::Unit::TestCase
+class FakeFSSafeTest < Minitest::Test
   def setup
     FakeFS.deactivate!
   end
@@ -13,7 +13,7 @@ class FakeFSSafeTest < Test::Unit::TestCase
   def test_FakeFS_activated_is_accurate
     2.times do
       FakeFS.deactivate!
-      assert !FakeFS.activated?
+      refute FakeFS.activated?
       FakeFS.activate!
       assert FakeFS.activated?
     end
@@ -27,7 +27,7 @@ class FakeFSSafeTest < Test::Unit::TestCase
       assert File.exist?(path)
     end
 
-    assert !File.exist?(path)
+    refute File.exist?(path)
   end
 
   def test_FakeFS_method_returns_value_of_yield
@@ -55,19 +55,19 @@ class FakeFSSafeTest < Test::Unit::TestCase
       assert FakeFS.activated?
     end
 
-    assert !FakeFS.activated?
+    refute FakeFS.activated?
   end
 
   def test_FakeFS_method_can_be_nested_with_FakeFS_without
     FakeFS do
       assert FakeFS.activated?
       FakeFS.without do
-        assert !FakeFS.activated?
+        refute FakeFS.activated?
       end
       assert FakeFS.activated?
     end
 
-    assert !FakeFS.activated?
+    refute FakeFS.activated?
   end
 
   def test_FakeFS_method_deactivates_FakeFS_when_block_raises_exception
@@ -79,6 +79,6 @@ class FakeFSSafeTest < Test::Unit::TestCase
       'Nothing to do'
     end
 
-    assert !FakeFS.activated?
+    refute FakeFS.activated?
   end
 end

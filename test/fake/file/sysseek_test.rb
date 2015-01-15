@@ -1,7 +1,7 @@
 require 'test_helper'
 
 # File SysSeek test class
-class FileSysSeek < Test::Unit::TestCase
+class FileSysSeek < Minitest::Test
   def setup
     FakeFS.activate!
     FakeFS::FileSystem.clear

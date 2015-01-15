@@ -2,16 +2,15 @@ require 'test_helper'
 require 'tempfile'
 
 # Tempfile test class
-class TempfileTest < Test::Unit::TestCase
+class TempfileTest < Minitest::Test
   include FakeFS
 
   if RUBY_VERSION >= '2.1'
     def test_should_not_raise_error
       FakeFS do
-        assert_nothing_raised do
-          FileUtils.mkdir_p('/tmp')
-          Tempfile.open('test')
-        end
+        # nothing raised
+        FileUtils.mkdir_p('/tmp')
+        Tempfile.open('test')
       end
     end
   else

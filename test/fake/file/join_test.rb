@@ -1,7 +1,7 @@
 require 'test_helper'
 
 # File join test class
-class FileJoin < Test::Unit::TestCase
+class FileJoin < Minitest::Test
   def setup
     FakeFS.activate!
   end
