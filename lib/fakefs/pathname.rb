@@ -629,8 +629,12 @@ module FakeFS
       # This method has existed since 1.8.1.
       #
       def each_line(*args, &block) # :yield: line
-        File.open(@path, 'r') do |io|
-          io.each_line(*args, &block)
+        if block_given?
+          File.open(@path, 'r') do |io|
+            io.each_line(*args, &block)
+          end
+        else
+          enum_for(:each_line, *args)
         end
       end
 
