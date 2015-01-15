@@ -2,7 +2,7 @@ module FakeFS
   # Fake file class
   class FakeFile
     attr_accessor :name, :parent, :content, :mtime, :atime, :mode, :uid, :gid
-    attr_reader :ctime
+    attr_reader :ctime, :birthtime
 
     # Inode class
     class Inode
@@ -34,15 +34,16 @@ module FakeFS
     end
 
     def initialize(name = nil, parent = nil)
-      @name   = name
-      @parent = parent
-      @inode  = Inode.new(self)
-      @ctime  = Time.now
-      @mtime  = @ctime
-      @atime  = @ctime
-      @mode   = 0100000 + (0666 - File.umask)
-      @uid    = Process.uid
-      @gid    = Process.gid
+      @name      = name
+      @parent    = parent
+      @inode     = Inode.new(self)
+      @ctime     = Time.now
+      @mtime     = @ctime
+      @atime     = @ctime
+      @birthtime = @ctime
+      @mode      = 0100000 + (0666 - File.umask)
+      @uid       = Process.uid
+      @gid       = Process.gid
     end
 
     attr_accessor :inode
