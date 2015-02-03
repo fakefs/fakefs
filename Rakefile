@@ -39,7 +39,7 @@ task :update_contributors do
   sh "#{git_rank_contributors} > CONTRIBUTORS"
   if `git status | grep CONTRIBUTORS`.strip.length > 0
     sh "git add CONTRIBUTORS"
-    sh "git commit -m 'Updates contributors for release'"
+    sh "git commit -m 'Update contributors for release'"
   end
 end
 
