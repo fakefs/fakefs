@@ -30,7 +30,7 @@ end
 task default: [:test, :spec, :rubocop]
 
 desc 'Push a new version to rubygems.org'
-task :publish => [:test, :spec, :update_contributors, :tag, :release, :push]
+task :publish => [:test, :spec, :rubocop, :update_contributors, :tag, :release, :push]
 
 desc 'Update contributors'
 task :update_contributors do
