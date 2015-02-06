@@ -1,7 +1,7 @@
 require 'test_helper'
 
 # File SysWrite test class
-class FileSysWriteTest < Test::Unit::TestCase
+class FileSysWriteTest < Minitest::Test
   def setup
     FakeFS.activate!
     FakeFS::FileSystem.clear

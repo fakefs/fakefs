@@ -1,7 +1,7 @@
 require 'test_helper'
 
 # Fake symlink test class
-class FakeSymlinkTest < Test::Unit::TestCase
+class FakeSymlinkTest < Minitest::Test
   include FakeFS
 
   def test_symlink_has_method_missing_as_private
@@ -15,7 +15,7 @@ class FakeSymlinkTest < Test::Unit::TestCase
            'has public method \#to_s'
     assert fake_symlink.respond_to?(:to_s, true),
            'has public or private method \#to_s'
-    assert !fake_symlink.respond_to?(:initialize, false),
+    refute fake_symlink.respond_to?(:initialize, false),
            'has private method \#initialize'
     assert fake_symlink.respond_to?(:initialize, true),
            'has private method \#initialize'
@@ -25,8 +25,8 @@ class FakeSymlinkTest < Test::Unit::TestCase
     fake_symlink = FakeSymlink.new('foo')
     assert_equal fake_symlink.respond_to?(:to_s),
                  fake_symlink.entry.respond_to?(:to_s)
-    assert_not_equal fake_symlink.respond_to?(:to_s),
-                     fake_symlink.entry.respond_to?(:initialize)
+    refute_equal fake_symlink.respond_to?(:to_s),
+                 fake_symlink.entry.respond_to?(:initialize)
     assert_equal fake_symlink.respond_to?(:initialize),
                  fake_symlink.entry.respond_to?(:initialize)
   end

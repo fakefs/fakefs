@@ -1,7 +1,7 @@
 require 'test_helper'
 
 # File stat test class
-class FileStat < Test::Unit::TestCase
+class FileStat < Minitest::Test
   def setup
     FakeFS.activate!
     FakeFS::FileSystem.clear

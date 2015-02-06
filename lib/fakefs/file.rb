@@ -283,6 +283,7 @@ module FakeFS
     # FakeFS Stat class
     class Stat
       attr_reader :ctime, :mtime, :atime, :mode, :uid, :gid
+      attr_reader :birthtime if RUBY_VERSION >= '2.2.0'
 
       def initialize(file, lstat = false)
         fail(Errno::ENOENT, file) unless File.exist?(file)
@@ -296,6 +297,12 @@ module FakeFS
         @mode      = @fake_file.mode
         @uid       = @fake_file.uid
         @gid       = @fake_file.gid
+        @birthtime =
+          if @fake_file.respond_to?(:birthtime)
+            @fake_file.birthtime
+          else
+            @fake_file.ctime
+          end
       end
 
       def symlink?
@@ -550,6 +557,20 @@ module FakeFS
         end
 
         contents.length
+      end
+    end
+
+    if RUBY_VERSION >= '2.2.0'
+      def self.birthtime(path)
+        if exists?(path)
+          FileSystem.find(path).birthtime
+        else
+          fail Errno::ENOENT
+        end
+      end
+
+      def birthtime
+        self.class.birthtime(@path)
       end
     end
 
