@@ -170,4 +170,4 @@ Releasing
 
 1. Update version in lib/fakefs/version.rb
 2. Commit it
-3. run `rake publish`
+3. run `bundle exec rake publish`
