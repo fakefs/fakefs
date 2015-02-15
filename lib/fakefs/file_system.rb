@@ -60,12 +60,13 @@ module FakeFS
 
       files.each do |f|
         target_path = target ? f.gsub(path, target) : f
+
         if RealFile.symlink?(f)
           FileUtils.ln_s(RealFile.readlink(f), f)
         elsif RealFile.file?(f)
           FileUtils.mkdir_p(File.dirname(f))
           File.open(target_path, File::WRITE_ONLY) do |g|
-            g.print RealFile.open(f) { |h| h.read }
+            g.print RealFile.read(f)
           end
         elsif RealFile.directory?(f)
           FileUtils.mkdir_p(target_path)

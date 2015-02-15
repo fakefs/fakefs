@@ -1646,12 +1646,20 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_clone_clones_normal_files
-    RealFile.open(real_file_sandbox('foo'), 'w') { |f| f.write 'bar' }
+    act_on_real_fs do
+      File.open(real_file_sandbox('foo'), 'w') do |f|
+        f.write 'bar'
+      end
+
+      assert RealFile.file?(real_file_sandbox('foo'))
+      assert File.file?(real_file_sandbox('foo'))
+    end
+
+    assert RealFile.file?(real_file_sandbox('foo'))
+
     refute File.exist?(real_file_sandbox('foo'))
     FakeFS::FileSystem.clone(real_file_sandbox('foo'))
     assert_equal 'bar', File.open(real_file_sandbox('foo')) { |f| f.read }
-  ensure
-    RealFile.unlink(real_file_sandbox('foo')) if RealFile.exist?(real_file_sandbox('foo'))
   end
 
   def test_clone_clones_directories
@@ -1661,8 +1669,6 @@ class FakeFSTest < Minitest::Test
 
     assert File.exist?(real_file_sandbox('subdir')), 'subdir was cloned'
     assert File.directory?(real_file_sandbox('subdir')), 'subdir is a directory'
-  ensure
-    act_on_real_fs { FileUtils.rm_rf(real_file_sandbox('subdir')) }
   end
 
   def test_clone_clones_dot_files_even_hard_to_find_ones
@@ -1673,8 +1679,6 @@ class FakeFSTest < Minitest::Test
     FakeFS::FileSystem.clone(real_file_sandbox('subdir'))
     assert_equal ['.', '..', '.bar'], Dir.entries(real_file_sandbox('subdir'))
     assert_equal ['.', '..', 'foo'], Dir.entries(real_file_sandbox('subdir/.bar/baz/.quux'))
-  ensure
-    act_on_real_fs { FileUtils.rm_rf(real_file_sandbox('subdir')) }
   end
 
   def test_dir_glob_on_clone_with_absolute_path
@@ -1683,8 +1687,6 @@ class FakeFSTest < Minitest::Test
     Dir.chdir('/path')
     FakeFS::FileSystem.clone(real_file_sandbox('subdir'), '/foo')
     assert Dir.glob '/foo/*'
-  ensure
-    act_on_real_fs { FileUtils.rm_rf(real_file_sandbox('subdir')) }
   end
 
   def test_clone_with_target_specified
@@ -1699,8 +1701,6 @@ class FakeFSTest < Minitest::Test
     refute File.exist?(real_file_sandbox('subdir'))
     assert_equal ['.', '..', '.bar'], Dir.entries(real_file_sandbox('subdir2'))
     assert_equal ['.', '..', 'foo'], Dir.entries(real_file_sandbox('subdir2/.bar/baz/.quux'))
-  ensure
-    act_on_real_fs { FileUtils.rm_rf(real_file_sandbox('subdir')) }
   end
 
   def test_clone_with_file_symlinks
@@ -1719,8 +1719,6 @@ class FakeFSTest < Minitest::Test
     FakeFS::FileSystem.clone(File.dirname(original))
     assert File.symlink?(symlink), 'symlinks are cloned as symlinks'
     assert_equal 'stuff', File.read(symlink)
-  ensure
-    act_on_real_fs { FileUtils.rm_rf File.dirname(original) }
   end
 
   def test_clone_with_dir_symlinks
@@ -1741,8 +1739,6 @@ class FakeFSTest < Minitest::Test
     FakeFS::FileSystem.clone(File.dirname(original))
     assert File.symlink?(symlink), 'symlinks are cloned as symlinks'
     assert_equal 'stuff', File.read(symlink_file)
-  ensure
-    act_on_real_fs { FileUtils.rm_rf File.dirname(original) }
   end
 
   def test_putting_a_dot_at_end_copies_the_contents
