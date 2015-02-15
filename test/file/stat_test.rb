@@ -132,7 +132,7 @@ class FileStatTest < Minitest::Test
     assert File::Stat.new('/foo').world_readable? == 0777, "#{File::Stat.new('/foo').world_readable?}"
   end
 
-  def test_responds_to_world_readable
+  def test_can_open_tempfile
     FakeFS do
       require 'tempfile'
       FileUtils.mkdir_p('/tmp')

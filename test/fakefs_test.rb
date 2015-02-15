@@ -831,6 +831,8 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_file_object_initialization_with_brackets_in_filename
+    skip 'TODO'
+
     filename = 'bracket[1](2).txt'
     expected_contents = 'Yokudekimashita'
     # nothing raised
@@ -842,7 +844,7 @@ class FakeFSTest < Minitest::Test
     assert_equal contents, expected_contents
   end
 
-  def test_file_object_initialization_with_brackets_in_filename
+  def test_file_object_initialization_with_utf_chars
     filename = "\u65e5\u672c\u8a9e.txt"
     expected_contents = 'Yokudekimashita'
     # nothing raised
