@@ -7,8 +7,9 @@ class FakeFSTest < Minitest::Test
 
   def setup
     act_on_real_fs do
-      FileUtils.rm_rf(real_file_sandbox_path)
-      FileUtils.mkdir_p(real_file_sandbox_path)
+      FileUtils.rm_rf(real_file_sandbox)
+      FileUtils.mkdir_p(real_file_sandbox)
+      FileUtils.chmod(0777, real_file_sandbox)
     end
 
     FakeFS.activate!
@@ -17,6 +18,10 @@ class FakeFSTest < Minitest::Test
 
   def teardown
     FakeFS.deactivate!
+
+    act_on_real_fs do
+      FileUtils.rm_rf(real_file_sandbox)
+    end
   end
 
   def test_can_be_initialized_empty
