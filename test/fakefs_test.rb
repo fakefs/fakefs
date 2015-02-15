@@ -3,10 +3,9 @@ require 'test_helper'
 
 # FakeFS tests
 class FakeFSTest < Minitest::Test
-  i_suck_and_my_tests_are_order_dependent!
-
   def setup
     act_on_real_fs do
+      File.umask(0006)
       FileUtils.rm_rf(real_file_sandbox)
       FileUtils.mkdir_p(real_file_sandbox)
       FileUtils.chmod(0777, real_file_sandbox)
