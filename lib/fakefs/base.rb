@@ -17,13 +17,9 @@ end
 # FakeFS module
 module FakeFS
   class << self
-    attr_writer :activated
-
-    def activated
+    def activated?
       @activated ? true : false
     end
-
-    alias_method :activated?, :activated
 
     def activate!
       Object.class_eval do
@@ -41,7 +37,7 @@ module FakeFS
         ::FakeFS::Kernel.hijack!
       end
 
-      self.activated = true
+      @activated = true
 
       true
     end
@@ -62,7 +58,7 @@ module FakeFS
         ::FakeFS::Kernel.unhijack!
       end
 
-      self.activated = false
+      @activated = false
 
       true
     end
