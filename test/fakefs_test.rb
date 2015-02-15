@@ -3,13 +3,16 @@ require 'test_helper'
 
 # FakeFS tests
 class FakeFSTest < Minitest::Test
-  include FakeFS
-
   i_suck_and_my_tests_are_order_dependent!
 
   def setup
+    act_on_real_fs do
+      FileUtils.rm_rf(real_file_sandbox_path)
+      FileUtils.mkdir_p(real_file_sandbox_path)
+    end
+
     FakeFS.activate!
-    FileSystem.clear
+    FakeFS::FileSystem.clear
   end
 
   def teardown
@@ -17,19 +20,19 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_can_be_initialized_empty
-    fs = FileSystem
+    fs = FakeFS::FileSystem
     assert_equal 0, fs.files.size
   end
 
   def xtest_can_be_initialized_with_an_existing_directory
-    fs = FileSystem
+    fs = FakeFS::FileSystem
     fs.clone(File.expand_path(File.dirname(__FILE__))).inspect
     assert_equal 1, fs.files.size
   end
 
   def test_can_create_directories_with_file_utils_mkdir_p
     FileUtils.mkdir_p('/path/to/dir')
-    assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']
+    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']
   end
 
   def test_can_cd_to_directory_with_block
@@ -44,26 +47,26 @@ class FakeFSTest < Minitest::Test
 
   def test_can_create_a_list_of_directories_with_file_utils_mkdir_p
     FileUtils.mkdir_p(%w(/path/to/dir1 /path/to/dir2))
-    assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir1']
-    assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir2']
+    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir1']
+    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir2']
   end
 
   def test_can_create_directories_with_options
     FileUtils.mkdir_p('/path/to/dir', mode: 0755)
-    assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']
+    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']
   end
 
   def test_can_create_directories_with_file_utils_mkdir
     FileUtils.mkdir_p('/path/to/dir')
     FileUtils.mkdir('/path/to/dir/subdir')
-    assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']['subdir']
+    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']['subdir']
   end
 
   def test_can_create_a_list_of_directories_with_file_utils_mkdir
     FileUtils.mkdir_p('/path/to/dir')
     FileUtils.mkdir(%w(/path/to/dir/subdir1 /path/to/dir/subdir2))
-    assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']['subdir1']
-    assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']['subdir2']
+    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']['subdir1']
+    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']['subdir2']
   end
 
   def test_raises_error_when_creating_a_new_dir_with_mkdir_in_non_existent_path
@@ -89,22 +92,22 @@ class FakeFSTest < Minitest::Test
 
   def test_can_create_directories_with_mkpath
     FileUtils.mkpath('/path/to/dir')
-    assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']
+    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']
   end
 
   def test_can_create_directories_with_mkpath_and_options
     FileUtils.mkpath('/path/to/dir', mode: 0755)
-    assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']
+    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']
   end
 
   def test_can_create_directories_with_mkdirs
     FileUtils.makedirs('/path/to/dir')
-    assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']
+    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']
   end
 
   def test_can_create_directories_with_mkdirs_and_options
     FileUtils.makedirs('/path/to/dir', mode: 0755)
-    assert_kind_of FakeDir, FileSystem.fs['path']['to']['dir']
+    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']
   end
 
   def test_unlink_errors_on_file_not_found
@@ -203,7 +206,7 @@ class FakeFSTest < Minitest::Test
   def test_can_create_symlinks
     FileUtils.mkdir_p(target = '/path/to/target')
     FileUtils.ln_s(target, '/path/to/link')
-    assert_kind_of FakeSymlink, FileSystem.fs['path']['to']['link']
+    assert_kind_of FakeFS::FakeSymlink, FakeFS::FileSystem.fs['path']['to']['link']
 
     assert_raises(Errno::EEXIST) do
       FileUtils.ln_s(target, '/path/to/link')
@@ -213,14 +216,14 @@ class FakeFSTest < Minitest::Test
   def test_can_force_creation_of_symlinks
     FileUtils.mkdir_p(target = '/path/to/first/target')
     FileUtils.ln_s(target, '/path/to/link')
-    assert_kind_of FakeSymlink, FileSystem.fs['path']['to']['link']
+    assert_kind_of FakeFS::FakeSymlink, FakeFS::FileSystem.fs['path']['to']['link']
     FileUtils.ln_s(target, '/path/to/link', force: true)
   end
 
   def test_create_symlink_using_ln_sf
     FileUtils.mkdir_p(target = '/path/to/first/target')
     FileUtils.ln_s(target, '/path/to/link')
-    assert_kind_of FakeSymlink, FileSystem.fs['path']['to']['link']
+    assert_kind_of FakeFS::FakeSymlink, FakeFS::FileSystem.fs['path']['to']['link']
     FileUtils.ln_sf(target, '/path/to/link')
   end
 
@@ -1233,14 +1236,14 @@ class FakeFSTest < Minitest::Test
   def test_chdir_changes_directories_like_a_boss
     # I know memes!
     FileUtils.mkdir_p '/path'
-    assert_equal '/', FileSystem.fs.name
+    assert_equal '/', FakeFS::FileSystem.fs.name
     assert_equal [], Dir.glob('/path/*')
     Dir.chdir '/path' do
       File.open('foo', 'w') { |f| f.write 'foo' }
       File.open('foobar', 'w') { |f| f.write 'foo' }
     end
 
-    assert_equal '/', FileSystem.fs.name
+    assert_equal '/', FakeFS::FileSystem.fs.name
     assert_equal(['/path/foo', '/path/foobar'], Dir.glob('/path/*').sort)
 
     c = nil
@@ -1327,7 +1330,7 @@ class FakeFSTest < Minitest::Test
         'Nothing to do'
       end
 
-      assert_equal ['/', '/path'], FileSystem.dir_levels
+      assert_equal ['/', '/path'], FakeFS::FileSystem.dir_levels
     end
 
     assert_equal(['/path/foo', '/path/foobar'], Dir.glob('/path/*').sort)
@@ -1640,56 +1643,59 @@ class FakeFSTest < Minitest::Test
   def test_clone_clones_normal_files
     RealFile.open(real_file_sandbox('foo'), 'w') { |f| f.write 'bar' }
     refute File.exist?(real_file_sandbox('foo'))
-    FileSystem.clone(real_file_sandbox('foo'))
+    FakeFS::FileSystem.clone(real_file_sandbox('foo'))
     assert_equal 'bar', File.open(real_file_sandbox('foo')) { |f| f.read }
   ensure
     RealFile.unlink(real_file_sandbox('foo')) if RealFile.exist?(real_file_sandbox('foo'))
   end
 
   def test_clone_clones_directories
-    act_on_real_fs { RealFileUtils.mkdir_p(real_file_sandbox('subdir')) }
+    act_on_real_fs { FileUtils.mkdir_p(real_file_sandbox('subdir')) }
 
-    FileSystem.clone(real_file_sandbox('subdir'))
+    FakeFS::FileSystem.clone(real_file_sandbox('subdir'))
 
     assert File.exist?(real_file_sandbox('subdir')), 'subdir was cloned'
     assert File.directory?(real_file_sandbox('subdir')), 'subdir is a directory'
   ensure
-    act_on_real_fs { RealFileUtils.rm_rf(real_file_sandbox('subdir')) }
+    act_on_real_fs { FileUtils.rm_rf(real_file_sandbox('subdir')) }
   end
 
   def test_clone_clones_dot_files_even_hard_to_find_ones
-    act_on_real_fs { RealFileUtils.mkdir_p(real_file_sandbox('subdir/.bar/baz/.quux/foo')) }
+    act_on_real_fs { FileUtils.mkdir_p(real_file_sandbox('subdir/.bar/baz/.quux/foo')) }
 
     refute File.exist?(real_file_sandbox('subdir'))
 
-    FileSystem.clone(real_file_sandbox('subdir'))
+    FakeFS::FileSystem.clone(real_file_sandbox('subdir'))
     assert_equal ['.', '..', '.bar'], Dir.entries(real_file_sandbox('subdir'))
     assert_equal ['.', '..', 'foo'], Dir.entries(real_file_sandbox('subdir/.bar/baz/.quux'))
   ensure
-    act_on_real_fs { RealFileUtils.rm_rf(real_file_sandbox('subdir')) }
+    act_on_real_fs { FileUtils.rm_rf(real_file_sandbox('subdir')) }
   end
 
   def test_dir_glob_on_clone_with_absolute_path
-    act_on_real_fs { RealFileUtils.mkdir_p(real_file_sandbox('subdir/.bar/baz/.quux/foo')) }
+    act_on_real_fs { FileUtils.mkdir_p(real_file_sandbox('subdir/.bar/baz/.quux/foo')) }
     FileUtils.mkdir_p '/path'
     Dir.chdir('/path')
-    FileSystem.clone(real_file_sandbox('subdir'), '/foo')
+    FakeFS::FileSystem.clone(real_file_sandbox('subdir'), '/foo')
     assert Dir.glob '/foo/*'
   ensure
-    act_on_real_fs { RealFileUtils.rm_rf(real_file_sandbox('subdir')) }
+    act_on_real_fs { FileUtils.rm_rf(real_file_sandbox('subdir')) }
   end
 
   def test_clone_with_target_specified
-    act_on_real_fs { RealFileUtils.mkdir_p(real_file_sandbox('subdir/.bar/baz/.quux/foo')) }
+    act_on_real_fs do
+      assert FileUtils == RealFileUtils, 'using the real FileUtils in act_on_real_fs'
+      FileUtils.mkdir_p(real_file_sandbox('subdir/.bar/baz/.quux/foo'))
+    end
 
     refute File.exist?(real_file_sandbox('subdir'))
 
-    FileSystem.clone(real_file_sandbox('subdir'), real_file_sandbox('subdir2'))
+    FakeFS::FileSystem.clone(real_file_sandbox('subdir'), real_file_sandbox('subdir2'))
     refute File.exist?(real_file_sandbox('subdir'))
     assert_equal ['.', '..', '.bar'], Dir.entries(real_file_sandbox('subdir2'))
     assert_equal ['.', '..', 'foo'], Dir.entries(real_file_sandbox('subdir2/.bar/baz/.quux'))
   ensure
-    act_on_real_fs { RealFileUtils.rm_rf(real_file_sandbox('subdir')) }
+    act_on_real_fs { FileUtils.rm_rf(real_file_sandbox('subdir')) }
   end
 
   def test_clone_with_file_symlinks
@@ -1697,19 +1703,19 @@ class FakeFSTest < Minitest::Test
     symlink  = real_file_sandbox('subdir/test-file.txt')
 
     act_on_real_fs do
-      RealDir.mkdir(RealFile.dirname(original))
-      RealFile.open(original, 'w') { |f| f << 'stuff' }
-      RealFileUtils.ln_s original, symlink
-      assert RealFile.symlink?(symlink), 'real symlink is in place'
+      FileUtils.mkdir_p(File.dirname(original))
+      File.open(original, 'w') { |f| f << 'stuff' }
+      FileUtils.ln_s original, symlink
+      assert File.symlink?(symlink), 'real symlink is in place'
     end
 
     refute File.exist?(original), 'file does not already exist'
 
-    FileSystem.clone(File.dirname(original))
+    FakeFS::FileSystem.clone(File.dirname(original))
     assert File.symlink?(symlink), 'symlinks are cloned as symlinks'
     assert_equal 'stuff', File.read(symlink)
   ensure
-    act_on_real_fs { RealFileUtils.rm_rf File.dirname(original) }
+    act_on_real_fs { FileUtils.rm_rf File.dirname(original) }
   end
 
   def test_clone_with_dir_symlinks
@@ -1719,19 +1725,19 @@ class FakeFSTest < Minitest::Test
     symlink_file  = File.join(symlink, 'test-file')
 
     act_on_real_fs do
-      RealFileUtils.mkdir_p(original)
-      RealFile.open(original_file, 'w') { |f| f << 'stuff' }
-      RealFileUtils.ln_s original, symlink
-      assert RealFile.symlink?(symlink), 'real symlink is in place'
+      FileUtils.mkdir_p(original)
+      File.open(original_file, 'w') { |f| f << 'stuff' }
+      FileUtils.ln_s original, symlink
+      assert File.symlink?(symlink), 'real symlink is in place'
     end
 
     refute File.exist?(original_file), 'file does not already exist'
 
-    FileSystem.clone(File.dirname(original))
+    FakeFS::FileSystem.clone(File.dirname(original))
     assert File.symlink?(symlink), 'symlinks are cloned as symlinks'
     assert_equal 'stuff', File.read(symlink_file)
   ensure
-    act_on_real_fs { RealFileUtils.rm_rf File.dirname(original) }
+    act_on_real_fs { FileUtils.rm_rf File.dirname(original) }
   end
 
   def test_putting_a_dot_at_end_copies_the_contents
@@ -2080,7 +2086,7 @@ class FakeFSTest < Minitest::Test
 
   def test_directory_mkdir_relative
     FileUtils.mkdir_p('/new/root')
-    FileSystem.chdir('/new/root')
+    FakeFS::FileSystem.chdir('/new/root')
     Dir.mkdir('path')
     assert File.exist?('/new/root/path')
   end
@@ -2562,11 +2568,11 @@ class FakeFSTest < Minitest::Test
     different1 = File.new('d1', 'w')
     different2 = File.new('d2', 'w')
 
-    FileSystem.find('s1').mtime = a_time
-    FileSystem.find('s2').mtime = a_time
+    FakeFS::FileSystem.find('s1').mtime = a_time
+    FakeFS::FileSystem.find('s2').mtime = a_time
 
-    FileSystem.find('d1').mtime = a_time
-    FileSystem.find('d2').mtime = a_time + 1
+    FakeFS::FileSystem.find('d1').mtime = a_time
+    FakeFS::FileSystem.find('d2').mtime = a_time + 1
 
     assert same1.mtime == same2.mtime
     assert different1.mtime != different2.mtime

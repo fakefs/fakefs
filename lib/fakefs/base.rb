@@ -16,14 +16,16 @@ end
 
 # FakeFS module
 module FakeFS
-  @activated = false
   class << self
-    def activated?
-      @activated
+    attr_writer :activated
+
+    def activated
+      @activated ? true : false
     end
 
+    alias_method :activated?, :activated
+
     def activate!
-      @activated = true
       Object.class_eval do
         remove_const(:Dir)
         remove_const(:File)
@@ -38,12 +40,13 @@ module FakeFS
         const_set(:Pathname,  FakeFS::Pathname) if RUBY_VERSION >= '1.9.3'
         ::FakeFS::Kernel.hijack!
       end
+
+      self.activated = true
+
       true
     end
 
     def deactivate!
-      @activated = false
-
       Object.class_eval do
         remove_const(:Dir)
         remove_const(:File)
@@ -58,6 +61,9 @@ module FakeFS
         const_set(:Pathname,  RealPathname) if RUBY_VERSION >= '1.9.3'
         ::FakeFS::Kernel.unhijack!
       end
+
+      self.activated = false
+
       true
     end
 
