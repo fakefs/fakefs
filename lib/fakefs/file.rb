@@ -136,6 +136,10 @@ module FakeFS
       end
     end
 
+    def self.ftype(filename)
+      File.lstat(filename).ftype
+    end
+
     def self.expand_path(file_name, dir_string = FileSystem.current_dir.to_s)
       RealFile.expand_path(file_name, RealFile.expand_path(dir_string, Dir.pwd))
     end
