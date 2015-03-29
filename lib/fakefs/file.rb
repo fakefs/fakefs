@@ -177,6 +177,16 @@ module FakeFS
       end
     end
 
+    def self.foreach(path, *args, &block)
+      file = new(path)
+      if file.exists?
+        FileSystem.find(path).atime = Time.now
+        file.each_line(*args, &block)
+      else
+        fail Errno::ENOENT
+      end
+    end
+
     def self.rename(source, dest)
       if directory?(source) && file?(dest)
         fail Errno::ENOTDIR, "#{source} or #{dest}"

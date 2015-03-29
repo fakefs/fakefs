@@ -788,6 +788,17 @@ class FakeFSTest < Minitest::Test
     assert_equal ["this\n", "is\n", "a\n", "test\n"], File.readlines(path)
   end
 
+  def test_can_read_with_File_foreach
+    path = 'file.txt'
+    File.open(path, 'w') do |f|
+      f.puts %w(flub dub crub shrub)
+    end
+
+    read_lines = []
+    File.foreach(path) { |line| read_lines << line }
+    assert_equal ["flub\n", "dub\n", "crub\n", "shrub\n"], read_lines
+  end
+
   def test_File_close_disallows_further_access
     path = 'file.txt'
     file = File.open(path, 'w')
