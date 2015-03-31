@@ -13,6 +13,9 @@ class FakeFSTest < Minitest::Test
 
     FakeFS.activate!
     FakeFS::FileSystem.clear
+    # Create /tmp so that Minitest can create files for diffing when an
+    # assertion fails. See https://github.com/defunkt/fakefs/issues/143
+    FileUtils.mkdir_p('/tmp')
   end
 
   def teardown
@@ -24,6 +27,7 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_can_be_initialized_empty
+    FakeFS::FileSystem.clear
     fs = FakeFS::FileSystem
     assert_equal 0, fs.files.size
   end
@@ -1053,7 +1057,7 @@ class FakeFSTest < Minitest::Test
     assert_equal ['/path/foo', '/path/foobar'], Dir['/p??h/foo*']
 
     assert_equal ['/path/bar', '/path/bar/baz', '/path/bar2', '/path/bar2/baz', '/path/foo', '/path/foobar'], Dir['/path/**/*']
-    assert_equal ['/path', '/path/bar', '/path/bar/baz', '/path/bar2', '/path/bar2/baz', '/path/foo', '/path/foobar'], Dir['/**/*']
+    assert_equal ['/path', '/path/bar', '/path/bar/baz', '/path/bar2', '/path/bar2/baz', '/path/foo', '/path/foobar', '/tmp'], Dir['/**/*']
 
     assert_equal ['/path/bar', '/path/bar/baz', '/path/bar2', '/path/bar2/baz', '/path/foo', '/path/foobar'], Dir['/path/**/*']
     assert_equal ['/path/bar/baz'], Dir['/path/bar/**/*']
@@ -1111,7 +1115,7 @@ class FakeFSTest < Minitest::Test
 
   def test_dir_glob_takes_optional_flags
     FileUtils.touch '/foo'
-    assert_equal Dir.glob('/*', 0), ['/foo']
+    assert_equal Dir.glob('/*', 0), ['/foo', '/tmp']
   end
 
   def test_dir_glob_handles_recursive_globs
@@ -1144,7 +1148,7 @@ class FakeFSTest < Minitest::Test
     yielded = []
     Dir.glob('*') { |file| yielded << file }
 
-    assert_equal 2, yielded.size
+    assert_equal 3, yielded.size
   end
 
   def test_copy_with_subdirectory
@@ -1268,7 +1272,7 @@ class FakeFSTest < Minitest::Test
       File.open('/foobar', 'w') { |f| f.write 'foo' }
     end
     assert_equal ['/path/foo'], Dir.glob('/path/*').sort
-    assert_equal ['/foobar', '/path'], Dir.glob('/*').sort
+    assert_equal ['/foobar', '/path', '/tmp'], Dir.glob('/*').sort
 
     Dir.chdir '/path' do
       FileUtils.rm('foo')
@@ -1276,7 +1280,7 @@ class FakeFSTest < Minitest::Test
     end
 
     assert_equal [], Dir.glob('/path/*').sort
-    assert_equal ['/path'], Dir.glob('/*').sort
+    assert_equal ['/path', '/tmp'], Dir.glob('/*').sort
   end
 
   def test_chdir_should_be_nestable
@@ -2064,7 +2068,6 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_directory_mkdir_nested
-    Dir.mkdir('/tmp')
     Dir.mkdir('/tmp/stream20120103-11847-xc8pb.lock')
     assert File.exist?('/tmp/stream20120103-11847-xc8pb.lock')
   end
@@ -2438,7 +2441,7 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_dir_mktmpdir
-    FileUtils.mkdir '/tmp'
+    # FileUtils.mkdir '/tmpdir'
 
     tmpdir = Dir.mktmpdir
     assert File.directory?(tmpdir)
