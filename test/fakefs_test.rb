@@ -1137,6 +1137,14 @@ class FakeFSTest < Minitest::Test
     assert_equal ['/tmp/python-2.7.8', '/tmp/python-3.4.1'], Dir.glob('/tmp/python-[0-9]*')
   end
 
+  def test_dir_glob_absolute_path_after_chdir
+    FileUtils.mkdir_p '/foo/one'
+    FileUtils.mkdir_p '/foo/two'
+    assert_equal ['/foo/one', '/foo/two'], Dir.glob('/foo/*')
+    Dir.chdir('foo')
+    assert_equal ['/foo/one', '/foo/two'], Dir.glob('/foo/*')
+  end
+
   def test_dir_glob_with_block
     FileUtils.touch('foo')
     FileUtils.touch('bar')
