@@ -97,11 +97,11 @@ module FakeFS
     def self.glob(pattern, _flags = 0, &block)
       matches_for_pattern = lambda do |matcher|
         [FileSystem.find(matcher) || []].flatten.map do |e|
-          if Dir.pwd.match(/\A\/?\z/) ||
-             !e.to_s.match(/\A#{Dir.pwd}\/?/)
+          if Dir.pwd.match(%r{\A/?\z}) ||
+             !e.to_s.match(%r{\A#{Dir.pwd}/?})
             e.to_s
           else
-            e.to_s.match(/\A#{Dir.pwd}\/?/).post_match
+            e.to_s.match(%r{\A#{Dir.pwd}/?}).post_match
           end
         end.sort
       end
