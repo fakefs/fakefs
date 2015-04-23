@@ -24,7 +24,10 @@ module FakeFS
       parts = path_parts(normalize_path(path))
       return fs if parts.empty? # '/'
 
-      entries = find_recurser(fs, parts).flatten
+      entries = Globber.expand(path).flat_map do |pattern|
+        parts = path_parts(normalize_path(pattern))
+        find_recurser(fs, parts).flatten
+      end
 
       case entries.length
       when 0 then nil
@@ -93,7 +96,7 @@ module FakeFS
     end
 
     def path_parts(path)
-      drop_root(path.split(File::SEPARATOR)).reject(&:empty?)
+      Globber.path_components(path)
     end
 
     def normalize_path(path)
@@ -112,14 +115,6 @@ module FakeFS
     end
 
     private
-
-    def drop_root(path_parts)
-      # we need to remove parts from root dir at least for windows and jruby
-      return path_parts if path_parts.nil? || path_parts.empty?
-      root = RealFile.expand_path('/').split(File::SEPARATOR).first
-      path_parts.shift if path_parts.first == root
-      path_parts
-    end
 
     def find_recurser(dir, parts)
       return [] unless dir.respond_to? :[]
@@ -143,16 +138,9 @@ module FakeFS
                     directories_under(dir)
                   end
                 else
-                  regex_body = pattern.gsub('.', '\.')
-                               .gsub('?', '.')
-                               .gsub('*', '.*')
-                               .gsub('(', '\(')
-                               .gsub(')', '\)')
-                               .gsub(/\{(.*?)\}/) do
-                                 "(#{Regexp.last_match[1].gsub(',', '|')})"
-                               end
-                               .gsub(/\A\./, '(?!\.).')
-                  dir.matches(/\A#{regex_body}\Z/)
+                  Globber.expand(pattern).flat_map do |subpattern|
+                    dir.matches(Globber.regexp(subpattern))
+                  end
                 end
 
       if parts.empty? # we're done recursing
