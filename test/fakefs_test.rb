@@ -1073,6 +1073,9 @@ class FakeFSTest < Minitest::Test
 
     assert_equal ['/path/bar', '/path/bar2'], Dir['/path/bar{2,}']
 
+    assert_equal ['/path/bar', '/path/foo'], Dir['{/nowhere,/path/{foo,bar}}']
+    assert_equal ['/path/bar', '/path/foo'], Dir['{/nowhere,/path/{foo,{bar,bar2/baz}}}']
+
     Dir.chdir '/path' do
       assert_equal ['foo'], Dir['foo']
     end
