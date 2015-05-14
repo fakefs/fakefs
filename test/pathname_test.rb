@@ -8,7 +8,7 @@ class FakePathnameTest < Minitest::Test
     FakeFS.activate!
     FileSystem.clear
 
-    @path = 'foo'
+    @path = '/foo'
     @pathname = Pathname.new(@path)
   end
 
@@ -22,6 +22,12 @@ class FakePathnameTest < Minitest::Test
     File.write(@path, '')
 
     assert @pathname.exist?
+  end
+
+  def test_root_check_returns_correct_value
+    refute @pathname.root?
+    root_path = Pathname.new('/')
+    assert root_path.root?
   end
 
   def test_io_each_line_with_block_yields_lines
