@@ -8,6 +8,11 @@ AllCops:
     - files/**/*
     - templates/**/*
     - etc/**/*
+# TODO: reduce module length
+Metrics/ModuleLength:
+  Exclude:
+    - lib/fakefs/file_system.rb
+    - lib/fakefs/fileutils.rb
 MethodLength:
   Exclude:
     - lib/**/*
