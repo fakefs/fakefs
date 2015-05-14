@@ -740,7 +740,8 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_utime_returns_number_of_paths
-    path1, path2 = 'file.txt', 'another_file.txt'
+    path1 = 'file.txt'
+    path2 = 'another_file.txt'
     [path1, path2].each do |path|
       File.open(path, 'w') do |f|
         f << ''

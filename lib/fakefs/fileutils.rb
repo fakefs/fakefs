@@ -199,12 +199,11 @@ module FakeFS
       list.each do |f|
         if File.exist?(f)
           uid = if user
-                  user.to_s.match(/[0-9]+/) ? user.to_i :
-                    Etc.getpwnam(user).uid
+                  /[0-9]+/ =~ user.to_s ? user.to_i : Etc.getpwnam(user).uid
                 end
+
           gid = if group
-                  group.to_s.match(/[0-9]+/) ? group.to_i :
-                    Etc.getgrnam(group).gid
+                  /[0-9]+/ =~ group.to_s ? group.to_i : Etc.getgrnam(group).gid
                 end
           File.chown(uid, gid, f)
         else
