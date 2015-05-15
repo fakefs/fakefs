@@ -1577,9 +1577,8 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_cp_r_should_raise_error_on_missing_file
-    # Yes, this error sucks, but it conforms to the original Ruby
-    # method.
-    assert_raises(RuntimeError) do
+    exception = RUBY_VERSION >= '1.9.1' ? Errno::ENOENT : RuntimeError
+    assert_raises(exception) do
       FileUtils.cp_r 'blafgag', 'foo'
     end
   end
