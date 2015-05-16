@@ -1825,24 +1825,30 @@ class FakeFSTest < Minitest::Test
     end
   end
 
-  def test_directory_each
-    test = ['.', '..', 'file_1', 'file_2', 'file_3', 'file_4', 'file_5']
+  def test_directory_each_with_block
+    files = %w(. .. file_1 file_2 file_3)
+    dir_path = '/this/path/should/be/here'
+    FileUtils.mkdir_p(dir_path)
+    files.each { |f| FileUtils.touch("#{dir_path}/#{f}") }
 
-    FileUtils.mkdir_p('/this/path/should/be/here')
-
-    test.each do |f|
-      FileUtils.touch("/this/path/should/be/here/#{f}")
-    end
-
-    dir = Dir.new('/this/path/should/be/here')
-
+    dir = Dir.new(dir_path)
     yielded = []
-    dir.each do |d|
-      yielded << d
-    end
+    dir.each { |d| yielded << d }
 
-    assert yielded.size == test.size
-    test.each { |t| assert yielded.include?(t) }
+    assert yielded.sort == files.sort
+  end
+
+  def test_directory_each_without_block
+    files = %w(. .. file_1 file_2 file_3)
+    dir_path = '/this/path/should/be/here'
+    FileUtils.mkdir_p(dir_path)
+    files.each { |f| FileUtils.touch("#{dir_path}/#{f}") }
+
+    dir = Dir.new(dir_path)
+    each = dir.each
+
+    assert_kind_of Enumerator, each
+    assert each.to_a.sort == files.sort
   end
 
   def test_directory_path
