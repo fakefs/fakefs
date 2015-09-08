@@ -278,5 +278,16 @@ module FakeFS
 
     alias_method :cmp, :compare_file
     alias_method :identical?, :compare_file
+
+    def uptodate?(new, old_list)
+      return false unless File.exist?(new)
+      new_time = File.mtime(new)
+      old_list.each do |old|
+        if File.exist?(old)
+          return false unless new_time > File.mtime(old)
+        end
+      end
+      true
+    end
   end
 end

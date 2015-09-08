@@ -2623,6 +2623,25 @@ class FakeFSTest < Minitest::Test
     end
   end
 
+  def test_file_utils_uptodate
+    old_file = 'old.txt'
+    new_file = 'new.txt'
+    newer_file = 'newer.txt'
+
+    FileUtils.touch(old_file)
+    
+    assert_equal FileUtils.uptodate?(new_file, [old_file]), false
+
+    FileUtils.touch(new_file)
+
+    assert_equal FileUtils.uptodate?(new_file, [old_file]), true
+
+    FileUtils.touch(newer_file)
+
+    assert_equal FileUtils.uptodate?(new_file, [old_file, newer_file]), false
+    assert_equal FileUtils.uptodate?(newer_file, [new_file, old_file]), true
+  end
+
   def test_fnmatch
     assert_equal File.fnmatch?('test', 'test'), true
     assert_equal File.fnmatch('nope', 'blargh'), false
