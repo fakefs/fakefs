@@ -23,6 +23,18 @@ class KernelTest < Minitest::Test
     end
   end
 
+  def test_fake_kernel_can_create_new_file_activate_deactivate
+    FakeFS.activate!
+
+    FileUtils.mkdir_p '/apath/to/'
+    open('/apath/to/file', 'w') do |f|
+      f << 'test'
+    end
+    assert_kind_of FakeFile, FileSystem.fs['apath']['to']['file']
+
+    FakeFS.deactivate!
+  end
+
   def test_fake_kernel_can_create_new_file
     FakeFS do
       FileUtils.mkdir_p '/path/to/'
