@@ -47,12 +47,12 @@ module FakeFS
       captives[:hijacked][name] = block || proc { |_args| }
     end
 
-    hijack :open do |*args, &block|
-      if args.first.start_with?('|')
+    hijack :open do |name, *args, &block|
+      if name.start_with?('|') ||
+          (name.respond_to?(:to_str) && %r{\A[A-Za-z][A-Za-z0-9+\-\.]*://} =~ name)
         # This is a system command
-        ::FakeFS::Kernel.captives[:original][:open].call(*args, &block)
+        ::FakeFS::Kernel.captives[:original][:open].call(name, *args, &block)
       else
-        name = args.shift
         FakeFS::File.open(name, *args, &block)
       end
     end
