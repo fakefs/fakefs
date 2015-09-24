@@ -1,3 +1,11 @@
+module Kernel
+  def eigenclass
+    class << self
+      self
+    end
+  end
+end
+
 module FakeFS
   # Kernel Module
   module Kernel
@@ -9,17 +17,26 @@ module FakeFS
 
     def self.hijack!
       captives[:hijacked].each do |name, prc|
-        ::Kernel.send(:remove_method, name.to_sym)
-        ::Kernel.send(:define_method, name.to_sym, &prc)
+        name = name.to_sym
+         ::Kernel.class_eval do
+           private
+           alias_method(:"#{name}_original", name)
+           eigenclass.send(:alias_method, :"#{name}_original", name)
+
+           define_method(name, &prc)
+           module_function(name)
+         end
       end
     end
 
     def self.unhijack!
       captives[:original].each do |name, _prc|
-        ::Kernel.send(:remove_method, name.to_sym)
-        ::Kernel.send(:define_method, name.to_sym, proc do |*args, &block|
-          ::FakeFS::Kernel.captives[:original][name].call(*args, &block)
-        end)
+         ::Kernel.class_eval do
+           if method_defined?(:"#{name}_original")
+             alias_method(name, :"#{name}_original")
+             eigenclass.alias_method(name, :"#{name}_original")
+           end
+         end
       end
     end
 
@@ -31,7 +48,7 @@ module FakeFS
     end
 
     hijack :open do |*args, &block|
-      if args.first.start_with? '|'
+      if args.first.start_with?('|')
         # This is a system command
         ::FakeFS::Kernel.captives[:original][:open].call(*args, &block)
       else
