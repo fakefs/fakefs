@@ -8,17 +8,17 @@ AllCops:
     - files/**/*
     - templates/**/*
     - etc/**/*
-MethodLength:
+Metrics/MethodLength:
   Exclude:
     - lib/**/*
     - test/**/*.rb
     - spec/**/*.rb
-ClassLength:
+Metrics/ClassLength:
   Enabled: false
-LineLength:
+Metrics/LineLength:
   Exclude:
     - test/**/*
-ParameterLists:
+Metrics/ParameterLists:
   Enabled: false
 Metrics/CyclomaticComplexity:
   Severity: warning
@@ -40,6 +40,6 @@ Style/MethodName:
   Enabled: false
 Style/ModuleFunction:
   Enabled: false
-TrivialAccessors:
+Style/TrivialAccessors:
   Enabled: true
   ExactNameMatch: true
