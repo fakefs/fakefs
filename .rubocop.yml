@@ -15,6 +15,8 @@ Metrics/MethodLength:
     - spec/**/*.rb
 Metrics/ClassLength:
   Enabled: false
+Metrics/ModuleLength:
+  Enabled: false
 Metrics/LineLength:
   Exclude:
     - test/**/*
@@ -33,12 +35,18 @@ Metrics/BlockNesting:
   Max: 4
 Metrics/AbcSize:
   Enabled: false
+Performance/StringReplacement:
+  Enabled: false
+Style/ParallelAssignment:
+  Enabled: false
 Style/PredicateName:
   Exclude:
     - lib/fakefs/file.rb
 Style/MethodName:
   Enabled: false
 Style/ModuleFunction:
+  Enabled: false
+Style/SymbolProc:
   Enabled: false
 Style/TrivialAccessors:
   Enabled: true
