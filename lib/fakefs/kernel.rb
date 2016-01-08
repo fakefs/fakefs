@@ -11,6 +11,7 @@ module FakeFS
       captives[:hijacked].each do |name, prc|
         ::Kernel.send(:remove_method, name.to_sym)
         ::Kernel.send(:define_method, name.to_sym, &prc)
+        ::Kernel.send(:private, name.to_sym)
       end
     end
 
@@ -20,6 +21,7 @@ module FakeFS
         ::Kernel.send(:define_method, name.to_sym, proc do |*args, &block|
           ::FakeFS::Kernel.captives[:original][name].call(*args, &block)
         end)
+        ::Kernel.send(:private, name.to_sym)
       end
     end
 
