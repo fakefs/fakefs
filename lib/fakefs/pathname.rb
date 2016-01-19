@@ -621,7 +621,7 @@ module FakeFS
     end
 
     # Pathname class
-    class Pathname    # * IO *
+    class Pathname # * IO *
       #
       # #each_line iterates over the line in the file.
       # It yields a String object for each line.
@@ -662,7 +662,7 @@ module FakeFS
     end
 
     # Pathname class
-    class Pathname    # * File *
+    class Pathname # * File *
       # See <tt>File.atime</tt>.  Returns last access time.
       def atime
         File.atime(@path)
@@ -790,7 +790,7 @@ module FakeFS
     end
 
     # Pathname class
-    class Pathname    # * FileTest *
+    class Pathname # * FileTest *
       # See <tt>FileTest.blockdev?</tt>.
       def blockdev?
         FileTest.blockdev?(@path)
@@ -913,7 +913,7 @@ module FakeFS
     end
 
     # Pathname class
-    class Pathname    # * Dir *
+    class Pathname # * Dir *
       # See <tt>Dir.glob</tt>.  Returns or yields Pathname objects.
       def self.glob(*args) # :yield: pathname
         if block_given?
@@ -962,7 +962,7 @@ module FakeFS
     end
 
     # Pathname class
-    class Pathname    # * Find *
+    class Pathname # * Find *
       #
       # Pathname#find is an iterator to traverse a directory tree
       # in a depth first manner.
@@ -985,7 +985,7 @@ module FakeFS
     end
 
     # Pathname class
-    class Pathname    # * FileUtils *
+    class Pathname # * FileUtils *
       # See <tt>FileUtils.mkpath</tt>.  Creates a full path, including any
       # intermediate directories that don't yet exist.
       def mkpath
@@ -1005,7 +1005,7 @@ module FakeFS
     end
 
     # Pathname class
-    class Pathname    # * mixed *
+    class Pathname # * mixed *
       # Removes a file or directory, using <tt>File.unlink</tt> or
       # <tt>Dir.unlink</tt> as necessary.
       def unlink

@@ -8,17 +8,19 @@ AllCops:
     - files/**/*
     - templates/**/*
     - etc/**/*
-MethodLength:
+Metrics/MethodLength:
   Exclude:
     - lib/**/*
     - test/**/*.rb
     - spec/**/*.rb
-ClassLength:
+Metrics/ClassLength:
   Enabled: false
-LineLength:
+Metrics/ModuleLength:
+  Enabled: false
+Metrics/LineLength:
   Exclude:
     - test/**/*
-ParameterLists:
+Metrics/ParameterLists:
   Enabled: false
 Metrics/CyclomaticComplexity:
   Severity: warning
@@ -33,6 +35,10 @@ Metrics/BlockNesting:
   Max: 4
 Metrics/AbcSize:
   Enabled: false
+Performance/StringReplacement:
+  Enabled: false
+Style/ParallelAssignment:
+  Enabled: false
 Style/PredicateName:
   Exclude:
     - lib/fakefs/file.rb
@@ -40,6 +46,8 @@ Style/MethodName:
   Enabled: false
 Style/ModuleFunction:
   Enabled: false
-TrivialAccessors:
+Style/SymbolProc:
+  Enabled: false
+Style/TrivialAccessors:
   Enabled: true
   ExactNameMatch: true

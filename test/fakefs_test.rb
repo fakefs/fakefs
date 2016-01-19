@@ -852,7 +852,7 @@ class FakeFSTest < Minitest::Test
     filename = "\u65e5\u672c\u8a9e.txt"
     expected_contents = 'Yokudekimashita'
     # nothing raised
-    File.open(filename,  mode: 'w') { |f| f.write "#{expected_contents}" }
+    File.open(filename, mode: 'w') { |f| f.write "#{expected_contents}" }
     contents = File.open("/#{filename}").read
     assert_equal contents, expected_contents
   end
