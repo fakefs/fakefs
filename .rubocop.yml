@@ -1,4 +1,5 @@
 AllCops:
+  UseCache: true
   Include:
     - '**/Gemfile'
     - lib/**/*
