@@ -167,6 +167,17 @@ class FakeFSTest < Minitest::Test
     assert File.exist?(path)
   end
 
+  def test_handles_pathnames
+    path = '/path/to/dir'
+    FileUtils.mkdir_p(path)
+
+    path_name = RealPathname.new(path)
+    assert File.directory?(path_name)
+
+    path_name = Pathname.new(path)
+    assert File.directory?(path_name)
+  end
+
   def test_knows_directories_are_directories
     FileUtils.mkdir_p(path = '/path/to/dir')
     assert File.directory?(path)
