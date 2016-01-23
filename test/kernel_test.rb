@@ -47,7 +47,7 @@ class KernelTest < Minitest::Test
   end
 
   def test_kernel_open_remains_private
-    refute "foo".respond_to?(:open), "String#open should be private"
+    refute 'foo'.respond_to?(:open), 'String#open should be private'
   end
 
   def test_can_exec_normally2
