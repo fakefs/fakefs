@@ -25,4 +25,20 @@ class GlobberTest < Minitest::Test
   def test_path_components_with_path_separator_inside_brace_group
     assert_equal ['a', '{b,c/d}', 'e'], FakeFS::Globber.path_components('/a/{b,c/d}/e')
   end
+
+  def test_expand_accepts_pathname
+    assert_equal ['/a/b/c'], FakeFS::Globber.expand(Pathname.new('/a/b/c'))
+  end
+
+  def test_path_components_accepts_pathname
+    assert_equal %w(a b c), FakeFS::Globber.path_components(Pathname.new('/a/b/c'))
+  end
+
+  def test_regexp_accepts_string
+    assert_equal(%r{\A\/a\/b\/c\Z}.to_s, (FakeFS::Globber.regexp('/a/b/c')).to_s)
+  end
+
+  def test_regexp_accepts_pathname
+    assert_equal(%r{\A\/a\/b\/c\Z}.to_s, (FakeFS::Globber.regexp(Pathname.new('/a/b/c'))).to_s)
+  end
 end
