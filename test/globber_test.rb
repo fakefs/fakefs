@@ -25,4 +25,8 @@ class GlobberTest < Minitest::Test
   def test_path_components_with_path_separator_inside_brace_group
     assert_equal ['a', '{b,c/d}', 'e'], FakeFS::Globber.path_components('/a/{b,c/d}/e')
   end
+
+  def test_regexp_accepts_nested_brace_groups_with_plus
+    assert_equal(/\Aa(\.(b)|)(\.(c)|)(\+()|)(\.(d|e|f)|)\Z/.to_s, (FakeFS::Globber.regexp('a{.{b},}{.{c},}{+{},}{.{d,e,f},}')).to_s)
+  end
 end
