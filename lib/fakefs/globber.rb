@@ -64,14 +64,20 @@ module FakeFS
       pattern = pattern.to_s
 
       regex_body = pattern.gsub('.', '\.')
+                   .gsub('+') { '\+' }
                    .gsub('?', '.')
                    .gsub('*', '.*')
                    .gsub('(', '\(')
                    .gsub(')', '\)')
-                   .gsub(/\{(.*?)\}/) do
-                     "(#{Regexp.last_match[1].gsub(',', '|')})"
-                   end
-                   .gsub(/\A\./, '(?!\.).')
+
+      loop do
+        break unless regex_body.gsub!(/(?<re>\{(?:(?>[^{}]+)|\g<re>)*\})/) do
+          "(#{Regexp.last_match[1][1..-2].gsub(',', '|')})"
+        end
+      end
+
+      regex_body = regex_body.gsub(/\A\./, '(?!\.).')
+
       /\A#{regex_body}\Z/
     end
 
