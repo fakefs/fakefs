@@ -136,7 +136,7 @@ Speed?
 Installation
 ------------
 
-### [RubyGems](http://rubygems.org/)
+### [RubyGems](https://rubygems.org/)
 
     $ gem install fakefs
 
@@ -156,14 +156,14 @@ Meta
 ----
 
 * Code: `git clone git://github.com/defunkt/fakefs.git`
-* Home: <http://github.com/defunkt/fakefs>
-* Docs: <http://rdoc.info/github/defunkt/fakefs>
-* Bugs: <http://github.com/defunkt/fakefs/issues>
-* Test: <http://travisci.org/#!/defunkt/fakefs>
-* Gems: <http://rubygems.org/gems/fakefs>
+* Home: <https://github.com/fakefs/fakefs>
+* Docs: <http://www.rubydoc.info/github/defunkt/fakefs>
+* Bugs: <https://github.com/fakefs/fakefs/issues>
+* Test: <https://travis-ci.org/#!/defunkt/fakefs>
+* Gems: <https://rubygems.org/gems/fakefs>
 
-[0]: http://help.github.com/forking/
-[1]: http://help.github.com/send-pull-requests/
+[0]: https://help.github.com/forking/
+[1]: https://help.github.com/send-pull-requests/
 
 Releasing
 ---------
