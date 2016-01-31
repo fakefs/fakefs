@@ -1,7 +1,7 @@
 module FakeFS
   # Fake file class
   class FakeFile
-    attr_accessor :name, :parent, :content, :mtime, :atime, :mode, :uid, :gid
+    attr_accessor :name, :parent, :mtime, :atime, :mode, :uid, :gid
     attr_reader :ctime, :birthtime
 
     # Inode class
