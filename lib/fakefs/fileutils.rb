@@ -136,12 +136,18 @@ module FakeFS
       return if options[:noop]
 
       Array(src).each do |source|
-        # This error sucks, but it conforms to the original Ruby
-        # method.
-        fail "unknown file type: #{source}" unless
-          (dir = FileSystem.find(source))
-        new_dir = FileSystem.find(dest)
+        dir = FileSystem.find(source)
+        unless dir
+          if RUBY_VERSION >= '1.9.1'
+            fail Errno::ENOENT, source
+          else
+            # This error sucks, but it conforms to the original Ruby
+            # method.
+            fail "unknown file type: #{source}"
+          end
+        end
 
+        new_dir = FileSystem.find(dest)
         fail Errno::EEXIST, dest if new_dir && !File.directory?(dest)
         fail Errno::ENOENT, dest if !new_dir && !FileSystem.find(dest + '/../')
 
