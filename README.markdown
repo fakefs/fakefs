@@ -1,49 +1,64 @@
 FakeFS [![build status](https://secure.travis-ci.org/defunkt/fakefs.svg?branch=master)](https://secure.travis-ci.org/defunkt/fakefs)
 ======
 
-Mocha is great. But when your library is all about manipulating the
-filesystem, you really want to test the behavior and not the implementation.
-
-If you're mocking and stubbing every call to FileUtils or File, you're
-tightly coupling your tests with the implementation.
+Mocking calls to FileUtils or File means tightly coupling tests with the implementation.
 
 ``` ruby
-def test_creates_directory
+it "creates a directory" do
   FileUtils.expects(:mkdir).with("directory").once
   Library.add "directory"
 end
 ```
 
-The above test will break if we decide to use `mkdir_p` in our code. Refactoring
-code shouldn't necessitate refactoring tests.
+The above test will break if `mkdir_p` is used instead. 
+Refactoring code should not necessitate refactoring tests.
 
-With FakeFS:
+A better approach is to use a temp directory if you are working with relative directories.
 
-``` ruby
-def test_creates_directory
-  Library.add "directory"
-  assert File.directory?("directory")
+```Ruby
+require 'tmpdir'
+
+it "creates a directory" do
+  Dir.mktmpdir do |dir|
+    Dir.chdir dir do
+      Library.add "directory"
+      assert File.directory?("directory")
+    end
+  end
 end
 ```
 
-Woot.
+But if you are working with absolute directories or do not want to use temporary directories, use FakeFS instead:
 
+``` ruby
+it "creates a directory" do
+  FakeFS do
+    Library.add "directory"
+    assert File.directory?("directory")
+  end
+end
+```
+
+Installation
+------------
+
+```Bash
+gem install fakefs
+```
 
 Usage
 -----
 
+To fake out the FS:
+
 ``` ruby
 require 'fakefs'
-
-# That's it.
 ```
 
-Don't Fake the FS Immediately
------------------------------
+Temporarily faking the FS
+-------------------------
 
 ``` ruby
-gem "fakefs", :require => "fakefs/safe"
-
 require 'fakefs/safe'
 
 FakeFS.activate!
@@ -59,19 +74,16 @@ end
 Rails
 -----
 
-If you are using fakefs in a rails project with bundler, you'll probably want
-to specify the following in your Gemfile:
+In rails projects, add this to your Gemfile:
 
 ``` ruby
-gem "fakefs", :require => "fakefs/safe"
+gem "fakefs", require: "fakefs/safe"
 ```
-
 
 RSpec
 -----
 
-The above approach works with RSpec as well. In addition you may include
-FakeFS::SpecHelpers to turn FakeFS on and off in a given example group:
+Include FakeFS::SpecHelpers to turn FakeFS on and off in an example group:
 
 ``` ruby
 require 'fakefs/spec_helpers'
@@ -93,16 +105,14 @@ yourself on the equivalent FakeFS classes. For example,
 A fake version can be provided as follows:
 
 ``` ruby
-module FakeFS
-  class File
-    def content_type
-      'fake/file'
-    end
+FakeFS::File.class_eval do
+  def content_type
+    'fake/file'
   end
 end
 ```
 
-How is this different than MockFS?
+How is this different than [MockFS](http://mockfs.rubyforge.org/) ?
 ----------------------------------
 
 FakeFS provides a test suite and works with symlinks. It's also strictly a
@@ -131,14 +141,6 @@ Speed?
 ------
 
 <http://gist.github.com/156091>
-
-
-Installation
-------------
-
-### [RubyGems](https://rubygems.org/)
-
-    $ gem install fakefs
 
 
 Contributing
