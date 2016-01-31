@@ -1,4 +1,4 @@
-require 'test_helper'
+require_relative 'test_helper'
 
 # Fake Pathname test class
 class FakePathnameTest < Minitest::Test

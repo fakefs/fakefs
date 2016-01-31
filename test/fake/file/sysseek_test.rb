@@ -1,4 +1,4 @@
-require 'test_helper'
+require_relative '../../test_helper'
 
 # File SysSeek test class
 class FileSysSeek < Minitest::Test

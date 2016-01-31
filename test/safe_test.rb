@@ -1,4 +1,4 @@
-require 'test_helper'
+require_relative 'test_helper'
 
 # FakeFS safe test class
 class FakeFSSafeTest < Minitest::Test

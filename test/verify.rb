@@ -2,9 +2,9 @@
 #
 # USAGE
 #
-#   $ RUBYLIB=test ruby test/verify.rb | grep "not implemented"
+#   $ ruby test/verify.rb | grep "not implemented"
 
-require 'test_helper'
+require_relative 'test_helper'
 
 # FakeFs verifier test class
 class FakeFSVerifierTest < Minitest::Test

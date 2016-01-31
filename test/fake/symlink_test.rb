@@ -1,4 +1,4 @@
-require 'test_helper'
+require_relative '../test_helper'
 
 # Fake symlink test class
 class FakeSymlinkTest < Minitest::Test

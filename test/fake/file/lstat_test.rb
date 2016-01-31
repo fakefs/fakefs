@@ -1,4 +1,4 @@
-require 'test_helper'
+require_relative '../../test_helper'
 
 # File stat test class
 class FileStat < Minitest::Test
