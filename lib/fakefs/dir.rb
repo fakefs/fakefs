@@ -24,9 +24,13 @@ module FakeFS
       nil
     end
 
-    def each(&_block)
-      while (f = read)
-        yield f
+    def each
+      if block_given?
+        while (f = read)
+          yield f
+        end
+      else
+        @contents.map { |entry| entry_to_relative_path(entry) }.each
       end
     end
 
@@ -39,16 +43,10 @@ module FakeFS
     end
 
     def read
-      fail IOError, 'closed directory' if @pointer.nil?
-      n = @contents[@pointer]
+      fail IOError, 'closed directory' unless @pointer
+      entry = @contents[@pointer]
       @pointer += 1
-      return unless n
-
-      if n.to_s[0, path.size + 1] == path + '/'
-        n.to_s[path.size + 1..-1]
-      else
-        n.to_s
-      end
+      entry_to_relative_path(entry) if entry
     end
 
     def rewind
@@ -198,6 +196,13 @@ module FakeFS
           path
         end
       end
+    end
+
+    private
+
+    def entry_to_relative_path(entry)
+      filename = entry.to_s
+      filename.start_with?("#{path}/") ? filename[path.size + 1..-1] : filename
     end
 
     # This code has been borrowed from Rubinius
