@@ -813,6 +813,12 @@ class FakeFSTest < Minitest::Test
     assert_equal ["flub\n", "dub\n", "shrub\n"], read_lines
   end
 
+  def test_file_ftype_is_equal_to_file_lstat_ftype
+    File.open('foo', 'w') { |f| f << 'some content' }
+    FileUtils.ln_s('foo', 'bar')
+    assert_equal File.stat('bar').ftype, File.ftype('bar')
+  end
+
   def test_File_close_disallows_further_access
     path = 'file.txt'
     file = File.open(path, 'w')
@@ -2655,7 +2661,7 @@ class FakeFSTest < Minitest::Test
     newer_file = 'newer.txt'
 
     FileUtils.touch(old_file)
-    
+
     assert_equal FileUtils.uptodate?(new_file, [old_file]), false
 
     FileUtils.touch(new_file)
