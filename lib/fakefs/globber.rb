@@ -62,6 +62,7 @@ module FakeFS
                    .gsub('*', '.*')
                    .gsub('(', '\(')
                    .gsub(')', '\)')
+                   .gsub('$', '\$')
                    .gsub(/\{(.*?)\}/) do
                      "(#{Regexp.last_match[1].gsub(',', '|')})"
                    end

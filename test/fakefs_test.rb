@@ -480,6 +480,11 @@ class FakeFSTest < Minitest::Test
     assert_equal '', File.read('foo')
   end
 
+  def test_can_read_file_including_dollar
+    File.write('$foo', 'foo')
+    assert_equal 'foo', File.read('$foo')
+  end
+
   def test_file_in_append_write_only_raises_error_when_reading
     FileUtils.touch('foo')
 
