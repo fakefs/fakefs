@@ -1,4 +1,4 @@
-require 'test_helper'
+require_relative '../../test_helper'
 
 # File SysWrite test class
 class FileSysWriteTest < Minitest::Test

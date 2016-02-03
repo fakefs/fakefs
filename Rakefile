@@ -1,36 +1,23 @@
-$LOAD_PATH.unshift File.join(File.dirname(__FILE__))
-$LOAD_PATH.unshift File.join(File.dirname(__FILE__), 'test')
-
 require 'bundler/setup'
+require 'bundler/gem_tasks'
 require 'rake/testtask'
-require File.expand_path(File.join(File.dirname(__FILE__), "lib", "fakefs", "version"))
+require 'bump/tasks'
 
 Rake::TestTask.new do |t|
-  t.libs << 'test'
   t.test_files = FileList['test/**/*test.rb']
   t.verbose = true
 end
 
-begin
-  require 'rspec/core/rake_task'
-  desc 'Run specs'
-  RSpec::Core::RakeTask.new
-rescue LoadError
-  puts "Spec task can't be loaded. `gem install rspec`"
-end
+require 'rspec/core/rake_task'
+RSpec::Core::RakeTask.new
 
-begin
-  require 'rubocop/rake_task'
-  desc 'Run RuboCop'
-  RuboCop::RakeTask.new(:rubocop)
-rescue LoadError
-  puts "Rubocop task can't be loaded. `gem install rubocop`"
-end
+require 'rubocop/rake_task'
+RuboCop::RakeTask.new(:rubocop)
 
 task default: [:test, :spec, :rubocop]
 
 desc 'Push a new version to rubygems.org'
-task :publish => [:rubocop, :test, :spec, :rubocop, :update_contributors, :tag, :release, :push]
+task :publish => [:rubocop, :test, :spec, :rubocop, :update_contributors, :release]
 
 desc 'Update contributors'
 task :update_contributors do
@@ -41,22 +28,4 @@ task :update_contributors do
     sh "git add CONTRIBUTORS"
     sh "git commit -m 'Update contributors for release'"
   end
-end
-
-desc 'Release a new version'
-task :release do
-  sh "gem build fakefs.gemspec"
-  sh "gem push fakefs-*.gem"
-end
-
-desc 'tag'
-task :tag do
-  version = FakeFS::Version::VERSION
-  sh "git tag v#{version}"
-  sh "git push --tags"
-end
-
-desc 'Run git push'
-task :push do
-  sh "git push origin master"
 end

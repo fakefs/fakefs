@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-require 'test_helper'
+require_relative 'test_helper'
 
 # FakeFS tests
 class FakeFSTest < Minitest::Test
