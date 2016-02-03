@@ -1009,8 +1009,11 @@ module FakeFS
       # Removes a file or directory, using <tt>File.unlink</tt> or
       # <tt>Dir.unlink</tt> as necessary.
       def unlink
-        Dir.unlink @path if File.directory? @path
-        File.unlink @path unless File.directory? @path
+        if File.directory? @path
+          Dir.unlink @path
+        else
+          File.unlink @path
+        end
       end
 
       alias_method :delete, :unlink

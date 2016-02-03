@@ -78,4 +78,18 @@ class FakePathnameTest < Minitest::Test
   def test_io_sysopen_is_unsupported
     assert_raises(NotImplementedError) { @pathname.sysopen }
   end
+
+  def test_files_are_unlinked
+    File.write(@path, '')
+
+    @pathname.unlink
+    refute @pathname.exist?
+  end
+
+  def test_directories_are_unlinked
+    Dir.mkdir(@path)
+
+    @pathname.unlink
+    refute @pathname.exist?
+  end
 end
