@@ -35,6 +35,10 @@ module FakeFS
       RealFile.join(parts)
     end
 
+    def self.path(file)
+      RealFile.path(file)
+    end
+
     def self.exist?(path)
       if File.symlink?(path)
         referent = File.expand_path(File.readlink(path), File.dirname(path))
