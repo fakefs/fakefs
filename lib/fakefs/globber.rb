@@ -4,6 +4,8 @@ module FakeFS
     extend self
 
     def expand(pattern)
+      pattern = pattern.to_s
+
       return [pattern] if pattern[0] != '{' || pattern[-1] != '}'
 
       part = ''
@@ -39,6 +41,8 @@ module FakeFS
     end
 
     def path_components(pattern)
+      pattern = pattern.to_s
+
       part = ''
       result = []
 
@@ -57,16 +61,27 @@ module FakeFS
     end
 
     def regexp(pattern)
+      pattern = pattern.to_s
+
       regex_body = pattern.gsub('.', '\.')
+                   .gsub('+') { '\+' }
                    .gsub('?', '.')
                    .gsub('*', '.*')
                    .gsub('(', '\(')
                    .gsub(')', '\)')
                    .gsub('$', '\$')
-                   .gsub(/\{(.*?)\}/) do
-                     "(#{Regexp.last_match[1].gsub(',', '|')})"
-                   end
-                   .gsub(/\A\./, '(?!\.).')
+
+      # This matches nested braces and attempts to do something correct most of the time
+      # There are known issues (i.e. {,*,*/*}) that cannot be resolved with out a total
+      # refactoring
+      loop do
+        break unless regex_body.gsub!(/(?<re>\{(?:(?>[^{}]+)|\g<re>)*\})/) do
+          "(#{Regexp.last_match[1][1..-2].gsub(',', '|')})"
+        end
+      end
+
+      regex_body = regex_body.gsub(/\A\./, '(?!\.).')
+
       /\A#{regex_body}\Z/
     end
 
