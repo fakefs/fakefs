@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["chris@ozmm.org"]
   spec.description   = %q{A fake filesystem. Use it in your tests.}
   spec.summary       = spec.description
-  spec.homepage      = "https://github.com/defunkt/fakefs"
+  spec.homepage      = "https://github.com/fakefs/fakefs"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files lib README.markdown LICENSE`.split($/)
