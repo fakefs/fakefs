@@ -1598,12 +1598,10 @@ class FakeFSTest < Minitest::Test
     end
   end
 
-  def test_cp_fails_on_directory_copy
-    FileUtils.mkdir_p 'baz'
-
-    assert_raises Errno::EISDIR do
-      FileUtils.cp('baz', 'bar')
-    end
+  def test_file_utils_cp_allows_source_directories
+    Dir.mkdir 'foo'
+    FileUtils.cp 'foo', 'bar'
+    assert Dir.exist? 'bar'
   end
 
   def test_copy_file_works
