@@ -1,4 +1,4 @@
-FakeFS [![build status](https://secure.travis-ci.org/defunkt/fakefs.svg?branch=master)](https://secure.travis-ci.org/defunkt/fakefs)
+FakeFS [![build status](https://travis-ci.org/fakefs/fakefs.svg?branch=master)](https://travis-ci.org/fakefs/fakefs)
 ======
 
 Mocking calls to FileUtils or File means tightly coupling tests with the implementation.
@@ -10,7 +10,7 @@ it "creates a directory" do
 end
 ```
 
-The above test will break if `mkdir_p` is used instead. 
+The above test will break if `mkdir_p` is used instead.
 Refactoring code should not necessitate refactoring tests.
 
 A better approach is to use a temp directory if you are working with relative directories.
