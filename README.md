@@ -83,6 +83,7 @@ gem "fakefs", require: "fakefs/safe"
 RSpec
 -----
 
+
 Include FakeFS::SpecHelpers to turn FakeFS on and off in an example group:
 
 ``` ruby
@@ -95,44 +96,25 @@ end
 
 See `lib/fakefs/spec_helpers.rb` for more info.
 
-### FakeFs vs `pp` --- `TypeError: superclass mismatch for class File`
+FakeFs vs `pp` --- `TypeError: superclass mismatch for class File`
+--------------
 
 `pp` and `fakefs` collide, `require 'pp'` then `require 'fakefs'`.
 
-Mocking existing files
-----------------------
+Working with existing files
+---------------------------
 
-If you want to use existing files in your fake fs, clone them first.
-
-```ruby
-it "can use existing files" do
-  FakeFS.activate!
-  FakeFS::FileSystem.clone('<folder-to-clone>')
-  expect(File.read('<folder-to-clone>/foo.yml')).to include("original-content-of-foo")
-end
-```
-
-For example, if you are running this from a spec folder, and would like to clone the cfg folder
-which is one step outside, you would do it like this:
-
-```ruby
-it "can use existing files" do
-  FakeFS.activate!
-  FakeFS::FileSystem.clone(File.join(File.dirname(__FILE__), '../cfg'))
-  expect(File.read('../cfg/foo.yml')).to include("original-content-of-foo")
-end
-```
-
-Once this is done, your configuration class will now look in the faked out filesystem. For testing
-purposes if you would like to overwrite the content of a cloned file, do the following.
+Clone existing directories or files to reuse them during tests, they are safe to modify.
 
 ```ruby
 FakeFS do
-  FileUtils.mkdir_p(File.join(__dir__, '../cfg'))
-  File.open(File.join(__dir__, '../cfg/config.yml'), 'w') do |f|
-    f.puts('loglevel: OVERWRITTEN_VALUE')
-    f.puts('someotherthingmore: fakedata')
-  end
+  config = File.expand_path('../../config', __FILE__)
+  
+  FakeFS::FileSystem.clone(config)
+  expect(File.read("#{config}/foo.yml")).to include("original-content-of-foo")
+  
+  File.write("#{config}/foo.yml"), "NEW")
+  expect(File.read("#{config}/foo.yml")).to eq "NEW"
 end
 ```
 
@@ -152,7 +134,7 @@ FakeFS::File.class_eval do
 end
 ```
 
-How is this different than [MockFS](http://mockfs.rubyforge.org/) ?
+[MockFS](http://mockfs.rubyforge.org/) comparison
 ----------------------------------
 
 FakeFS provides a test suite and works with symlinks. It's also strictly a
