@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.homepage      = "https://github.com/fakefs/fakefs"
   spec.license       = "MIT"
 
-  spec.files         = `git ls-files lib README.markdown LICENSE`.split($/)
+  spec.files         = `git ls-files lib README.md LICENSE`.split($/)
 
   spec.add_development_dependency "bundler", "~> 1.3"
   spec.add_development_dependency "rake", "~> 10.3"
