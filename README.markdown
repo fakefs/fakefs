@@ -95,6 +95,46 @@ end
 
 See `lib/fakefs/spec_helpers.rb` for more info.
 
+### FakeFs vs `pp` --- `TypeError: superclass mismatch for class File`
+
+`pp` and `fakefs` collide, `require 'pp'` then `require 'fakefs'`.
+
+Mocking existing files
+----------------------
+
+If you want to use existing files in your fake fs, clone them first.
+
+```ruby
+it "can use existing files" do
+  FakeFS.activate!
+  FakeFS::FileSystem.clone('<folder-to-clone>')
+  expect(File.read('<folder-to-clone>/foo.yml')).to include("original-content-of-foo")
+end
+```
+
+For example, if you are running this from a spec folder, and would like to clone the cfg folder
+which is one step outside, you would do it like this:
+
+```ruby
+it "can use existing files" do
+  FakeFS.activate!
+  FakeFS::FileSystem.clone(File.join(File.dirname(__FILE__), '../cfg'))
+  expect(File.read('../cfg/foo.yml')).to include("original-content-of-foo")
+end
+```
+
+Once this is done, your configuration class will now look in the faked out filesystem. For testing
+purposes if you would like to overwrite the content of a cloned file, do the following.
+
+```ruby
+FakeFS do
+  FileUtils.mkdir_p(File.join(__dir__, '../cfg'))
+  File.open(File.join(__dir__, '../cfg/config.yml'), 'w') do |f|
+    f.puts('loglevel: OVERWRITTEN_VALUE')
+    f.puts('someotherthingmore: fakedata')
+  end
+end
+```
 
 Integrating with other filesystem libraries
 --------------------------------------------
