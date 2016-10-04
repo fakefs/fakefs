@@ -90,7 +90,7 @@ module FakeFS
       fail Errno::ENOENT, dir unless new_dir
 
       dir_levels.push dir unless blk
-      blk.call if blk
+      blk.call(dir) if blk
     ensure
       dir_levels.pop if blk
     end

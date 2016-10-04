@@ -1408,6 +1408,19 @@ class FakeFSTest < Minitest::Test
     assert_equal ['foo'], Dir.glob('*')
   end
 
+  def test_chdir_with_a_block_passes_in_the_path
+    FileUtils.mkdir_p('/path')
+    Dir.chdir('/path') do |path|
+      assert_equal '/path', path
+    end
+
+    Dir.chdir('/path')
+    FileUtils.mkdir('subdir')
+    Dir.chdir('subdir') do |path|
+      assert_equal 'subdir', path
+    end
+  end
+
   def test_current_dir_reflected_by_pwd
     FileUtils.mkdir_p '/path'
     Dir.chdir('/path')
