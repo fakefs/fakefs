@@ -64,12 +64,12 @@ module FakeFS
       pattern = pattern.to_s
 
       regex_body = pattern.gsub('.', '\.')
-                   .gsub('+') { '\+' }
-                   .gsub('?', '.')
-                   .gsub('*', '.*')
-                   .gsub('(', '\(')
-                   .gsub(')', '\)')
-                   .gsub('$', '\$')
+                          .gsub('+') { '\+' }
+                          .gsub('?', '.')
+                          .gsub('*', '.*')
+                          .gsub('(', '\(')
+                          .gsub(')', '\)')
+                          .gsub('$', '\$')
 
       # This matches nested braces and attempts to do something correct most of the time
       # There are known issues (i.e. {,*,*/*}) that cannot be resolved with out a total

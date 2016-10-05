@@ -90,7 +90,7 @@ module FakeFS
       fail Errno::ENOENT, dir unless new_dir
 
       dir_levels.push dir unless blk
-      blk.call(dir) if blk
+      yield(dir) if blk
     ensure
       dir_levels.pop if blk
     end
@@ -128,7 +128,7 @@ module FakeFS
                     directories_under(dir).map do |d|
                       d.entries.select do |f|
                         (f.is_a?(FakeFile) || f.is_a?(FakeDir)) &&
-                        f.name.match(/\A(?!\.)/)
+                          f.name.match(/\A(?!\.)/)
                       end
                     end.flatten.uniq
                   when []

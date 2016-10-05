@@ -1,19 +1,15 @@
+inherit_from: .rubocop_todo.yml
+
 AllCops:
-  UseCache: true
-  Include:
-    - '**/Gemfile'
-    - lib/**/*
-    - spec/**/*
-    - gemirro.gemspec
+  DisplayCopNames: true
   Exclude:
+    - .git/**/*
     - files/**/*
     - templates/**/*
     - etc/**/*
+
 Metrics/MethodLength:
-  Exclude:
-    - lib/**/*
-    - test/**/*.rb
-    - spec/**/*.rb
+  Enabled: false
 Metrics/ClassLength:
   Enabled: false
 Metrics/ModuleLength:
@@ -29,15 +25,18 @@ Metrics/CyclomaticComplexity:
 Metrics/PerceivedComplexity:
   Severity: warning
   Max: 20
-Lint/Eval:
-  Enabled: false
 Metrics/BlockNesting:
   Severity: warning
   Max: 4
 Metrics/AbcSize:
   Enabled: false
+
+Lint/Eval:
+  Enabled: false
+
 Performance/StringReplacement:
   Enabled: false
+
 Style/ParallelAssignment:
   Enabled: false
 Style/PredicateName:
@@ -50,5 +49,4 @@ Style/ModuleFunction:
 Style/SymbolProc:
   Enabled: false
 Style/TrivialAccessors:
-  Enabled: true
   ExactNameMatch: true

@@ -161,7 +161,6 @@ class FileStatTest < Minitest::Test
   end
 
   def test_file_path_returns_correct_path
-    assert File::path('/temp/test_file') == '/temp/test_file'
+    assert File.path('/temp/test_file') == '/temp/test_file'
   end
-
 end
