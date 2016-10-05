@@ -17,23 +17,11 @@ Lint/UselessAccessModifier:
   Exclude:
     - 'lib/fakefs/kernel.rb'
 
-# Offense count: 5
+# Offense count: 4
 # Configuration parameters: AllowHeredoc, AllowURI, URISchemes.
 # URISchemes: http, https
 Metrics/LineLength:
   Max: 106
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Performance/RedundantBlockCall:
-  Exclude:
-    - 'lib/fakefs/file_system.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Performance/RedundantMatch:
-  Exclude:
-    - 'lib/fakefs/fileutils.rb'
 
 # Offense count: 33
 # Cop supports --auto-correct.
@@ -48,26 +36,12 @@ Style/Alias:
 
 # Offense count: 1
 # Cop supports --auto-correct.
-Style/ColonMethodCall:
-  Exclude:
-    - 'test/file/stat_test.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles, SingleLineConditionsOnly.
 # SupportedStyles: assign_to_condition, assign_inside_condition
 Style/ConditionalAssignment:
   Exclude:
     - 'lib/fakefs/dir.rb'
     - 'lib/fakefs/pathname.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: empty_lines, no_empty_lines
-Style/EmptyLinesAroundClassBody:
-  Exclude:
-    - 'test/file/stat_test.rb'
 
 # Offense count: 1
 # Configuration parameters: ExpectMatchingDefinition, Regex, IgnoreExecutableScripts.
@@ -83,14 +57,6 @@ Style/GuardClause:
     - 'lib/fakefs/fileutils.rb'
     - 'lib/fakefs/pathname.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles, UseHashRocketsWithSymbolValues, PreferHashRocketsForNonAlnumEndingSymbols.
-# SupportedStyles: ruby19, ruby19_no_mixed_keys, hash_rockets
-Style/HashSyntax:
-  Exclude:
-    - 'Rakefile'
-
 # Offense count: 5
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.
@@ -100,22 +66,6 @@ Style/MultilineMethodCallBraceLayout:
     - 'lib/fakefs/fake/file.rb'
     - 'lib/fakefs/file.rb'
     - 'lib/fakefs/fileutils.rb'
-
-# Offense count: 6
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles, IndentationWidth.
-# SupportedStyles: aligned, indented, indented_relative_to_receiver
-Style/MultilineMethodCallIndentation:
-  Exclude:
-    - 'lib/fakefs/globber.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles, IndentationWidth.
-# SupportedStyles: aligned, indented
-Style/MultilineOperationIndentation:
-  Exclude:
-    - 'lib/fakefs/file_system.rb'
 
 # Offense count: 11
 # Cop supports --auto-correct.
@@ -139,19 +89,6 @@ Style/NumericLiteralPrefix:
     - 'test/fakefs_test.rb'
     - 'test/file/stat_test.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: PreferredDelimiters.
-Style/PercentLiteralDelimiters:
-  Exclude:
-    - 'fakefs.gemspec'
-
-# Offense count: 3
-# Cop supports --auto-correct.
-Style/RedundantParentheses:
-  Exclude:
-    - 'test/globber_test.rb'
-
 # Offense count: 67
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.
@@ -166,27 +103,12 @@ Style/SignalException:
     - 'test/fakefs_test.rb'
     - 'test/safe_test.rb'
 
-# Offense count: 6
-# Cop supports --auto-correct.
-Style/SpaceInsidePercentLiteralDelimiters:
-  Exclude:
-    - 'test/fakefs_test.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 # SupportedStyles: use_perl_names, use_english_names
 Style/SpecialGlobalVars:
   Exclude:
-    - 'fakefs.gemspec'
-
-# Offense count: 16
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles, ConsistentQuotesInMultiline.
-# SupportedStyles: single_quotes, double_quotes
-Style/StringLiterals:
-  Exclude:
-    - 'Rakefile'
     - 'fakefs.gemspec'
 
 # Offense count: 4
@@ -196,12 +118,6 @@ Style/UnneededInterpolation:
     - 'lib/fakefs/pathname.rb'
     - 'test/fakefs_test.rb'
     - 'test/file/stat_test.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/UnneededPercentQ:
-  Exclude:
-    - 'fakefs.gemspec'
 
 # Offense count: 6
 # Cop supports --auto-correct.

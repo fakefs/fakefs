@@ -1090,7 +1090,7 @@ class FakeFSTest < Minitest::Test
     assert_equal ['/path/.bar'], Dir['**/{.*}']
     assert_equal ['/path/.bar'], Dir['/path**/{.*}']
     assert_equal ['/path/.bar'], Dir['/path/{.*}']
-    assert_equal %w( /path/bar /path/bar2 /path/foo /path/foobar ), Dir['/path/*']
+    assert_equal %w(/path/bar /path/bar2 /path/foo /path/foobar), Dir['/path/*']
 
     assert_equal ['/path/bar/baz'], Dir['/path/bar/*']
     assert_equal ['/path/foo'], Dir['/path/foo']
@@ -1110,7 +1110,7 @@ class FakeFSTest < Minitest::Test
 
     FileUtils.cp_r '/path', '/otherpath'
 
-    assert_equal %w( /otherpath/foo /otherpath/foobar /path/foo /path/foobar ), Dir['/*/foo*']
+    assert_equal %w(/otherpath/foo /otherpath/foobar /path/foo /path/foobar), Dir['/*/foo*']
 
     assert_equal ['/path/bar', '/path/foo'], Dir['/path/{foo,bar}']
 
@@ -1703,7 +1703,7 @@ class FakeFSTest < Minitest::Test
 
     assert File.exist?('/path/bar/baz')
     FileUtils.rm_rf '/path/bar/baz'
-    assert_equal %w( /path/bar/bar ), Dir['/path/bar/*']
+    assert_equal %w(/path/bar/bar), Dir['/path/bar/*']
   end
 
   def test_clone_clones_normal_files
