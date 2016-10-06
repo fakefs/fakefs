@@ -1256,17 +1256,31 @@ class FakeFSTest < Minitest::Test
   end
 
   OMITTED_FILE_METHODS = [
+    # omit methods from etc
+    :pathconf,
+
     # omit methods from io/console
-    :raw, :raw!, :cooked, :cooked!,
+    :beep,
+    :cooked, :cooked!,
+    :cursor, :cursor=,
     :echo?, :echo=, :noecho,
-    :winsize, :winsize=,
-    :getch,
+    :goto,
     :iflush, :ioflush, :oflush,
-    :pathconf
+    :pressed?,
+    :raw, :raw!,
+    :winsize, :winsize=,
+
+    # omit methods from io/nonblock
+    :nonblock?, :nonblock=, :nonblock,
+
+    # omit methods from io/wait
+    :nread,
+    :ready?,
+    :wait, :wait_readable, :wait_writable
   ]
 
-  def test_every_method_in_file_is_in_fake_fs_file
-    (RealFile.instance_methods - OMITTED_FILE_METHODS).each do |method_name|
+  (RealFile.instance_methods - OMITTED_FILE_METHODS).each do |method_name|
+    define_method("test_#{method_name}_method_in_file_is_in_fake_fs_file") do
       assert File.instance_methods.include?(method_name), "#{method_name} method is not available in File :("
     end
   end
