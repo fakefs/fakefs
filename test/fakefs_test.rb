@@ -1075,6 +1075,18 @@ class FakeFSTest < Minitest::Test
     assert_equal ['/path2'], FileUtils.chmod_R(0600, '/path2')
   end
 
+  def test_copy_entry
+    FileUtils.mkdir_p '/path'
+    File.open('/path/foo', 'w') { |f| f.write 'foo' }
+    File.open('/path/foobar', 'w') { |f| f.write 'foo' }
+    FileUtils.mkdir_p '/path/bar'
+    File.open('/path/bar/baz', 'w') { |f| f.write 'foo' }
+
+    FileUtils.copy_entry '/path', '/copied_path'
+
+    assert_equal %w(/copied_path/bar /copied_path/bar/baz /copied_path/foo /copied_path/foobar), Dir.glob('/copied_path/**/*')
+  end
+
   def test_dir_globs_paths
     FileUtils.mkdir_p '/path'
     File.open('/path/foo', 'w') { |f| f.write 'foo' }
