@@ -127,6 +127,13 @@ module FakeFS
       cp(src, dest)
     end
 
+    def copy_entry(src, dest, preserve = false, dereference_root = false, remove_destination = false)
+      cp_r(src, dest,
+           preserve: preserve,
+           dereference_root: dereference_root,
+           remove_destination: remove_destination)
+    end
+
     def cp_r(src, dest, options = {})
       # handle `verbose' flag
       RealFileUtils.cp_r src, dest, options.merge(noop: true)
