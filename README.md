@@ -109,10 +109,10 @@ Clone existing directories or files to reuse them during tests, they are safe to
 ```ruby
 FakeFS do
   config = File.expand_path('../../config', __FILE__)
-  
+
   FakeFS::FileSystem.clone(config)
   expect(File.read("#{config}/foo.yml")).to include("original-content-of-foo")
-  
+
   File.write("#{config}/foo.yml"), "NEW")
   expect(File.read("#{config}/foo.yml")).to eq "NEW"
 end
@@ -179,11 +179,10 @@ Once you've made your great commits:
 Meta
 ----
 
-* Code: `git clone git://github.com/defunkt/fakefs.git`
+* Code: `git clone git://github.com/fakefs/fakefs.git`
 * Home: <https://github.com/fakefs/fakefs>
-* Docs: <http://www.rubydoc.info/github/defunkt/fakefs>
 * Bugs: <https://github.com/fakefs/fakefs/issues>
-* Test: <https://travis-ci.org/#!/defunkt/fakefs>
+* Test: <https://travis-ci.org/fakefs/fakefs>
 * Gems: <https://rubygems.org/gems/fakefs>
 
 [0]: https://help.github.com/forking/
