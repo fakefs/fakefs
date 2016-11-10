@@ -6,11 +6,11 @@ rvm:
   - 2.1.1
   - 2.2.0
   - 2.3.1
-  - jruby
-  - rbx-19mode
+  - jruby-1.7.26
+  - jruby-9.1.6.0
 matrix:
   allow_failures:
-    - rvm: jruby
-    - rvm: rbx-19mode
+    - rvm: jruby-1.7.26
+    - rvm: jruby-9.1.6.0
 before_install:
   - gem --version
