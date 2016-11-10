@@ -1267,7 +1267,7 @@ class FakeFSTest < Minitest::Test
     assert_equal 1, fp.pos
   end
 
-  OMITTED_FILE_METHODS = [
+  OMITTED_MRI_FILE_METHODS = [
     # omit methods from etc
     :pathconf,
 
@@ -1291,7 +1291,26 @@ class FakeFSTest < Minitest::Test
     :wait, :wait_readable, :wait_writable
   ]
 
-  (RealFile.instance_methods - OMITTED_FILE_METHODS).each do |method_name|
+  OMITTED_JRUBY_FILE_METHODS = [
+    # omit public methods re https://github.com/jruby/jruby/issues/4275
+    :ttymode,
+    :ttymode_yield,
+
+    # omit Java-oriented conversion methods
+    :to_channel,
+    :to_outputstream,
+    :to_inputstream
+  ]
+
+  def self.omitted_file_methods
+    if defined?(JRUBY_VERSION)
+      OMITTED_MRI_FILE_METHODS + OMITTED_JRUBY_FILE_METHODS
+    else
+      OMITTED_MRI_FILE_METHODS
+    end
+  end
+
+  (RealFile.instance_methods - omitted_file_methods).each do |method_name|
     define_method("test_#{method_name}_method_in_file_is_in_fake_fs_file") do
       assert File.instance_methods.include?(method_name), "#{method_name} method is not available in File :("
     end
