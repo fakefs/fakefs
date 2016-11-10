@@ -17,11 +17,12 @@ module FakeFS
       # usable with File.open, etc.
       TO_PATH = :to_path
 
-      SAME_PATHS = if File::FNM_SYSCASE.nonzero?
-                     proc { |a, b| a.casecmp(b).zero? }
-                   else
-                     proc { |a, b| a == b }
-                   end
+      SAME_PATHS =
+        if File::FNM_SYSCASE.nonzero?
+          proc { |a, b| a.casecmp(b).zero? }
+        else
+          proc { |a, b| a == b }
+        end
 
       # :startdoc:
 

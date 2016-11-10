@@ -104,13 +104,14 @@ module FakeFS
         end.sort
       end
 
-      files = if pattern.is_a?(Array)
-                pattern.map do |matcher|
-                  matches_for_pattern.call matcher
-                end.flatten
-              else
-                matches_for_pattern.call pattern
-              end
+      files =
+        if pattern.is_a?(Array)
+          pattern.map do |matcher|
+            matches_for_pattern.call matcher
+          end.flatten
+        else
+          matches_for_pattern.call pattern
+        end
 
       block_given? ? files.each { |file| block.call(file) } : files
     end
