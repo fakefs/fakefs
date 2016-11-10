@@ -4,15 +4,15 @@ module FakeFS
   # FakeFS File class inherit StringIO
   class File < StringIO
     MODES = [
-      READ_ONLY           = 'r',
-      READ_WRITE          = 'r+',
-      WRITE_ONLY          = 'w',
-      READ_WRITE_TRUNCATE = 'w+',
-      APPEND_WRITE_ONLY   = 'a',
-      APPEND_READ_WRITE   = 'a+'
-    ]
+      READ_ONLY           = 'r'.freeze,
+      READ_WRITE          = 'r+'.freeze,
+      WRITE_ONLY          = 'w'.freeze,
+      READ_WRITE_TRUNCATE = 'w+'.freeze,
+      APPEND_WRITE_ONLY   = 'a'.freeze,
+      APPEND_READ_WRITE   = 'a+'.freeze
+    ].freeze
 
-    FILE_CREATION_MODES = MODES - [READ_ONLY, READ_WRITE]
+    FILE_CREATION_MODES = (MODES - [READ_ONLY, READ_WRITE]).freeze
 
     MODE_BITMASK = RealFile::RDONLY |
                    RealFile::WRONLY |

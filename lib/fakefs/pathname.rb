@@ -117,10 +117,10 @@ module FakeFS
 
       if File::ALT_SEPARATOR
         SEPARATOR_LIST = "#{Regexp.quote File::ALT_SEPARATOR}" \
-        "#{Regexp.quote File::SEPARATOR}"
+        "#{Regexp.quote File::SEPARATOR}".freeze
         SEPARATOR_PAT = /[#{SEPARATOR_LIST}]/
       else
-        SEPARATOR_LIST = "#{Regexp.quote File::SEPARATOR}"
+        SEPARATOR_LIST = "#{Regexp.quote File::SEPARATOR}".freeze
         SEPARATOR_PAT = /#{Regexp.quote File::SEPARATOR}/
       end
 
