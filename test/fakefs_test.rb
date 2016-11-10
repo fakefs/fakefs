@@ -1292,6 +1292,7 @@ class FakeFSTest < Minitest::Test
   ]
 
   (RealFile.instance_methods - OMITTED_FILE_METHODS).each do |method_name|
+    next if defined?(JRUBY_VERSION) && [:ttymode, :ttymode_yield, :to_channel, :to_outputstream, :to_inputstream].include?(method_name)
     define_method("test_#{method_name}_method_in_file_is_in_fake_fs_file") do
       assert File.instance_methods.include?(method_name), "#{method_name} method is not available in File :("
     end
