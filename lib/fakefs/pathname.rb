@@ -17,11 +17,12 @@ module FakeFS
       # usable with File.open, etc.
       TO_PATH = :to_path
 
-      SAME_PATHS = if File::FNM_SYSCASE.nonzero?
-                     proc { |a, b| a.casecmp(b).zero? }
-                   else
-                     proc { |a, b| a == b }
-                   end
+      SAME_PATHS =
+        if File::FNM_SYSCASE.nonzero?
+          proc { |a, b| a.casecmp(b).zero? }
+        else
+          proc { |a, b| a == b }
+        end
 
       # :startdoc:
 
@@ -117,10 +118,10 @@ module FakeFS
 
       if File::ALT_SEPARATOR
         SEPARATOR_LIST = "#{Regexp.quote File::ALT_SEPARATOR}" \
-        "#{Regexp.quote File::SEPARATOR}"
+        "#{Regexp.quote File::SEPARATOR}".freeze
         SEPARATOR_PAT = /[#{SEPARATOR_LIST}]/
       else
-        SEPARATOR_LIST = "#{Regexp.quote File::SEPARATOR}"
+        SEPARATOR_LIST = "#{Regexp.quote File::SEPARATOR}".freeze
         SEPARATOR_PAT = /#{Regexp.quote File::SEPARATOR}/
       end
 
@@ -529,11 +530,12 @@ module FakeFS
         result = []
         Dir.foreach(@path) do |e|
           next if e == '.' || e == '..'
-          if with_directory
-            result << self.class.new(File.join(@path, e))
-          else
-            result << self.class.new(e)
-          end
+          result <<
+            if with_directory
+              self.class.new(File.join(@path, e))
+            else
+              self.class.new(e)
+            end
         end
         result
       end

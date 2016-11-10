@@ -1289,7 +1289,7 @@ class FakeFSTest < Minitest::Test
     :nread,
     :ready?,
     :wait, :wait_readable, :wait_writable
-  ]
+  ].freeze
 
   OMITTED_JRUBY_FILE_METHODS = [
     # omit public methods re https://github.com/jruby/jruby/issues/4275
@@ -1300,7 +1300,7 @@ class FakeFSTest < Minitest::Test
     :to_channel,
     :to_outputstream,
     :to_inputstream
-  ]
+  ].freeze
 
   def self.omitted_file_methods
     if defined?(JRUBY_VERSION)
