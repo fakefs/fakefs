@@ -530,11 +530,12 @@ module FakeFS
         result = []
         Dir.foreach(@path) do |e|
           next if e == '.' || e == '..'
-          result << if with_directory
-                      self.class.new(File.join(@path, e))
-                    else
-                      self.class.new(e)
-                    end
+          result <<
+            if with_directory
+              self.class.new(File.join(@path, e))
+            else
+              self.class.new(e)
+            end
         end
         result
       end
