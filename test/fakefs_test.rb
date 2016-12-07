@@ -2266,6 +2266,15 @@ class FakeFSTest < Minitest::Test
     assert File.file?('/bar')
   end
 
+  def test_rename_renames_a_symlink
+    FileUtils.touch('/file')
+    File.symlink('/file', '/symlink')
+    assert_equal File.readlink('/symlink'), '/file'
+
+    File.rename('/symlink', '/symlink2')
+    assert_equal File.readlink('/symlink2'), '/file'
+  end
+
   def test_rename_returns
     FileUtils.touch('/foo')
     assert_equal 0, File.rename('/foo', '/bar')

@@ -209,7 +209,12 @@ module FakeFS
       end
 
       if (target = FileSystem.find(source))
-        FileSystem.add(dest, target.entry.clone)
+        if target.is_a?(FakeFS::FakeSymlink)
+          File.symlink(target.target, dest)
+        else
+          FileSystem.add(dest, target.entry.clone)
+        end
+
         FileSystem.delete(source)
       else
         fail Errno::ENOENT, "#{source} or #{dest}"
