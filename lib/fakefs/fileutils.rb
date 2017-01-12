@@ -64,8 +64,11 @@ module FakeFS
       end
     end
     alias_method :rm_r, :rm
-    alias_method :rm_f, :rm
     alias_method :remove, :rm
+
+    def rm_f(list, options = {})
+      rm(list, options.merge(force: true))
+    end
 
     def rm_rf(list, options = {})
       rm_r(list, options.merge(force: true))

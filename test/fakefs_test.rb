@@ -132,6 +132,10 @@ class FakeFSTest < Minitest::Test
     FileUtils.rm_rf('/foo')
   end
 
+  def test_unlink_doesnt_error_on_file_not_found_with_rm_f
+    FileUtils.rm_f('/foo')
+  end
+
   def test_can_delete_directories
     FileUtils.mkdir_p('/path/to/dir')
     FileUtils.rmdir('/path/to/dir')
