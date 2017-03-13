@@ -128,6 +128,10 @@ class FakeFSTest < Minitest::Test
     FileUtils.rm('/foo', force: true)
   end
 
+  def test_unlink_doesnt_error_on_file_not_found_with_rm_f
+    FileUtils.rm_f('/foo')
+  end
+
   def test_unlink_doesnt_error_on_file_not_found_with_rm_rf
     FileUtils.rm_rf('/foo')
   end
@@ -146,9 +150,16 @@ class FakeFSTest < Minitest::Test
     assert File.exist?('bar') == false
   end
 
+  def test_can_force_delete_multiple_files
+    FileUtils.touch(%w(foo bar))
+    FileUtils.rm_f(%w(foo missing bar))
+    assert File.exist?('foo')     == false
+    assert File.exist?('missing') == false
+    assert File.exist?('bar')     == false
+  end
+
   def test_aliases_exist
     assert File.respond_to?(:unlink)
-    assert FileUtils.respond_to?(:rm_f)
     assert FileUtils.respond_to?(:rm_r)
     assert FileUtils.respond_to?(:rm)
     assert FileUtils.respond_to?(:symlink)
