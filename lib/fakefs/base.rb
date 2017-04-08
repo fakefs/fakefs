@@ -70,6 +70,12 @@ module FakeFS
       ::FakeFS::FileSystem.clear
     end
 
+    # present a fresh new fake filesystem to the block
+    def fresh(&block)
+      clear!
+      with(&block)
+    end
+
     # present the fake filesystem to the block
     def with
       if activated?
