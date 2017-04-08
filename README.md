@@ -96,10 +96,19 @@ end
 
 See `lib/fakefs/spec_helpers.rb` for more info.
 
-FakeFs vs `pp` --- `TypeError: superclass mismatch for class File`
+FakeFs --- `TypeError: superclass mismatch for class File`
 --------------
 
-`pp` and `fakefs` collide, `require 'pp'` then `require 'fakefs'`.
+`pp` and `fakefs` may collide, even if you're not actually explicitly using `pp`.  Adding `require 'pp'` before `require 'fakefs'` should fix the problem locally.  For a module-level fix, try adding it to the `Gemfile`:
+
+```ruby
+source "https://rubygems.org"
+
+require 'pp'
+# list of gems
+```
+
+The problem may not be limited to `pp`; any gems that add to `File` may be affected.
 
 Working with existing files
 ---------------------------
