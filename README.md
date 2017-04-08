@@ -96,6 +96,22 @@ end
 
 See `lib/fakefs/spec_helpers.rb` for more info.
 
+To use FakeFS within a single test and be guaranteed a fresh fake filesystem:
+``` ruby
+require 'fakefs/safe'
+
+describe "my spec" do
+  context "my context" do
+    it "does something to the filesystem"
+      FakeFS.with_fresh do
+        # whatever it does
+      end
+    end
+  end
+end
+```
+
+
 FakeFs --- `TypeError: superclass mismatch for class File`
 --------------
 
