@@ -65,6 +65,11 @@ module FakeFS
       true
     end
 
+    # unconditionally clear the fake filesystem
+    def clear!
+      ::FakeFS::FileSystem.clear
+    end
+
     # present the fake filesystem to the block
     def with
       if activated?
