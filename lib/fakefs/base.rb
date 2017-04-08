@@ -21,6 +21,7 @@ module FakeFS
       @activated ? true : false
     end
 
+    # unconditionally activate
     def activate!
       Object.class_eval do
         remove_const(:Dir)
@@ -42,6 +43,7 @@ module FakeFS
       true
     end
 
+    # unconditionally deactivate
     def deactivate!
       Object.class_eval do
         remove_const(:Dir)
@@ -63,6 +65,7 @@ module FakeFS
       true
     end
 
+    # present the fake filesystem to the block
     def with
       if activated?
         yield
@@ -76,6 +79,7 @@ module FakeFS
       end
     end
 
+    # present a non-fake filesystem to the block
     def without
       if !activated?
         yield
