@@ -55,7 +55,7 @@ class FakeFSSafeTest < Minitest::Test
 
     refute File.exist?(path)
 
-    FakeFS.fresh do
+    FakeFS.with_fresh do
       refute File.exist?(path)
     end
   end

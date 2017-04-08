@@ -976,16 +976,18 @@ class FakeFSTest < Minitest::Test
     refute File.executable?('/does/not/exist')
   end
 
+  def groupname_of_id(gid)
+    Etc.getgrgid(gid).name
+  rescue ArgumentError # probably OSX, fall back on GID
+    gid
+  end
+
   def test_can_chown_files
     good = 'file.txt'
     bad = 'nofile.txt'
     File.open(good, 'w') { |f| f.write 'foo' }
     username = Etc.getpwuid(Process.uid).name
-    groupname = begin
-      Etc.getgrgid(Process.gid).name
-    rescue ArgumentError # probably OSX, fall back on GID
-      Process.gid
-    end
+    groupname = groupname_of_id(Process.gid)
 
     out = FileUtils.chown(1337, 1338, good, verbose: true)
     assert_equal [good], out
@@ -1023,11 +1025,7 @@ class FakeFSTest < Minitest::Test
 
   def test_can_chown_R_files
     username = Etc.getpwuid(Process.uid).name
-    groupname = begin
-      Etc.getgrgid(Process.gid).name
-    rescue ArgumentError # probably OSX, fall back on GID
-      Process.gid
-    end
+    groupname = groupname_of_id(Process.gid)
     FileUtils.mkdir_p '/path/'
     File.open('/path/foo', 'w') { |f| f.write 'foo' }
     File.open('/path/foobar', 'w') { |f| f.write 'foo' }

@@ -71,7 +71,7 @@ module FakeFS
     end
 
     # present a fresh new fake filesystem to the block
-    def fresh(&block)
+    def with_fresh(&block)
       clear!
       with(&block)
     end
