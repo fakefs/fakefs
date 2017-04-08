@@ -981,7 +981,11 @@ class FakeFSTest < Minitest::Test
     bad = 'nofile.txt'
     File.open(good, 'w') { |f| f.write 'foo' }
     username = Etc.getpwuid(Process.uid).name
-    groupname = Etc.getgrgid(Process.gid).name
+    groupname = begin
+      Etc.getgrgid(Process.gid).name
+    rescue ArgumentError # probably OSX, fall back on GID
+      Process.gid
+    end
 
     out = FileUtils.chown(1337, 1338, good, verbose: true)
     assert_equal [good], out
@@ -1019,7 +1023,11 @@ class FakeFSTest < Minitest::Test
 
   def test_can_chown_R_files
     username = Etc.getpwuid(Process.uid).name
-    groupname = Etc.getgrgid(Process.gid).name
+    groupname = begin
+      Etc.getgrgid(Process.gid).name
+    rescue ArgumentError # probably OSX, fall back on GID
+      Process.gid
+    end
     FileUtils.mkdir_p '/path/'
     File.open('/path/foo', 'w') { |f| f.write 'foo' }
     File.open('/path/foobar', 'w') { |f| f.write 'foo' }
