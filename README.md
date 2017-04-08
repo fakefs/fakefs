@@ -167,6 +167,9 @@ is the only thing that is guaranteed to exist, namely the root (i.e. `/`). This
 may be important when upgrading from v0.4.x to v0.5.x, especially if you depend
 on the real working directory while using FakeFS.
 
+FakeFS replaces File and FileUtils, but is not a filesystem replacement, so gems
+that use strange commands or C might circumvent it.  For example, the `sqlite3`
+gem will completely ignore any faked filesystem.
 
 Speed?
 ------
