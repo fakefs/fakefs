@@ -14,7 +14,7 @@ RSpec::Core::RakeTask.new
 require 'rubocop/rake_task'
 RuboCop::RakeTask.new(:rubocop)
 
-task default: [:test, :spec, :rubocop]
+task default: [:test, :spec, :rubocop] # keep in sync with .travis.yml
 
 desc 'Push a new version to rubygems.org'
 task publish: [:rubocop, :test, :spec, :rubocop, :update_contributors, :release]
