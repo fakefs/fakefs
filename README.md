@@ -96,10 +96,35 @@ end
 
 See `lib/fakefs/spec_helpers.rb` for more info.
 
-FakeFs vs `pp` --- `TypeError: superclass mismatch for class File`
+To use FakeFS within a single test and be guaranteed a fresh fake filesystem:
+``` ruby
+require 'fakefs/safe'
+
+describe "my spec" do
+  context "my context" do
+    it "does something to the filesystem"
+      FakeFS.with_fresh do
+        # whatever it does
+      end
+    end
+  end
+end
+```
+
+
+FakeFs --- `TypeError: superclass mismatch for class File`
 --------------
 
-`pp` and `fakefs` collide, `require 'pp'` then `require 'fakefs'`.
+`pp` and `fakefs` may collide, even if you're not actually explicitly using `pp`.  Adding `require 'pp'` before `require 'fakefs'` should fix the problem locally.  For a module-level fix, try adding it to the `Gemfile`:
+
+```ruby
+source "https://rubygems.org"
+
+require 'pp'
+# list of gems
+```
+
+The problem may not be limited to `pp`; any gems that add to `File` may be affected.
 
 Working with existing files
 ---------------------------
@@ -158,6 +183,9 @@ is the only thing that is guaranteed to exist, namely the root (i.e. `/`). This
 may be important when upgrading from v0.4.x to v0.5.x, especially if you depend
 on the real working directory while using FakeFS.
 
+FakeFS replaces File and FileUtils, but is not a filesystem replacement, so gems
+that use strange commands or C might circumvent it.  For example, the `sqlite3`
+gem will completely ignore any faked filesystem.
 
 Speed?
 ------

@@ -30,6 +30,53 @@ class FakeFSSafeTest < Minitest::Test
     refute File.exist?(path)
   end
 
+  def test_FakeFS_method_presents_persistent_fs
+    path = 'file.txt'
+
+    FakeFS do
+      File.open(path, 'w') { |f| f.write 'Yatta!' }
+      assert File.exist?(path)
+    end
+
+    refute File.exist?(path)
+
+    FakeFS do
+      assert File.exist?(path)
+    end
+  end
+
+  def test_FakeFS_fresh_method_presents_fresh_fs
+    path = 'file.txt'
+
+    FakeFS do
+      File.open(path, 'w') { |f| f.write 'Yatta!' }
+      assert File.exist?(path)
+    end
+
+    refute File.exist?(path)
+
+    FakeFS.with_fresh do
+      refute File.exist?(path)
+    end
+  end
+
+  def test_FakeFS_clear_method_clears_fs
+    path = 'file.txt'
+
+    FakeFS do
+      File.open(path, 'w') { |f| f.write 'Yatta!' }
+      assert File.exist?(path)
+    end
+
+    refute File.exist?(path)
+
+    FakeFS.clear!
+
+    FakeFS do
+      refute File.exist?(path)
+    end
+  end
+
   def test_FakeFS_method_returns_value_of_yield
     result = FakeFS do
       File.open('myfile.txt', 'w') { |f| f.write 'Yatta!' }
