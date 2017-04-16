@@ -88,6 +88,7 @@ module FakeFS
       dir_levels.push dir if blk
 
       fail Errno::ENOENT, dir unless new_dir
+      fail Errno::ENOTDIR, dir unless File.directory?(dir)
 
       dir_levels.push dir unless blk
       yield(dir) if blk
