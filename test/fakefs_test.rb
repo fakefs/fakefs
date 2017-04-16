@@ -2556,6 +2556,16 @@ class FakeFSTest < Minitest::Test
     assert FileTest.readable?('dir'), 'directories are readable'
   end
 
+  def test_filetest_readable_returns_correct_values
+    assert !FileTest.readable?('not-here.txt'), 'missing files are not readable'
+
+    FileUtils.touch 'here.txt'
+    assert FileTest.readable?('here.txt'), 'existing files are readable'
+
+    FileUtils.mkdir 'dir'
+    assert FileTest.readable?('dir'), 'directories are readable'
+  end
+
   def test_filetest_writable_returns_correct_values
     refute FileTest.writable?('not-here.txt'), 'missing files are not writable'
 
