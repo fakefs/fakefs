@@ -6,8 +6,8 @@ rvm:
   - 2.1.1
   - 2.2.0
   - 2.3.1
-  - jruby-1.7.26
-  - jruby-9.1.6.0
+  - jruby-1.7.27
+  - jruby-9.1.10.0
 env:
   matrix:
     - TASK=test
@@ -15,8 +15,8 @@ env:
     - TASK=rubocop
 matrix:
   allow_failures:
-    - rvm: jruby-1.7.26
-    - rvm: jruby-9.1.6.0
+    - rvm: jruby-1.7.27
+    - rvm: jruby-9.1.10.0
 before_install:
   - gem --version
 script: bundle exec rake $TASK
