@@ -6,10 +6,13 @@ require 'bump/tasks'
 Rake::TestTask.new do |t|
   t.test_files = FileList['test/**/*test.rb']
   t.verbose = true
+  t.warning = true
 end
 
 require 'rspec/core/rake_task'
-RSpec::Core::RakeTask.new
+RSpec::Core::RakeTask.new do |t|
+  t.rspec_opts = '--warnings'
+end
 
 require 'rubocop/rake_task'
 RuboCop::RakeTask.new(:rubocop)
