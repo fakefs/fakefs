@@ -2814,7 +2814,7 @@ class FakeFSTest < Minitest::Test
     end
 
     def test_to_path
-      File.new('foo', 'w') do |f|
+      File.open('foo', 'w') do |f|
         assert_equal 'foo', f.to_path
       end
     end
