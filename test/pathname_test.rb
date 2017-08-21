@@ -1,7 +1,7 @@
 require_relative 'test_helper'
 
 # Fake Pathname test class
-class FakePathnameTest < Minitest::Test
+class PathnameTest < Minitest::Test
   include FakeFS
 
   def setup
