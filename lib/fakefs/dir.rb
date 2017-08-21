@@ -1,3 +1,5 @@
+require 'English'
+
 module FakeFS
   # FakeFs Dir class
   class Dir
