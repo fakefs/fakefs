@@ -1,7 +1,7 @@
 require_relative '../../test_helper'
 
 # File SysSeek test class
-class FileSysSeek < Minitest::Test
+class FakeFileSysSeekTest < Minitest::Test
   def setup
     FakeFS.activate!
     FakeFS::FileSystem.clear

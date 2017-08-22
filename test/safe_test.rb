@@ -1,7 +1,7 @@
 require_relative 'test_helper'
 
 # FakeFS safe test class
-class FakeFSSafeTest < Minitest::Test
+class SafeTest < Minitest::Test
   def setup
     FakeFS.deactivate!
   end

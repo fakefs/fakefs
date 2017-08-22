@@ -279,14 +279,15 @@ module FakeFS
 
     def self.chown(owner_int, group_int, filename)
       file = FileSystem.find(filename)
+
       if owner_int && owner_int != -1
-        owner_int.is_a?(Fixnum) || fail(TypeError,
-                                        "can't convert String into Integer")
+        owner_int.is_a?(Integer) || fail(TypeError,
+                                         "can't convert String into Integer")
         file.uid = owner_int
       end
       if group_int && group_int != -1
-        group_int.is_a?(Fixnum) || fail(TypeError,
-                                        "can't convert String into Integer")
+        group_int.is_a?(Integer) || fail(TypeError,
+                                         "can't convert String into Integer")
         file.gid = group_int
       end
     end
