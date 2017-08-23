@@ -870,9 +870,16 @@ class FakeFSTest < Minitest::Test
 
   if RUBY_VERSION >= '1.9'
     def test_file_object_has_default_external_encoding
+      old_verbose = $VERBOSE
+      $VERBOSE = nil
+      old_encoding = Encoding.default_external
+      Encoding.default_external = 'UTF-8'
       path = 'file.txt'
       File.open(path, 'w') { |f| f.write 'Yatta!' }
       assert_equal 'UTF-8', File.new(path).read.encoding.name
+    ensure
+      Encoding.default_external = old_encoding
+      $VERBOSE = old_verbose
     end
   end
 
