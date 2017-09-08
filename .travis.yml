@@ -20,4 +20,5 @@ matrix:
     - rvm: jruby-9.1.13.0
 before_install:
   - gem --version
+  - gem install bundler
 script: bundle exec rake $TASK
