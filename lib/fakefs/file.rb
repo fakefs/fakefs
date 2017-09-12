@@ -437,6 +437,9 @@ module FakeFS
       undef_method :to_channel
       undef_method :to_outputstream
       undef_method :to_inputstream
+      # JRuby 9.2.0.0
+      undef_method :to_output_stream if respond_to?(:to_output_stream)
+      undef_method :to_input_stream if respond_to?(:to_input_stream)
     end
 
     def is_a?(klass)
