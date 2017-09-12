@@ -1318,9 +1318,18 @@ class FakeFSTest < Minitest::Test
     :to_inputstream
   ].freeze
 
+  OMITTED_JRUBY_92_FILE_METHODS = [
+    :to_output_stream,
+    :to_input_stream
+  ].freeze
+
   def self.omitted_file_methods
     if defined?(JRUBY_VERSION)
-      OMITTED_MRI_FILE_METHODS + OMITTED_JRUBY_FILE_METHODS
+      if JRUBY_VERSION < '9.2'
+        OMITTED_MRI_FILE_METHODS + OMITTED_JRUBY_FILE_METHODS
+      else
+        OMITTED_MRI_FILE_METHODS + OMITTED_JRUBY_FILE_METHODS + OMITTED_JRUBY_92_FILE_METHODS
+      end
     else
       OMITTED_MRI_FILE_METHODS
     end
