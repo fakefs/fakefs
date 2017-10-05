@@ -37,4 +37,14 @@ class FakeFileStatTest < Minitest::Test
 
     assert_equal File.stat('my_symlink').size, File.stat('foo').size
   end
+
+  def test_stat_should_report_on_symlink_pointer_in_subdirectory
+    Dir.mkdir('tmp')
+    Dir.chdir('tmp') do
+      File.open('foo', 'w') { |f| f << 'some content' }
+      File.symlink 'foo', 'my_symlink'
+      assert_equal File.stat('my_symlink').size, File.stat('foo').size
+    end
+    assert_equal File.stat('tmp/my_symlink').size, File.stat('tmp/foo').size
+  end
 end
