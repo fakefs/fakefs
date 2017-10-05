@@ -12,7 +12,7 @@ module FakeFS
     end
 
     def entry
-      FileSystem.find(target)
+      FileSystem.find(File.expand_path(target.to_s, parent.to_s))
     end
 
     def delete
