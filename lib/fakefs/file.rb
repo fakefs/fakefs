@@ -55,6 +55,10 @@ module FakeFS
       alias_method :readable?, :exist?
       alias_method :writable?, :exist?
 
+      def identical?(one_path, another_path)
+        FileSystem.find(one_path) == FileSystem.find(another_path)
+      end
+
       # Assume nothing is sticky.
       def sticky?(_path)
         false
