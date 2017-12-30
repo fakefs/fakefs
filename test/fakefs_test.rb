@@ -627,6 +627,33 @@ class FakeFSTest < Minitest::Test
     assert_equal false, File.zero?(path)
   end
 
+  if RUBY_VERSION >= '2.4'
+    def test_empty_on_empty_file
+      path = 'file.txt'
+      File.open(path, 'w') do |f|
+        f << ''
+      end
+      assert_equal true, File.empty?(path)
+    end
+
+    def test_empty_on_non_empty_file
+      path = 'file.txt'
+      File.open(path, 'w') do |f|
+        f << 'Not empty'
+      end
+      assert_equal false, File.empty?(path)
+    end
+
+    def test_empty_on_non_existent_file
+      path = 'file_does_not_exist.txt'
+      assert_equal false, File.empty?(path)
+    end
+  else
+    def test_file_empty_not_implemented
+      assert_equal false, File.respond_to?(:empty?)
+    end
+  end
+
   def test_raises_error_on_mtime_if_file_does_not_exist
     assert_raises Errno::ENOENT do
       File.mtime('/path/to/file.txt')
