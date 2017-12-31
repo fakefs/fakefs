@@ -1268,6 +1268,48 @@ class FakeFSTest < Minitest::Test
     end
   end
 
+  if RUBY_VERSION >= '2.4'
+    def test_dir_empty_on_empty_directory
+      dir_path = 'an-empty-dir'
+      FileUtils.mkdir dir_path
+
+      assert_equal true, Dir.empty?(dir_path)
+    end
+
+    def test_dir_empty_on_directory_with_subdirectory
+      parent  = 'parent'
+      child = 'child'
+      path = File.join(parent, child)
+      FileUtils.mkdir_p path
+
+      assert_equal false, Dir.empty?(parent)
+    end
+
+    def test_dir_empty_on_directory_with_file
+      dir_path = 'a-non-empty-dir'
+      FileUtils.mkdir dir_path
+      file_path = File.join(dir_path, 'file.txt')
+      FileUtils.touch(file_path)
+
+      assert_equal false, Dir.empty?(dir_path)
+    end
+
+    def test_dir_empty_on_nonexistent_path
+      assert_raises(Errno::ENOENT) { Dir.empty?('/not/a/real/dir/') }
+    end
+
+    def test_dir_empty_on_file
+      path = 'file.txt'
+      FileUtils.touch(path)
+
+      assert_equal false, Dir.empty?(path)
+    end
+  else
+    def test_dir_empty_not_implemented
+      assert_equal false, Dir.respond_to?(:empty?)
+    end
+  end
+
   def test_should_report_pos_as_0_when_opening
     File.open('foo', 'w') do |f|
       f << 'foobar'
