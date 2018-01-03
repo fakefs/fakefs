@@ -1277,7 +1277,7 @@ class FakeFSTest < Minitest::Test
     end
 
     def test_dir_empty_on_directory_with_subdirectory
-      parent  = 'parent'
+      parent = 'parent'
       child = 'child'
       path = File.join(parent, child)
       FileUtils.mkdir_p path
@@ -2674,7 +2674,7 @@ class FakeFSTest < Minitest::Test
     end
   else
     def test_filetest_empty_not_implemented
-      refute FileTest.respond_to?(:empty?)  
+      refute FileTest.respond_to?(:empty?)
     end
   end
 

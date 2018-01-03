@@ -102,7 +102,7 @@ class PathnameTest < Minitest::Test
 
     def test_pathname_empty_on_non_empty_directory
       Dir.mkdir(@path)
-      file_path = File.join(@path, "a_file.txt")
+      file_path = File.join(@path, 'a_file.txt')
       FileUtils.touch(file_path)
 
       assert_equal false, @pathname.empty?
