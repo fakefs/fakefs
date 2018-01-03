@@ -26,5 +26,15 @@ module FakeFS
     def writable?(file_name)
       File.writable?(file_name)
     end
+
+    def zero?(file_name)
+      File.zero?(file_name)
+    end
+
+    if RUBY_VERSION > '2.4'
+      class << self
+        alias_method :empty?, :zero?
+      end
+    end
   end
 end

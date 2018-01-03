@@ -2650,6 +2650,34 @@ class FakeFSTest < Minitest::Test
     assert FileTest.writable?('dir'), 'directories are writable'
   end
 
+  def test_filetest_zero_returns_correct_values
+    refute FileTest.zero?('/not/a/real/directory')
+
+    filepath = 'here.txt'
+    FileUtils.touch filepath
+    assert FileTest.zero?(filepath)
+
+    File.write(filepath, 'content')
+    refute FileTest.zero?(filepath)
+  end
+
+  if RUBY_VERSION > '2.4'
+    def test_filetest_empty_returns_correct_values
+      refute FileTest.empty?('/not/a/real/directory')
+
+      filepath = 'here.txt'
+      FileUtils.touch filepath
+      assert FileTest.empty?(filepath)
+
+      File.write(filepath, 'content')
+      refute FileTest.empty?(filepath)
+    end
+  else
+    def test_filetest_empty_not_implemented
+      refute FileTest.respond_to?(:empty?)  
+    end
+  end
+
   def test_dir_mktmpdir
     # FileUtils.mkdir '/tmpdir'
 
