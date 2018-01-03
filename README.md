@@ -219,6 +219,5 @@ Meta
 Releasing
 ---------
 
-1. Update version in lib/fakefs/version.rb
-2. Commit it
-3. run `bundle exec rake publish`
+1. `bundle exec rake bump:patch` or minor/major
+2. `bundle exec rake release`
