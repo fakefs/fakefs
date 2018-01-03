@@ -33,7 +33,7 @@ module FakeFS
 
     if RUBY_VERSION > '2.4'
       class << self
-        alias :empty? :zero?
+        alias empty? zero?
       end
     end
   end
