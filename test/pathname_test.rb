@@ -92,4 +92,42 @@ class PathnameTest < Minitest::Test
     @pathname.unlink
     refute @pathname.exist?
   end
+
+  if RUBY_VERSION > '2.4'
+    def test_pathname_empty_on_empty_directory
+      Dir.mkdir(@path)
+
+      assert_equal true, @pathname.empty?
+    end
+
+    def test_pathname_empty_on_non_empty_directory
+      Dir.mkdir(@path)
+      file_path = File.join(@path, 'a_file.txt')
+      FileUtils.touch(file_path)
+
+      assert_equal false, @pathname.empty?
+    end
+
+    def test_pathname_empty_on_empty_file
+      File.write(@path, '')
+
+      assert_equal true, @pathname.empty?
+    end
+
+    def test_pathname_empty_on_non_empty_file
+      File.write(@path, "some\ncontent")
+
+      assert_equal false, @pathname.empty?
+    end
+
+    def test_pathname_empty_on_nonexistent_path
+      refute @pathname.exist?
+
+      assert_equal false, @pathname.empty?
+    end
+  else
+    def test_pathname_empty_not_implemented
+      assert_equal false, Pathname.instance_methods.include?(:empty?)
+    end
+  end
 end

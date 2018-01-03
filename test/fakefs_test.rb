@@ -627,6 +627,33 @@ class FakeFSTest < Minitest::Test
     assert_equal false, File.zero?(path)
   end
 
+  if RUBY_VERSION >= '2.4'
+    def test_empty_on_empty_file
+      path = 'file.txt'
+      File.open(path, 'w') do |f|
+        f << ''
+      end
+      assert_equal true, File.empty?(path)
+    end
+
+    def test_empty_on_non_empty_file
+      path = 'file.txt'
+      File.open(path, 'w') do |f|
+        f << 'Not empty'
+      end
+      assert_equal false, File.empty?(path)
+    end
+
+    def test_empty_on_non_existent_file
+      path = 'file_does_not_exist.txt'
+      assert_equal false, File.empty?(path)
+    end
+  else
+    def test_file_empty_not_implemented
+      assert_equal false, File.respond_to?(:empty?)
+    end
+  end
+
   def test_raises_error_on_mtime_if_file_does_not_exist
     assert_raises Errno::ENOENT do
       File.mtime('/path/to/file.txt')
@@ -1238,6 +1265,48 @@ class FakeFSTest < Minitest::Test
   if RUBY_VERSION >= '1.9'
     def test_dir_home
       assert_equal RealDir.home, Dir.home
+    end
+  end
+
+  if RUBY_VERSION >= '2.4'
+    def test_dir_empty_on_empty_directory
+      dir_path = 'an-empty-dir'
+      FileUtils.mkdir dir_path
+
+      assert_equal true, Dir.empty?(dir_path)
+    end
+
+    def test_dir_empty_on_directory_with_subdirectory
+      parent = 'parent'
+      child = 'child'
+      path = File.join(parent, child)
+      FileUtils.mkdir_p path
+
+      assert_equal false, Dir.empty?(parent)
+    end
+
+    def test_dir_empty_on_directory_with_file
+      dir_path = 'a-non-empty-dir'
+      FileUtils.mkdir dir_path
+      file_path = File.join(dir_path, 'file.txt')
+      FileUtils.touch(file_path)
+
+      assert_equal false, Dir.empty?(dir_path)
+    end
+
+    def test_dir_empty_on_nonexistent_path
+      assert_raises(Errno::ENOENT) { Dir.empty?('/not/a/real/dir/') }
+    end
+
+    def test_dir_empty_on_file
+      path = 'file.txt'
+      FileUtils.touch(path)
+
+      assert_equal false, Dir.empty?(path)
+    end
+  else
+    def test_dir_empty_not_implemented
+      assert_equal false, Dir.respond_to?(:empty?)
     end
   end
 
@@ -2579,6 +2648,34 @@ class FakeFSTest < Minitest::Test
 
     FileUtils.mkdir 'dir'
     assert FileTest.writable?('dir'), 'directories are writable'
+  end
+
+  def test_filetest_zero_returns_correct_values
+    refute FileTest.zero?('/not/a/real/directory')
+
+    filepath = 'here.txt'
+    FileUtils.touch filepath
+    assert FileTest.zero?(filepath)
+
+    File.write(filepath, 'content')
+    refute FileTest.zero?(filepath)
+  end
+
+  if RUBY_VERSION > '2.4'
+    def test_filetest_empty_returns_correct_values
+      refute FileTest.empty?('/not/a/real/directory')
+
+      filepath = 'here.txt'
+      FileUtils.touch filepath
+      assert FileTest.empty?(filepath)
+
+      File.write(filepath, 'content')
+      refute FileTest.empty?(filepath)
+    end
+  else
+    def test_filetest_empty_not_implemented
+      refute FileTest.respond_to?(:empty?)
+    end
   end
 
   def test_dir_mktmpdir

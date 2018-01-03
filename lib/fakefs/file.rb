@@ -110,6 +110,12 @@ module FakeFS
       exists?(path) && size(path) == 0
     end
 
+    if RUBY_VERSION >= '2.4'
+      class << self
+        alias_method :empty?, :zero?
+      end
+    end
+
     def self.const_missing(name)
       RealFile.const_get(name)
     end
