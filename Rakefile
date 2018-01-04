@@ -17,18 +17,16 @@ end
 require 'rubocop/rake_task'
 RuboCop::RakeTask.new(:rubocop)
 
-task default: [:test, :spec, :rubocop] # keep in sync with .travis.yml
-
-desc 'Push a new version to rubygems.org'
-task publish: [:rubocop, :test, :spec, :rubocop, :update_contributors, :release]
+task default: File.read('.travis.yml').scan(/TASK=(\w+)/).flatten
 
 desc 'Update contributors'
 task :update_contributors do
-  git_rank_contributors = "#{File.dirname(File.expand_path(__FILE__))}/etc/git-rank-contributors"
+  git_rank_contributors = File.expand_path('../etc/git-rank-contributors', __FILE__)
+  sh "#{git_rank_contributors} > CONTRIBUTORS && git add CONTRIBUTORS"
+end
 
-  sh "#{git_rank_contributors} > CONTRIBUTORS"
-  if `git status | grep CONTRIBUTORS`.strip.length > 0
-    sh 'git add CONTRIBUTORS'
-    sh "git commit -m 'Update contributors for release'"
+namespace :bump do
+  Bump::Bump::BUMPS.each do |step|
+    task step => :update_contributors
   end
 end
