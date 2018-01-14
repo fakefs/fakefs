@@ -2205,6 +2205,21 @@ class FakeFSTest < Minitest::Test
     test.each { |t| assert yielded.include?(t) }
   end
 
+  def test_directory_children
+    test = ['.', '..', 'file_1', 'file_2', 'file_3', 'file_4', 'file_5']
+    test_with_files_only = test - %w(. ..)
+
+    FileUtils.mkdir_p('/this/path/should/be/here')
+
+    test.each do |f|
+      FileUtils.touch("/this/path/should/be/here/#{f}")
+    end
+
+    yielded = Dir.children('/this/path/should/be/here')
+    assert yielded.size == test_with_files_only.size
+    test_with_files_only.each { |t| assert yielded.include?(t) }
+  end
+
   def test_directory_entries_works_with_trailing_slash
     test = ['.', '..', 'file_1', 'file_2', 'file_3', 'file_4', 'file_5']
 
@@ -2226,6 +2241,25 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_directory_foreach
+    test = ['.', '..', 'file_1', 'file_2', 'file_3', 'file_4', 'file_5']
+    test_with_files_only = test - %w(. ..)
+
+    FileUtils.mkdir_p('/this/path/should/be/here')
+
+    test.each do |f|
+      FileUtils.touch("/this/path/should/be/here/#{f}")
+    end
+
+    yielded = []
+    Dir.each_child('/this/path/should/be/here') do |dir|
+      yielded << dir
+    end
+
+    assert yielded.size == test_with_files_only.size
+    test_with_files_only.each { |t| assert yielded.include?(t) }
+  end
+
+  def test_directory_each_child
     test = ['.', '..', 'file_1', 'file_2', 'file_3', 'file_4', 'file_5']
 
     FileUtils.mkdir_p('/this/path/should/be/here')
