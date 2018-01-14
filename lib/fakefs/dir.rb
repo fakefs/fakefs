@@ -90,6 +90,17 @@ module FakeFS
       Dir.new(dirname).map { |file| File.basename(file) }
     end
 
+    def self.children(dirname, opts = {})
+      entries(dirname, opts) - %w(. ..)
+    end
+
+    def self.each_child(dirname, &_block)
+      Dir.open(dirname) do |file|
+        next if %w(. ..).include?(file)
+        yield file
+      end
+    end
+
     if RUBY_VERSION >= '2.4'
       def self.empty?(dirname)
         _check_for_valid_file(dirname)
