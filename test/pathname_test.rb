@@ -93,6 +93,12 @@ class PathnameTest < Minitest::Test
     refute @pathname.exist?
   end
 
+  def test_file_is_written
+    @pathname.write(@path, "some\ncontent")
+
+    assert_equal "some\ncontent", @pathname.read
+  end
+
   if RUBY_VERSION > '2.4'
     def test_pathname_empty_on_empty_directory
       Dir.mkdir(@path)
