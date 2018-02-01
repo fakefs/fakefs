@@ -789,6 +789,13 @@ module FakeFS
       def split
         File.split(@path).map { |f| self.class.new(f) }
       end
+
+      # See <tt>File.write</tt>. Returns the number of bytes written.
+      def write(path, data)
+        File.open(path, 'wb') do |file|
+          return file.write(data)
+        end
+      end
     end
 
     # Pathname class
