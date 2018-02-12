@@ -432,6 +432,7 @@ module FakeFS
         other = Pathname.new(other) unless other.is_a?(Pathname)
         Pathname.new(plus(@path, other.to_s))
       end
+      alias_method :/, :+
 
       def plus(path1, path2) # -> path
         prefix2 = path2
