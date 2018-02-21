@@ -108,7 +108,7 @@ module FakeFS
         dst_file = FileSystem.find(dest)
         src_file = FileSystem.find(source)
 
-        fail Errno::ENOENT, source unless src_file
+        fail Errno::ENOENT, source.to_s unless src_file
 
         if dst_file && File.directory?(dst_file)
           FileSystem.add(
