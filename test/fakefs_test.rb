@@ -182,6 +182,12 @@ class FakeFSTest < Minitest::Test
     assert File.directory?(path_name)
   end
 
+  def test_throws_a_correct_error_with_missing_pathname
+    assert_raises Errno::ENOENT do
+      FileUtils.cp(Pathname.new("one"), Pathname.new("two"))
+    end
+  end
+
   def test_knows_directories_are_directories
     FileUtils.mkdir_p(path = '/path/to/dir')
     assert File.directory?(path)
