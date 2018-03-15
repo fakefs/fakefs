@@ -1371,7 +1371,7 @@ class FakeFSTest < Minitest::Test
     :nonblock?, :nonblock=, :nonblock,
 
     # omit methods from io/wait
-    :nread,
+    :nread, :pwrite, :pread,
     :ready?,
     :wait, :wait_readable, :wait_writable
   ].freeze
