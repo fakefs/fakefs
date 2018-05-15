@@ -32,18 +32,19 @@ Metrics/BlockNesting:
 Metrics/AbcSize:
   Enabled: false
 
-Lint/Eval:
+Naming/PredicateName:
+  Exclude:
+    - lib/fakefs/file.rb
+Naming/MethodName:
+  Enabled: false
+
+Security/Eval:
   Enabled: false
 
 Performance/StringReplacement:
   Enabled: false
 
 Style/ParallelAssignment:
-  Enabled: false
-Style/PredicateName:
-  Exclude:
-    - lib/fakefs/file.rb
-Style/MethodName:
   Enabled: false
 Style/ModuleFunction:
   Enabled: false
