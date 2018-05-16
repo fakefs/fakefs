@@ -15,7 +15,7 @@ module FakeFS
         case level
         when 0
           case chr
-          when '{'
+          when '{' # rubocop:disable Lint/EmptyWhen
             # noop
           else
             part << chr
@@ -25,7 +25,7 @@ module FakeFS
           when ','
             result << part
             part = ''
-          when '}'
+          when '}' # rubocop:disable Lint/EmptyWhen
             # noop
           else
             part << chr
@@ -63,13 +63,15 @@ module FakeFS
     def regexp(pattern)
       pattern = pattern.to_s
 
-      regex_body = pattern.gsub('.', '\.')
-                          .gsub('+') { '\+' }
-                          .gsub('?', '.')
-                          .gsub('*', '.*')
-                          .gsub('(', '\(')
-                          .gsub(')', '\)')
-                          .gsub('$', '\$')
+      regex_body =
+        pattern
+        .gsub('.', '\.')
+        .gsub('+') { '\+' }
+        .gsub('?', '.')
+        .gsub('*', '.*')
+        .gsub('(', '\(')
+        .gsub(')', '\)')
+        .gsub('$', '\$')
 
       # This matches nested braces and attempts to do something correct most of the time
       # There are known issues (i.e. {,*,*/*}) that cannot be resolved with out a total

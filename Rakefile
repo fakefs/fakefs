@@ -21,7 +21,7 @@ task default: File.read('.travis.yml').scan(/TASK=(\w+)/).flatten
 
 desc 'Update contributors'
 task :update_contributors do
-  git_rank_contributors = File.expand_path('../etc/git-rank-contributors', __FILE__)
+  git_rank_contributors = File.expand_path('etc/git-rank-contributors', __dir__)
   sh "#{git_rank_contributors} > CONTRIBUTORS && git add CONTRIBUTORS"
 end
 

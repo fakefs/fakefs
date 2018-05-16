@@ -1,5 +1,6 @@
 AllCops:
   DisplayCopNames: true
+  TargetRubyVersion: 2.3
   Exclude:
     - files/**/*
     - templates/**/*
@@ -26,19 +27,23 @@ Metrics/BlockNesting:
   Enabled: false
 Metrics/AbcSize:
   Enabled: false
+Metrics/BlockLength:
+  Enabled: false
 
-Lint/Eval:
+Naming/PredicateName:
+  Exclude:
+    - lib/fakefs/file.rb
+Naming/MethodName:
+  Enabled: false
+
+# TODO: only test ?
+Security/Eval:
   Enabled: false
 
 Performance/StringReplacement:
   Enabled: false
 
 Style/ParallelAssignment:
-  Enabled: false
-Style/PredicateName:
-  Exclude:
-    - lib/fakefs/file.rb
-Style/MethodName:
   Enabled: false
 Style/ModuleFunction:
   Enabled: false
@@ -49,4 +54,14 @@ Style/TrivialAccessors:
 Style/GuardClause:
   Enabled: false
 Style/WordArray:
+  EnforcedStyle: brackets
+Style/NumericPredicate:
   Enabled: false
+Style/IfUnlessModifier:
+  Enabled: false
+Style/SpecialGlobalVars:
+  EnforcedStyle: use_perl_names
+Style/FrozenStringLiteralComment:
+  Enabled: false # TODO: enable
+Style/CommentedKeyword:
+  Enabled: false # TODO: enable

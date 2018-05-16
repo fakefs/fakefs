@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 require_relative 'test_helper'
 
 # FakeFS tests
@@ -34,7 +33,7 @@ class FakeFSTest < Minitest::Test
 
   def xtest_can_be_initialized_with_an_existing_directory
     fs = FakeFS::FileSystem
-    fs.clone(File.expand_path(File.dirname(__FILE__))).inspect
+    fs.clone(__dir__).inspect
     assert_equal 1, fs.files.size
   end
 
@@ -54,7 +53,7 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_can_create_a_list_of_directories_with_file_utils_mkdir_p
-    FileUtils.mkdir_p(%w(/path/to/dir1 /path/to/dir2))
+    FileUtils.mkdir_p(['/path/to/dir1', '/path/to/dir2'])
     assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir1']
     assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir2']
   end
@@ -72,7 +71,7 @@ class FakeFSTest < Minitest::Test
 
   def test_can_create_a_list_of_directories_with_file_utils_mkdir
     FileUtils.mkdir_p('/path/to/dir')
-    FileUtils.mkdir(%w(/path/to/dir/subdir1 /path/to/dir/subdir2))
+    FileUtils.mkdir(['/path/to/dir/subdir1', '/path/to/dir/subdir2'])
     assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']['subdir1']
     assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']['subdir2']
   end
@@ -144,8 +143,8 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_can_delete_multiple_files
-    FileUtils.touch(%w(foo bar))
-    FileUtils.rm(%w(foo bar))
+    FileUtils.touch(['foo', 'bar'])
+    FileUtils.rm(['foo', 'bar'])
     assert File.exist?('foo') == false
     assert File.exist?('bar') == false
   end
@@ -368,7 +367,7 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_raises_ENOENT_trying_to_create_tilde_referenced_nonexistent_dir
-    path = "~/fakefs_test_#{$PID}_0000"
+    path = "~/fakefs_test_#{$$}_0000"
 
     path = path.succ while File.exist? path
 
@@ -815,7 +814,7 @@ class FakeFSTest < Minitest::Test
     path = 'file.txt'
     File.open(path, 'w') do |f|
       f.puts 'Yatta!', 'Gatta!'
-      f.puts %w(woot toot)
+      f.puts ['woot', 'toot']
     end
 
     assert_equal ["Yatta!\n", "Gatta!\n", "woot\n", "toot\n"], File.readlines(path)
@@ -842,7 +841,7 @@ class FakeFSTest < Minitest::Test
   def test_can_read_with_File_foreach
     path = 'file.txt'
     File.open(path, 'w') do |f|
-      f.puts %w(flub dub crub)
+      f.puts ['flub', 'dub', 'crub']
     end
 
     read_lines = []
@@ -853,7 +852,7 @@ class FakeFSTest < Minitest::Test
   def test_File_foreach_returns_iterator
     path = 'file.txt'
     File.open(path, 'w') do |f|
-      f.puts %w(flub dub shrub)
+      f.puts ['flub', 'dub', 'shrub']
     end
 
     read_lines = File.foreach(path).to_a
@@ -1063,7 +1062,7 @@ class FakeFSTest < Minitest::Test
     File.open('/path/foo', 'w') { |f| f.write 'foo' }
     File.open('/path/foobar', 'w') { |f| f.write 'foo' }
     assert_equal ['/path'], FileUtils.chown_R(username, groupname, '/path')
-    %w(/path /path/foo /path/foobar).each do |f|
+    ['/path', '/path/foo', '/path/foobar'].each do |f|
       assert_equal File.stat(f).uid, Process.uid
       assert_equal File.stat(f).gid, Process.gid
     end
@@ -1127,7 +1126,7 @@ class FakeFSTest < Minitest::Test
 
     FileUtils.copy_entry '/path', '/copied_path'
 
-    assert_equal %w(/copied_path/bar /copied_path/bar/baz /copied_path/foo /copied_path/foobar), Dir.glob('/copied_path/**/*')
+    assert_equal ['/copied_path/bar', '/copied_path/bar/baz', '/copied_path/foo', '/copied_path/foobar'], Dir.glob('/copied_path/**/*')
   end
 
   def test_dir_globs_paths
@@ -1145,7 +1144,7 @@ class FakeFSTest < Minitest::Test
     assert_equal ['/path/.bar'], Dir['**/{.*}']
     assert_equal ['/path/.bar'], Dir['/path**/{.*}']
     assert_equal ['/path/.bar'], Dir['/path/{.*}']
-    assert_equal %w(/path/bar /path/bar2 /path/foo /path/foobar), Dir['/path/*']
+    assert_equal ['/path/bar', '/path/bar2', '/path/foo', '/path/foobar'], Dir['/path/*']
 
     assert_equal ['/path/bar/baz'], Dir['/path/bar/*']
     assert_equal ['/path/foo'], Dir['/path/foo']
@@ -1165,7 +1164,7 @@ class FakeFSTest < Minitest::Test
 
     FileUtils.cp_r '/path', '/otherpath'
 
-    assert_equal %w(/otherpath/foo /otherpath/foobar /path/foo /path/foobar), Dir['/*/foo*']
+    assert_equal ['/otherpath/foo', '/otherpath/foobar', '/path/foo', '/path/foobar'], Dir['/*/foo*']
 
     assert_equal ['/path/bar', '/path/foo'], Dir['/path/{foo,bar}']
 
@@ -1181,7 +1180,7 @@ class FakeFSTest < Minitest::Test
 
   def test_file_utils_cp_allows_verbose_option
     File.open('foo', 'w') { |f| f << 'TEST' }
-    assert_equal "cp foo bar\n", capture_stderr { FileUtils.cp 'foo', 'bar', verbose: true }
+    assert_equal("cp foo bar\n", capture_stderr { FileUtils.cp 'foo', 'bar', verbose: true })
   end
 
   def test_file_utils_cp_allows_noop_option
@@ -1198,7 +1197,7 @@ class FakeFSTest < Minitest::Test
 
   def test_file_utils_cp_r_allows_verbose_option
     FileUtils.touch '/foo'
-    assert_equal "cp -r /foo /bar\n", capture_stderr { FileUtils.cp_r '/foo', '/bar', verbose: true }
+    assert_equal("cp -r /foo /bar\n", capture_stderr { FileUtils.cp_r '/foo', '/bar', verbose: true })
   end
 
   def test_file_utils_cp_r_allows_noop_option
@@ -1387,9 +1386,9 @@ class FakeFSTest < Minitest::Test
     :to_inputstream
   ].freeze
 
-  OMITTED_JRUBY_92_FILE_METHODS = [
-    :to_output_stream,
-    :to_input_stream
+  OMITTED_JRUBY_92_FILE_METHODS = %i[
+    to_output_stream
+    to_input_stream
   ].freeze
 
   def self.omitted_file_methods
@@ -1590,9 +1589,9 @@ class FakeFSTest < Minitest::Test
 
   def test_expand_path_with_parent_dir
     FakeFS.deactivate!
-    real = File.expand_path('../other.file', __FILE__)
+    real = File.expand_path('other.file', __dir__)
     FakeFS.activate!
-    fake = File.expand_path('../other.file', __FILE__)
+    fake = File.expand_path('other.file', __dir__)
     assert_equal real, fake
   end
 
@@ -1622,7 +1621,7 @@ class FakeFSTest < Minitest::Test
       FileUtils.mv 'blafgag', 'foo'
     end
     exception = assert_raises(Errno::ENOENT) do
-      FileUtils.mv %w(foo bar), 'destdir'
+      FileUtils.mv ['foo', 'bar'], 'destdir'
     end
     assert_equal 'No such file or directory - foo', exception.message
   end
@@ -1658,14 +1657,14 @@ class FakeFSTest < Minitest::Test
     File.open('foo', 'w') { |f| f.write 'bar' }
     File.open('baz', 'w') { |f| f.write 'binky' }
     FileUtils.mkdir_p 'destdir'
-    FileUtils.mv %w(foo baz), 'destdir'
+    FileUtils.mv ['foo', 'baz'], 'destdir'
     assert_equal('bar', File.open('destdir/foo') { |f| f.read })
     assert_equal('binky', File.open('destdir/baz') { |f| f.read })
   end
 
   def test_mv_accepts_verbose_option
     FileUtils.touch 'foo'
-    assert_equal "mv foo bar\n", capture_stderr { FileUtils.mv 'foo', 'bar', verbose: true }
+    assert_equal("mv foo bar\n", capture_stderr { FileUtils.mv 'foo', 'bar', verbose: true })
   end
 
   def test_mv_accepts_noop_option
@@ -1692,8 +1691,8 @@ class FakeFSTest < Minitest::Test
 
   def test_mv_ignores_failures_when_using_force
     FileUtils.mkdir_p 'dir/stuff'
-    FileUtils.touch %w(stuff other)
-    FileUtils.mv %w(stuff other), 'dir', force: true
+    FileUtils.touch ['stuff', 'other']
+    FileUtils.mv ['stuff', 'other'], 'dir', force: true
     assert File.exist?('stuff'), 'failed move remains where it was'
     assert File.exist?('dir/other'), 'successful one is moved'
     refute File.exist?('other'), 'successful one is moved'
@@ -1721,7 +1720,7 @@ class FakeFSTest < Minitest::Test
     File.open('foo', 'w') { |f| f.write 'footext' }
     File.open('bar', 'w') { |f| f.write 'bartext' }
     FileUtils.mkdir_p 'destdir'
-    FileUtils.cp(%w(foo bar), 'destdir')
+    FileUtils.cp(['foo', 'bar'], 'destdir')
 
     assert_equal 'footext', File.read('destdir/foo')
     assert_equal 'bartext', File.read('destdir/bar')
@@ -1731,7 +1730,7 @@ class FakeFSTest < Minitest::Test
     File.open('foo', 'w') { |f| f.write 'footext' }
 
     exception = assert_raises(Errno::ENOTDIR) do
-      FileUtils.cp(%w(foo), 'baz')
+      FileUtils.cp(['foo'], 'baz')
     end
     assert_equal 'Not a directory - baz', exception.to_s
   end
@@ -1800,18 +1799,18 @@ class FakeFSTest < Minitest::Test
     FileUtils.mkdir_p 'subdir'
     File.open('foo', 'w') { |f| f.write 'footext' }
     File.open('bar', 'w') { |f| f.write 'bartext' }
-    FileUtils.cp_r(%w(foo bar), 'subdir')
+    FileUtils.cp_r(['foo', 'bar'], 'subdir')
 
     assert_equal 'footext', File.open('subdir/foo') { |f| f.read }
     assert_equal 'bartext', File.open('subdir/bar') { |f| f.read }
   end
 
   def test_cp_r_array_of_directories
-    %w(foo bar subdir).each { |d| FileUtils.mkdir_p d }
+    ['foo', 'bar', 'subdir'].each { |d| FileUtils.mkdir_p d }
     File.open('foo/baz', 'w') { |f| f.write 'baztext' }
     File.open('bar/quux', 'w') { |f| f.write 'quuxtext' }
 
-    FileUtils.cp_r(%w(foo bar), 'subdir')
+    FileUtils.cp_r(['foo', 'bar'], 'subdir')
     assert_equal 'baztext', File.open('subdir/foo/baz') { |f| f.read }
     assert_equal 'quuxtext', File.open('subdir/bar/quux') { |f| f.read }
   end
@@ -1842,7 +1841,7 @@ class FakeFSTest < Minitest::Test
 
     assert File.exist?('/path/bar/baz')
     FileUtils.rm_rf '/path/bar/baz'
-    assert_equal %w(/path/bar/bar), Dir['/path/bar/*']
+    assert_equal ['/path/bar/bar'], Dir['/path/bar/*']
   end
 
   def test_clone_clones_normal_files
@@ -1972,7 +1971,7 @@ class FakeFSTest < Minitest::Test
   def test_files_can_be_touched
     FileUtils.touch('touched_file')
     assert File.exist?('touched_file')
-    list = %w(newfile another)
+    list = ['newfile', 'another']
     FileUtils.touch(list)
     list.each { |fp| assert(File.exist?(fp)) }
   end
@@ -2013,12 +2012,12 @@ class FakeFSTest < Minitest::Test
     assert dir.close.nil?
 
     assert_raises(IOError) do
-      dir.each { |d| d }
+      dir.each { |_| }
     end
   end
 
   def test_directory_each_with_block
-    files = %w(. .. file_1 file_2 file_3)
+    files = ['.', '..', 'file_1', 'file_2', 'file_3']
     dir_path = '/this/path/should/be/here'
     FileUtils.mkdir_p(dir_path)
     files.each { |f| FileUtils.touch("#{dir_path}/#{f}") }
@@ -2031,7 +2030,7 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_directory_each_without_block
-    files = %w(. .. file_1 file_2 file_3)
+    files = ['.', '..', 'file_1', 'file_2', 'file_3']
     dir_path = '/this/path/should/be/here'
     FileUtils.mkdir_p(dir_path)
     files.each { |f| FileUtils.touch("#{dir_path}/#{f}") }
@@ -2207,7 +2206,7 @@ class FakeFSTest < Minitest::Test
 
   def test_directory_children
     test = ['.', '..', 'file_1', 'file_2', 'file_3', 'file_4', 'file_5']
-    test_with_files_only = test - %w(. ..)
+    test_with_files_only = test - ['.', '..']
 
     FileUtils.mkdir_p('/this/path/should/be/here')
 
@@ -2242,7 +2241,7 @@ class FakeFSTest < Minitest::Test
 
   def test_directory_foreach
     test = ['.', '..', 'file_1', 'file_2', 'file_3', 'file_4', 'file_5']
-    test_with_files_only = test - %w(. ..)
+    test_with_files_only = test - ['.', '..']
 
     FileUtils.mkdir_p('/this/path/should/be/here')
 

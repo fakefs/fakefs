@@ -15,7 +15,7 @@ def capture_stderr
 
   yield
 
-  return $stderr.string
+  $stderr.string
 ensure
   $stderr = real_stderr
 

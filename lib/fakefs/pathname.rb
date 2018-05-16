@@ -90,7 +90,7 @@ module FakeFS
 
       # to_path is implemented so Pathname objects are usable
       # with File.open, etc.
-      alias_method TO_PATH, :to_s # rubocop:disable Style/Alias
+      alias_method TO_PATH, :to_s
 
       def inspect # :nodoc:
         "#<#{self.class}:#{@path}>"
@@ -98,21 +98,27 @@ module FakeFS
 
       # Return a pathname which is substituted by String#sub.
       def sub(pattern, *rest, &block)
-        if block
-          path = @path.sub(pattern, *rest) do |*args|
-            begin
-              old = Thread.current[:pathname_sub_matchdata]
-              Thread.current[:pathname_sub_matchdata] = $LAST_MATCH_INFO
-              eval('$~ = Thread.current[:pathname_sub_matchdata]',
-                   block.binding)
-            ensure
-              Thread.current[:pathname_sub_matchdata] = old
+        path =
+          if block
+            @path.sub(pattern, *rest) do |*args|
+              begin
+                old = Thread.current[:pathname_sub_matchdata]
+                Thread.current[:pathname_sub_matchdata] = $~
+                # TODO: rewrite without using eval
+                eval(
+                  '$~ = Thread.current[:pathname_sub_matchdata]',
+                  block.binding,
+                  __FILE__,
+                  __LINE__ - 3
+                )
+              ensure
+                Thread.current[:pathname_sub_matchdata] = old
+              end
+              yield(*args)
             end
-            yield(*args)
+          else
+            @path.sub(pattern, *rest)
           end
-        else
-          path = @path.sub(pattern, *rest)
-        end
         self.class.new(path)
       end
 
@@ -200,7 +206,7 @@ module FakeFS
         while (r = chop_basename(pre))
           pre, base = r
           case base
-          when '.'
+          when '.' # rubocop:disable Lint/EmptyWhen
           when '..'
             names.unshift base
           else
@@ -530,7 +536,7 @@ module FakeFS
         with_directory = false if @path == '.'
         result = []
         Dir.foreach(@path) do |e|
-          next if e == '.' || e == '..'
+          next if ['.', '..'].include?(e)
           result <<
             if with_directory
               self.class.new(File.join(@path, e))
@@ -569,8 +575,8 @@ module FakeFS
       #   #   #<Pathname:src>
       #   #   #<Pathname:man>
       #
-      def each_child(with_directory = true, &b)
-        children(with_directory).each(&b)
+      def each_child(with_directory = true, &block)
+        children(with_directory).each(&block)
       end
 
       #
