@@ -141,19 +141,11 @@ class FileStatTest < Minitest::Test
   end
 
   def test_responds_to_realpath_only_on_1_9
-    if RUBY_VERSION > '1.9'
-      assert File.respond_to?(:realpath)
-    else
-      refute File.respond_to?(:realpath)
-    end
+    assert File.respond_to?(:realpath)
   end
 
   def test_responds_to_realdirpath_only_on_1_9_2_and_greater
-    if RUBY_VERSION >= '1.9.2'
-      assert File.respond_to?(:realdirpath)
-    else
-      refute File.respond_to?(:realdirpath)
-    end
+    assert File.respond_to?(:realdirpath)
   end
 
   def test_file_path_exists

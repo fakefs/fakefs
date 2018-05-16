@@ -99,10 +99,8 @@ class PathnameTest < Minitest::Test
     assert_equal "some\ncontent", @pathname.read
   end
 
-  if RUBY_VERSION >= '2.2'
-    def test_pathname_slash
-      assert_equal Pathname.new('foo') / 'bar', Pathname.new('foo/bar')
-    end
+  def test_pathname_slash
+    assert_equal Pathname.new('foo') / 'bar', Pathname.new('foo/bar')
   end
 
   if RUBY_VERSION > '2.4'

@@ -7,12 +7,10 @@ RSpec.configure do |c|
   c.disable_monkey_patching!
 end
 
-if RUBY_VERSION >= '2.1'
-  RSpec.describe 'Find.find', fakefs: true do
-    it 'does not give an ArgumentError' do
-      FileUtils.mkdir_p('/tmp/foo')
-      found = Find.find('/tmp').to_a
-      expect(found).to eq(['/tmp', '/tmp/foo'])
-    end
+RSpec.describe 'Find.find', fakefs: true do
+  it 'does not give an ArgumentError' do
+    FileUtils.mkdir_p('/tmp/foo')
+    found = Find.find('/tmp').to_a
+    expect(found).to eq(['/tmp', '/tmp/foo'])
   end
 end

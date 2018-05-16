@@ -317,7 +317,7 @@ module FakeFS
     # FakeFS Stat class
     class Stat
       attr_reader :ctime, :mtime, :atime, :mode, :uid, :gid
-      attr_reader :birthtime if RUBY_VERSION >= '2.2.0'
+      attr_reader :birthtime
 
       def initialize(file, lstat = false)
         raise(Errno::ENOENT, file) unless File.exist?(file)
@@ -521,103 +521,90 @@ module FakeFS
       @file.gid = group_int
     end
 
-    if RUBY_VERSION >= '1.9'
-      def self.realpath(*args)
-        RealFile.realpath(*args)
-      end
-
-      def binmode?
-        raise NotImplementedError
-      end
-
-      def close_on_exec=(_bool)
-        raise NotImplementedError
-      end
-
-      def close_on_exec?
-        raise NotImplementedError
-      end
-
-      def to_path
-        @path
-      end
+    def self.realpath(*args)
+      RealFile.realpath(*args)
     end
 
-    if RUBY_VERSION >= '1.9.1'
-      def self.absolute_path(file_name, dir_name = Dir.getwd)
-        RealFile.absolute_path(file_name, dir_name)
-      end
+    def binmode?
+      raise NotImplementedError
     end
 
-    if RUBY_VERSION >= '1.9.2'
-      attr_accessor :autoclose
-
-      def autoclose?
-        @autoclose ? true : false
-      end
-
-      alias fdatasync flush
-
-      def size
-        File.size(@path)
-      end
-
-      def self.realdirpath(*args)
-        RealFile.realdirpath(*args)
-      end
+    def close_on_exec=(_bool)
+      raise NotImplementedError
     end
 
-    if RUBY_VERSION >= '1.9.3'
-      def advise(_advice, _offset = 0, _len = 0); end
+    def close_on_exec?
+      raise NotImplementedError
+    end
 
-      def self.write(filename, contents, offset = nil, open_args = {})
-        offset, open_args = nil, offset if offset.is_a?(Hash)
-        mode = offset ? 'a' : 'w'
-        if open_args.any?
-          if open_args[:open_args]
-            args = [filename, *open_args[:open_args]]
-          else
-            mode = open_args[:mode] || mode
-            args = [filename, mode, open_args]
-          end
+    def to_path
+      @path
+    end
+
+    def self.absolute_path(file_name, dir_name = Dir.getwd)
+      RealFile.absolute_path(file_name, dir_name)
+    end
+
+    attr_accessor :autoclose
+
+    def autoclose?
+      @autoclose ? true : false
+    end
+
+    alias fdatasync flush
+
+    def size
+      File.size(@path)
+    end
+
+    def self.realdirpath(*args)
+      RealFile.realdirpath(*args)
+    end
+
+    def advise(_advice, _offset = 0, _len = 0); end
+
+    def self.write(filename, contents, offset = nil, open_args = {})
+      offset, open_args = nil, offset if offset.is_a?(Hash)
+      mode = offset ? 'a' : 'w'
+      if open_args.any?
+        if open_args[:open_args]
+          args = [filename, *open_args[:open_args]]
         else
-          args = [filename, mode]
+          mode = open_args[:mode] || mode
+          args = [filename, mode, open_args]
         end
-        if offset
-          open(*args) do |f| # rubocop:disable Security/Open
-            f.seek(offset)
-            f.write(contents)
-          end
-        else
-          open(*args) do |f| # rubocop:disable Security/Open
-            f << contents
-          end
-        end
-
-        contents.length
+      else
+        args = [filename, mode]
       end
-    end
-
-    if RUBY_VERSION >= '2.2.0'
-      def self.birthtime(path)
-        if exists?(path)
-          FileSystem.find(path).birthtime
-        else
-          raise Errno::ENOENT
+      if offset
+        open(*args) do |f| # rubocop:disable Security/Open
+          f.seek(offset)
+          f.write(contents)
+        end
+      else
+        open(*args) do |f| # rubocop:disable Security/Open
+          f << contents
         end
       end
 
-      def birthtime
-        self.class.birthtime(@path)
+      contents.length
+    end
+
+    def self.birthtime(path)
+      if exists?(path)
+        FileSystem.find(path).birthtime
+      else
+        raise Errno::ENOENT
       end
+    end
+
+    def birthtime
+      self.class.birthtime(@path)
     end
 
     def read(length = nil, buf = '')
       read_buf = super(length, buf)
-      # change to binary only for ruby 1.9.3
-      if read_buf.respond_to?(:force_encoding) && binary_mode?
-        read_buf = read_buf.force_encoding('ASCII-8BIT')
-      end
+      read_buf.force_encoding('ASCII-8BIT') if binary_mode?
       read_buf
     end
 

@@ -147,15 +147,7 @@ module FakeFS
 
       Array(src).each do |source|
         dir = FileSystem.find(source)
-        unless dir
-          if RUBY_VERSION >= '1.9.1'
-            raise Errno::ENOENT, source
-          else
-            # This error sucks, but it conforms to the original Ruby
-            # method.
-            raise "unknown file type: #{source}"
-          end
-        end
+        raise Errno::ENOENT, source unless dir
 
         new_dir = FileSystem.find(dest)
         raise Errno::EEXIST, dest if new_dir && !File.directory?(dest)
