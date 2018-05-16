@@ -140,10 +140,8 @@ module FakeFS
       block_given? ? files.each { |file| block.call(file) } : files
     end
 
-    if RUBY_VERSION >= '1.9'
-      def self.home(user = nil)
-        RealDir.home(user)
-      end
+    def self.home(user = nil)
+      RealDir.home(user)
     end
 
     def self.mkdir(string, _integer = 0)
@@ -166,59 +164,57 @@ module FakeFS
       FileSystem.current_dir.to_s
     end
 
-    if RUBY_VERSION >= '2.1'
-      # Tmpname module
-      module Tmpname # :nodoc:
-        module_function
+    # Tmpname module
+    module Tmpname # :nodoc:
+      module_function
 
-        def tmpdir
-          Dir.tmpdir
-        end
+      def tmpdir
+        Dir.tmpdir
+      end
 
-        def make_tmpname(prefix_suffix, suffix)
-          case prefix_suffix
-          when String
-            prefix = prefix_suffix
-            suffix = ''
-          when Array
-            prefix = prefix_suffix[0]
-            suffix = prefix_suffix[1]
-          else
-            raise ArgumentError, "unexpected prefix_suffix: #{prefix_suffix.inspect}"
-          end
-          t = Time.now.strftime('%Y%m%d')
-          path = "#{prefix}#{t}-#{$$}-#{rand(0x100000000).to_s(36)}"
-          path << "-#{suffix}" if suffix
-          path << suffix
+      def make_tmpname(prefix_suffix, suffix)
+        case prefix_suffix
+        when String
+          prefix = prefix_suffix
+          suffix = ''
+        when Array
+          prefix = prefix_suffix[0]
+          suffix = prefix_suffix[1]
+        else
+          raise ArgumentError, "unexpected prefix_suffix: #{prefix_suffix.inspect}"
         end
+        t = Time.now.strftime('%Y%m%d')
+        path = "#{prefix}#{t}-#{$$}-#{rand(0x100000000).to_s(36)}"
+        path << "-#{suffix}" if suffix
+        path << suffix
+      end
 
-        def create(basename, *rest)
-          if (opts = Hash.try_convert(rest[-1]))
-            opts = opts.dup if rest.pop.equal?(opts)
-            max_try = opts.delete(:max_try)
-            opts = [opts]
-          else
-            opts = []
-          end
-          tmpdir, = *rest
-          if $SAFE > 0 && tmpdir.tainted?
-            tmpdir = '/tmp'
-          else
-            tmpdir ||= self.tmpdir
-          end
-          n = nil
-          begin
-            path = File.join(tmpdir, make_tmpname(basename, n))
-            yield(path, n, *opts)
-          rescue Errno::EEXIST
-            n ||= 0
-            n += 1
-            retry if !max_try || n < max_try
-            raise "cannot generate temporary name using `#{basename}' " \
-              "under `#{tmpdir}'"
-          end
-          path
+      def create(basename, *rest)
+        if (opts = Hash.try_convert(rest[-1]))
+          opts = opts.dup if rest.pop.equal?(opts)
+          max_try = opts.delete(:max_try)
+          opts = [opts]
+        else
+          opts = []
         end
+        tmpdir, = *rest
+        if $SAFE > 0 && tmpdir.tainted?
+          tmpdir = '/tmp'
+        else
+          tmpdir ||= self.tmpdir
+        end
+        n = nil
+        begin
+          path = File.join(tmpdir, make_tmpname(basename, n))
+          yield(path, n, *opts)
+        rescue Errno::EEXIST
+          n ||= 0
+          n += 1
+          retry if !max_try || n < max_try
+          raise "cannot generate temporary name using `#{basename}' " \
+            "under `#{tmpdir}'"
+        end
+        path
       end
     end
 

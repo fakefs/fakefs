@@ -659,22 +659,20 @@ class FakeFSTest < Minitest::Test
     end
   end
 
-  if RUBY_VERSION >= '1.9'
-    def test_can_set_mtime_on_new_file_touch_with_param
-      time = Time.new(2002, 10, 31, 2, 2, 2, '+02:00')
-      FileUtils.touch('foo.txt', mtime: time)
+  def test_can_set_mtime_on_new_file_touch_with_param
+    time = Time.new(2002, 10, 31, 2, 2, 2, '+02:00')
+    FileUtils.touch('foo.txt', mtime: time)
 
-      assert_equal File.mtime('foo.txt'), time
-    end
+    assert_equal File.mtime('foo.txt'), time
+  end
 
-    def test_can_set_mtime_on_existing_file_touch_with_param
-      FileUtils.touch('foo.txt')
+  def test_can_set_mtime_on_existing_file_touch_with_param
+    FileUtils.touch('foo.txt')
 
-      time = Time.new(2002, 10, 31, 2, 2, 2, '+02:00')
-      FileUtils.touch('foo.txt', mtime: time)
+    time = Time.new(2002, 10, 31, 2, 2, 2, '+02:00')
+    FileUtils.touch('foo.txt', mtime: time)
 
-      assert_equal File.mtime('foo.txt'), time
-    end
+    assert_equal File.mtime('foo.txt'), time
   end
 
   def test_can_return_mtime_on_existing_file
@@ -894,19 +892,17 @@ class FakeFSTest < Minitest::Test
     assert_equal 'Yatta!', File.new(path).read
   end
 
-  if RUBY_VERSION >= '1.9'
-    def test_file_object_has_default_external_encoding
-      old_verbose = $VERBOSE
-      $VERBOSE = nil
-      old_encoding = Encoding.default_external
-      Encoding.default_external = 'UTF-8'
-      path = 'file.txt'
-      File.open(path, 'w') { |f| f.write 'Yatta!' }
-      assert_equal 'UTF-8', File.new(path).read.encoding.name
-    ensure
-      Encoding.default_external = old_encoding
-      $VERBOSE = old_verbose
-    end
+  def test_file_object_has_default_external_encoding
+    old_verbose = $VERBOSE
+    $VERBOSE = nil
+    old_encoding = Encoding.default_external
+    Encoding.default_external = 'UTF-8'
+    path = 'file.txt'
+    File.open(path, 'w') { |f| f.write 'Yatta!' }
+    assert_equal 'UTF-8', File.new(path).read.encoding.name
+  ensure
+    Encoding.default_external = old_encoding
+    $VERBOSE = old_verbose
   end
 
   def test_file_object_initialization_with_mode_in_hash_parameter
@@ -1261,10 +1257,8 @@ class FakeFSTest < Minitest::Test
     assert_equal ['/onebis/two/three/foo'], Dir['/onebis/two/three/*']
   end
 
-  if RUBY_VERSION >= '1.9'
-    def test_dir_home
-      assert_equal RealDir.home, Dir.home
-    end
+  def test_dir_home
+    assert_equal RealDir.home, Dir.home
   end
 
   if RUBY_VERSION >= '2.4'
@@ -1769,8 +1763,7 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_cp_r_should_raise_error_on_missing_file
-    exception = RUBY_VERSION >= '1.9.1' ? Errno::ENOENT : RuntimeError
-    assert_raises(exception) do
+    assert_raises(Errno::ENOENT) do
       FileUtils.cp_r 'blafgag', 'foo'
     end
   end
@@ -2916,141 +2909,133 @@ class FakeFSTest < Minitest::Test
     assert_equal File.fnmatch?('nope', 'blargh'), File.fnmatch('nope', 'blargh')
   end
 
-  if RUBY_VERSION >= '1.9.1'
-    def test_absolute_path_with_absolute_path
-      assert_equal '/foo/bar', File.absolute_path('/foo/bar')
-    end
+  def test_absolute_path_with_absolute_path
+    assert_equal '/foo/bar', File.absolute_path('/foo/bar')
+  end
 
-    def test_absolute_path_with_absolute_path_with_dir_name
-      assert_equal '/foo/bar', File.absolute_path('/foo/bar', '/dir')
-    end
+  def test_absolute_path_with_absolute_path_with_dir_name
+    assert_equal '/foo/bar', File.absolute_path('/foo/bar', '/dir')
+  end
 
-    def test_absolute_path_with_relative_path
-      assert_equal "#{Dir.getwd}foo/bar", File.absolute_path('foo/bar')
-    end
+  def test_absolute_path_with_relative_path
+    assert_equal "#{Dir.getwd}foo/bar", File.absolute_path('foo/bar')
+  end
 
-    def test_absolute_path_with_relative_path_with_dir_name
-      assert_equal '/dir/foo/bar', File.absolute_path('foo/bar', '/dir')
+  def test_absolute_path_with_relative_path_with_dir_name
+    assert_equal '/dir/foo/bar', File.absolute_path('foo/bar', '/dir')
+  end
+
+  def test_file_size
+    File.open('foo', 'w') do |f|
+      f << 'Yada Yada'
+      assert_equal 9, f.size
     end
   end
 
-  if RUBY_VERSION >= '1.9.2'
-    def test_file_size
-      File.open('foo', 'w') do |f|
-        f << 'Yada Yada'
-        assert_equal 9, f.size
-      end
-    end
-
-    def test_fdatasync
-      File.open('foo', 'w') do |f|
-        f << 'Yada Yada'
-        # nothing raised
-        f.fdatasync
-      end
-    end
-
-    def test_autoclose
-      File.open('foo', 'w') do |f|
-        assert_equal true, f.autoclose?
-        f.autoclose = false
-        assert_equal false, f.autoclose?
-      end
-    end
-
-    def test_to_path
-      File.open('foo', 'w') do |f|
-        assert_equal 'foo', f.to_path
-      end
+  def test_fdatasync
+    File.open('foo', 'w') do |f|
+      f << 'Yada Yada'
+      # nothing raised
+      f.fdatasync
     end
   end
 
-  if RUBY_VERSION >= '1.9.3'
-    def test_advise
-      File.open('foo', 'w') do |f|
-        # nothing raised
-        f.advise(:normal, 0, 0)
-      end
-    end
-
-    def test_file_read_respects_hashes
-      path = 'file.txt'
-      File.open(path, 'w') do |f|
-        f.write 'Yatta!'
-      end
-
-      assert_equal 'ASCII-8BIT', File.read(path, mode: 'rb').encoding.to_s
-    end
-
-    def test_file_read_respects_args_and_hashes
-      path = 'file.txt'
-      File.open(path, 'w') do |f|
-        f.write 'Yatta!'
-      end
-
-      result = File.read(path, 2, 1, mode: 'rb')
-      assert_equal 'at', result
-      assert_equal 'ASCII-8BIT', result.encoding.to_s
-    end
-
-    def test_file_write_can_write_a_file
-      File.write('testfile', '0123456789')
-      assert_equal File.read('testfile'), '0123456789'
-    end
-
-    def test_file_write_returns_the_length_written
-      assert_equal File.write('testfile', '0123456789'), 10
-    end
-
-    def test_file_write_truncates_file_if_offset_not_given
-      File.open('foo', 'w') do |f|
-        f << 'foo'
-      end
-
-      File.write('foo', 'bar')
-      assert_equal File.read('foo'), 'bar'
-    end
-
-    def test_file_write_writes_at_offset_and_does_not_truncate
-      File.open('foo', 'w') do |f|
-        f << 'foo'
-      end
-
-      File.write('foo', 'bar', 3)
-      assert_equal File.read('foo'), 'foobar'
-    end
-
-    def test_can_read_binary_data_in_binary_mode
-      File.open('foo', 'wb') { |f| f << "\u0000\u0000\u0000\u0003\u0000\u0003\u0000\xA3\u0000\u0000\u0000y\u0000\u0000\u0000\u0000\u0000" }
-      assert_equal "\x00\x00\x00\x03\x00\x03\x00\xA3\x00\x00\x00y\x00\x00\x00\x00\x00".force_encoding('ASCII-8BIT'), File.open('foo', 'rb').read
-    end
-
-    def test_can_read_binary_data_in_non_binary_mode
-      File.open('foo_non_bin', 'wb') { |f| f << "\u0000\u0000\u0000\u0003\u0000\u0003\u0000\xA3\u0000\u0000\u0000y\u0000\u0000\u0000\u0000\u0000" }
-      assert_equal "\x00\x00\x00\x03\x00\x03\x00\xA3\x00\x00\x00y\x00\x00\x00\x00\x00".force_encoding('UTF-8'), File.open('foo_non_bin', 'r').read
-    end
-
-    def test_can_read_binary_data_using_binread
-      File.open('foo', 'wb') { |f| f << "\u0000\u0000\u0000\u0003\u0000\u0003\u0000\xA3\u0000\u0000\u0000y\u0000\u0000\u0000\u0000\u0000" }
-      assert_equal "\x00\x00\x00\x03\x00\x03\x00\xA3\x00\x00\x00y\x00\x00\x00\x00\x00".force_encoding('ASCII-8BIT'), File.binread('foo')
+  def test_autoclose
+    File.open('foo', 'w') do |f|
+      assert_equal true, f.autoclose?
+      f.autoclose = false
+      assert_equal false, f.autoclose?
     end
   end
 
-  if RUBY_VERSION >= '2.2.0'
-    def test_raises_error_on_birthtime_if_file_does_not_exist
-      assert_raises Errno::ENOENT do
-        File.birthtime('file.txt')
-      end
+  def test_to_path
+    File.open('foo', 'w') do |f|
+      assert_equal 'foo', f.to_path
+    end
+  end
+
+  def test_advise
+    File.open('foo', 'w') do |f|
+      # nothing raised
+      f.advise(:normal, 0, 0)
+    end
+  end
+
+  def test_file_read_respects_hashes
+    path = 'file.txt'
+    File.open(path, 'w') do |f|
+      f.write 'Yatta!'
     end
 
-    def test_can_return_birthtime_on_existing_file
-      File.open('foo', 'w') { |f| f << 'some content' }
-      assert File.birthtime('foo').is_a?(Time)
+    assert_equal 'ASCII-8BIT', File.read(path, mode: 'rb').encoding.to_s
+  end
+
+  def test_file_read_respects_args_and_hashes
+    path = 'file.txt'
+    File.open(path, 'w') do |f|
+      f.write 'Yatta!'
     end
 
-    def test_file_birthtime_is_equal_to_file_stat_birthtime
-      File.open('foo', 'w') { |f| f << 'some content' }
-      assert_equal File.stat('foo').birthtime, File.birthtime('foo')
+    result = File.read(path, 2, 1, mode: 'rb')
+    assert_equal 'at', result
+    assert_equal 'ASCII-8BIT', result.encoding.to_s
+  end
+
+  def test_file_write_can_write_a_file
+    File.write('testfile', '0123456789')
+    assert_equal File.read('testfile'), '0123456789'
+  end
+
+  def test_file_write_returns_the_length_written
+    assert_equal File.write('testfile', '0123456789'), 10
+  end
+
+  def test_file_write_truncates_file_if_offset_not_given
+    File.open('foo', 'w') do |f|
+      f << 'foo'
     end
+
+    File.write('foo', 'bar')
+    assert_equal File.read('foo'), 'bar'
+  end
+
+  def test_file_write_writes_at_offset_and_does_not_truncate
+    File.open('foo', 'w') do |f|
+      f << 'foo'
+    end
+
+    File.write('foo', 'bar', 3)
+    assert_equal File.read('foo'), 'foobar'
+  end
+
+  def test_can_read_binary_data_in_binary_mode
+    File.open('foo', 'wb') { |f| f << "\u0000\u0000\u0000\u0003\u0000\u0003\u0000\xA3\u0000\u0000\u0000y\u0000\u0000\u0000\u0000\u0000" }
+    assert_equal "\x00\x00\x00\x03\x00\x03\x00\xA3\x00\x00\x00y\x00\x00\x00\x00\x00".force_encoding('ASCII-8BIT'), File.open('foo', 'rb').read
+  end
+
+  def test_can_read_binary_data_in_non_binary_mode
+    File.open('foo_non_bin', 'wb') { |f| f << "\u0000\u0000\u0000\u0003\u0000\u0003\u0000\xA3\u0000\u0000\u0000y\u0000\u0000\u0000\u0000\u0000" }
+    assert_equal "\x00\x00\x00\x03\x00\x03\x00\xA3\x00\x00\x00y\x00\x00\x00\x00\x00".force_encoding('UTF-8'), File.open('foo_non_bin', 'r').read
+  end
+
+  def test_can_read_binary_data_using_binread
+    File.open('foo', 'wb') { |f| f << "\u0000\u0000\u0000\u0003\u0000\u0003\u0000\xA3\u0000\u0000\u0000y\u0000\u0000\u0000\u0000\u0000" }
+    assert_equal "\x00\x00\x00\x03\x00\x03\x00\xA3\x00\x00\x00y\x00\x00\x00\x00\x00".force_encoding('ASCII-8BIT'), File.binread('foo')
+  end
+
+  def test_raises_error_on_birthtime_if_file_does_not_exist
+    assert_raises Errno::ENOENT do
+      File.birthtime('file.txt')
+    end
+  end
+
+  def test_can_return_birthtime_on_existing_file
+    File.open('foo', 'w') { |f| f << 'some content' }
+    assert File.birthtime('foo').is_a?(Time)
+  end
+
+  def test_file_birthtime_is_equal_to_file_stat_birthtime
+    File.open('foo', 'w') { |f| f << 'some content' }
+    assert_equal File.stat('foo').birthtime, File.birthtime('foo')
   end
 end
