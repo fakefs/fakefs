@@ -122,7 +122,7 @@ class SafeTest < Minitest::Test
       FakeFS do
         raise 'boom!'
       end
-    rescue
+    rescue StandardError
       'Nothing to do'
     end
 

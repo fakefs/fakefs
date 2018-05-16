@@ -1,5 +1,4 @@
 require './lib/fakefs/version'
-require 'English'
 
 Gem::Specification.new do |spec|
   spec.name          = 'fakefs'
@@ -11,14 +10,14 @@ Gem::Specification.new do |spec|
   spec.homepage      = 'https://github.com/fakefs/fakefs'
   spec.license       = 'MIT'
 
-  spec.files         = `git ls-files lib README.md LICENSE`.split($INPUT_RECORD_SEPARATOR)
+  spec.files         = `git ls-files lib README.md LICENSE`.split($/)
 
   spec.required_ruby_version = '>= 2.3.0'
-  spec.add_development_dependency 'bundler', '~> 1.3'
-  spec.add_development_dependency 'rake', '~> 10.3'
-  spec.add_development_dependency 'rspec', '~> 3.1'
-  spec.add_development_dependency 'rubocop', '~> 0.41.2'
   spec.add_development_dependency 'bump', '~> 0.5.3'
+  spec.add_development_dependency 'bundler', '~> 1.3'
   spec.add_development_dependency 'minitest', '~> 5.5'
   spec.add_development_dependency 'minitest-rg', '~> 5.1'
+  spec.add_development_dependency 'rake', '~> 10.3'
+  spec.add_development_dependency 'rspec', '~> 3.1'
+  spec.add_development_dependency 'rubocop', '~> 0.56.0'
 end

@@ -40,7 +40,7 @@ class KernelTest < Minitest::Test
 
       begin
         open('/tmp/a').read
-      rescue => e
+      rescue StandardError => e
         raise e
       end
     end

@@ -1,4 +1,3 @@
-# rubocop:disable Style/FileName
 require 'find'
 require 'fakefs/spec_helpers'
 
@@ -13,7 +12,7 @@ if RUBY_VERSION >= '2.1'
     it 'does not give an ArgumentError' do
       FileUtils.mkdir_p('/tmp/foo')
       found = Find.find('/tmp').to_a
-      expect(found).to eq(%w(/tmp /tmp/foo))
+      expect(found).to eq(['/tmp', '/tmp/foo'])
     end
   end
 end

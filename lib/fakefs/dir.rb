@@ -91,12 +91,12 @@ module FakeFS
     end
 
     def self.children(dirname, opts = {})
-      entries(dirname, opts) - %w(. ..)
+      entries(dirname, opts) - ['.', '..']
     end
 
     def self.each_child(dirname, &_block)
       Dir.open(dirname) do |file|
-        next if %w(. ..).include?(file)
+        next if ['.', '..'].include?(file)
         yield file
       end
     end
@@ -175,7 +175,7 @@ module FakeFS
           Dir.tmpdir
         end
 
-        def make_tmpname(prefix_suffix, n)
+        def make_tmpname(prefix_suffix, suffix)
           case prefix_suffix
           when String
             prefix = prefix_suffix
@@ -187,8 +187,8 @@ module FakeFS
             raise ArgumentError, "unexpected prefix_suffix: #{prefix_suffix.inspect}"
           end
           t = Time.now.strftime('%Y%m%d')
-          path = "#{prefix}#{t}-#{$PID}-#{rand(0x100000000).to_s(36)}"
-          path << "-#{n}" if n
+          path = "#{prefix}#{t}-#{$$}-#{rand(0x100000000).to_s(36)}"
+          path << "-#{suffix}" if suffix
           path << suffix
         end
 
@@ -242,7 +242,7 @@ module FakeFS
       n = nil
 
       begin
-        path = "#{tmpdir}/#{prefix}#{t}-#{$PID}-#{rand(0x100000000).to_s(36)}"
+        path = "#{tmpdir}/#{prefix}#{t}-#{$$}-#{rand(0x100000000).to_s(36)}"
         path << "-#{n}" if n
         path << suffix
         mkdir(path, 0o700)

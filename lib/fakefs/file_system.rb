@@ -118,30 +118,30 @@ module FakeFS
 
     def find_recurser(dir, parts)
       return [] unless dir.respond_to? :[]
-
-      pattern, *parts = parts
-      matches = case pattern
-                when '**'
-                  case parts
-                  when ['*']
-                    parts = [] # end recursion
-                    directories_under(dir).map do |d|
-                      d.entries.select do |f|
-                        (f.is_a?(FakeFile) || f.is_a?(FakeDir)) &&
-                          f.name.match(/\A(?!\.)/)
-                      end
-                    end.flatten.uniq
-                  when []
-                    parts = [] # end recursion
-                    dir.entries.flatten.uniq
-                  else
-                    directories_under(dir)
-                  end
-                else
-                  Globber.expand(pattern).flat_map do |subpattern|
-                    dir.matches(Globber.regexp(subpattern))
-                  end
-                end
+      pattern, *parts = parts # rubocop:disable Lint/ShadowedArgument
+      matches =
+        case pattern
+        when '**'
+          case parts
+          when ['*']
+            parts = [] # end recursion
+            directories_under(dir).map do |d|
+              d.entries.select do |f|
+                (f.is_a?(FakeFile) || f.is_a?(FakeDir)) &&
+                  f.name.match(/\A(?!\.)/)
+              end
+            end.flatten.uniq
+          when []
+            parts = [] # end recursion
+            dir.entries.flatten.uniq
+          else
+            directories_under(dir)
+          end
+        else
+          Globber.expand(pattern).flat_map do |subpattern|
+            dir.matches(Globber.regexp(subpattern))
+          end
+        end
 
       if parts.empty? # we're done recursing
         matches

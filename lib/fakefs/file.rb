@@ -510,12 +510,12 @@ module FakeFS
     def chown(owner_int, group_int)
       return unless group_int && group_int != -1
 
-      owner_int.is_a?(Fixnum) || raise(
+      owner_int.is_a?(Integer) || raise(
         TypeError, "can't convert String into Integer"
       )
       @file.uid = owner_int
 
-      group_int.is_a?(Fixnum) || raise(
+      group_int.is_a?(Integer) || raise(
         TypeError, "can't convert String into Integer"
       )
       @file.gid = group_int
@@ -568,8 +568,7 @@ module FakeFS
     end
 
     if RUBY_VERSION >= '1.9.3'
-      def advise(_advice, _offset = 0, _len = 0)
-      end
+      def advise(_advice, _offset = 0, _len = 0); end
 
       def self.write(filename, contents, offset = nil, open_args = {})
         offset, open_args = nil, offset if offset.is_a?(Hash)
@@ -585,12 +584,12 @@ module FakeFS
           args = [filename, mode]
         end
         if offset
-          open(*args) do |f|
+          open(*args) do |f| # rubocop:disable Security/Open
             f.seek(offset)
             f.write(contents)
           end
         else
-          open(*args) do |f|
+          open(*args) do |f| # rubocop:disable Security/Open
             f << contents
           end
         end
@@ -644,9 +643,11 @@ module FakeFS
     end
 
     def mode_in?(list)
-      list.any? do |element|
-        @mode.include?(element)
-      end if @mode.respond_to?(:include?)
+      if @mode.respond_to?(:include?)
+        list.any? do |element|
+          @mode.include?(element)
+        end
+      end
     end
 
     def mode_in_bitmask?(mask)

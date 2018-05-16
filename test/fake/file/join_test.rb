@@ -11,7 +11,7 @@ class FakeFileJoinTest < Minitest::Test
   end
 
   [
-    %w(a b), %w(a/ b), %w(a /b), %w(a/ /b), %w(a / b)
+    ['a', 'b'], ['a/', 'b'], ['a', '/b'], ['a/', '/b'], ['a', '/', 'b']
   ].each_with_index do |args, i|
     define_method "test_file_join_#{i}" do
       assert_equal RealFile.join(args), File.join(args)

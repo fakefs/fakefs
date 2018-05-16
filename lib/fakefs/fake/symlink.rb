@@ -23,13 +23,13 @@ module FakeFS
       File.join(parent.to_s, name)
     end
 
-    def respond_to?(method, include_private = false)
+    def respond_to_missing?(method, include_private = false)
       entry.respond_to?(method, include_private)
     end
 
     private
 
-    def method_missing(*args, &block)
+    def method_missing(*args, &block) # rubocop:disable Style/MethodMissingSuper
       entry.send(*args, &block)
     end
   end

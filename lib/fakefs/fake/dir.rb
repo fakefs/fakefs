@@ -54,7 +54,7 @@ module FakeFS
     end
 
     def matches(pattern)
-      @entries.reject { |k, _v| pattern !~ k }.values
+      @entries.select { |k, _v| pattern =~ k }.values
     end
 
     def [](name)

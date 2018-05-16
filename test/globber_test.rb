@@ -11,7 +11,7 @@ class GlobberTest < Minitest::Test
   end
 
   def test_expand_with_brace_group_with_multiple_entries_returns_all_entries
-    assert_equal %w(a b c), FakeFS::Globber.expand('{a,b,c}')
+    assert_equal ['a', 'b', 'c'], FakeFS::Globber.expand('{a,b,c}')
   end
 
   def test_expand_with_brace_group_with_nested_entries_expands_only_first_level
@@ -19,7 +19,7 @@ class GlobberTest < Minitest::Test
   end
 
   def test_path_components_with_no_globbing_splits_on_path_separator
-    assert_equal %w(a b c), FakeFS::Globber.path_components('/a/b/c')
+    assert_equal ['a', 'b', 'c'], FakeFS::Globber.path_components('/a/b/c')
   end
 
   def test_path_components_with_path_separator_inside_brace_group
@@ -31,7 +31,7 @@ class GlobberTest < Minitest::Test
   end
 
   def test_path_components_accepts_pathname
-    assert_equal %w(a b c), FakeFS::Globber.path_components(Pathname.new('/a/b/c'))
+    assert_equal ['a', 'b', 'c'], FakeFS::Globber.path_components(Pathname.new('/a/b/c'))
   end
 
   def test_regexp_accepts_string
