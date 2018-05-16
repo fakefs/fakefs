@@ -28,18 +28,18 @@ module FakeFS
       end
     end
 
-    alias_method :mkpath, :mkdir_p
-    alias_method :makedirs, :mkdir_p
+    alias mkpath mkdir_p
+    alias makedirs mkdir_p
 
     def mkdir(list, _ignored_options = {})
       list = [list] unless list.is_a?(Array)
       list.each do |path|
         parent = path.split('/')
         parent.pop
-        fail Errno::ENOENT, path unless parent.join == '' ||
-                                        parent.join == '.' ||
-                                        FileSystem.find(parent.join('/'))
-        fail Errno::EEXIST, path if FileSystem.find(path)
+        unless parent.join == '' || parent.join == '.' || FileSystem.find(parent.join('/'))
+          raise Errno::ENOENT, path
+        end
+        raise Errno::EEXIST, path if FileSystem.find(path)
         FileSystem.add(path, FakeDir.new)
       end
     end
@@ -49,10 +49,9 @@ module FakeFS
       list.each do |l|
         parent = l.split('/')
         parent.pop
-        fail Errno::ENOENT, l unless parent.join == '' ||
-                                     FileSystem.find(parent.join('/'))
-        fail Errno::ENOENT, l unless FileSystem.find(l)
-        fail Errno::ENOTEMPTY, l unless FileSystem.find(l).empty?
+        raise Errno::ENOENT, l unless parent.join == '' || FileSystem.find(parent.join('/'))
+        raise Errno::ENOENT, l unless FileSystem.find(l)
+        raise Errno::ENOTEMPTY, l unless FileSystem.find(l).empty?
         rm(l)
       end
     end
@@ -60,11 +59,11 @@ module FakeFS
     def rm(list, options = {})
       Array(list).each do |path|
         FileSystem.delete(path) ||
-          (!options[:force] && fail(Errno::ENOENT, path))
+          (!options[:force] && raise(Errno::ENOENT, path))
       end
     end
-    alias_method :rm_r, :rm
-    alias_method :remove, :rm
+    alias rm_r rm
+    alias remove rm
 
     def rm_f(list, options = {})
       rm(list, options.merge(force: true))
@@ -73,17 +72,17 @@ module FakeFS
     def rm_rf(list, options = {})
       rm_r(list, options.merge(force: true))
     end
-    alias_method :rmtree, :rm_rf
-    alias_method :safe_unlink, :rm_f
-    alias_method :remove_entry_secure, :rm_rf
+    alias rmtree rm_rf
+    alias safe_unlink rm_f
+    alias remove_entry_secure rm_rf
 
     def ln_s(target, path, options = {})
       options = { force: false }.merge(options)
-      fail(Errno::EEXIST, path) if FileSystem.find(path) && !options[:force]
+      raise(Errno::EEXIST, path) if FileSystem.find(path) && !options[:force]
       FileSystem.delete(path)
 
       if !options[:force] && !Dir.exist?(File.dirname(path))
-        fail Errno::ENOENT, path
+        raise Errno::ENOENT, path
       end
 
       FileSystem.add(path, FakeSymlink.new(target))
@@ -93,10 +92,10 @@ module FakeFS
       ln_s(target, path, force: true)
     end
 
-    alias_method :symlink, :ln_s
+    alias symlink ln_s
 
     def cp(src, dest, options = {})
-      fail Errno::ENOTDIR, dest if src.is_a?(Array) && !File.directory?(dest)
+      raise Errno::ENOTDIR, dest if src.is_a?(Array) && !File.directory?(dest)
 
       # handle `verbose' flag
       RealFileUtils.cp src, dest, options.merge(noop: true)
@@ -108,12 +107,12 @@ module FakeFS
         dst_file = FileSystem.find(dest)
         src_file = FileSystem.find(source)
 
-        fail Errno::ENOENT, source unless src_file
+        raise Errno::ENOENT, source unless src_file
 
         if dst_file && File.directory?(dst_file)
           FileSystem.add(
-            File.join(
-              dest, File.basename(source)), src_file.entry.clone(dst_file))
+            File.join(dest, File.basename(source)), src_file.entry.clone(dst_file)
+          )
         else
           FileSystem.delete(dest)
           FileSystem.add(dest, src_file.entry.clone)
@@ -123,7 +122,7 @@ module FakeFS
       nil
     end
 
-    alias_method :copy, :cp
+    alias copy cp
 
     def copy_file(src, dest, _preserve = false, _dereference = true)
       # Not a perfect match, but similar to what regular FileUtils does.
@@ -131,10 +130,12 @@ module FakeFS
     end
 
     def copy_entry(src, dest, preserve = false, dereference_root = false, remove_destination = false)
-      cp_r(src, dest,
-           preserve: preserve,
-           dereference_root: dereference_root,
-           remove_destination: remove_destination)
+      cp_r(
+        src, dest,
+        preserve: preserve,
+        dereference_root: dereference_root,
+        remove_destination: remove_destination
+      )
     end
 
     def cp_r(src, dest, options = {})
@@ -148,17 +149,17 @@ module FakeFS
         dir = FileSystem.find(source)
         unless dir
           if RUBY_VERSION >= '1.9.1'
-            fail Errno::ENOENT, source
+            raise Errno::ENOENT, source
           else
             # This error sucks, but it conforms to the original Ruby
             # method.
-            fail "unknown file type: #{source}"
+            raise "unknown file type: #{source}"
           end
         end
 
         new_dir = FileSystem.find(dest)
-        fail Errno::EEXIST, dest if new_dir && !File.directory?(dest)
-        fail Errno::ENOENT, dest if !new_dir && !FileSystem.find(dest + '/../')
+        raise Errno::EEXIST, dest if new_dir && !File.directory?(dest)
+        raise Errno::ENOENT, dest if !new_dir && !FileSystem.find(dest + '/../')
 
         # This last bit is a total abuse and should be thought hard
         # about and cleaned up.
@@ -185,43 +186,46 @@ module FakeFS
 
       Array(src).each do |path|
         if (target = FileSystem.find(path))
-          dest_path = if File.directory?(dest)
-                        File.join(dest, File.basename(path))
-                      else
-                        dest
-                      end
+          dest_path =
+            if File.directory?(dest)
+              File.join(dest, File.basename(path))
+            else
+              dest
+            end
           if File.directory?(dest_path)
-            fail Errno::EEXIST, dest_path unless options[:force]
+            raise Errno::EEXIST, dest_path unless options[:force]
           elsif File.directory?(File.dirname(dest_path))
             FileSystem.delete(dest_path)
             FileSystem.add(dest_path, target.entry.clone)
             FileSystem.delete(path)
           else
-            fail Errno::ENOENT, dest_path unless options[:force]
+            raise Errno::ENOENT, dest_path unless options[:force]
           end
         else
-          fail Errno::ENOENT, path
+          raise Errno::ENOENT, path
         end
       end
 
       nil
     end
 
-    alias_method :move, :mv
+    alias move mv
 
     def chown(user, group, list, _options = {})
       list = Array(list)
       list.each do |f|
         if File.exist?(f)
-          uid = if user
-                  user.to_s =~ /\d+/ ? user.to_i : Etc.getpwnam(user).uid
-                end
-          gid = if group
-                  group.to_s =~ /\d+/ ? group.to_i : Etc.getgrnam(group).gid
-                end
+          uid =
+            if user
+              user.to_s =~ /\d+/ ? user.to_i : Etc.getpwnam(user).uid
+            end
+          gid =
+            if group
+              group.to_s =~ /\d+/ ? group.to_i : Etc.getgrnam(group).gid
+            end
           File.chown(uid, gid, f)
         else
-          fail Errno::ENOENT, f
+          raise Errno::ENOENT, f
         end
       end
       list
@@ -244,7 +248,7 @@ module FakeFS
         if File.exist?(f)
           File.chmod(mode, f)
         else
-          fail Errno::ENOENT, f
+          raise Errno::ENOENT, f
         end
       end
       list
@@ -282,15 +286,15 @@ module FakeFS
     def cd(dir, &block)
       FileSystem.chdir(dir, &block)
     end
-    alias_method :chdir, :cd
+    alias chdir cd
 
     def compare_file(file1, file2)
       # we do a strict comparison of both files content
       File.readlines(file1) == File.readlines(file2)
     end
 
-    alias_method :cmp, :compare_file
-    alias_method :identical?, :compare_file
+    alias cmp compare_file
+    alias identical? compare_file
 
     def uptodate?(new, old_list)
       return false unless File.exist?(new)

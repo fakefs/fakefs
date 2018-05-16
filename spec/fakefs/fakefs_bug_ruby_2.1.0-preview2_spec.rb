@@ -1,3 +1,4 @@
+# rubocop:disable Style/FileName
 require 'find'
 require 'fakefs/spec_helpers'
 

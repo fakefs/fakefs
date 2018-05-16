@@ -1,9 +1,6 @@
-inherit_from: .rubocop_todo.yml
-
 AllCops:
   DisplayCopNames: true
   Exclude:
-    - .git/**/*
     - files/**/*
     - templates/**/*
     - etc/**/*
@@ -16,19 +13,17 @@ Metrics/ClassLength:
 Metrics/ModuleLength:
   Enabled: false
 Metrics/LineLength:
+  Max: 120
   Exclude:
     - test/**/*
 Metrics/ParameterLists:
   Enabled: false
 Metrics/CyclomaticComplexity:
-  Severity: warning
-  Max: 20
+  Enabled: false
 Metrics/PerceivedComplexity:
-  Severity: warning
-  Max: 20
+  Enabled: false
 Metrics/BlockNesting:
-  Severity: warning
-  Max: 4
+  Enabled: false
 Metrics/AbcSize:
   Enabled: false
 
@@ -51,3 +46,7 @@ Style/SymbolProc:
   Enabled: false
 Style/TrivialAccessors:
   ExactNameMatch: true
+Style/GuardClause:
+  Enabled: false
+Style/WordArray:
+  Enabled: false

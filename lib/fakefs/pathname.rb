@@ -36,7 +36,7 @@ module FakeFS
         @path = path.dup
 
         if /\0/ =~ @path
-          fail ArgumentError, "pathname contains \\0: #{@path.inspect}"
+          raise ArgumentError, "pathname contains \\0: #{@path.inspect}"
         end
 
         taint if @path.tainted?
@@ -70,8 +70,8 @@ module FakeFS
         other.to_s == @path
       end
 
-      alias_method :===, :==
-      alias_method :eql?, :==
+      alias === ==
+      alias eql? ==
 
       # Provides for comparing pathnames, case-sensitively.
       def <=>(other)
@@ -90,7 +90,7 @@ module FakeFS
 
       # to_path is implemented so Pathname objects are usable
       # with File.open, etc.
-      alias_method TO_PATH, :to_s
+      alias_method TO_PATH, :to_s # rubocop:disable Style/Alias
 
       def inspect # :nodoc:
         "#<#{self.class}:#{@path}>"
@@ -121,7 +121,7 @@ module FakeFS
         "#{Regexp.quote File::SEPARATOR}".freeze
         SEPARATOR_PAT = /[#{SEPARATOR_LIST}]/
       else
-        SEPARATOR_LIST = "#{Regexp.quote File::SEPARATOR}".freeze
+        SEPARATOR_LIST = (Regexp.quote File::SEPARATOR).to_s.freeze
         SEPARATOR_PAT = /#{Regexp.quote File::SEPARATOR}/
       end
 
@@ -432,7 +432,7 @@ module FakeFS
         other = Pathname.new(other) unless other.is_a?(Pathname)
         Pathname.new(plus(@path, other.to_s))
       end
-      alias_method :/, :+
+      alias / +
 
       def plus(path1, path2) # -> path
         prefix2 = path2
@@ -601,7 +601,7 @@ module FakeFS
           base_names.unshift basename if basename != '.'
         end
         unless SAME_PATHS[dest_prefix, base_prefix]
-          fail ArgumentError, "different prefix: #{dest_prefix.inspect} " \
+          raise ArgumentError, "different prefix: #{dest_prefix.inspect} " \
           "and #{base_directory.inspect}"
         end
         while !dest_names.empty? &&
@@ -611,7 +611,7 @@ module FakeFS
           base_names.shift
         end
         if base_names.include? '..'
-          fail ArgumentError, "base_directory has ..: #{base_directory.inspect}"
+          raise ArgumentError, "base_directory has ..: #{base_directory.inspect}"
         end
         base_names.fill('..')
         relpath_names = base_names + dest_names
@@ -660,7 +660,7 @@ module FakeFS
 
       # See <tt>IO.sysopen</tt>. Not supported by fakefs.
       def sysopen(*_args)
-        fail NotImplementedError, 'sysopen is not supported by fakefs'
+        raise NotImplementedError, 'sysopen is not supported by fakefs'
       end
     end
 
@@ -939,7 +939,7 @@ module FakeFS
         new(Dir.getwd)
       end
 
-      class << self; alias_method :pwd, :getwd end
+      class << self; alias pwd getwd end
 
       # Return the entries (files and subdirectories) in the directory, each as
       # a Pathname object.
@@ -1026,7 +1026,7 @@ module FakeFS
         end
       end
 
-      alias_method :delete, :unlink
+      alias delete unlink
 
       if RUBY_VERSION > '2.4'
         # Checks if a file or directory is empty, using

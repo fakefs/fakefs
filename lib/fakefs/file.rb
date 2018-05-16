@@ -14,16 +14,18 @@ module FakeFS
 
     FILE_CREATION_MODES = (MODES - [READ_ONLY, READ_WRITE]).freeze
 
-    MODE_BITMASK = RealFile::RDONLY |
-                   RealFile::WRONLY |
-                   RealFile::RDWR |
-                   RealFile::APPEND |
-                   RealFile::CREAT |
-                   RealFile::EXCL |
-                   RealFile::NONBLOCK |
-                   RealFile::TRUNC |
-                   (RealFile.const_defined?(:NOCTTY) ? RealFile::NOCTTY : 0) |
-                   (RealFile.const_defined?(:SYNC) ? RealFile::SYNC : 0)
+    MODE_BITMASK = (
+      RealFile::RDONLY |
+      RealFile::WRONLY |
+      RealFile::RDWR |
+      RealFile::APPEND |
+      RealFile::CREAT |
+      RealFile::EXCL |
+      RealFile::NONBLOCK |
+      RealFile::TRUNC |
+      (RealFile.const_defined?(:NOCTTY) ? RealFile::NOCTTY : 0) |
+      (RealFile.const_defined?(:SYNC) ? RealFile::SYNC : 0)
+    )
 
     FILE_CREATION_BITMASK = RealFile::CREAT
 
@@ -49,11 +51,11 @@ module FakeFS
     end
 
     class << self
-      alias_method :exists?, :exist?
+      alias exists? exist?
 
       # Assuming that everyone can read and write files
-      alias_method :readable?, :exist?
-      alias_method :writable?, :exist?
+      alias readable? exist?
+      alias writable? exist?
 
       # Assume nothing is sticky.
       def sticky?(_path)
@@ -65,7 +67,7 @@ module FakeFS
       if exists?(path)
         FileSystem.find(path).mtime
       else
-        fail Errno::ENOENT
+        raise Errno::ENOENT
       end
     end
 
@@ -73,7 +75,7 @@ module FakeFS
       if exists?(path)
         FileSystem.find(path).ctime
       else
-        fail Errno::ENOENT
+        raise Errno::ENOENT
       end
     end
 
@@ -81,7 +83,7 @@ module FakeFS
       if exists?(path)
         FileSystem.find(path).atime
       else
-        fail Errno::ENOENT
+        raise Errno::ENOENT
       end
     end
 
@@ -91,7 +93,7 @@ module FakeFS
           FileSystem.find(path).atime = atime
           FileSystem.find(path).mtime = mtime
         else
-          fail Errno::ENOENT
+          raise Errno::ENOENT
         end
       end
 
@@ -112,7 +114,7 @@ module FakeFS
 
     if RUBY_VERSION >= '2.4'
       class << self
-        alias_method :empty?, :zero?
+        alias empty? zero?
       end
     end
 
@@ -169,12 +171,12 @@ module FakeFS
 
     def self.read(path, *args)
       options = args[-1].is_a?(Hash) ? args.pop : {}
-      length = args.size > 0 ? args.shift : nil
-      offset = args.size > 0 ? args.shift : 0
+      length = args.empty? ? nil : args.shift
+      offset = args.empty? ? 0 : args.shift
       file = new(path, options)
 
-      fail Errno::ENOENT unless file.exists?
-      fail Errno::EISDIR, path if directory?(path)
+      raise Errno::ENOENT unless file.exists?
+      raise Errno::EISDIR, path if directory?(path)
 
       FileSystem.find(path).atime = Time.now
       file.seek(offset)
@@ -187,7 +189,7 @@ module FakeFS
         FileSystem.find(path).atime = Time.now
         file.readlines
       else
-        fail Errno::ENOENT
+        raise Errno::ENOENT
       end
     end
 
@@ -201,17 +203,17 @@ module FakeFS
           file.each_line(*args)
         end
       else
-        fail Errno::ENOENT
+        raise Errno::ENOENT
       end
     end
 
     def self.rename(source, dest)
       if directory?(source) && file?(dest)
-        fail Errno::ENOTDIR, "#{source} or #{dest}"
+        raise Errno::ENOTDIR, "#{source} or #{dest}"
       elsif file?(source) && directory?(dest)
-        fail Errno::EISDIR, "#{source} or #{dest}"
+        raise Errno::EISDIR, "#{source} or #{dest}"
       elsif !exist?(dirname(dest))
-        fail Errno::ENOENT, "#{source} or #{dest}"
+        raise Errno::ENOENT, "#{source} or #{dest}"
       end
 
       if (target = FileSystem.find(source))
@@ -223,16 +225,16 @@ module FakeFS
 
         FileSystem.delete(source)
       else
-        fail Errno::ENOENT, "#{source} or #{dest}"
+        raise Errno::ENOENT, "#{source} or #{dest}"
       end
 
       0
     end
 
     def self.link(source, dest)
-      fail Errno::EPERM, "#{source} or #{dest}" if directory?(source)
-      fail Errno::ENOENT, "#{source} or #{dest}" unless exists?(source)
-      fail Errno::EEXIST, "#{source} or #{dest}" if exists?(dest)
+      raise Errno::EPERM, "#{source} or #{dest}" if directory?(source)
+      raise Errno::ENOENT, "#{source} or #{dest}" unless exists?(source)
+      raise Errno::EEXIST, "#{source} or #{dest}" if exists?(dest)
 
       source = FileSystem.find(source)
       dest = FileSystem.add(dest, source.entry.clone)
@@ -243,7 +245,7 @@ module FakeFS
 
     def self.delete(*file_names)
       file_names.each do |file_name|
-        fail Errno::ENOENT, file_name unless exists?(file_name)
+        raise Errno::ENOENT, file_name unless exists?(file_name)
 
         FileUtils.rm(file_name)
       end
@@ -252,7 +254,7 @@ module FakeFS
     end
 
     class << self
-      alias_method :unlink, :delete
+      alias unlink delete
     end
 
     def self.symlink(source, dest)
@@ -272,7 +274,7 @@ module FakeFS
     end
 
     def self.chmod(mode_int, filename)
-      FileSystem.find(filename).mode = 0100000 + mode_int
+      FileSystem.find(filename).mode = 0o100000 + mode_int
     end
 
     # Not exactly right, returns true if the file is chmod +x for owner. In the
@@ -280,20 +282,18 @@ module FakeFS
     def self.executable?(filename)
       file = FileSystem.find(filename)
       return false unless file
-      (file.mode - 0100000) & 0100 != 0
+      (file.mode - 0o100000) & 0o100 != 0
     end
 
     def self.chown(owner_int, group_int, filename)
       file = FileSystem.find(filename)
 
       if owner_int && owner_int != -1
-        owner_int.is_a?(Integer) || fail(TypeError,
-                                         "can't convert String into Integer")
+        owner_int.is_a?(Integer) || raise(TypeError, "can't convert String into Integer")
         file.uid = owner_int
       end
       if group_int && group_int != -1
-        group_int.is_a?(Integer) || fail(TypeError,
-                                         "can't convert String into Integer")
+        group_int.is_a?(Integer) || raise(TypeError, "can't convert String into Integer")
         file.gid = group_int
       end
     end
@@ -311,7 +311,7 @@ module FakeFS
     end
 
     class << self
-      alias_method :fnmatch, :fnmatch?
+      alias fnmatch fnmatch?
     end
 
     # FakeFS Stat class
@@ -320,7 +320,7 @@ module FakeFS
       attr_reader :birthtime if RUBY_VERSION >= '2.2.0'
 
       def initialize(file, lstat = false)
-        fail(Errno::ENOENT, file) unless File.exist?(file)
+        raise(Errno::ENOENT, file) unless File.exist?(file)
 
         @file      = file
         @fake_file = FileSystem.find(@file)
@@ -374,11 +374,11 @@ module FakeFS
       # World_writable and readable are platform dependent
       # usually comparing with S_IROTH defined on compilation (MRI)
       def world_writable?
-        0777
+        0o777
       end
 
       def world_readable?
-        0777
+        0o777
       end
 
       def nlink
@@ -429,9 +429,9 @@ module FakeFS
       val
     end
 
-    alias_method :tell=,    :pos=
-    alias_method :sysread,  :read
-    alias_method :syswrite, :write
+    alias tell= pos=
+    alias sysread read
+    alias syswrite write
 
     undef_method :closed_read?
     undef_method :closed_write?
@@ -453,11 +453,11 @@ module FakeFS
     end
 
     def ioctl(*)
-      fail NotImplementedError
+      raise NotImplementedError
     end
 
     def read_nonblock
-      fail NotImplementedError
+      raise NotImplementedError
     end
 
     def stat
@@ -473,18 +473,18 @@ module FakeFS
       pos
     end
 
-    alias_method :to_i, :fileno
+    alias to_i fileno
 
     def to_io
       self
     end
 
     def write_nonblock(*)
-      fail NotImplementedError
+      raise NotImplementedError
     end
 
     def readpartial(*)
-      fail NotImplementedError
+      raise NotImplementedError
     end
 
     def atime
@@ -496,7 +496,7 @@ module FakeFS
     end
 
     def flock(*)
-      fail NotImplementedError
+      raise NotImplementedError
     end
 
     def mtime
@@ -504,18 +504,20 @@ module FakeFS
     end
 
     def chmod(mode_int)
-      @file.mode = 0100000 + mode_int
+      @file.mode = 0o100000 + mode_int
     end
 
     def chown(owner_int, group_int)
       return unless group_int && group_int != -1
 
-      owner_int.is_a?(Fixnum) || fail(
-        TypeError, "can't convert String into Integer")
+      owner_int.is_a?(Fixnum) || raise(
+        TypeError, "can't convert String into Integer"
+      )
       @file.uid = owner_int
 
-      group_int.is_a?(Fixnum) || fail(
-        TypeError, "can't convert String into Integer")
+      group_int.is_a?(Fixnum) || raise(
+        TypeError, "can't convert String into Integer"
+      )
       @file.gid = group_int
     end
 
@@ -525,15 +527,15 @@ module FakeFS
       end
 
       def binmode?
-        fail NotImplementedError
+        raise NotImplementedError
       end
 
       def close_on_exec=(_bool)
-        fail NotImplementedError
+        raise NotImplementedError
       end
 
       def close_on_exec?
-        fail NotImplementedError
+        raise NotImplementedError
       end
 
       def to_path
@@ -554,7 +556,7 @@ module FakeFS
         @autoclose ? true : false
       end
 
-      alias_method :fdatasync, :flush
+      alias fdatasync flush
 
       def size
         File.size(@path)
@@ -572,7 +574,7 @@ module FakeFS
       def self.write(filename, contents, offset = nil, open_args = {})
         offset, open_args = nil, offset if offset.is_a?(Hash)
         mode = offset ? 'a' : 'w'
-        if open_args.size > 0
+        if open_args.any?
           if open_args[:open_args]
             args = [filename, *open_args[:open_args]]
           else
@@ -602,7 +604,7 @@ module FakeFS
         if exists?(path)
           FileSystem.find(path).birthtime
         else
-          fail Errno::ENOENT
+          raise Errno::ENOENT
         end
       end
 
@@ -627,13 +629,14 @@ module FakeFS
     end
 
     def binary_mode?
-      @mode.is_a?(String) && (@mode.include?('b') ||
-                              @mode.include?('binary')) &&
-        !@mode.include?('bom')
+      @mode.is_a?(String) && (
+        @mode.include?('b') ||
+        @mode.include?('binary')
+      ) && !@mode.include?('bom')
     end
 
     def check_file_existence!
-      fail Errno::ENOENT, @path unless @file
+      raise Errno::ENOENT, @path unless @file
     end
 
     def file_creation_mode?
@@ -653,7 +656,7 @@ module FakeFS
     # Create a missing file if the path is valid.
     #
     def create_missing_file
-      fail Errno::EISDIR, path if File.directory?(@path)
+      raise Errno::EISDIR, path if File.directory?(@path)
 
       return if File.exist?(@path) # Unnecessary check, probably.
       dirname = RealFile.dirname @path
@@ -661,7 +664,7 @@ module FakeFS
       unless dirname == '.'
         dir = FileSystem.find dirname
 
-        fail Errno::ENOENT, path unless dir.is_a? FakeDir
+        raise Errno::ENOENT, path unless dir.is_a? FakeDir
       end
 
       @file = FileSystem.add(path, FakeFile.new)

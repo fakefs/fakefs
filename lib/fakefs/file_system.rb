@@ -87,7 +87,7 @@ module FakeFS
       new_dir = find(dir)
       dir_levels.push dir if blk
 
-      fail Errno::ENOENT, dir unless new_dir
+      raise Errno::ENOENT, dir unless new_dir
 
       dir_levels.push dir unless blk
       yield(dir) if blk
@@ -157,7 +157,7 @@ module FakeFS
     end
 
     def assert_dir(dir)
-      fail Errno::EEXIST, dir.name unless dir.is_a?(FakeDir)
+      raise Errno::EEXIST, dir.name unless dir.is_a?(FakeDir)
     end
   end
 end

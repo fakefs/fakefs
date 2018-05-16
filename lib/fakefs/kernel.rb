@@ -25,8 +25,7 @@ module FakeFS
       end
     end
 
-    private
-
+    # NOTE: maybe private
     def self.hijack(name, &block)
       captives[:original][name] = ::Kernel.method(name.to_sym)
       captives[:hijacked][name] = block || proc { |_args| }
