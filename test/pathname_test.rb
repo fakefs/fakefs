@@ -36,7 +36,7 @@ class PathnameTest < Minitest::Test
     yielded = []
     @pathname.each_line { |line| yielded << line }
 
-    assert_equal yielded, ["one\n", "two\n", "three\n"]
+    assert_equal yielded, %W(one\n two\n three\n)
   end
 
   def test_io_each_line_without_block_returns_enumerator
@@ -44,7 +44,7 @@ class PathnameTest < Minitest::Test
 
     assert @pathname.each_line.is_a?(Enumerator)
     assert_equal %w(o t t), @pathname.each_line.map { |l| l[0] }
-    assert_equal ["one\ntwo\nth", "ree\n"], @pathname.each_line('th').to_a
+    assert_equal %W(one\ntwo\nth ree\n), @pathname.each_line('th').to_a
   end
 
   def test_io_read_returns_file_contents
@@ -72,7 +72,7 @@ class PathnameTest < Minitest::Test
   def test_io_readlines_returns_array_of_lines
     File.write(@path, "one\ntwo\nthree\n")
 
-    assert_equal ["one\n", "two\n", "three\n"], @pathname.readlines
+    assert_equal %W(one\n two\n three\n), @pathname.readlines
   end
 
   def test_io_sysopen_is_unsupported

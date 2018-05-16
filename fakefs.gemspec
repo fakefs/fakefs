@@ -1,4 +1,5 @@
 require './lib/fakefs/version'
+require 'English'
 
 Gem::Specification.new do |spec|
   spec.name          = 'fakefs'
@@ -10,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.homepage      = 'https://github.com/fakefs/fakefs'
   spec.license       = 'MIT'
 
-  spec.files         = `git ls-files lib README.md LICENSE`.split($/)
+  spec.files         = `git ls-files lib README.md LICENSE`.split($INPUT_RECORD_SEPARATOR)
 
   spec.required_ruby_version = '>= 2.3.0'
   spec.add_development_dependency 'bundler', '~> 1.3'

@@ -7,7 +7,7 @@ module FakeFS
     attr_reader :path
 
     def self._check_for_valid_file(path)
-      fail Errno::ENOENT, path unless FileSystem.find(path)
+      raise Errno::ENOENT, path unless FileSystem.find(path)
     end
 
     def initialize(string)
@@ -45,7 +45,7 @@ module FakeFS
     end
 
     def read
-      fail IOError, 'closed directory' unless @pointer
+      raise IOError, 'closed directory' unless @pointer
       entry = @contents[@pointer]
       @pointer += 1
       entry_to_relative_path(entry) if entry
@@ -56,7 +56,7 @@ module FakeFS
     end
 
     def seek(integer)
-      fail IOError, 'closed directory' if @pointer.nil?
+      raise IOError, 'closed directory' if @pointer.nil?
       @pointer = integer
       @contents[integer]
     end
@@ -74,12 +74,12 @@ module FakeFS
     end
 
     def self.chroot(_string)
-      fail NotImplementedError
+      raise NotImplementedError
     end
 
     def self.delete(string)
       _check_for_valid_file(string)
-      fail Errno::ENOTEMPTY, string unless FileSystem.find(string).empty?
+      raise Errno::ENOTEMPTY, string unless FileSystem.find(string).empty?
 
       FileSystem.delete(string)
     end
@@ -184,8 +184,7 @@ module FakeFS
             prefix = prefix_suffix[0]
             suffix = prefix_suffix[1]
           else
-            fail ArgumentError,
-                 "unexpected prefix_suffix: #{prefix_suffix.inspect}"
+            raise ArgumentError, "unexpected prefix_suffix: #{prefix_suffix.inspect}"
           end
           t = Time.now.strftime('%Y%m%d')
           path = "#{prefix}#{t}-#{$PID}-#{rand(0x100000000).to_s(36)}"
@@ -223,13 +222,6 @@ module FakeFS
       end
     end
 
-    private
-
-    def entry_to_relative_path(entry)
-      filename = entry.to_s
-      filename.start_with?("#{path}/") ? filename[path.size + 1..-1] : filename
-    end
-
     # This code has been borrowed from Rubinius
     def self.mktmpdir(prefix_suffix = nil, tmpdir = nil)
       case prefix_suffix
@@ -243,7 +235,7 @@ module FakeFS
         prefix = prefix_suffix[0]
         suffix = prefix_suffix[1]
       else
-        fail ArgumentError, "unexpected prefix_suffix: #{prefix_suffix.inspect}"
+        raise ArgumentError, "unexpected prefix_suffix: #{prefix_suffix.inspect}"
       end
 
       t = Time.now.strftime('%Y%m%d')
@@ -253,7 +245,7 @@ module FakeFS
         path = "#{tmpdir}/#{prefix}#{t}-#{$PID}-#{rand(0x100000000).to_s(36)}"
         path << "-#{n}" if n
         path << suffix
-        mkdir(path, 0700)
+        mkdir(path, 0o700)
       rescue Errno::EEXIST
         n ||= 0
         n += 1
@@ -276,11 +268,18 @@ module FakeFS
       end
     end
 
+    private
+
+    def entry_to_relative_path(entry)
+      filename = entry.to_s
+      filename.start_with?("#{path}/") ? filename[path.size + 1..-1] : filename
+    end
+
     class << self
-      alias_method :getwd, :pwd
-      alias_method :rmdir, :delete
-      alias_method :unlink, :delete
-      alias_method :exist?, :exists?
+      alias getwd pwd
+      alias rmdir delete
+      alias unlink delete
+      alias exist? exists?
     end
   end
 end

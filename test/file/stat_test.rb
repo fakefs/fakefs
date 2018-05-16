@@ -119,7 +119,7 @@ class FileStatTest < Minitest::Test
 
   def test_responds_to_world_writable
     FileUtils.touch('/foo')
-    assert File::Stat.new('/foo').world_writable? == 0777
+    assert File::Stat.new('/foo').world_writable? == 0o777
   end
 
   def test_responds_to_sticky
@@ -129,7 +129,7 @@ class FileStatTest < Minitest::Test
 
   def test_responds_to_world_readable
     FileUtils.touch('/foo')
-    assert File::Stat.new('/foo').world_readable? == 0777, "#{File::Stat.new('/foo').world_readable?}"
+    assert File::Stat.new('/foo').world_readable? == 0o777, File::Stat.new('/foo').world_readable?.to_s
   end
 
   def test_can_open_tempfile

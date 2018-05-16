@@ -10,7 +10,7 @@ module FakeFS
       @ctime   = Time.now
       @mtime   = @ctime
       @atime   = @ctime
-      @mode    = 0100000 + (0777 - File.umask)
+      @mode    = 0o100000 + (0o777 - File.umask)
       @uid     = Process.uid
       @gid     = Process.gid
       @content = ''

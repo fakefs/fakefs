@@ -11,13 +11,14 @@ env:
   matrix:
     - TASK=test
     - TASK=spec
-    - TASK=rubocop
 matrix:
   allow_failures:
     - rvm: jruby-1.7.27
     - rvm: jruby-9.1.13.0
     - rvm: jruby-head
-before_install:
-  - gem --version
-  - gem install bundler
+  include:
+    - rvm: 2.3.7 # lowest from rvm list above
+      env: TASK=rubocop
+
+before_install: gem install bundler
 script: bundle exec rake $TASK

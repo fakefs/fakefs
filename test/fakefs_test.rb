@@ -5,10 +5,10 @@ require_relative 'test_helper'
 class FakeFSTest < Minitest::Test
   def setup
     act_on_real_fs do
-      File.umask(0006)
+      File.umask(0o006)
       FileUtils.rm_rf(real_file_sandbox)
       FileUtils.mkdir_p(real_file_sandbox)
-      FileUtils.chmod(0777, real_file_sandbox)
+      FileUtils.chmod(0o777, real_file_sandbox)
     end
 
     FakeFS.activate!
@@ -60,7 +60,7 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_can_create_directories_with_options
-    FileUtils.mkdir_p('/path/to/dir', mode: 0755)
+    FileUtils.mkdir_p('/path/to/dir', mode: 0o755)
     assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']
   end
 
@@ -104,7 +104,7 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_can_create_directories_with_mkpath_and_options
-    FileUtils.mkpath('/path/to/dir', mode: 0755)
+    FileUtils.mkpath('/path/to/dir', mode: 0o755)
     assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']
   end
 
@@ -114,7 +114,7 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_can_create_directories_with_mkdirs_and_options
-    FileUtils.makedirs('/path/to/dir', mode: 0755)
+    FileUtils.makedirs('/path/to/dir', mode: 0o755)
     assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']
   end
 
@@ -920,7 +920,7 @@ class FakeFSTest < Minitest::Test
     filename = 'bracket[1](2).txt'
     expected_contents = 'Yokudekimashita'
     # nothing raised
-    File.open(filename, mode: 'w') { |f| f.write "#{expected_contents}" }
+    File.open(filename, mode: 'w') { |f| f.write expected_contents.to_s }
     the_file = Dir['/*']
     assert_equal the_file.length, 1
     assert_equal the_file[0], "/#{filename}"
@@ -932,7 +932,7 @@ class FakeFSTest < Minitest::Test
     filename = "\u65e5\u672c\u8a9e.txt"
     expected_contents = 'Yokudekimashita'
     # nothing raised
-    File.open(filename, mode: 'w') { |f| f.write "#{expected_contents}" }
+    File.open(filename, mode: 'w') { |f| f.write expected_contents.to_s }
     contents = File.open("/#{filename}").read
     assert_equal contents, expected_contents
   end
@@ -1074,31 +1074,31 @@ class FakeFSTest < Minitest::Test
     bad = 'nofile.txt'
     FileUtils.touch(good)
 
-    assert_equal [good], FileUtils.chmod(0600, good, verbose: true)
-    assert_equal File.stat(good).mode, 0100600
+    assert_equal [good], FileUtils.chmod(0o600, good, verbose: true)
+    assert_equal File.stat(good).mode, 0o100600
     assert_equal File.executable?(good), false
     assert_raises(Errno::ENOENT) do
-      FileUtils.chmod(0600, bad)
+      FileUtils.chmod(0o600, bad)
     end
 
-    assert_equal [good], FileUtils.chmod(0666, good)
-    assert_equal File.stat(good).mode, 0100666
+    assert_equal [good], FileUtils.chmod(0o666, good)
+    assert_equal File.stat(good).mode, 0o100666
     assert_raises(Errno::ENOENT) do
-      FileUtils.chmod(0666, bad)
+      FileUtils.chmod(0o666, bad)
     end
 
-    assert_equal [good], FileUtils.chmod(0644, [good])
-    assert_equal File.stat(good).mode, 0100644
+    assert_equal [good], FileUtils.chmod(0o644, [good])
+    assert_equal File.stat(good).mode, 0o100644
     assert_raises(Errno::ENOENT) do
-      FileUtils.chmod(0644, bad)
+      FileUtils.chmod(0o644, bad)
     end
 
-    assert_equal [good], FileUtils.chmod(0744, [good])
+    assert_equal [good], FileUtils.chmod(0o744, [good])
     assert_equal File.executable?(good), true
 
     # This behaviour is unimplemented, the spec below is only to show that it
     # is a deliberate YAGNI omission.
-    assert_equal [good], FileUtils.chmod(0477, [good])
+    assert_equal [good], FileUtils.chmod(0o477, [good])
     assert_equal File.executable?(good), false
   end
 
@@ -1107,15 +1107,15 @@ class FakeFSTest < Minitest::Test
     FileUtils.touch '/path/file1'
     FileUtils.touch '/path/sub/file2'
 
-    assert_equal ['/path'], FileUtils.chmod_R(0600, '/path')
-    assert_equal File.stat('/path').mode, 0100600
-    assert_equal File.stat('/path/file1').mode, 0100600
-    assert_equal File.stat('/path/sub').mode, 0100600
-    assert_equal File.stat('/path/sub/file2').mode, 0100600
+    assert_equal ['/path'], FileUtils.chmod_R(0o600, '/path')
+    assert_equal File.stat('/path').mode, 0o100600
+    assert_equal File.stat('/path/file1').mode, 0o100600
+    assert_equal File.stat('/path/sub').mode, 0o100600
+    assert_equal File.stat('/path/sub/file2').mode, 0o100600
 
     FileUtils.mkdir_p '/path2'
     FileUtils.touch '/path2/hej'
-    assert_equal ['/path2'], FileUtils.chmod_R(0600, '/path2')
+    assert_equal ['/path2'], FileUtils.chmod_R(0o600, '/path2')
   end
 
   def test_copy_entry
@@ -1512,7 +1512,7 @@ class FakeFSTest < Minitest::Test
 
     begin
       Dir.chdir('/path') do
-        fail Errno::ENOENT
+        raise Errno::ENOENT
       end
     rescue Errno::ENOENT => e # hardcore
       'Nothing to do'
@@ -2746,12 +2746,12 @@ class FakeFSTest < Minitest::Test
   #########################
   def test_file_default_mode
     FileUtils.touch 'foo'
-    assert_equal File.stat('foo').mode, (0100000 + 0666 - File.umask)
+    assert_equal File.stat('foo').mode, (0o100000 + 0o666 - File.umask)
   end
 
   def test_dir_default_mode
     Dir.mkdir 'bar'
-    assert_equal File.stat('bar').mode, (0100000 + 0777 - File.umask)
+    assert_equal File.stat('bar').mode, (0o100000 + 0o777 - File.umask)
   end
 
   def test_file_default_uid_and_gid
@@ -2762,18 +2762,18 @@ class FakeFSTest < Minitest::Test
 
   def test_file_chmod_of_file
     FileUtils.touch 'foo'
-    File.chmod 0600, 'foo'
-    assert_equal File.stat('foo').mode, 0100600
-    File.new('foo').chmod 0644
-    assert_equal File.stat('foo').mode, 0100644
+    File.chmod 0o600, 'foo'
+    assert_equal File.stat('foo').mode, 0o100600
+    File.new('foo').chmod 0o644
+    assert_equal File.stat('foo').mode, 0o100644
   end
 
   def test_file_chmod_of_dir
     Dir.mkdir 'bar'
-    File.chmod 0777, 'bar'
-    assert_equal File.stat('bar').mode, 0100777
-    File.new('bar').chmod 01700
-    assert_equal File.stat('bar').mode, 0101700
+    File.chmod 0o777, 'bar'
+    assert_equal File.stat('bar').mode, 0o100777
+    File.new('bar').chmod 0o1700
+    assert_equal File.stat('bar').mode, 0o101700
   end
 
   def test_file_chown_of_file
@@ -2831,10 +2831,10 @@ class FakeFSTest < Minitest::Test
 
   def test_file_umask
     assert_equal File.umask, RealFile.umask
-    File.umask(0740)
+    File.umask(0o740)
 
     assert_equal File.umask, RealFile.umask
-    assert_equal File.umask, 0740
+    assert_equal File.umask, 0o740
   end
 
   def test_file_stat_comparable

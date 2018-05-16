@@ -120,7 +120,7 @@ class SafeTest < Minitest::Test
   def test_FakeFS_method_deactivates_FakeFS_when_block_raises_exception
     begin
       FakeFS do
-        fail 'boom!'
+        raise 'boom!'
       end
     rescue
       'Nothing to do'
