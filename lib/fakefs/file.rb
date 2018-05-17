@@ -604,7 +604,7 @@ module FakeFS
 
     def read(length = nil, buf = '')
       read_buf = super(length, buf)
-      read_buf.force_encoding('ASCII-8BIT') if binary_mode?
+      read_buf&.force_encoding('ASCII-8BIT') if binary_mode?
       read_buf
     end
 
