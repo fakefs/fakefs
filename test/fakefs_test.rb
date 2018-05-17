@@ -892,6 +892,17 @@ class FakeFSTest < Minitest::Test
     assert_equal 'Yatta!', File.new(path).read
   end
 
+  def test_can_read_nil_from_binary
+    path = 'file.txt'
+    File.open(path, 'w') do |f|
+      f.write 'Yatta!'
+    end
+
+    f = File.new(path, 'rb')
+    assert_equal 'Yatta!', f.read(1000)
+    assert_nil f.read(1000)
+  end
+
   def test_file_object_has_default_external_encoding
     old_verbose = $VERBOSE
     $VERBOSE = nil
