@@ -101,7 +101,11 @@ module FakeFS
     end
 
     def self.size(path)
-      read(path).bytesize
+      if directory?(path)
+        64 + (32 * FileSystem.find(path).entries.size)
+      else
+        read(path).bytesize
+      end
     end
 
     def self.size?(path)

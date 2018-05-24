@@ -588,6 +588,28 @@ class FakeFSTest < Minitest::Test
     assert_equal 5, File.size(path)
   end
 
+  def test_can_get_correct_size_for_empty_directory
+    Dir.mkdir '/foo'
+    assert_equal 64, File.size?('/foo')
+  end
+
+  def test_can_get_correct_size_for_parent_directory
+    FileUtils.mkdir_p '/foo/bar'
+    assert_equal 96, File.size?('/foo')
+  end
+
+  def test_can_get_correct_size_for_grandparent_directory
+    FileUtils.mkdir_p '/foo/bar/baz'
+    assert_equal 96, File.size?('/foo')
+  end
+
+  def test_can_get_correct_size_for_grandparent_directory_with_files
+    FileUtils.mkdir_p '/foo/bar/baz'
+    File.open('/foo/a.txt', 'w')
+    File.open('/foo/bar/b.txt', 'w')
+    assert_equal 128, File.size?('/foo')
+  end
+
   def test_can_check_if_file_has_size?
     path = 'file.txt'
     File.open(path, 'w') do |f|
@@ -603,6 +625,11 @@ class FakeFSTest < Minitest::Test
       f << ''
     end
     assert_nil File.size?('file.txt')
+  end
+
+  def test_can_check_size_of_directory
+    Dir.mkdir '/foo'
+    assert_equal 64, File.size?('/foo')
   end
 
   def test_zero_on_empty_file
