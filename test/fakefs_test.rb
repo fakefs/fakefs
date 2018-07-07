@@ -160,7 +160,6 @@ class FakeFSTest < Minitest::Test
     assert FileUtils.respond_to?(:remove)
     assert FileUtils.respond_to?(:rmtree)
     assert FileUtils.respond_to?(:safe_unlink)
-    assert FileUtils.respond_to?(:remove_entry_secure)
     assert FileUtils.respond_to?(:cmp)
     assert FileUtils.respond_to?(:identical?)
   end
@@ -3075,5 +3074,15 @@ class FakeFSTest < Minitest::Test
   def test_file_birthtime_is_equal_to_file_stat_birthtime
     File.open('foo', 'w') { |f| f << 'some content' }
     assert_equal File.stat('foo').birthtime, File.birthtime('foo')
+  end
+
+  def test_remove_entry_secure_removes_files
+    File.open('foo', 'w') { |f| f << 'some content' }
+    FileUtils.remove_entry_secure('foo', false)
+    assert File.exist?('foo') == false
+
+    File.open('foo', 'w') { |f| f << 'some content' }
+    FileUtils.remove_entry_secure('foo', true)
+    assert File.exist?('foo') == false
   end
 end

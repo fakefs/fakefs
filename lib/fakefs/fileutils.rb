@@ -74,7 +74,10 @@ module FakeFS
     end
     alias rmtree rm_rf
     alias safe_unlink rm_f
-    alias remove_entry_secure rm_rf
+
+    def remove_entry_secure(path, force = false)
+      rm_rf(path, force: force)
+    end
 
     def ln_s(target, path, options = {})
       options = { force: false }.merge(options)
