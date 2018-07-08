@@ -335,6 +335,13 @@ module FakeFS
         @mode      = @fake_file.mode
         @uid       = @fake_file.uid
         @gid       = @fake_file.gid
+
+        # for now, we do not support inode for directories so do not
+        # expose it for fake directories.
+        unless @fake_file.is_a? FakeDir
+          @inode = @fake_file.inode
+        end
+
         @birthtime =
           if @fake_file.respond_to?(:birthtime)
             @fake_file.birthtime
@@ -399,6 +406,10 @@ module FakeFS
 
       def zero?
         size == 0
+      end
+
+      def ino
+        @inode.inode_num
       end
 
       include Comparable

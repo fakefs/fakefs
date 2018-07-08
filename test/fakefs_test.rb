@@ -3085,4 +3085,56 @@ class FakeFSTest < Minitest::Test
     FileUtils.remove_entry_secure('foo', true)
     assert File.exist?('foo') == false
   end
+
+  def test_properly_calculates_ino_for_files
+    # sanitize our testing environment
+    FakeFS::FakeFile::Inode.clear_inode_info_for_tests
+
+    # make sure that inodes are assigned starting from 0 in ascending order
+    file_name = 'file1'
+    File.open(file_name, 'w') { |f| f << 'some content' }
+    assert File.stat(file_name).ino == 0
+
+    file_name = 'file2'
+    File.open(file_name, 'w') { |f| f << 'some content' }
+    assert File.stat(file_name).ino == 1
+
+    # make sure any deleted inodes are reused
+    file_name = 'file1'
+    deleted_ino = File.stat(file_name).ino
+    File.delete(file_name)
+
+    file_name = 'file3'
+    File.open(file_name, 'w') { |f| f << 'some content' }
+    assert File.stat(file_name).ino == deleted_ino
+
+    # and that the next largest inode number is picked if we are out of
+    # unused, deleted inodes
+    file_name = 'file4'
+    File.open(file_name, 'w') { |f| f << 'some content' }
+    assert File.stat(file_name).ino == 2
+
+    # make sure moved files retain their existing inodes
+    file_name = 'file3'
+    move_file_name = 'file3_mv'
+    old_ino = File.stat(file_name).ino
+    FileUtils.mv(file_name, move_file_name)
+    assert File.stat(move_file_name).ino == old_ino
+
+    # but that copied ones do not
+    file_name = 'file2'
+    copy_file = 'file2_cp'
+    FileUtils.cp(file_name, copy_file)
+    assert File.stat(copy_file).ino == 3
+
+    # and finally that symlinks have the same inode as what they link to
+    # NOTE: viewing files with `ls -il` will show that a symlink has a different
+    # inode value than what it is pointing to. However, testing on a file made via
+    # ruby's `ln_s` method will show that the inode of a symlink and what it is
+    # pointing to is identical, hence I am testing for equality
+    file_name = 'file4'
+    sym_link = 'file4_symlink'
+    FileUtils.ln_s(file_name, sym_link)
+    assert File.stat(sym_link).ino == File.stat(file_name).ino
+  end
 end
