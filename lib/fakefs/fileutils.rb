@@ -191,8 +191,8 @@ module FakeFS
             raise Errno::EEXIST, dest_path unless options[:force]
           elsif File.directory?(File.dirname(dest_path))
             FileSystem.delete(dest_path)
-            FileSystem.add(dest_path, target.entry.clone)
             FileSystem.delete(path)
+            FileSystem.add(dest_path, target.entry.clone)
           else
             raise Errno::ENOENT, dest_path unless options[:force]
           end
