@@ -1,7 +1,7 @@
 module FakeFS
   # Fake Dir class
   class FakeDir
-    attr_accessor :name, :parent, :mode, :uid, :gid, :mtime, :atime
+    attr_accessor :name, :parent, :mode, :uid, :gid, :mtime, :atime, :inode
     attr_reader :ctime, :content
 
     def initialize(name = nil, parent = nil)
@@ -13,6 +13,7 @@ module FakeFS
       @mode    = 0o100000 + (0o777 - File.umask)
       @uid     = Process.uid
       @gid     = Process.gid
+      @inode   = FakeInode.new(self)
       @content = ''
       @entries = {}
     end
@@ -32,6 +33,7 @@ module FakeFS
         value.parent = clone
       end
       clone.parent = parent if parent
+      clone.inode = @inode.clone
       clone
     end
 
@@ -68,6 +70,7 @@ module FakeFS
     def delete(node = self)
       if node == self
         parent.delete(self)
+        @inode.free_inode_num
       else
         @entries.delete(node.name)
       end

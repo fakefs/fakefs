@@ -13,10 +13,11 @@ module FakeFS
     def initialize(string)
       self.class._check_for_valid_file(string)
 
-      @path = FileSystem.normalize_path(string)
-      @open = true
-      @pointer = 0
+      @path     = FileSystem.normalize_path(string)
+      @open     = true
+      @pointer  = 0
       @contents = ['.', '..'] + FileSystem.find(@path).entries
+      @inode    = FakeInode.new(self)
     end
 
     def close
@@ -216,6 +217,10 @@ module FakeFS
         end
         path
       end
+    end
+
+    def ino
+      @inode.inode_num
     end
 
     # This code has been borrowed from Rubinius
