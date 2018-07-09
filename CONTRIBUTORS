@@ -8,6 +8,7 @@ Brian Donovan <donovan@squareup.com>
 Myles Eftos <myles@madpilot.com.au>
 Jeff Hodges <jeff@somethingsimilar.com>
 Benjamin Quorning <benjamin@quorning.net>
+Gleb Nikonorov <gleb.i.nikonorov@gmail.com>
 Jakub Jirutka <jakub@jirutka.cz>
 Brian Donovan <me@brian-donovan.com>
 Pierre RAMBAUD <pierre.rambaud86@gmail.com>
@@ -50,15 +51,15 @@ Gergely Brautigam <skarlso777@gmail.com>
 Mark <mark@amerine.net>
 Jorge Orlando Munoz <jmunoz@altavistaed.com>
 Sam Goldstein <sam@aboutus.org>
-Randall Reed, Jr <randallreedjr@gmail.com>
 Adam Alboyadjian <adam@vistahigherlearning.com>
-Rick Salevsky <rsalevsky@suse.com>
+Randall Reed, Jr <randallreedjr@gmail.com>
 Scott Petersen <petersen@centtech.com>
+Rick Salevsky <rsalevsky@suse.com>
 Roman Kříž <samnung@gmail.com>
-Matt Todd <chiology@gmail.com>
-Noah Paessel <knowuh@gmail.com>
 Emil Soman <emil.soman@gmail.com>
+Matt Todd <chiology@gmail.com>
 Ryan McGeary <ryan@mcgeary.org>
+Noah Paessel <knowuh@gmail.com>
 dmathieu <42@dmathieu.com>
 Oleg Sukhodolsky <os97673@gmail.com>
 Winston Lee <lee.winston@gmail.com>
@@ -66,55 +67,54 @@ Radek Simko <radek.simko@gmail.com>
 Grayson Wright <wright.grayson@gmail.com>
 Zequez <zequez@gmail.com>
 jameswilding <james@jameswilding.net>
-Damien Mathieu <damien@heroku.com>
 Gabriel de Oliveira <deoliveira.gab@gmail.com>
+Damien Mathieu <damien@heroku.com>
 Ed Ruder <ed@squareup.com>
-Benjamin Oakes <hello@benjaminoakes.com>
 Scott Barron <scott@elitists.net>
+Benjamin Oakes <hello@benjaminoakes.com>
 Tymon Tobolski <i@teamon.eu>
 Andrius Chamentauskas <andrius.chamentauskas@gmail.com>
-ReadmeCritic <frankensteinbot@gmail.com>
-long-long-float <niinikazuki@yahoo.co.jp>
 Eric Daspet <eric.daspet@survol.fr>
+long-long-float <niinikazuki@yahoo.co.jp>
+ReadmeCritic <frankensteinbot@gmail.com>
+maeve <maeve.revels@getg5.com>
 W. Andrew Loe III <andrew@andrewloe.com>
 Xavier Shay <xavier@squareup.com>
 Matt Hoyle <matt@deployable.co>
-maeve <maeve.revels@getg5.com>
-Gleb Nikonorov <gleb.i.nikonorov@gmail.com>
 Igor Serebryany <igor.serebryany@airbnb.com>
-Keita Urashima <ursm@ursm.jp>
-rambutan <usul@usul-HP-EliteBook-8460p.(none)>
 Travis Herrick <travis@carbonfive.com>
+Keita Urashima <ursm@ursm.jp>
 Andrew Mackenzie <andrew@mackenzie-serres.net>
-andrea longhi <andrea@spaghetticode.it>
+rambutan <usul@usul-HP-EliteBook-8460p.(none)>
 Matthew Morgan <lytithwyn@gmail.com>
-= <gokulnath@mobme.in>
 David Reese <david@whatcould.com>
-Martin Mauch <martin.mauch@gmail.com>
+= <gokulnath@mobme.in>
 msassak <msassak@gmail.com>
-Ash Furrow <ash@ashfurrow.com>
+Martin Mauch <martin.mauch@gmail.com>
+andrea longhi <andrea@spaghetticode.it>
 Andrius Chamentauskas <sinsiliux@gmail.com>
+Ash Furrow <ash@ashfurrow.com>
 timo3377 <tim.linquist@gmail.com>
-Matt Rogers <mattrogers@sbcglobal.net>
 Paolo Gianrossi <paolino.gianrossi@gmail.com>
+Matt Rogers <mattrogers@sbcglobal.net>
 Michael Scherer <misc@zarb.org>
-Donnie Tognazzini <donnie.tognazzini@appfolio.com>
-Eric Mueller <nevinera@gmail.com>
 Mislav Marohnić <mislav.marohnic@gmail.com>
+Eric Mueller <nevinera@gmail.com>
+Donnie Tognazzini <donnie.tognazzini@appfolio.com>
 Bryan Hockey <bhock@umich.edu>
-Jacob Atzen <jatzen@gmail.com>
 Rob Sanheim <rsanheim@gmail.com>
+Jacob Atzen <jatzen@gmail.com>
 Andrew Ryan <nerdrew@gmail.com>
-Ryan Scott Lewis <ryanscottlewis@lewis-software.com>
 Chris Wanstrath <chris@github.com>
+Ryan Scott Lewis <ryanscottlewis@lewis-software.com>
 Chris Knadler <takeshi91k@gmail.com>
 Toon Willems <willemstoon@gmail.com>
-Dimitri John Ledkov <xnox@ubuntu.com>
-Dane O'Connor <dane.oconnor@gmail.com>
-Sven Riedel <sr@gimp.org>
-Nathaniel Bibler <git@nathanielbibler.com>
-Benjamin Quorning <bquorning@zendesk.com>
 Yuta Shimizu <pachirel@gmail.com>
+Nathaniel Bibler <git@nathanielbibler.com>
+Dimitri John Ledkov <xnox@ubuntu.com>
+Sven Riedel <sr@gimp.org>
+Benjamin Quorning <bquorning@zendesk.com>
+Dane O'Connor <dane.oconnor@gmail.com>
 Jordi Massaguer Pla <jmassaguerpla@suse.de>
 Maria Shaldibina <mariash@pivotallabs.com>
 Benjamin Fleischer <github@benjaminfleischer.com>
