@@ -335,12 +335,7 @@ module FakeFS
         @mode      = @fake_file.mode
         @uid       = @fake_file.uid
         @gid       = @fake_file.gid
-
-        # for now, we do not support inode for directories so do not
-        # expose it for fake directories.
-        unless @fake_file.is_a? FakeDir
-          @inode = @fake_file.inode
-        end
+        @inode     = @fake_file.inode
 
         @birthtime =
           if @fake_file.respond_to?(:birthtime)

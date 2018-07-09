@@ -3088,7 +3088,7 @@ class FakeFSTest < Minitest::Test
 
   def test_properly_calculates_ino_for_files
     # sanitize our testing environment
-    FakeFS::FakeFile::Inode.clear_inode_info_for_tests
+    FakeFS::FakeInode.clear_inode_info_for_tests
 
     # make sure that inodes are assigned starting from 0 in ascending order
     file_name = 'file1'
@@ -3136,5 +3136,111 @@ class FakeFSTest < Minitest::Test
     sym_link = 'file4_symlink'
     FileUtils.ln_s(file_name, sym_link)
     assert File.stat(sym_link).ino == File.stat(file_name).ino
+  end
+
+  def test_properly_calculates_ino_for_directories
+    # sanitize our testing environment
+    FakeFS::FakeInode.clear_inode_info_for_tests
+
+    # make sure that inodes are assigned starting from 0 in ascending order
+    dir_name = 'dir1'
+    Dir.mkdir dir_name
+    assert File.stat(dir_name).ino == 0
+
+    dir_name = 'dir2'
+    FileUtils.mkdir(dir_name)
+    assert File.stat(dir_name).ino == 1
+
+    # make sure any deleted inodes are reused
+    dir_name = 'dir1'
+    deleted_ino = File.stat(dir_name).ino
+    FileUtils.rm_rf(dir_name)
+
+    dir_name = 'dir3'
+    Dir.mkdir dir_name
+    assert File.stat(dir_name).ino == deleted_ino
+
+    # and that the next largest inode number is picked if we are out of
+    # unused, deleted inodes
+    dir_name = 'dir4'
+    Dir.mkdir dir_name
+    assert File.stat(dir_name).ino == 2
+
+    # make sure moved directories retain their existing inodes
+    dir_name = 'dir3'
+    move_dir_name = 'dir3_mv'
+    old_ino = File.stat(dir_name).ino
+    FileUtils.mv(dir_name, move_dir_name)
+    assert File.stat(move_dir_name).ino == old_ino
+
+    # but that copied ones do not
+    dir_name = 'dir2'
+    copy_dir = 'dir2_cp'
+    FileUtils.cp_r(dir_name, copy_dir)
+    assert File.stat(copy_dir).ino == 3
+
+    # and finally that symlinks have the same inode as what they link to
+    # NOTE: viewing files with `ls -il` will show that a symlink has a different
+    # inode value than what it is pointing to. However, testing on a directory made via
+    # ruby's `ln_s` method will show that the inode of a symlink and what it is
+    # pointing to is identical, hence I am testing for equality
+    dir_name = 'dir4'
+    sym_link = 'dir4_symlink'
+    FileUtils.ln_s(dir_name, sym_link)
+    assert File.stat(sym_link).ino == File.stat(dir_name).ino
+  end
+
+  def test_files_and_dirs_share_the_same_inode_pool
+    # make sure that inodes are assigned starting from 0 in ascending order
+    # and that files and directories share the same pool of inode numbers
+    # case where the directory is first
+    dir_name = 'dir1'
+    Dir.mkdir dir_name
+    dir_ino = File.stat(dir_name).ino
+
+    file_name = 'file1'
+    File.open(file_name, 'w') { |f| f << 'some content' }
+    file_ino = File.stat(file_name).ino
+
+    assert file_ino == dir_ino + 1
+
+    # case where the file is first
+    file_name = 'file2'
+    File.open(file_name, 'w') { |f| f << 'some content' }
+    file_ino = File.stat(file_name).ino
+
+    dir_name = 'dir2'
+    Dir.mkdir dir_name
+    dir_ino = File.stat(dir_name).ino
+
+    assert dir_ino == file_ino + 1
+
+    # make sure that inodes are reused for both files and dirs when either a file
+    # or a dir is deleted
+    # case where dir is deleted
+    dir_name = 'dir3'
+    Dir.mkdir dir_name
+    deleted_dir_ino = File.stat(dir_name).ino
+
+    FileUtils.rm_rf(dir_name)
+
+    file_name = 'file3'
+    File.open(file_name, 'w') { |f| f << 'some content' }
+    file_ino = File.stat(file_name).ino
+
+    assert file_ino == deleted_dir_ino
+
+    # case where file is deleted
+    file_name = 'file4'
+    File.open(file_name, 'w') { |f| f << 'some content' }
+    deleted_file_ino = File.stat(file_name).ino
+
+    File.delete(file_name)
+
+    dir_name = 'dir4'
+    Dir.mkdir dir_name
+    dir_ino = File.stat(dir_name).ino
+
+    assert deleted_file_ino == dir_ino
   end
 end
