@@ -1274,6 +1274,17 @@ class FakeFSTest < Minitest::Test
     assert_equal ['/tmp/python-2.7.8', '/tmp/python-3.4.1'], Dir.glob('/tmp/python-[0-9]*')
   end
 
+  def test_dir_glob_respects_fnm_dotmatch
+    File.open('/file', 'w') { |f| f << 'content' }
+    File.open('/.file_hidden', 'w') { |f| f << 'content' }
+
+    Dir.mkdir('/subdir')
+    Dir.mkdir('/.subdir_hidden')
+
+    # add in /tmp since it's made by the test suite
+    assert_equal ['/.file_hidden', '/.subdir_hidden', '/file', '/subdir', '/tmp'], Dir.glob('*', File::FNM_DOTMATCH)
+  end
+
   def test_dir_glob_with_block
     FileUtils.touch('foo')
     FileUtils.touch('bar')
