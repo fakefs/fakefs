@@ -118,7 +118,7 @@ module FakeFS
 
     def find_recurser(dir, parts, find_flags = 0)
       return [] unless dir.respond_to? :[]
-      pattern, *parts = parts # rubocop:disable Lint/ShadowedArgument
+      pattern, *parts = parts
       matches =
         case pattern
         when '**'
