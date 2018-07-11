@@ -20,13 +20,13 @@ module FakeFS
       fs.entries
     end
 
-    def find(path)
+    def find(path, find_flags = 0)
       parts = path_parts(normalize_path(path))
       return fs if parts.empty? # '/'
 
       entries = Globber.expand(path).flat_map do |pattern|
         parts = path_parts(normalize_path(pattern))
-        find_recurser(fs, parts).flatten
+        find_recurser(fs, parts, find_flags).flatten
       end
 
       case entries.length
@@ -116,9 +116,9 @@ module FakeFS
 
     private
 
-    def find_recurser(dir, parts)
+    def find_recurser(dir, parts, find_flags = 0)
       return [] unless dir.respond_to? :[]
-      pattern, *parts = parts # rubocop:disable Lint/ShadowedArgument
+      pattern, *parts = parts
       matches =
         case pattern
         when '**'
@@ -139,14 +139,14 @@ module FakeFS
           end
         else
           Globber.expand(pattern).flat_map do |subpattern|
-            dir.matches(Globber.regexp(subpattern))
+            dir.matches(Globber.regexp(subpattern, find_flags))
           end
         end
 
       if parts.empty? # we're done recursing
         matches
       else
-        matches.map { |entry| find_recurser(entry, parts) }
+        matches.map { |entry| find_recurser(entry, parts, find_flags) }
       end
     end
 

@@ -60,7 +60,7 @@ module FakeFS
       drop_root(result).reject(&:empty?)
     end
 
-    def regexp(pattern)
+    def regexp(pattern, find_flags = 0)
       pattern = pattern.to_s
 
       regex_body =
@@ -82,8 +82,12 @@ module FakeFS
         end
       end
 
-      regex_body = regex_body.gsub(/\A\./, '(?!\.).')
+      # if we are matching dot files/directories, add that to the regex
+      if find_flags == File::FNM_DOTMATCH
+        regex_body = "(\.)?" + regex_body
+      end
 
+      regex_body = regex_body.gsub(/\A\./, '(?!\.).')
       /\A#{regex_body}\Z/
     end
 
