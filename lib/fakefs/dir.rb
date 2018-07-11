@@ -119,7 +119,7 @@ module FakeFS
 
     def self.glob(pattern, flags = 0, &block)
       matches_for_pattern = lambda do |matcher|
-        [FileSystem.find(matcher, flags) || []].flatten.map do |e|
+        [FileSystem.find(matcher, flags, true) || []].flatten.map do |e|
           if Dir.pwd.match(%r{\A/?\z}) ||
              !e.to_s.match(%r{\A#{Dir.pwd}/?})
             e.to_s

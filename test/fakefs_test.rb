@@ -320,6 +320,29 @@ class FakeFSTest < Minitest::Test
     assert File.writable?(path)
   end
 
+  def test_can_create_files_with_brackets
+    # test various combinations of files with brackets
+    file = '[file'
+    File.open(file, 'w') { |f| f << 'some content' }
+    assert File.exist?(file)
+
+    file = ']file'
+    File.open(file, 'w') { |f| f << 'some content' }
+    assert File.exist?(file)
+
+    file = 'fi][le'
+    File.open(file, 'w') { |f| f << 'some content' }
+    assert File.exist?(file)
+
+    file = '[file]'
+    File.open(file, 'w') { |f| f << 'some content' }
+    assert File.exist?(file)
+
+    file = '[[[[]][[]][]][[[[[[[[]]]'
+    File.open(file, 'w') { |f| f << 'some content' }
+    assert File.exist?(file)
+  end
+
   def test_nothing_is_sticky
     refute File.sticky?('/')
   end
@@ -2362,6 +2385,29 @@ class FakeFSTest < Minitest::Test
   def test_can_create_directories_starting_with_dot
     Dir.mkdir './path'
     assert File.exist? './path'
+  end
+
+  def test_can_create_directories_with_brackets
+    # test various combinations of directories with brackets
+    dir = '/[dir'
+    Dir.mkdir dir
+    assert Dir.exist?(dir)
+
+    dir = '/]dir'
+    Dir.mkdir dir
+    assert Dir.exist?(dir)
+
+    dir = '/[dir]'
+    Dir.mkdir dir
+    assert Dir.exist?(dir)
+
+    dir = '/di][r'
+    Dir.mkdir dir
+    assert Dir.exist?(dir)
+
+    dir = '/[[][][][][[[[]][[[[[[]]]'
+    Dir.mkdir dir
+    assert Dir.exist?(dir)
   end
 
   def test_directory_mkdir_relative
