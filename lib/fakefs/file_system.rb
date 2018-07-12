@@ -20,13 +20,13 @@ module FakeFS
       fs.entries
     end
 
-    def find(path, find_flags = 0)
+    def find(path, find_flags = 0, gave_char_class = false)
       parts = path_parts(normalize_path(path))
       return fs if parts.empty? # '/'
 
       entries = Globber.expand(path).flat_map do |pattern|
         parts = path_parts(normalize_path(pattern))
-        find_recurser(fs, parts, find_flags).flatten
+        find_recurser(fs, parts, find_flags, gave_char_class).flatten
       end
 
       case entries.length
@@ -116,7 +116,7 @@ module FakeFS
 
     private
 
-    def find_recurser(dir, parts, find_flags = 0)
+    def find_recurser(dir, parts, find_flags = 0, gave_char_class = false)
       return [] unless dir.respond_to? :[]
       pattern, *parts = parts
       matches =
@@ -139,14 +139,14 @@ module FakeFS
           end
         else
           Globber.expand(pattern).flat_map do |subpattern|
-            dir.matches(Globber.regexp(subpattern, find_flags))
+            dir.matches(Globber.regexp(subpattern, find_flags, gave_char_class))
           end
         end
 
       if parts.empty? # we're done recursing
         matches
       else
-        matches.map { |entry| find_recurser(entry, parts, find_flags) }
+        matches.map { |entry| find_recurser(entry, parts, find_flags, gave_char_class) }
       end
     end
 

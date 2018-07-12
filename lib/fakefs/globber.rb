@@ -60,7 +60,7 @@ module FakeFS
       drop_root(result).reject(&:empty?)
     end
 
-    def regexp(pattern, find_flags = 0)
+    def regexp(pattern, find_flags = 0, gave_char_class = false)
       pattern = pattern.to_s
 
       regex_body =
@@ -72,6 +72,12 @@ module FakeFS
         .gsub('(', '\(')
         .gsub(')', '\)')
         .gsub('$', '\$')
+
+      # unless we're expecting character class contructs in regexes, escape all brackets
+      # since if we're expecting them, the string should already be properly escaped
+      unless gave_char_class
+        regex_body = regex_body.gsub('[', '\[').gsub(']', '\]')
+      end
 
       # This matches nested braces and attempts to do something correct most of the time
       # There are known issues (i.e. {,*,*/*}) that cannot be resolved with out a total
