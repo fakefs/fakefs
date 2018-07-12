@@ -1566,6 +1566,19 @@ class FakeFSTest < Minitest::Test
     end
   end
 
+  def test_chdir_raises_error_when_attempting_to_cd_into_a_file
+    File.open('file1', 'w') { |f| f << 'content' }
+    assert_raises(Errno::ENOTDIR) do
+      Dir.chdir('file1')
+    end
+
+    assert_raises(Errno::ENOTDIR) do
+      Dir.chdir('file1') do
+        File.open('file2', 'w') { |f| f << 'content' }
+      end
+    end
+  end
+
   def test_chdir_shouldnt_lose_state_because_of_errors
     FileUtils.mkdir_p '/path'
 
