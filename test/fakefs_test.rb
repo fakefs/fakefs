@@ -2763,24 +2763,263 @@ class FakeFSTest < Minitest::Test
     refute FileTest.file?('/path/to/somedir')
   end
 
-  def test_filetest_readable_returns_correct_values
-    refute FileTest.readable?('not-here.txt'), 'missing files are not readable'
-
+  # NOTE: FileTest.readable? and FileTest.writable? are wrappers around File.readable? and
+  # File.writable? respectively. Thus, testing the FileTest versions of these functions will
+  # also test the File versions of these functions.
+  def test_filetest_readable_can_read_user_made_files
     FileUtils.touch 'here.txt'
-    assert FileTest.readable?('here.txt'), 'existing files are readable'
+    assert FileTest.readable?('here.txt'), 'files are readable'
 
     FileUtils.mkdir 'dir'
     assert FileTest.readable?('dir'), 'directories are readable'
   end
 
-  def test_filetest_writable_returns_correct_values
-    refute FileTest.writable?('not-here.txt'), 'missing files are not writable'
+  def test_filetest_properly_reports_readable_for_files_chmoded_000
+    file_name = 'file1.txt'
+    FileUtils.touch file_name
+    File.chmod(0o000, file_name)
+    refute FileTest.readable?(file_name), 'files are readable with chmod 000, same user, same group'
 
-    FileUtils.touch 'here.txt'
-    assert FileTest.writable?('here.txt'), 'existing files are writable'
+    file_name = 'file2.txt'
+    FileUtils.touch file_name
+    File.chmod(0o000, file_name)
+    File.chown(nil, 1234, file_name)
+    refute FileTest.readable?(file_name), 'files are readable with chmod 000, same user, different group'
+
+    file_name = 'file3.txt'
+    FileUtils.touch file_name
+    File.chmod(0o000, file_name)
+    File.chown(1234, nil, file_name)
+    refute FileTest.readable?(file_name), 'files are readable with chmod 000, different user, same group'
+
+    file_name = 'file4.txt'
+    FileUtils.touch file_name
+    File.chmod(0o000, file_name)
+    File.chown(1234, 1234, file_name)
+    refute FileTest.readable?(file_name), 'files are readable with chmod 000, different user, different group'
+  end
+
+  def test_filetest_properly_reports_readable_for_files_chmoded_400
+    file_name = 'file1.txt'
+    FileUtils.touch file_name
+    File.chmod(0o400, file_name)
+    assert FileTest.readable?(file_name), 'files are readable with user read bit, same user, same group'
+
+    file_name = 'file2.txt'
+    FileUtils.touch file_name
+    File.chmod(0o400, file_name)
+    File.chown(nil, 1234, file_name)
+    assert FileTest.readable?(file_name), 'files are readable with user read bit, same user, different group'
+
+    file_name = 'file3.txt'
+    FileUtils.touch file_name
+    File.chmod(0o400, file_name)
+    File.chown(1234, nil, file_name)
+    refute FileTest.readable?(file_name), 'files are readable with user read bit, different user, same group'
+
+    file_name = 'file4.txt'
+    FileUtils.touch file_name
+    File.chmod(0o400, file_name)
+    File.chown(1234, 1234, file_name)
+    refute FileTest.readable?(file_name), 'files are readable with user read bit, different user, different group'
+  end
+
+  def test_filetest_properly_reports_readable_for_files_chmoded_440
+    file_name = 'file1.txt'
+    FileUtils.touch file_name
+    File.chmod(0o440, file_name)
+    assert FileTest.readable?(file_name), 'files are readable with chmod 440, same user, same group'
+
+    file_name = 'file2.txt'
+    FileUtils.touch file_name
+    File.chmod(0o440, file_name)
+    File.chown(nil, 1234, file_name)
+    assert FileTest.readable?(file_name), 'files are readable with chmod 440, same user, different group'
+
+    file_name = 'file3.txt'
+    FileUtils.touch file_name
+    File.chmod(0o440, file_name)
+    File.chown(1234, nil, file_name)
+    assert FileTest.readable?(file_name), 'files are readable with chmod 440, different user, same group'
+
+    file_name = 'file4.txt'
+    FileUtils.touch file_name
+    File.chmod(0o440, file_name)
+    File.chown(1234, 1234, file_name)
+    refute FileTest.readable?(file_name), 'files are readable with chmod 440, different user, different group'
+  end
+
+  def test_filetest_properly_reports_readable_for_files_chmoded_444
+    file_name = 'file1.txt'
+    FileUtils.touch file_name
+    File.chmod(0o444, file_name)
+    assert FileTest.readable?(file_name), 'files are readable with chmod 444, same user, same group'
+
+    file_name = 'file2.txt'
+    FileUtils.touch file_name
+    File.chmod(0o444, file_name)
+    File.chown(nil, 1234, file_name)
+    assert FileTest.readable?(file_name), 'files are readable with chmod 444, same user, different group'
+
+    file_name = 'file3.txt'
+    FileUtils.touch file_name
+    File.chmod(0o444, file_name)
+    File.chown(1234, nil, file_name)
+    assert FileTest.readable?(file_name), 'files are readable with chmod 444, different user, same group'
+
+    file_name = 'file4.txt'
+    FileUtils.touch file_name
+    File.chmod(0o444, file_name)
+    File.chown(1234, 1234, file_name)
+    assert FileTest.readable?(file_name), 'files are readable with chmod 444, different user, different group'
+  end
+
+  def test_filetest_properly_reports_readable_for_files_chmoded_040
+    file_name = 'file1.txt'
+    FileUtils.touch file_name
+    File.chmod(0o040, file_name)
+    refute FileTest.readable?(file_name), 'files are readable with chmod 040, same user, same group'
+
+    file_name = 'file2.txt'
+    FileUtils.touch file_name
+    File.chmod(0o040, file_name)
+    File.chown(nil, 1234, file_name)
+    refute FileTest.readable?(file_name), 'files are readable with chmod 040, same user, different group'
+
+    file_name = 'file3.txt'
+    FileUtils.touch file_name
+    File.chmod(0o040, file_name)
+    File.chown(1234, nil, file_name)
+    assert FileTest.readable?(file_name), 'files are readable with chmod 040, different user, same group'
+
+    file_name = 'file4.txt'
+    FileUtils.touch file_name
+    File.chmod(0o040, file_name)
+    File.chown(1234, 1234, file_name)
+    refute FileTest.readable?(file_name), 'files are readable with chmod 040, different user, different group'
+  end
+
+  def test_filetest_properly_reports_readable_for_files_chmoded_044
+    file_name = 'file1.txt'
+    FileUtils.touch file_name
+    File.chmod(0o044, file_name)
+    refute FileTest.readable?(file_name), 'files are readable with chmod 044, same user, same group'
+
+    file_name = 'file2.txt'
+    FileUtils.touch file_name
+    File.chmod(0o044, file_name)
+    File.chown(nil, 1234, file_name)
+    refute FileTest.readable?(file_name), 'files are readable with chmod 044, same user, different group'
+
+    file_name = 'file3.txt'
+    FileUtils.touch file_name
+    File.chmod(0o044, file_name)
+    File.chown(1234, nil, file_name)
+    assert FileTest.readable?(file_name), 'files are readable with chmod 044, different user, same group'
+
+    file_name = 'file4.txt'
+    FileUtils.touch file_name
+    File.chmod(0o044, file_name)
+    File.chown(1234, 1234, file_name)
+    assert FileTest.readable?(file_name), 'files are readable with chmod 044, different user, different group'
+  end
+
+  def test_filetest_properly_reports_readable_for_files_chmoded_004
+    file_name = 'file1.txt'
+    FileUtils.touch file_name
+    File.chmod(0o004, file_name)
+    refute FileTest.readable?(file_name), 'files are readable with chmod 004, same user, same group'
+
+    file_name = 'file2.txt'
+    FileUtils.touch file_name
+    File.chmod(0o004, file_name)
+    File.chown(nil, 1234, file_name)
+    refute FileTest.readable?(file_name), 'files are readable with chmod 004, same user, different group'
+
+    file_name = 'file3.txt'
+    FileUtils.touch file_name
+    File.chmod(0o004, file_name)
+    File.chown(1234, nil, file_name)
+    refute FileTest.readable?(file_name), 'files are readable with chmod 004, different user, same group'
+
+    file_name = 'file4.txt'
+    FileUtils.touch file_name
+    File.chmod(0o004, file_name)
+    File.chown(1234, 1234, file_name)
+    assert FileTest.readable?(file_name), 'files are readable with chmod 004, different user, different group'
+  end
+
+  def test_filetest_readable_raises_enoent_for_missing_files
+    assert_raises Errno::ENOENT do
+      refute FileTest.writable?('not-here.txt'), 'missing files raise Errno::ENOENT errors'
+    end
+  end
+
+  # test a 'random' chmod value
+  def test_filetest_properly_reports_readable_for_files_chmoded_567
+    file_name = 'file1.txt'
+    FileUtils.touch file_name
+    File.chmod(0o567, file_name)
+    assert FileTest.readable?(file_name), 'files are readable with chmod 567, same user, same group'
+
+    file_name = 'file2.txt'
+    FileUtils.touch file_name
+    File.chmod(0o567, file_name)
+    File.chown(nil, 1234, file_name)
+    assert FileTest.readable?(file_name), 'files are readable with chmod 567, same user, different group'
+
+    file_name = 'file3.txt'
+    FileUtils.touch file_name
+    File.chmod(0o567, file_name)
+    File.chown(1234, nil, file_name)
+    assert FileTest.readable?(file_name), 'files are readable with chmod 567, different user, same group'
+
+    file_name = 'file4.txt'
+    FileUtils.touch file_name
+    File.chmod(0o567, file_name)
+    File.chown(1234, 1234, file_name)
+    assert FileTest.readable?(file_name), 'files are readable with chmod 567, different user, different group'
+  end
+
+  def test_filetest_writable_for_user_made_directories
+    FileUtils.touch 'file.txt'
+    assert FileTest.writable?('file.txt'), 'files are writable'
 
     FileUtils.mkdir 'dir'
     assert FileTest.writable?('dir'), 'directories are writable'
+  end
+
+  # Since we've tested every possible chmod combination on files already,
+  # just test to make sure the bit is correct for write
+  def test_filetest_properly_reports_writable_for_files_chmoded_200
+    file_name = 'file1.txt'
+    FileUtils.touch file_name
+    File.chmod(0o200, file_name)
+    assert FileTest.writable?(file_name), 'files are writable with chmod 200, same user, same group'
+
+    file_name = 'file2.txt'
+    FileUtils.touch file_name
+    File.chmod(0o200, file_name)
+    File.chown(nil, 1234, file_name)
+    assert FileTest.writable?(file_name), 'files are writable with chmod 200, same user, different group'
+
+    file_name = 'file3.txt'
+    FileUtils.touch file_name
+    File.chmod(0o200, file_name)
+    File.chown(1234, nil, file_name)
+    refute FileTest.writable?(file_name), 'files are readable with chmod 200, different user, same group'
+
+    file_name = 'file4.txt'
+    FileUtils.touch file_name
+    File.chmod(0o200, file_name)
+    File.chown(1234, 1234, file_name)
+    refute FileTest.writable?(file_name), 'files are readable with chmod 200, different user, different group'
+  end
+
+  def test_filetest_writable_raises_enoent_for_mising_files
+    assert_raises Errno::ENOENT do
+      refute FileTest.writable?('not-here.txt'), 'missing files raise Errno::ENOENT errors'
+    end
   end
 
   def test_filetest_zero_returns_correct_values

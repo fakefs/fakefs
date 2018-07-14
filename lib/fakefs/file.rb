@@ -53,14 +53,18 @@ module FakeFS
     class << self
       alias exists? exist?
 
-      # Assuming that everyone can read and write files
-      alias readable? exist?
-      alias writable? exist?
-
       # Assume nothing is sticky.
       def sticky?(_path)
         false
       end
+    end
+
+    def self.readable?(path)
+      File.lstat(path).readable?
+    end
+
+    def self.writable?(path)
+      File.lstat(path).writable?
     end
 
     def self.mtime(path)
@@ -363,13 +367,28 @@ module FakeFS
         'file'
       end
 
-      # assumes, like above, that all files are readable and writable.
       def readable?
-        true
+        # a file is readable if, and only if, it has the following bits:
+        #   4 ( read permission )
+        #   5 ( read + execute permission )
+        #   6 ( read + write permission )
+        #   7 ( read + write + execute permission )
+        # for each group we will isolate the wanted numbers ( for owner, world, or group )
+        # and see if the third bit is set ( as that is the bit for read )
+        read_bit = 4
+        check_if_bit_set(read_bit)
       end
 
       def writable?
-        true
+        # a file is writable if, and only if, it has the following bits:
+        #   2 ( write permission )
+        #   3 ( write + execute permission )
+        #   6 ( read + write permission )
+        #   7 ( read + write + execute permission )
+        # for each group we will isolate the wanted numbers ( for owner, world, or group )
+        # and see if the second bit is set ( as that is the bit for write )
+        write_bit = 2
+        check_if_bit_set(write_bit)
       end
 
       # Assume nothing is sticky.
@@ -411,6 +430,41 @@ module FakeFS
 
       def <=>(other)
         @mtime <=> other.mtime
+      end
+
+      private
+
+      def check_if_bit_set(bit)
+        # get user's group and user ids
+        # NOTE: I am picking `Process` over `Etc` as we use `Process`
+        # when instaniating file classes. It may be worth it to ensure
+        # our Process/Group detection scheme is robust in all cases
+        uid = Process.uid
+        gid = Process.gid
+
+        # check if bit set for owner
+        owner_bits = (@mode >> 6) & 0o7
+        if uid == @uid
+          # the user is locked out of the file if they are owner of the file
+          # but do not have the bit set at the user level
+          return true if owner_bits & bit == bit
+          return false
+        end
+
+        # check if bit set for group
+        group_bits = (@mode >> 3) & 0o7
+        if gid == @gid
+          # the user is locked out of the file if they are in the group that
+          # owns the file but do not have the bit set at the group level
+          return true if group_bits & bit == bit
+          return false
+        end
+
+        # check if bit set for world
+        world_bits = @mode & 0o7
+        return true if world_bits & bit == bit
+
+        false
       end
     end
 
