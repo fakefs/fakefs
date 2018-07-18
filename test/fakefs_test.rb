@@ -1157,6 +1157,106 @@ class FakeFSTest < Minitest::Test
     assert_equal File.executable?(good), false
   end
 
+  def test_symbolic_chmod_mode
+    file_name = 'test.txt'
+    FileUtils.touch file_name
+    FileUtils.chmod('ugo=rwx', file_name)
+    assert_equal File.stat(file_name).mode, 0o100777
+
+    directory_name = 'dir/'
+    Dir.mkdir directory_name
+    FileUtils.chmod('ug=x,o=rwx', directory_name)
+    assert_equal File.stat(directory_name).mode, 0o100117
+  end
+
+  def test_symbolic_chmod_mode_ignores_duplicate_groups
+    file_name = 'test.txt'
+    FileUtils.touch file_name
+    FileUtils.chmod('ugggooouuuggoo=rwx', file_name)
+    assert_equal File.stat(file_name).mode, 0o100777
+
+    directory_name = 'dir/'
+    Dir.mkdir directory_name
+    FileUtils.chmod('uggguuugguu=x', directory_name)
+    assert_equal File.stat(directory_name).mode, 0o100110
+  end
+
+  def test_symbolic_chmod_mode_ignores_duplicate_modes
+    file_name = 'test.txt'
+    FileUtils.touch file_name
+    FileUtils.chmod('ug=xxxrxxxrrrrx', file_name)
+    assert_equal File.stat(file_name).mode, 0o100550
+
+    directory_name = 'dir/'
+    Dir.mkdir directory_name
+    FileUtils.chmod('ugo=xxxwwrrwwxxrxxww', directory_name)
+    assert_equal File.stat(directory_name).mode, 0o100777
+  end
+
+  def test_symbolic_chmod_mode_interprets_no_modes_as_zero
+    file_name = 'test.txt'
+    FileUtils.touch file_name
+    FileUtils.chmod('u=', file_name)
+    assert_equal File.stat(file_name).mode, 0o100000
+
+    directory_name = 'dir/'
+    Dir.mkdir directory_name
+    FileUtils.chmod('ugo=', directory_name)
+    assert_equal File.stat(directory_name).mode, 0o100000
+  end
+
+  def test_symbolic_chmod_mode_interprets_no_groups_as_all_groups
+    file_name = 'test.txt'
+    FileUtils.touch file_name
+    FileUtils.chmod('=w', file_name)
+    assert_equal File.stat(file_name).mode, 0o100222
+
+    directory_name = 'dir/'
+    Dir.mkdir directory_name
+    FileUtils.chmod('=rw', directory_name)
+    assert_equal File.stat(directory_name).mode, 0o100666
+  end
+
+  def test_symbolic_chmod_mode_applies_only_rightmost_permissions_for_group
+    file_name = 'test.txt'
+    FileUtils.touch file_name
+    FileUtils.chmod('ugo=w,go=rx,u=', file_name)
+    assert_equal File.stat(file_name).mode, 0o100055
+
+    directory_name = 'dir/'
+    Dir.mkdir directory_name
+    FileUtils.chmod('u=,go=r,=rwx', directory_name)
+    assert_equal File.stat(directory_name).mode, 0o100777
+  end
+
+  def test_symbolic_chmod_mode_raises_argument_error_when_flags_are_not_rwx
+    file_name = 'test.txt'
+    FileUtils.touch file_name
+    assert_raises ArgumentError do
+      FileUtils.chmod('=rwxt', file_name)
+    end
+
+    directory_name = 'dir/'
+    Dir.mkdir directory_name
+    assert_raises ArgumentError do
+      FileUtils.chmod('g=tru', directory_name)
+    end
+  end
+
+  def test_symbolic_chmod_mode_raises_argument_error_when_groups_are_not_ugo
+    file_name = 'test.txt'
+    FileUtils.touch file_name
+    assert_raises ArgumentError do
+      FileUtils.chmod('ugto=rwx', file_name)
+    end
+
+    directory_name = 'dir/'
+    Dir.mkdir directory_name
+    assert_raises ArgumentError do
+      FileUtils.chmod('ugobt=r', directory_name)
+    end
+  end
+
   def test_can_chmod_R_files
     FileUtils.mkdir_p '/path/sub'
     FileUtils.touch '/path/file1'
