@@ -3049,10 +3049,9 @@ class FakeFSTest < Minitest::Test
     assert FileTest.readable?(file_name), 'files are readable with chmod 004, different user, different group'
   end
 
-  def test_filetest_readable_raises_enoent_for_missing_files
-    assert_raises Errno::ENOENT do
-      refute FileTest.writable?('not-here.txt'), 'missing files raise Errno::ENOENT errors'
-    end
+  def test_filetest_readable_returns_false_for_missing_files
+    refute FileTest.readable?('not-here.txt'), 'missing files are not readable'
+    refute FileTest.readable?('/no/such/dir'), 'missing directories are not readable'
   end
 
   # test a 'random' chmod value
@@ -3116,10 +3115,9 @@ class FakeFSTest < Minitest::Test
     refute FileTest.writable?(file_name), 'files are readable with chmod 200, different user, different group'
   end
 
-  def test_filetest_writable_raises_enoent_for_mising_files
-    assert_raises Errno::ENOENT do
-      refute FileTest.writable?('not-here.txt'), 'missing files raise Errno::ENOENT errors'
-    end
+  def test_filetest_writable_returns_false_for_missing_files
+    refute FileTest.writable?('not-here.txt'), 'missing files are not writable'
+    refute FileTest.writable?('/no/such/dir'), 'missing directories are not writable'
   end
 
   def test_filetest_zero_returns_correct_values
