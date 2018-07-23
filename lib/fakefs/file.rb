@@ -60,10 +60,12 @@ module FakeFS
     end
 
     def self.readable?(path)
+      return false unless exist? path
       File.lstat(path).readable?
     end
 
     def self.writable?(path)
+      return false unless exist? path
       File.lstat(path).writable?
     end
 
