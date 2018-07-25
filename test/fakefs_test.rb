@@ -1177,6 +1177,7 @@ class FakeFSTest < Minitest::Test
 
     directory_name = 'dir/'
     Dir.mkdir directory_name
+    FileUtils.chmod('o=', directory_name)
     FileUtils.chmod('uggguuugguu=x', directory_name)
     assert_equal File.stat(directory_name).mode, 0o100110
   end
@@ -1184,6 +1185,7 @@ class FakeFSTest < Minitest::Test
   def test_symbolic_chmod_mode_ignores_duplicate_modes
     file_name = 'test.txt'
     FileUtils.touch file_name
+    FileUtils.chmod('o=', file_name)
     FileUtils.chmod('ug=xxxrxxxrrrrx', file_name)
     assert_equal File.stat(file_name).mode, 0o100550
 
@@ -1193,11 +1195,12 @@ class FakeFSTest < Minitest::Test
     assert_equal File.stat(directory_name).mode, 0o100777
   end
 
-  def test_symbolic_chmod_mode_interprets_no_modes_as_zero
+  def test_symbolic_chmod_mode_interprets_no_modes_as_zero_for_group
     file_name = 'test.txt'
     FileUtils.touch file_name
+    FileUtils.chmod('ugo=wrx', file_name)
     FileUtils.chmod('u=', file_name)
-    assert_equal File.stat(file_name).mode, 0o100000
+    assert_equal File.stat(file_name).mode, 0o100077
 
     directory_name = 'dir/'
     Dir.mkdir directory_name
@@ -1255,6 +1258,46 @@ class FakeFSTest < Minitest::Test
     assert_raises ArgumentError do
       FileUtils.chmod('ugobt=r', directory_name)
     end
+  end
+
+  def test_symbolic_chmod_mode_handles_plus_sign
+    file_name = 'test.txt'
+    FileUtils.touch file_name
+    FileUtils.chmod(0o234, file_name)
+    FileUtils.chmod('u+wrx', file_name)
+    assert_equal File.stat(file_name).mode, 0o100734
+
+    directory_name = 'dir/'
+    Dir.mkdir directory_name
+    FileUtils.chmod('ugo=', directory_name)
+    FileUtils.chmod('go+rw', directory_name)
+    assert_equal File.stat(directory_name).mode, 0o100066
+  end
+
+  def test_symbolic_chmod_mode_handles_minus_sign
+    file_name = 'test.txt'
+    FileUtils.touch file_name
+    FileUtils.chmod(0o777, file_name)
+    FileUtils.chmod('u-r', file_name)
+    assert_equal File.stat(file_name).mode, 0o100377
+
+    directory_name = 'dir/'
+    Dir.mkdir directory_name
+    FileUtils.chmod(0o567, directory_name)
+    FileUtils.chmod('go-r', directory_name)
+    assert_equal File.stat(directory_name).mode, 0o100523
+  end
+
+  def test_symbolic_chmod_mode_can_mix_minus_plus_assignment_ops
+    file_name = 'test.txt'
+    FileUtils.touch file_name
+    FileUtils.chmod('ugo=wrx,u-rx,go-wrx,u+x,g+wrx,o+wrx,o=rx,o-x', file_name)
+    assert_equal File.stat(file_name).mode, 0o100374
+
+    directory_name = 'dir/'
+    Dir.mkdir directory_name
+    FileUtils.chmod('=,u+x,g+r,o+w,ou-r,o=wrx,ug=,u+rw,o-wrx,g+rwx,o-rww', directory_name)
+    assert_equal File.stat(directory_name).mode, 0o100670
   end
 
   def test_can_chmod_R_files

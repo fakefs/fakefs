@@ -283,15 +283,16 @@ module FakeFS
       RealFile.split(path)
     end
 
-    def self.chmod(mode, filename)
+    def self.chmod(new_mode, filename)
       # chmod's mode can either be passed in in absolute mode, or symbolic mode
       # for reference: https://ruby-doc.org/stdlib-2.2.2/libdoc/fileutils/rdoc/FileUtils.html#method-c-chmod
       # if the mode is passed in symbolic mode we must convert it to absolute mode
-      is_absolute_mode = mode.is_a? Numeric
+      is_absolute_mode = new_mode.is_a? Numeric
       unless is_absolute_mode
-        mode = convert_symbolic_chmod_to_absolute mode
+        current_mode = FileSystem.find(filename).mode
+        new_mode = convert_symbolic_chmod_to_absolute(new_mode, current_mode)
       end
-      FileSystem.find(filename).mode = 0o100000 + mode
+      FileSystem.find(filename).mode = 0o100000 + new_mode
     end
 
     # Not exactly right, returns true if the file is chmod +x for owner. In the
@@ -576,15 +577,16 @@ module FakeFS
       self.class.mtime(@path)
     end
 
-    def chmod(mode)
+    def chmod(new_mode)
       # chmod's mode can either be passed in in absolute mode, or symbolic mode
       # for reference: https://ruby-doc.org/stdlib-2.2.2/libdoc/fileutils/rdoc/FileUtils.html#method-c-chmod
       # if the mode is passed in symbolic mode we must convert it to absolute mode
-      is_absolute_mode = mode.is_a? Numeric
+      is_absolute_mode = new_mode.is_a? Numeric
       unless is_absolute_mode
-        mode = convert_symbolic_chmod_to_absolute mode
+        current_mode = @file.mode
+        new_mode = convert_symbolic_chmod_to_absolute(new_mode, current_mode)
       end
-      @file.mode = 0o100000 + mode
+      @file.mode = 0o100000 + new_mode
     end
 
     def chown(owner_int, group_int)
@@ -688,10 +690,10 @@ module FakeFS
       read_buf
     end
 
-    def self.convert_symbolic_chmod_to_absolute(mode)
+    def self.convert_symbolic_chmod_to_absolute(new_mode, current_mode)
       # mode always must be of form <GROUP1>=<FLAGS>,<GROUP2>=<FLAGS,...
       # e.g.: u=wr,go=x
-      chmod_pairs = mode.split(',')
+      chmod_pairs = new_mode.split(',')
 
       # - duplicating groups is OK ( e.g.: 'ugouuoouu' is valid and is interpretted as 'ugo' )
       # - duplicating modes is OK ( e.g.: 'wwwwwwwww' is interpreted as 'w' )
@@ -707,38 +709,56 @@ module FakeFS
       # or else an error is raised
       #   - in the example above, the following error is raised: 'invalid `who' symbol in file mode: z (ArgumentError)'
       valid_groups_to_numeric_vals = { 'u' => 0o100, 'g' => 0o10, 'o' => 0o1 }
+
+      # make sure we preload the current group values.
+      # chmod works by calculating new permissions based off of existing permissions
       current_groups_to_vals = { 0o100 => 0o0, 0o10 => 0o0, 0o1 => 0o0 }
-      valid_modes_to_numeric_vals = { 'r' => 0o4, 'w' => 0o2, 'x' => 0o1 }
+      [0o100, 0o10, 0o1].each do |group_num|
+        perm_amt = get_perms_for_group(current_mode, group_num)
+        current_groups_to_vals[group_num] = perm_amt
+      end
+
       chmod_pairs.each do |pair|
-        groups = pair.rpartition('=').first
-        modes = pair.rpartition('=').last
-
-        # if we give no modes, then we are removing all permission
-        chmod_perm_num = 0o0
-        if modes != ''
-          # make sure there are no invalid flags in the modes
-          # and that we discard duplicates as chmod does
-          given_modes = modes.split('')
-          given_modes = given_modes.uniq
-          given_modes.each do |specific_mode|
-            # ensure that the mode is valid
-            unless valid_modes_to_numeric_vals.key? specific_mode
-              raise ArgumentError, "Invalid `perm' symbol in file mode: #{specific_mode}"
-            end
-
-            chmod_addend = valid_modes_to_numeric_vals[specific_mode]
-            chmod_perm_num += chmod_addend
-          end
+        # see if we are dealing with +/- ( granting or removing permissions ) or = ( assigning permissions )
+        # note that it IS valid to mix assignment and granting/revoking perissions ( things like u=wrx,g+x are valid )
+        assign_perms = '='
+        remove_perms = '-'
+        add_perms = '+'
+        assignment_mode = nil
+        if pair.include? remove_perms
+          assignment_mode = remove_perms
+        elsif pair.include? add_perms
+          assignment_mode = add_perms
+        elsif pair.include? assign_perms
+          assignment_mode = assign_perms
         end
+
+        # if we can't find a mode, then raise an exception as real `chmod` would
+        if assignment_mode.nil?
+          raise ArgumentError, "Invalid file mode: #{mode}"
+        end
+        adding_removing_perms = [add_perms, remove_perms].include?(assignment_mode)
+
+        groups = pair.rpartition(assignment_mode).first
+        modes = pair.rpartition(assignment_mode).last
+
+        # get the numeric chmod value associated with the symbolic entry
+        chmod_perm_num = calculate_chmod_amt_for_mode modes
 
         # if we give no groups, then we are giving all groups
         if groups == ''
-          current_groups_to_vals[0o100] = chmod_perm_num
-          current_groups_to_vals[0o10] = chmod_perm_num
-          current_groups_to_vals[0o1] = chmod_perm_num
+          if adding_removing_perms
+            [0o100, 0o10, 0o1].each do |group_num|
+              perm_amt = set_perms_for_group(current_groups_to_vals, group_num, assignment_mode, chmod_perm_num)
+              current_groups_to_vals[group_num] = perm_amt
+            end
+          else
+            [0o100, 0o10, 0o1].each do |group_num|
+              current_groups_to_vals[group_num] = chmod_perm_num
+            end
+          end
         else
-          # make sure there are no invalid flags in the groups
-          # and that we discard duplicates as chmod does
+          # make sure there are no invalid flags in the groups and that we discard duplicates as chmod does
           given_groups = groups.split('')
           given_groups = given_groups.uniq
           given_groups.each do |specific_group|
@@ -747,9 +767,15 @@ module FakeFS
               raise ArgumentError, "Invalid `who' symbol in file mode: #{specific_group}"
             end
 
-            # take the current chmod amt from earlier and assosciate that as the current chmod factor for the group
+            # take the current chmod amt from earlier and associate that as the current chmod factor for the group
+            # if we are adding or removing groups ( via +/- ) then we must make sure that we adjust
+            # the current chmod perm number for the group
             group_num = valid_groups_to_numeric_vals[specific_group]
-            current_groups_to_vals[group_num] = chmod_perm_num
+            adjusted_chmod = chmod_perm_num
+            if adding_removing_perms
+              adjusted_chmod = set_perms_for_group(current_groups_to_vals, group_num, assignment_mode, chmod_perm_num)
+            end
+            current_groups_to_vals[group_num] = adjusted_chmod
           end
         end
       end
@@ -758,7 +784,64 @@ module FakeFS
       0o100 * current_groups_to_vals[0o100] + 0o10 * current_groups_to_vals[0o10] + current_groups_to_vals[0o1]
     end
 
-    private_class_method :convert_symbolic_chmod_to_absolute
+    # return the group mode for group num based off the provided current_file_mode
+    def self.get_perms_for_group(current_file_mode, group_num)
+      # get the current recorded mode of the group and return it to the caller
+      # note we don't shift for 'o' since that is the bottom 3 bits
+      # note we multiply by 7 since the group num is 1, and octal represents digits 1-7 and we want all 3 bits
+      current_group_mode = current_file_mode & (group_num * 7)
+      if group_num == 0o100
+        current_group_mode = current_group_mode >> 6
+      elsif group_num == 0o10
+        current_group_mode = current_group_mode >> 3
+      end
+
+      current_group_mode
+    end
+
+    # given the current chmod values for a file return the result of adding or removing chmod_perm_num from the
+    # requested groups permissions ( so performing <GROUP>+<PERMS> or <GROUP>-<PERMS>
+    def self.set_perms_for_group(current_groups_to_vals, group_num, assignment_mode, chmod_perm_num)
+      # get the current recorded mode of the group
+      current_group_mode = current_groups_to_vals[group_num]
+
+      # now that we have the current value of the group, add or remove bits accordingly
+      if assignment_mode == '+'
+        current_group_mode | chmod_perm_num
+      elsif assignment_mode == '-'
+        current_group_mode & ~chmod_perm_num
+      else
+        raise ArguementError "Unknown assignment mode #{assignment_mode}"
+      end
+    end
+
+    # given a list of modes [rwx] (a) ensure all modes are valid and (b) return the numeric value
+    # associated with the modes
+    def self.calculate_chmod_amt_for_mode(modes)
+      valid_modes_to_numeric_vals = { 'r' => 0o4, 'w' => 0o2, 'x' => 0o1 }
+
+      # if we give no modes, then we are removing all permission
+      chmod_perm_num = 0o0
+      if modes != ''
+        # make sure there are no invalid flags in the modes and that we discard duplicates as chmod does
+        given_modes = modes.split('')
+        given_modes = given_modes.uniq
+        given_modes.each do |specific_mode|
+          # ensure that the mode is valid
+          unless valid_modes_to_numeric_vals.key? specific_mode
+            raise ArgumentError, "Invalid `perm' symbol in file mode: #{specific_mode}"
+          end
+
+          chmod_perm_num += valid_modes_to_numeric_vals[specific_mode]
+        end
+      end
+
+      chmod_perm_num
+    end
+
+    # split the private class method decleration so rubocop doesn't complain the line is too long
+    private_class_method :convert_symbolic_chmod_to_absolute, :calculate_chmod_amt_for_mode
+    private_class_method :get_perms_for_group, :set_perms_for_group
 
     private
 
