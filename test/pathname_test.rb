@@ -103,6 +103,16 @@ class PathnameTest < Minitest::Test
     assert_equal Pathname.new('foo') / 'bar', Pathname.new('foo/bar')
   end
 
+  def test_pathname_size?
+    @pathname.write(@path, "some\ncontent")
+    assert_equal 12, @pathname.size?
+  end
+
+  def test_pathname_size
+    @pathname.write(@path, "some\ncontent")
+    assert_equal 12, @pathname.size
+  end
+
   if RUBY_VERSION > '2.4'
     def test_pathname_empty_on_empty_directory
       Dir.mkdir(@path)

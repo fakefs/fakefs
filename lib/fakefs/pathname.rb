@@ -876,9 +876,9 @@ module FakeFS
       FileTest.setgid?(@path)
     end
 
-    # See <tt>FileTest.size</tt>.
+    # See <tt>FileTest.size?</tt>.
     def size
-      FileTest.size(@path)
+      FileTest.size?(@path)
     end
 
     # See <tt>FileTest.size?</tt>.
