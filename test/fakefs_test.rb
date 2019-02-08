@@ -40,8 +40,6 @@ class FakeFSTest < Minitest::Test
   def test_can_create_directories_with_file_utils_mkdir_p
     FileUtils.mkdir_p('/path/to/dir')
     assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']
-    FileUtils.mkdir_p(Pathname.new('/path/to/pathname'))
-    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['pathname']
   end
 
   def test_can_cd_to_directory_with_block
@@ -58,9 +56,6 @@ class FakeFSTest < Minitest::Test
     FileUtils.mkdir_p(['/path/to/dir1', '/path/to/dir2'])
     assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir1']
     assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir2']
-    FileUtils.mkdir_p(['/path/to/dir3', Pathname.new('/path/to/pathname')])
-    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir3']
-    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['pathname']
   end
 
   def test_can_create_directories_with_options
@@ -72,8 +67,6 @@ class FakeFSTest < Minitest::Test
     FileUtils.mkdir_p('/path/to/dir')
     FileUtils.mkdir('/path/to/dir/subdir')
     assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']['subdir']
-    FileUtils.mkdir(Pathname.new('/path/to/dir/pathname'))
-    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']['pathname']
   end
 
   def test_can_create_a_list_of_directories_with_file_utils_mkdir
@@ -81,14 +74,11 @@ class FakeFSTest < Minitest::Test
     FileUtils.mkdir(['/path/to/dir/subdir1', '/path/to/dir/subdir2'])
     assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']['subdir1']
     assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']['subdir2']
-    FileUtils.mkdir(['/path/to/dir/subdir3', Pathname.new('/path/to/dir/pathname')])
-    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']['subdir3']
-    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']['pathname']
   end
 
   def test_raises_error_when_creating_a_new_dir_with_mkdir_in_non_existent_path
     assert_raises Errno::ENOENT do
-      FileUtils.mkdir(Pathname.new('/this/path/does/not/exists/newdir'))
+      FileUtils.mkdir('/this/path/does/not/exists/newdir')
     end
   end
 
@@ -96,64 +86,53 @@ class FakeFSTest < Minitest::Test
     File.open('file', 'w') { |f| f << 'This is a file, not a directory.' }
 
     assert_raises Errno::EEXIST do
-      FileUtils.mkdir_p(Pathname.new('file/subdir'))
+      FileUtils.mkdir_p('file/subdir')
     end
 
     FileUtils.mkdir('dir')
     File.open('dir/subfile', 'w') { |f| f << 'This is a file inside a directory.' }
 
     assert_raises Errno::EEXIST do
-      FileUtils.mkdir_p(Pathname.new('dir/subfile/subdir'))
+      FileUtils.mkdir_p('dir/subfile/subdir')
     end
   end
 
   def test_can_create_directories_with_mkpath
     FileUtils.mkpath('/path/to/dir')
     assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']
-    FileUtils.mkpath(Pathname.new('/path/to/pathname'))
-    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['pathname']
   end
 
   def test_can_create_directories_with_mkpath_and_options
     FileUtils.mkpath('/path/to/dir', mode: 0o755)
     assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']
-    FileUtils.mkpath(Pathname.new('/path/to/pathname'), mode: 0o755)
-    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['pathname']
   end
 
   def test_can_create_directories_with_mkdirs
     FileUtils.makedirs('/path/to/dir')
     assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']
-    FileUtils.makedirs(Pathname.new('/path/to/pathname'))
-    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['pathname']
   end
 
   def test_can_create_directories_with_mkdirs_and_options
     FileUtils.makedirs('/path/to/dir', mode: 0o755)
     assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']
-    FileUtils.makedirs(Pathname.new('/path/to/pathname'), mode: 0o755)
-    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['pathname']
   end
 
   def test_unlink_errors_on_file_not_found
     assert_raises Errno::ENOENT do
-      FileUtils.rm(Pathname.new('/foo'))
+      FileUtils.rm('/foo')
     end
   end
 
   def test_unlink_doesnt_error_on_file_not_found_when_forced
     FileUtils.rm('/foo', force: true)
-    FileUtils.rm(Pathname.new('/foo'), force: true)
   end
 
   def test_unlink_doesnt_error_on_file_not_found_with_rm_rf
     FileUtils.rm_rf('/foo')
-    FileUtils.rm_rf(Pathname.new('/foo'))
   end
 
   def test_unlink_doesnt_error_on_file_not_found_with_rm_f
     FileUtils.rm_f('/foo')
-    FileUtils.rm_f(Pathname.new('/foo'))
   end
 
   def test_can_delete_directories
@@ -164,13 +143,10 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_can_delete_multiple_files
-    FileUtils.touch(['foo', 'bar', 'baz', 'bla'])
+    FileUtils.touch(['foo', 'bar'])
     FileUtils.rm(['foo', 'bar'])
     assert File.exist?('foo') == false
     assert File.exist?('bar') == false
-    FileUtils.rm([Pathname.new('baz'), Pathname.new('bla')])
-    assert File.exist?('baz') == false
-    assert File.exist?('bla') == false
   end
 
   def test_aliases_exist
@@ -191,13 +167,22 @@ class FakeFSTest < Minitest::Test
   def test_knows_directories_exist
     FileUtils.mkdir_p(path = '/path/to/dir')
     assert File.exist?(path)
-    assert File.exist?(Pathname.new(path))
+  end
+
+  def test_handles_pathnames
+    path = '/path/to/dir'
+    FileUtils.mkdir_p(path)
+
+    path_name = RealPathname.new(path)
+    assert File.directory?(path_name)
+
+    path_name = Pathname.new(path)
+    assert File.directory?(path_name)
   end
 
   def test_knows_directories_are_directories
     FileUtils.mkdir_p(path = '/path/to/dir')
     assert File.directory?(path)
-    assert File.directory?(Pathname.new(path))
   end
 
   def test_knows_directories_are_directories_with_periods
@@ -205,14 +190,12 @@ class FakeFSTest < Minitest::Test
     FileUtils.mkdir('/path/to/periodfiles/one-one')
 
     assert File.directory?(period_path)
-    assert File.directory?(Pathname.new(period_path))
   end
 
   def test_knows_symlink_directories_are_directories
     FileUtils.mkdir_p(path = '/path/to/dir')
     FileUtils.ln_s path, sympath = '/sympath'
     assert File.directory?(sympath)
-    assert File.directory?(Pathname.new(sympath))
   end
 
   def test_knows_non_existent_directories_arent_directories
@@ -249,9 +232,6 @@ class FakeFSTest < Minitest::Test
     assert_raises(Errno::EEXIST) do
       FileUtils.ln_s(target, '/path/to/link')
     end
-
-    FileUtils.ln_s(target, Pathname.new('/path/to/pathname'))
-    assert_kind_of FakeFS::FakeSymlink, FakeFS::FileSystem.fs['path']['to']['pathname']
   end
 
   def test_can_force_creation_of_symlinks
@@ -266,14 +246,12 @@ class FakeFSTest < Minitest::Test
     FileUtils.ln_s(target, '/path/to/link')
     assert_kind_of FakeFS::FakeSymlink, FakeFS::FileSystem.fs['path']['to']['link']
     FileUtils.ln_sf(target, '/path/to/link')
-    FileUtils.ln_sf(target, Pathname.new('/path/to/link'))
   end
 
   def test_can_follow_symlinks
     FileUtils.mkdir_p(target = '/path/to/target')
     FileUtils.ln_s(target, link = '/path/to/symlink')
     assert_equal target, File.readlink(link)
-    assert_equal target, File.readlink(Pathname.new(link))
   end
 
   def test_symlinks_in_different_directories
@@ -321,7 +299,7 @@ class FakeFSTest < Minitest::Test
     refute Dir.exist?('/path/to/bar')
 
     assert_raises Errno::ENOENT do
-      FileUtils.ln_s(Pathname.new(target), Pathname.new('/path/to/bar/symlink'))
+      FileUtils.ln_s(target, '/path/to/bar/symlink')
     end
   end
 
@@ -332,7 +310,7 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_can_create_files_in_current_dir
-    path = Pathname.new('file.txt')
+    path = 'file.txt'
     File.open(path, 'w') do |f|
       f.write 'Yatta!'
     end
@@ -386,7 +364,7 @@ class FakeFSTest < Minitest::Test
     path = '/path/to/file.txt'
 
     assert_raises(Errno::ENOENT) do
-      File.open(Pathname.new(path), 'w') do |f|
+      File.open(path, 'w') do |f|
         f.write 'Yatta!'
       end
     end
@@ -397,7 +375,7 @@ class FakeFSTest < Minitest::Test
 
     Dir.chdir('/some/path') do
       assert_raises(Errno::ENOENT) do
-        File.open(Pathname.new('../foo')) { |f| f.write 'moo' }
+        File.open('../foo') { |f| f.write 'moo' }
       end
     end
   end
@@ -406,7 +384,7 @@ class FakeFSTest < Minitest::Test
     FileUtils.mkdir_p '/some/path'
 
     assert_raises(Errno::ENOENT) do
-      File.open(Pathname.new('/some/path/../foo')) { |f| f.write 'moo' }
+      File.open('/some/path/../foo') { |f| f.write 'moo' }
     end
   end
 
@@ -416,7 +394,7 @@ class FakeFSTest < Minitest::Test
     path = path.succ while File.exist? path
 
     assert_raises(Errno::ENOENT) do
-      File.open(Pathname.new("#{path}/foo")) { |f| f.write 'moo' }
+      File.open("#{path}/foo") { |f| f.write 'moo' }
     end
   end
 
@@ -426,7 +404,7 @@ class FakeFSTest < Minitest::Test
     FileUtils.mkdir_p path
 
     assert_raises(Errno::EISDIR) do
-      File.open(Pathname.new(path), 'w') do |f|
+      File.open(path, 'w') do |f|
         f.write 'Yatta!'
       end
     end
@@ -448,7 +426,7 @@ class FakeFSTest < Minitest::Test
   def test_file_opens_in_read_only_mode
     File.open('foo', 'w') { |f| f << 'foo' }
 
-    f = File.open(Pathname.new('foo'))
+    f = File.open('foo')
 
     assert_raises(IOError) do
       f << 'bar'
@@ -458,7 +436,7 @@ class FakeFSTest < Minitest::Test
   def test_file_opens_in_read_only_mode_with_bitmasks
     File.open('foo', 'w') { |f| f << 'foo' }
 
-    f = File.open(Pathname.new('foo'), File::RDONLY)
+    f = File.open('foo', File::RDONLY)
 
     assert_raises(IOError) do
       f << 'bar'
@@ -469,19 +447,19 @@ class FakeFSTest < Minitest::Test
     FileUtils.touch('foo')
 
     assert_raises(ArgumentError) do
-      File.open(Pathname.new('foo'), 'an_illegal_mode')
+      File.open('foo', 'an_illegal_mode')
     end
   end
 
   def test_raises_error_when_cannot_find_file_in_read_mode
     assert_raises(Errno::ENOENT) do
-      File.open(Pathname.new('does_not_exist'), 'r')
+      File.open('does_not_exist', 'r')
     end
   end
 
   def test_raises_error_when_cannot_find_file_in_read_write_mode
     assert_raises(Errno::ENOENT) do
-      File.open(Pathname.new('does_not_exist'), 'r+')
+      File.open('does_not_exist', 'r+')
     end
   end
 
@@ -497,7 +475,7 @@ class FakeFSTest < Minitest::Test
 
   def test_raises_in_write_only_mode_without_create_bitmask
     assert_raises(Errno::ENOENT) do
-      File.open(Pathname.new('foo'), File::WRONLY)
+      File.open('foo', File::WRONLY)
     end
   end
 
@@ -519,7 +497,7 @@ class FakeFSTest < Minitest::Test
   def test_file_in_write_only_raises_error_when_reading
     FileUtils.touch('foo')
 
-    f = File.open(Pathname.new('foo'), 'w')
+    f = File.open('foo', 'w')
 
     assert_raises(IOError) do
       f.read
@@ -528,7 +506,7 @@ class FakeFSTest < Minitest::Test
 
   def test_file_in_write_mode_truncates_existing_file
     File.open('foo', 'w') { |f| f << 'contents' }
-    File.open(Pathname.new('foo'), 'w')
+    File.open('foo', 'w')
     assert_equal '', File.read('foo')
   end
 
@@ -546,7 +524,7 @@ class FakeFSTest < Minitest::Test
   def test_file_in_append_write_only_raises_error_when_reading
     FileUtils.touch('foo')
 
-    f = File.open(Pathname.new('foo'), 'a')
+    f = File.open('foo', 'a')
 
     assert_raises(IOError) do
       f.read
@@ -593,7 +571,7 @@ class FakeFSTest < Minitest::Test
 
   def test_raises_error_when_opening_with_binary_mode_only
     assert_raises ArgumentError do
-      File.open(Pathname.new('/foo'), 'b')
+      File.open('/foo', 'b')
     end
   end
 
@@ -726,7 +704,7 @@ class FakeFSTest < Minitest::Test
 
   def test_raises_error_on_mtime_if_file_does_not_exist
     assert_raises Errno::ENOENT do
-      File.mtime(Pathname.new('/path/to/file.txt'))
+      File.mtime('/path/to/file.txt')
     end
   end
 
@@ -756,18 +734,18 @@ class FakeFSTest < Minitest::Test
 
   def test_raises_error_on_ctime_if_file_does_not_exist
     assert_raises Errno::ENOENT do
-      File.ctime(Pathname.new('file.txt'))
+      File.ctime('file.txt')
     end
   end
 
   def test_can_return_ctime_on_existing_file
     File.open('foo', 'w') { |f| f << 'some content' }
-    assert File.ctime(Pathname.new('foo')).is_a?(Time)
+    assert File.ctime('foo').is_a?(Time)
   end
 
   def test_raises_error_on_atime_if_file_does_not_exist
     assert_raises Errno::ENOENT do
-      File.atime(Pathname.new('file.txt'))
+      File.atime('file.txt')
     end
   end
 
@@ -839,7 +817,7 @@ class FakeFSTest < Minitest::Test
 
   def test_utime_raises_error_if_path_does_not_exist
     assert_raises Errno::ENOENT do
-      File.utime(Time.now, Time.now, Pathname.new('/path/to/file.txt'))
+      File.utime(Time.now, Time.now, '/path/to/file.txt')
     end
   end
 
@@ -935,7 +913,7 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_File_close_disallows_further_access
-    path = Pathname.new('file.txt')
+    path = 'file.txt'
     file = File.open(path, 'w')
     file.write 'Yada'
     file.close
@@ -945,7 +923,7 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_File_close_disallows_further_writes
-    path = Pathname.new('file.txt')
+    path = 'file.txt'
     file = File.open(path, 'w')
     file.write 'Yada'
     file.close
@@ -1016,7 +994,7 @@ class FakeFSTest < Minitest::Test
 
   def test_file_read_errors_appropriately
     assert_raises Errno::ENOENT do
-      File.read(Pathname.new('anything'))
+      File.read('anything')
     end
   end
 
@@ -1024,7 +1002,7 @@ class FakeFSTest < Minitest::Test
     FileUtils.mkdir_p('a_directory')
 
     assert_raises Errno::EISDIR do
-      File.read(Pathname.new('a_directory'))
+      File.read('a_directory')
     end
   end
 
@@ -1093,8 +1071,8 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_can_chown_files
-    good = Pathname.new('file.txt')
-    bad = Pathname.new('nofile.txt')
+    good = 'file.txt'
+    bad = 'nofile.txt'
     File.open(good, 'w') { |f| f.write 'foo' }
     username = Etc.getpwuid(Process.uid).name
     groupname = groupname_of_id(Process.gid)
@@ -1147,8 +1125,8 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_can_chmod_files
-    good = Pathname.new('file.txt')
-    bad = Pathname.new('nofile.txt')
+    good = 'file.txt'
+    bad = 'nofile.txt'
     FileUtils.touch(good)
 
     assert_equal [good], FileUtils.chmod(0o600, good, verbose: true)
@@ -1255,13 +1233,13 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_symbolic_chmod_mode_raises_argument_error_when_flags_are_not_rwx
-    file_name = Pathname.new('test.txt')
+    file_name = 'test.txt'
     FileUtils.touch file_name
     assert_raises ArgumentError do
       FileUtils.chmod('=rwxt', file_name)
     end
 
-    directory_name = Pathname.new('dir/')
+    directory_name = 'dir/'
     Dir.mkdir directory_name
     assert_raises ArgumentError do
       FileUtils.chmod('g=tru', directory_name)
@@ -1269,13 +1247,13 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_symbolic_chmod_mode_raises_argument_error_when_groups_are_not_ugo
-    file_name = Pathname.new('test.txt')
+    file_name = 'test.txt'
     FileUtils.touch file_name
     assert_raises ArgumentError do
       FileUtils.chmod('ugto=rwx', file_name)
     end
 
-    directory_name = Pathname.new('dir/')
+    directory_name = 'dir/'
     Dir.mkdir directory_name
     assert_raises ArgumentError do
       FileUtils.chmod('ugobt=r', directory_name)
@@ -1524,7 +1502,7 @@ class FakeFSTest < Minitest::Test
     end
 
     def test_dir_empty_on_nonexistent_path
-      assert_raises(Errno::ENOENT) { Dir.empty?(Pathname.new('/not/a/real/dir/')) }
+      assert_raises(Errno::ENOENT) { Dir.empty?('/not/a/real/dir/') }
     end
 
     def test_dir_empty_on_file
@@ -1725,21 +1703,21 @@ class FakeFSTest < Minitest::Test
 
   def test_chdir_should_flop_over_and_die_if_the_dir_doesnt_exist
     assert_raises(Errno::ENOENT) do
-      Dir.chdir(Pathname.new('/nope')) do
+      Dir.chdir('/nope') do
         1
       end
     end
   end
 
   def test_chdir_raises_error_when_attempting_to_cd_into_a_file
-    File.open(Pathname.new('file1'), 'w') { |f| f << 'content' }
+    File.open('file1', 'w') { |f| f << 'content' }
     assert_raises(Errno::ENOTDIR) do
-      Dir.chdir(Pathname.new('file1'))
+      Dir.chdir('file1')
     end
 
     assert_raises(Errno::ENOTDIR) do
-      Dir.chdir(Pathname.new('file1')) do
-        File.open(Pathname.new('file2'), 'w') { |f| f << 'content' }
+      Dir.chdir('file1') do
+        File.open('file2', 'w') { |f| f << 'content' }
       end
     end
   end
@@ -1783,7 +1761,7 @@ class FakeFSTest < Minitest::Test
     assert_equal ['foo'], Dir.glob('*')
 
     assert_raises(Errno::ENOENT) do
-      Dir.chdir(Pathname.new('subsubdir'))
+      Dir.chdir('subsubdir')
     end
 
     assert_equal ['foo'], Dir.glob('*')
@@ -1861,10 +1839,10 @@ class FakeFSTest < Minitest::Test
 
   def test_mv_should_raise_error_on_missing_file
     assert_raises(Errno::ENOENT) do
-      FileUtils.mv Pathname.new('blafgag'), 'foo'
+      FileUtils.mv 'blafgag', 'foo'
     end
     exception = assert_raises(Errno::ENOENT) do
-      FileUtils.mv [Pathname.new('foo'), Pathname.new('bar')], 'destdir'
+      FileUtils.mv ['foo', 'bar'], 'destdir'
     end
     assert_equal 'No such file or directory - foo', exception.message
   end
@@ -1921,14 +1899,14 @@ class FakeFSTest < Minitest::Test
     FileUtils.mkdir_p 'dir/stuff'
     FileUtils.touch 'stuff'
     assert_raises Errno::EEXIST do
-      FileUtils.mv Pathname.new('stuff'), 'dir'
+      FileUtils.mv 'stuff', 'dir'
     end
   end
 
   def test_mv_raises_when_moving_to_non_existent_directory
     FileUtils.touch 'stuff'
     assert_raises Errno::ENOENT do
-      FileUtils.mv Pathname.new('stuff'), '/this/path/is/not/here'
+      FileUtils.mv 'stuff', '/this/path/is/not/here'
     end
   end
 
@@ -1973,7 +1951,7 @@ class FakeFSTest < Minitest::Test
     File.open('foo', 'w') { |f| f.write 'footext' }
 
     exception = assert_raises(Errno::ENOTDIR) do
-      FileUtils.cp([Pathname.new('foo')], 'baz')
+      FileUtils.cp(['foo'], 'baz')
     end
     assert_equal 'Not a directory - baz', exception.to_s
   end
@@ -1988,7 +1966,7 @@ class FakeFSTest < Minitest::Test
 
   def test_cp_fails_on_no_source
     assert_raises Errno::ENOENT do
-      FileUtils.cp(Pathname.new('foo'), 'baz')
+      FileUtils.cp('foo', 'baz')
     end
   end
 
@@ -2013,7 +1991,7 @@ class FakeFSTest < Minitest::Test
 
   def test_cp_r_should_raise_error_on_missing_file
     assert_raises(Errno::ENOENT) do
-      FileUtils.cp_r Pathname.new('blafgag'), 'foo'
+      FileUtils.cp_r 'blafgag', 'foo'
     end
   end
 
@@ -2033,7 +2011,7 @@ class FakeFSTest < Minitest::Test
 
     # To a subdirectory of a directory that does not exist
     assert_raises(Errno::ENOENT) do
-      FileUtils.cp_r(Pathname.new('subdir'), 'nope/something')
+      FileUtils.cp_r('subdir', 'nope/something')
     end
   end
 
@@ -2064,7 +2042,7 @@ class FakeFSTest < Minitest::Test
     File.open('bar', 'w') { |f| f.write 'bartext' }
 
     assert_raises(Errno::EEXIST) do
-      FileUtils.cp_r Pathname.new('subdir'), 'bar'
+      FileUtils.cp_r 'subdir', 'bar'
     end
 
     FileUtils.mkdir_p 'otherdir'
@@ -2220,10 +2198,10 @@ class FakeFSTest < Minitest::Test
 
   def test_touch_does_not_work_if_the_dir_path_cannot_be_found
     assert_raises(Errno::ENOENT) do
-      FileUtils.touch(Pathname.new('this/path/should/not/be/here'))
+      FileUtils.touch('this/path/should/not/be/here')
     end
     FileUtils.mkdir_p('subdir')
-    list = ['subdir/foo', Pathname.new('nosubdir/bar')]
+    list = ['subdir/foo', 'nosubdir/bar']
 
     assert_raises(Errno::ENOENT) do
       FileUtils.touch(list)
@@ -2244,7 +2222,7 @@ class FakeFSTest < Minitest::Test
 
   def test_new_directory_does_not_work_if_dir_path_cannot_be_found
     assert_raises(Errno::ENOENT) do
-      Dir.new(Pathname.new('/this/path/should/not/be/here'))
+      Dir.new('/this/path/should/not/be/here')
     end
   end
 
@@ -2422,13 +2400,13 @@ class FakeFSTest < Minitest::Test
     end
 
     assert_raises(Errno::ENOTEMPTY) do
-      Dir.delete(Pathname.new('/this/path/should/be/here'))
+      Dir.delete('/this/path/should/be/here')
     end
   end
 
   def test_directory_class_delete_does_not_work_if_dir_path_cannot_be_found
     assert_raises(Errno::ENOENT) do
-      Dir.delete(Pathname.new('/this/path/should/not/be/here'))
+      Dir.delete('/this/path/should/not/be/here')
     end
   end
 
@@ -2477,7 +2455,7 @@ class FakeFSTest < Minitest::Test
 
   def test_directory_entries_does_not_work_if_dir_path_cannot_be_found
     assert_raises(Errno::ENOENT) do
-      Dir.delete(Pathname.new('/this/path/should/not/be/here'))
+      Dir.delete('/this/path/should/not/be/here')
     end
   end
 
@@ -2597,7 +2575,7 @@ class FakeFSTest < Minitest::Test
 
   def test_directory_mkdir_not_recursive
     assert_raises(Errno::ENOENT) do
-      Dir.mkdir(Pathname.new('/path/does/not/exist'))
+      Dir.mkdir('/path/does/not/exist')
     end
   end
 
@@ -2605,7 +2583,7 @@ class FakeFSTest < Minitest::Test
     Dir.mkdir 'foo'
 
     assert_raises(Errno::EEXIST) do
-      Dir.mkdir Pathname.new('foo')
+      Dir.mkdir 'foo'
     end
   end
 
@@ -2696,7 +2674,7 @@ class FakeFSTest < Minitest::Test
     FileUtils.touch('/foo')
     Dir.mkdir('/bar')
     assert_raises(Errno::EISDIR) do
-      File.rename(Pathname.new('/foo'), Pathname.new('/bar'))
+      File.rename('/foo', '/bar')
     end
   end
 
@@ -2704,20 +2682,20 @@ class FakeFSTest < Minitest::Test
     Dir.mkdir('/foo')
     FileUtils.touch('/bar')
     assert_raises(Errno::ENOTDIR) do
-      File.rename(Pathname.new('/foo'), Pathname.new('/bar'))
+      File.rename('/foo', '/bar')
     end
   end
 
   def test_rename_with_missing_source_raises_error
     assert_raises(Errno::ENOENT) do
-      File.rename(Pathname.new('/no_such_file'), Pathname.new('/bar'))
+      File.rename('/no_such_file', '/bar')
     end
   end
 
   def test_rename_with_missing_dest_directory_raises_error
     FileUtils.touch('/foo')
     assert_raises(Errno::ENOENT) do
-      File.rename(Pathname.new('/foo'), Pathname.new('/bar/foo'))
+      File.rename('/foo', '/bar/foo')
     end
   end
 
@@ -2730,7 +2708,7 @@ class FakeFSTest < Minitest::Test
 
   def test_hard_link_with_missing_file_raises_error
     assert_raises(Errno::ENOENT) do
-      File.link(Pathname.new('/foo'), Pathname.new('/bar'))
+      File.link('/foo', '/bar')
     end
   end
 
@@ -2739,7 +2717,7 @@ class FakeFSTest < Minitest::Test
     FileUtils.touch('/bar')
 
     assert_raises(Errno::EEXIST) do
-      File.link(Pathname.new('/foo'), Pathname.new('/bar'))
+      File.link('/foo', '/bar')
     end
   end
 
@@ -2760,7 +2738,7 @@ class FakeFSTest < Minitest::Test
     Dir.mkdir '/foo'
 
     assert_raises(Errno::EPERM) do
-      File.link(Pathname.new('/foo'), Pathname.new('/bar'))
+      File.link('/foo', '/bar')
     end
   end
 
@@ -2806,7 +2784,7 @@ class FakeFSTest < Minitest::Test
 
   def test_delete_raises_error_when_first_file_does_not_exist
     assert_raises Errno::ENOENT do
-      File.delete(Pathname.new('/foo'))
+      File.delete('/foo')
     end
   end
 
@@ -3389,7 +3367,7 @@ class FakeFSTest < Minitest::Test
     assert_equal FileUtils.compare_file(file1, file2), true
     assert_equal FileUtils.compare_file(file1, file3), false
     assert_raises Errno::ENOENT do
-      FileUtils.compare_file(file1, Pathname.new('file4.txt'))
+      FileUtils.compare_file(file1, 'file4.txt')
     end
   end
 
@@ -3534,7 +3512,7 @@ class FakeFSTest < Minitest::Test
 
   def test_raises_error_on_birthtime_if_file_does_not_exist
     assert_raises Errno::ENOENT do
-      File.birthtime(Pathname.new('file.txt'))
+      File.birthtime('file.txt')
     end
   end
 
