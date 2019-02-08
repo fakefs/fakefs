@@ -7,7 +7,7 @@ module FakeFS
     attr_reader :path
 
     def self._check_for_valid_file(path)
-      raise Errno::ENOENT, path unless FileSystem.find(path)
+      raise Errno::ENOENT, path.to_s unless FileSystem.find(path)
     end
 
     def initialize(string)
@@ -80,7 +80,7 @@ module FakeFS
 
     def self.delete(string)
       _check_for_valid_file(string)
-      raise Errno::ENOTEMPTY, string unless FileSystem.find(string).empty?
+      raise Errno::ENOTEMPTY, string.to_s unless FileSystem.find(string).empty?
 
       FileSystem.delete(string)
     end
