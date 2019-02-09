@@ -154,12 +154,12 @@ module FakeFS
 
         new_dir = FileSystem.find(dest)
         raise Errno::EEXIST, dest.to_s if new_dir && !File.directory?(dest)
-        raise Errno::ENOENT, dest.to_s if !new_dir && !FileSystem.find(dest + '/../')
+        raise Errno::ENOENT, dest.to_s if !new_dir && !FileSystem.find(dest.to_s + '/../')
 
         # This last bit is a total abuse and should be thought hard
         # about and cleaned up.
         if new_dir
-          if src[-2..-1] == '/.'
+          if src.to_s[-2..-1] == '/.'
             dir.entries.each { |f| new_dir[f.name] = f.clone(new_dir) }
           else
             new_dir[dir.name] = dir.entry.clone(new_dir)
