@@ -29,7 +29,7 @@ class FakeFSTest < Minitest::Test
   # Helper method to simplify running tests with either string paths as arguments
   # or Pathname arguments. Make sure to wrap paths with string_or_pathname inside
   # the given block.
-  def perform_with_both_string_paths_and_pathnames(&block)
+  def perform_with_both_string_paths_and_pathnames(&_block)
     @use_pathnames = false
     yield
     @use_pathnames = true
