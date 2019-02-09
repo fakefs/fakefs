@@ -25,6 +25,24 @@ class FakeFSTest < Minitest::Test
     end
   end
 
+  # See https://github.com/fakefs/fakefs/issues/391
+  # Helper method to simplify running tests with either string paths as arguments
+  # or Pathname arguments. Make sure to wrap paths with string_or_pathname inside
+  # the given block.
+  def perform_with_both_string_paths_and_pathnames(&_block)
+    @use_pathnames = false
+    yield
+    @use_pathnames = true
+    yield
+  end
+
+  # See above and https://github.com/fakefs/fakefs/issues/391
+  # Returns the given string_path or a Pathname object, depending on whether
+  # @use_pathnames is set.
+  def string_or_pathname(string_path)
+    @use_pathnames ? Pathname.new(string_path) : string_path
+  end
+
   def test_can_be_initialized_empty
     FakeFS::FileSystem.clear
     fs = FakeFS::FileSystem
@@ -38,115 +56,156 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_can_create_directories_with_file_utils_mkdir_p
-    FileUtils.mkdir_p('/path/to/dir')
-    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(string_or_pathname('/path/to/dir'))
+      assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']
+    end
   end
 
   def test_can_cd_to_directory_with_block
-    FileUtils.mkdir_p('/path/to/dir')
-    new_path = nil
-    FileUtils.cd('/path/to') do
-      new_path = Dir.getwd
-    end
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(string_or_pathname('/path/to/dir'))
+      new_path = nil
+      FileUtils.cd(string_or_pathname('/path/to')) do
+        new_path = Dir.getwd
+      end
 
-    assert_equal new_path, '/path/to'
+      assert_equal new_path, '/path/to'
+    end
   end
 
   def test_can_create_a_list_of_directories_with_file_utils_mkdir_p
-    FileUtils.mkdir_p(['/path/to/dir1', '/path/to/dir2'])
-    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir1']
-    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir2']
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p([string_or_pathname('/path/to/dir1'), string_or_pathname('/path/to/dir2')])
+      assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir1']
+      assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir2']
+    end
   end
 
   def test_can_create_directories_with_options
-    FileUtils.mkdir_p('/path/to/dir', mode: 0o755)
-    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(string_or_pathname('/path/to/dir'), mode: 0o755)
+      assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']
+    end
   end
 
   def test_can_create_directories_with_file_utils_mkdir
-    FileUtils.mkdir_p('/path/to/dir')
-    FileUtils.mkdir('/path/to/dir/subdir')
-    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']['subdir']
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(string_or_pathname('/path/to/dir'))
+      FileUtils.mkdir(path = string_or_pathname('/path/to/dir/subdir'))
+      assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']['subdir']
+      FileUtils.rm(path)
+    end
   end
 
   def test_can_create_a_list_of_directories_with_file_utils_mkdir
-    FileUtils.mkdir_p('/path/to/dir')
-    FileUtils.mkdir(['/path/to/dir/subdir1', '/path/to/dir/subdir2'])
-    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']['subdir1']
-    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']['subdir2']
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(string_or_pathname('/path/to/dir'))
+      FileUtils.mkdir([string_or_pathname('/path/to/dir/subdir1'), string_or_pathname('/path/to/dir/subdir2')])
+      assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']['subdir1']
+      assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']['subdir2']
+      FileUtils.rmdir([string_or_pathname('/path/to/dir/subdir1'), string_or_pathname('/path/to/dir/subdir2')])
+    end
   end
 
   def test_raises_error_when_creating_a_new_dir_with_mkdir_in_non_existent_path
-    assert_raises Errno::ENOENT do
-      FileUtils.mkdir('/this/path/does/not/exists/newdir')
+    perform_with_both_string_paths_and_pathnames do
+      assert_raises Errno::ENOENT do
+        FileUtils.mkdir(string_or_pathname('/this/path/does/not/exists/newdir'))
+      end
     end
   end
 
   def test_raises_error_when_creating_a_new_dir_over_existing_file
-    File.open('file', 'w') { |f| f << 'This is a file, not a directory.' }
+    perform_with_both_string_paths_and_pathnames do
+      File.open(string_or_pathname('file'), 'w') { |f| f << 'This is a file, not a directory.' }
 
-    assert_raises Errno::EEXIST do
-      FileUtils.mkdir_p('file/subdir')
-    end
+      assert_raises Errno::EEXIST do
+        FileUtils.mkdir_p(string_or_pathname('file/subdir'))
+      end
 
-    FileUtils.mkdir('dir')
-    File.open('dir/subfile', 'w') { |f| f << 'This is a file inside a directory.' }
+      FileUtils.mkdir(dir = string_or_pathname('dir'))
+      File.open(path = string_or_pathname('dir/subfile'), 'w') { |f| f << 'This is a file inside a directory.' }
 
-    assert_raises Errno::EEXIST do
-      FileUtils.mkdir_p('dir/subfile/subdir')
+      assert_raises Errno::EEXIST do
+        FileUtils.mkdir_p(string_or_pathname('file/subdir'))
+      end
+
+      FileUtils.rm(path)
+      FileUtils.rmdir(dir)
     end
   end
 
   def test_can_create_directories_with_mkpath
-    FileUtils.mkpath('/path/to/dir')
-    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkpath(string_or_pathname('/path/to/dir'))
+      assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']
+    end
   end
 
   def test_can_create_directories_with_mkpath_and_options
-    FileUtils.mkpath('/path/to/dir', mode: 0o755)
-    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkpath(string_or_pathname('/path/to/dir'), mode: 0o755)
+      assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']
+    end
   end
 
   def test_can_create_directories_with_mkdirs
-    FileUtils.makedirs('/path/to/dir')
-    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.makedirs(string_or_pathname('/path/to/dir'))
+      assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']
+    end
   end
 
   def test_can_create_directories_with_mkdirs_and_options
-    FileUtils.makedirs('/path/to/dir', mode: 0o755)
-    assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.makedirs(string_or_pathname('/path/to/dir'), mode: 0o755)
+      assert_kind_of FakeFS::FakeDir, FakeFS::FileSystem.fs['path']['to']['dir']
+    end
   end
 
   def test_unlink_errors_on_file_not_found
-    assert_raises Errno::ENOENT do
-      FileUtils.rm('/foo')
+    perform_with_both_string_paths_and_pathnames do
+      assert_raises Errno::ENOENT do
+        FileUtils.rm(string_or_pathname('/foo'))
+      end
     end
   end
 
   def test_unlink_doesnt_error_on_file_not_found_when_forced
-    FileUtils.rm('/foo', force: true)
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.rm(string_or_pathname('/foo'), force: true)
+    end
   end
 
   def test_unlink_doesnt_error_on_file_not_found_with_rm_rf
-    FileUtils.rm_rf('/foo')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.rm_rf(string_or_pathname('/foo'))
+    end
   end
 
   def test_unlink_doesnt_error_on_file_not_found_with_rm_f
-    FileUtils.rm_f('/foo')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.rm_f(string_or_pathname('/foo'))
+    end
   end
 
   def test_can_delete_directories
-    FileUtils.mkdir_p('/path/to/dir')
-    FileUtils.rmdir('/path/to/dir')
-    assert File.exist?('/path/to/')
-    assert File.exist?('/path/to/dir') == false
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(string_or_pathname('/path/to/dir'))
+      FileUtils.rmdir(string_or_pathname('/path/to/dir'))
+      assert File.exist?(string_or_pathname('/path/to/'))
+      assert File.exist?(string_or_pathname('/path/to/dir')) == false
+    end
   end
 
   def test_can_delete_multiple_files
-    FileUtils.touch(['foo', 'bar'])
-    FileUtils.rm(['foo', 'bar'])
-    assert File.exist?('foo') == false
-    assert File.exist?('bar') == false
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.touch([string_or_pathname('foo'), string_or_pathname('bar')])
+      FileUtils.rm([string_or_pathname('foo'), string_or_pathname('bar')])
+      assert File.exist?(string_or_pathname('foo')) == false
+      assert File.exist?(string_or_pathname('bar')) == false
+    end
   end
 
   def test_aliases_exist
@@ -165,536 +224,721 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_knows_directories_exist
-    FileUtils.mkdir_p(path = '/path/to/dir')
-    assert File.exist?(path)
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(path = string_or_pathname('/path/to/dir'))
+      assert File.exist?(path)
+    end
   end
 
   def test_handles_pathnames
-    path = '/path/to/dir'
-    FileUtils.mkdir_p(path)
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('/path/to/dir')
+      FileUtils.mkdir_p(path)
 
-    path_name = RealPathname.new(path)
-    assert File.directory?(path_name)
+      path_name = RealPathname.new(path)
+      assert File.directory?(path_name)
 
-    path_name = Pathname.new(path)
-    assert File.directory?(path_name)
+      path_name = Pathname.new(path)
+      assert File.directory?(path_name)
+    end
   end
 
   def test_knows_directories_are_directories
-    FileUtils.mkdir_p(path = '/path/to/dir')
-    assert File.directory?(path)
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(path = string_or_pathname('/path/to/dir'))
+      assert File.directory?(path)
+    end
   end
 
   def test_knows_directories_are_directories_with_periods
-    FileUtils.mkdir_p(period_path = '/path/to/periodfiles/one.one')
-    FileUtils.mkdir('/path/to/periodfiles/one-one')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(period_path = string_or_pathname('/path/to/periodfiles/one.one'))
+      FileUtils.mkdir(path = string_or_pathname('/path/to/periodfiles/one-one'))
 
-    assert File.directory?(period_path)
+      assert File.directory?(period_path)
+      FileUtils.rmdir(path)
+    end
   end
 
   def test_knows_symlink_directories_are_directories
-    FileUtils.mkdir_p(path = '/path/to/dir')
-    FileUtils.ln_s path, sympath = '/sympath'
-    assert File.directory?(sympath)
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(path = string_or_pathname('/path/to/dir'))
+      FileUtils.ln_s path, sympath = string_or_pathname('/sympath')
+      assert File.directory?(sympath)
+      FileUtils.rm(sympath)
+    end
   end
 
   def test_knows_non_existent_directories_arent_directories
-    path = 'does/not/exist/'
-    assert_equal RealFile.directory?(path), File.directory?(path)
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('does/not/exist/')
+      assert_equal RealFile.directory?(path), File.directory?(path)
+    end
   end
 
   def test_doesnt_overwrite_existing_directories
-    FileUtils.mkdir_p(path = '/path/to/dir')
-    assert File.exist?(path)
-    FileUtils.mkdir_p('/path/to')
-    assert File.exist?(path)
-    assert_raises Errno::EEXIST do
-      FileUtils.mkdir('/path/to')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(path = string_or_pathname('/path/to/dir'))
+      assert File.exist?(path)
+      FileUtils.mkdir_p(string_or_pathname('/path/to'))
+      assert File.exist?(path)
+      assert_raises Errno::EEXIST do
+        FileUtils.mkdir(string_or_pathname('/path/to'))
+      end
+      assert File.exist?(path)
     end
-    assert File.exist?(path)
   end
 
   def test_file_utils_mkdir_takes_options
-    FileUtils.mkdir('/foo', some: :option)
-    assert File.exist?('/foo')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir(path = string_or_pathname('/foo'), some: :option)
+      assert File.exist?(path)
+      FileUtils.rmdir(path)
+    end
   end
 
   def test_symlink_with_missing_refferent_does_not_exist
-    File.symlink('/foo', '/bar')
-    refute File.exist?('/bar')
+    perform_with_both_string_paths_and_pathnames do
+      File.symlink(string_or_pathname('/foo'), sympath = string_or_pathname('/bar'))
+      refute File.exist?(string_or_pathname('/bar'))
+      FileUtils.rm(sympath)
+    end
   end
 
   def test_can_create_symlinks
-    FileUtils.mkdir_p(target = '/path/to/target')
-    FileUtils.ln_s(target, '/path/to/link')
-    assert_kind_of FakeFS::FakeSymlink, FakeFS::FileSystem.fs['path']['to']['link']
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(target = string_or_pathname('/path/to/target'))
+      FileUtils.ln_s(target, sympath = string_or_pathname('/path/to/link'))
+      assert_kind_of FakeFS::FakeSymlink, FakeFS::FileSystem.fs['path']['to']['link']
 
-    assert_raises(Errno::EEXIST) do
-      FileUtils.ln_s(target, '/path/to/link')
+      assert_raises(Errno::EEXIST) do
+        FileUtils.ln_s(target, sympath)
+      end
+
+      FileUtils.rm(sympath)
     end
   end
 
   def test_can_force_creation_of_symlinks
-    FileUtils.mkdir_p(target = '/path/to/first/target')
-    FileUtils.ln_s(target, '/path/to/link')
-    assert_kind_of FakeFS::FakeSymlink, FakeFS::FileSystem.fs['path']['to']['link']
-    FileUtils.ln_s(target, '/path/to/link', force: true)
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(target = string_or_pathname('/path/to/first/target'))
+      FileUtils.ln_s(target, sympath = string_or_pathname('/path/to/link'))
+      assert_kind_of FakeFS::FakeSymlink, FakeFS::FileSystem.fs['path']['to']['link']
+      FileUtils.ln_s(target, sympath, force: true)
+      FileUtils.rm(sympath)
+    end
   end
 
   def test_create_symlink_using_ln_sf
-    FileUtils.mkdir_p(target = '/path/to/first/target')
-    FileUtils.ln_s(target, '/path/to/link')
-    assert_kind_of FakeFS::FakeSymlink, FakeFS::FileSystem.fs['path']['to']['link']
-    FileUtils.ln_sf(target, '/path/to/link')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(target = string_or_pathname('/path/to/first/target'))
+      FileUtils.ln_s(target, sympath = string_or_pathname('/path/to/link'))
+      assert_kind_of FakeFS::FakeSymlink, FakeFS::FileSystem.fs['path']['to']['link']
+      FileUtils.ln_sf(target, sympath)
+      FileUtils.rm(sympath)
+    end
   end
 
   def test_can_follow_symlinks
-    FileUtils.mkdir_p(target = '/path/to/target')
-    FileUtils.ln_s(target, link = '/path/to/symlink')
-    assert_equal target, File.readlink(link)
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(target = string_or_pathname('/path/to/target'))
+      FileUtils.ln_s(target, link = string_or_pathname('/path/to/symlink'))
+      assert_equal target, File.readlink(link)
+      FileUtils.rm(link)
+    end
   end
 
   def test_symlinks_in_different_directories
-    FileUtils.mkdir_p('/path/to/bar')
-    FileUtils.mkdir_p(target = '/path/to/foo/target')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(string_or_pathname('/path/to/bar'))
+      FileUtils.mkdir_p(target = string_or_pathname('/path/to/foo/target'))
 
-    FileUtils.ln_s(target, link = '/path/to/bar/symlink')
-    assert_equal target, File.readlink(link)
+      FileUtils.ln_s(target, link = string_or_pathname('/path/to/bar/symlink'))
+      assert_equal target, File.readlink(link)
+      FileUtils.rm(link)
+    end
   end
 
   def test_symlink_with_relative_path_exists
-    FileUtils.touch('/file')
-    FileUtils.mkdir_p('/a/b')
-    FileUtils.ln_s('../../file', '/a/b/symlink')
-    assert File.exist?('/a/b/symlink')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.touch(string_or_pathname('/file'))
+      FileUtils.mkdir_p(string_or_pathname('/a/b'))
+      FileUtils.ln_s(string_or_pathname('../../file'), sympath = string_or_pathname('/a/b/symlink'))
+      assert File.exist?(string_or_pathname('/a/b/symlink'))
+      FileUtils.rm(sympath)
+    end
   end
 
   def test_symlink_with_relative_path_and_nonexistant_file_does_not_exist
-    FileUtils.touch('/file')
-    FileUtils.mkdir_p('/a/b')
-    FileUtils.ln_s('../../file_foo', '/a/b/symlink')
-    refute File.exist?('/a/b/symlink')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.touch(string_or_pathname('/file'))
+      FileUtils.mkdir_p(string_or_pathname('/a/b'))
+      FileUtils.ln_s(string_or_pathname('../../file_foo'), sympath = string_or_pathname('/a/b/symlink'))
+      refute File.exist?(sympath)
+      FileUtils.rm(sympath)
+    end
   end
 
   def test_symlink_with_relative_path_has_correct_target
-    FileUtils.touch('/file')
-    FileUtils.mkdir_p('/a/b')
-    FileUtils.ln_s('../../file', link = '/a/b/symlink')
-    assert_equal '../../file', File.readlink(link)
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.touch(string_or_pathname('/file'))
+      FileUtils.mkdir_p(string_or_pathname('/a/b'))
+      FileUtils.ln_s(path = string_or_pathname('../../file'), link = string_or_pathname('/a/b/symlink'))
+      assert_equal path, File.readlink(link)
+      FileUtils.rm(link)
+    end
   end
 
   def test_symlinks_to_symlinks
-    FileUtils.mkdir_p(target = '/path/to/foo/target')
-    FileUtils.mkdir_p('/path/to/bar')
-    FileUtils.mkdir_p('/path/to/bar2')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(target = string_or_pathname('/path/to/foo/target'))
+      FileUtils.mkdir_p(string_or_pathname('/path/to/bar'))
+      FileUtils.mkdir_p(string_or_pathname('/path/to/bar2'))
 
-    FileUtils.ln_s(target, link1 = '/path/to/bar/symlink')
-    FileUtils.ln_s(link1, link2 = '/path/to/bar2/symlink')
-    assert_equal link1, File.readlink(link2)
+      FileUtils.ln_s(target, link1 = string_or_pathname('/path/to/bar/symlink'))
+      FileUtils.ln_s(link1, link2 = string_or_pathname('/path/to/bar2/symlink'))
+      assert_equal link1, File.readlink(link2)
+      FileUtils.rm(link1)
+      FileUtils.rm(link2)
+    end
   end
 
   def test_symlink_to_symlinks_should_raise_error_if_dir_doesnt_exist
-    FileUtils.mkdir_p(target = '/path/to/foo/target')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(target = string_or_pathname('/path/to/foo/target'))
 
-    refute Dir.exist?('/path/to/bar')
+      refute Dir.exist?(string_or_pathname('/path/to/bar'))
 
-    assert_raises Errno::ENOENT do
-      FileUtils.ln_s(target, '/path/to/bar/symlink')
+      assert_raises Errno::ENOENT do
+        FileUtils.ln_s(target, string_or_pathname('/path/to/bar/symlink'))
+      end
     end
   end
 
   def test_knows_symlinks_are_symlinks
-    FileUtils.mkdir_p(target = '/path/to/target')
-    FileUtils.ln_s(target, link = '/path/to/symlink')
-    assert File.symlink?(link)
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(target = string_or_pathname('/path/to/target'))
+      FileUtils.ln_s(target, link = string_or_pathname('/path/to/symlink'))
+      assert File.symlink?(link)
+      FileUtils.rm(link)
+    end
   end
 
   def test_can_create_files_in_current_dir
-    path = 'file.txt'
-    File.open(path, 'w') do |f|
-      f.write 'Yatta!'
-    end
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('file.txt')
+      File.open(path, 'w') do |f|
+        f.write 'Yatta!'
+      end
 
-    assert File.exist?(path)
-    assert File.readable?(path)
-    assert File.writable?(path)
+      assert File.exist?(path)
+      assert File.readable?(path)
+      assert File.writable?(path)
+      FileUtils.rm(path)
+    end
   end
 
   def test_can_create_files_with_brackets
-    # test various combinations of files with brackets
-    file = '[file'
-    File.open(file, 'w') { |f| f << 'some content' }
-    assert File.exist?(file)
+    perform_with_both_string_paths_and_pathnames do
+      # test various combinations of files with brackets
+      file = string_or_pathname('[file')
+      File.open(file, 'w') { |f| f << 'some content' }
+      assert File.exist?(file)
+      FileUtils.rm(file)
 
-    file = ']file'
-    File.open(file, 'w') { |f| f << 'some content' }
-    assert File.exist?(file)
+      file = string_or_pathname(']file')
+      File.open(file, 'w') { |f| f << 'some content' }
+      assert File.exist?(file)
+      FileUtils.rm(file)
 
-    file = 'fi][le'
-    File.open(file, 'w') { |f| f << 'some content' }
-    assert File.exist?(file)
+      file = string_or_pathname('fi][le')
+      File.open(file, 'w') { |f| f << 'some content' }
+      assert File.exist?(file)
+      FileUtils.rm(file)
 
-    file = '[file]'
-    File.open(file, 'w') { |f| f << 'some content' }
-    assert File.exist?(file)
+      file = string_or_pathname('[file]')
+      File.open(file, 'w') { |f| f << 'some content' }
+      assert File.exist?(file)
+      FileUtils.rm(file)
 
-    file = '[[[[]][[]][]][[[[[[[[]]]'
-    File.open(file, 'w') { |f| f << 'some content' }
-    assert File.exist?(file)
+      file = string_or_pathname('[[[[]][[]][]][[[[[[[[]]]')
+      File.open(file, 'w') { |f| f << 'some content' }
+      assert File.exist?(file)
+      FileUtils.rm(file)
+    end
   end
 
   def test_nothing_is_sticky
-    refute File.sticky?('/')
+    perform_with_both_string_paths_and_pathnames do
+      refute File.sticky?(string_or_pathname('/'))
+    end
   end
 
   def test_can_create_files_in_existing_dir
-    FileUtils.mkdir_p '/path/to'
-    path = '/path/to/file.txt'
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p string_or_pathname('/path/to')
+      path = string_or_pathname('/path/to/file.txt')
 
-    File.open(path, 'w') do |f|
-      f.write 'Yatta!'
+      File.open(path, 'w') do |f|
+        f.write 'Yatta!'
+      end
+
+      assert File.exist?(path)
+      assert File.readable?(path)
+      assert File.writable?(path)
+      FileUtils.rm(path)
     end
-
-    assert File.exist?(path)
-    assert File.readable?(path)
-    assert File.writable?(path)
   end
 
   def test_raises_ENOENT_trying_to_create_files_in_nonexistent_dir
-    path = '/path/to/file.txt'
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('/path/to/file.txt')
 
-    assert_raises(Errno::ENOENT) do
-      File.open(path, 'w') do |f|
-        f.write 'Yatta!'
+      assert_raises(Errno::ENOENT) do
+        File.open(path, 'w') do |f|
+          f.write 'Yatta!'
+        end
       end
     end
   end
 
   def test_raises_ENOENT_trying_to_create_files_in_relative_nonexistent_dir
-    FileUtils.mkdir_p '/some/path'
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p string_or_pathname('/some/path')
 
-    Dir.chdir('/some/path') do
-      assert_raises(Errno::ENOENT) do
-        File.open('../foo') { |f| f.write 'moo' }
+      Dir.chdir(string_or_pathname('/some/path')) do
+        assert_raises(Errno::ENOENT) do
+          File.open(string_or_pathname('../foo')) { |f| f.write 'moo' }
+        end
       end
     end
   end
 
   def test_raises_ENOENT_trying_to_create_files_in_obscured_nonexistent_dir
-    FileUtils.mkdir_p '/some/path'
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p string_or_pathname('/some/path')
 
-    assert_raises(Errno::ENOENT) do
-      File.open('/some/path/../foo') { |f| f.write 'moo' }
+      assert_raises(Errno::ENOENT) do
+        File.open(string_or_pathname('/some/path/../foo')) { |f| f.write 'moo' }
+      end
     end
   end
 
   def test_raises_ENOENT_trying_to_create_tilde_referenced_nonexistent_dir
-    path = "~/fakefs_test_#{$$}_0000"
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname("~/fakefs_test_#{$$}_0000")
 
-    path = path.succ while File.exist? path
+      path = path.succ while File.exist? path
 
-    assert_raises(Errno::ENOENT) do
-      File.open("#{path}/foo") { |f| f.write 'moo' }
+      assert_raises(Errno::ENOENT) do
+        File.open(string_or_pathname("#{path}/foo")) { |f| f.write 'moo' }
+      end
     end
   end
 
   def test_raises_EISDIR_if_trying_to_open_existing_directory_name
-    path = '/path/to'
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('/path/to')
 
-    FileUtils.mkdir_p path
+      FileUtils.mkdir_p path
 
-    assert_raises(Errno::EISDIR) do
-      File.open(path, 'w') do |f|
-        f.write 'Yatta!'
+      assert_raises(Errno::EISDIR) do
+        File.open(path, 'w') do |f|
+          f.write 'Yatta!'
+        end
       end
     end
   end
 
   def test_can_create_files_with_bitmasks
-    FileUtils.mkdir_p('/path/to')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(string_or_pathname('/path/to'))
 
-    path = '/path/to/file.txt'
-    File.open(path, File::RDWR | File::CREAT) do |f|
-      f.write 'Yatta!'
+      path = string_or_pathname('/path/to/file.txt')
+      File.open(path, File::RDWR | File::CREAT) do |f|
+        f.write 'Yatta!'
+      end
+
+      assert File.exist?(path)
+      assert File.readable?(path)
+      assert File.writable?(path)
+      FileUtils.rm(path)
     end
-
-    assert File.exist?(path)
-    assert File.readable?(path)
-    assert File.writable?(path)
   end
 
   def test_file_opens_in_read_only_mode
-    File.open('foo', 'w') { |f| f << 'foo' }
+    perform_with_both_string_paths_and_pathnames do
+      File.open(string_or_pathname('foo'), 'w') { |f| f << 'foo' }
 
-    f = File.open('foo')
+      f = File.open(string_or_pathname('foo'))
 
-    assert_raises(IOError) do
-      f << 'bar'
+      assert_raises(IOError) do
+        f << 'bar'
+      end
     end
   end
 
   def test_file_opens_in_read_only_mode_with_bitmasks
-    File.open('foo', 'w') { |f| f << 'foo' }
+    perform_with_both_string_paths_and_pathnames do
+      File.open(string_or_pathname('foo'), 'w') { |f| f << 'foo' }
 
-    f = File.open('foo', File::RDONLY)
+      f = File.open(string_or_pathname('foo'), File::RDONLY)
 
-    assert_raises(IOError) do
-      f << 'bar'
+      assert_raises(IOError) do
+        f << 'bar'
+      end
     end
   end
 
   def test_file_opens_in_invalid_mode
-    FileUtils.touch('foo')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.touch(string_or_pathname('foo'))
 
-    assert_raises(ArgumentError) do
-      File.open('foo', 'an_illegal_mode')
+      assert_raises(ArgumentError) do
+        File.open(string_or_pathname('foo'), 'an_illegal_mode')
+      end
     end
   end
 
   def test_raises_error_when_cannot_find_file_in_read_mode
-    assert_raises(Errno::ENOENT) do
-      File.open('does_not_exist', 'r')
+    perform_with_both_string_paths_and_pathnames do
+      assert_raises(Errno::ENOENT) do
+        File.open(string_or_pathname('does_not_exist'), 'r')
+      end
     end
   end
 
   def test_raises_error_when_cannot_find_file_in_read_write_mode
-    assert_raises(Errno::ENOENT) do
-      File.open('does_not_exist', 'r+')
+    perform_with_both_string_paths_and_pathnames do
+      assert_raises(Errno::ENOENT) do
+        File.open(string_or_pathname('does_not_exist'), 'r+')
+      end
     end
   end
 
   def test_creates_files_in_write_only_mode
-    File.open('foo', 'w')
-    assert File.exist?('foo')
+    perform_with_both_string_paths_and_pathnames do
+      File.open(string_or_pathname('foo'), 'w')
+      assert File.exist?(string_or_pathname('foo'))
+    end
   end
 
   def test_creates_files_in_write_only_mode_with_bitmasks
-    File.open('foo', File::WRONLY | File::CREAT)
-    assert File.exist?('foo')
+    perform_with_both_string_paths_and_pathnames do
+      File.open(string_or_pathname('foo'), File::WRONLY | File::CREAT)
+      assert File.exist?(string_or_pathname('foo'))
+    end
   end
 
   def test_raises_in_write_only_mode_without_create_bitmask
-    assert_raises(Errno::ENOENT) do
-      File.open('foo', File::WRONLY)
+    perform_with_both_string_paths_and_pathnames do
+      assert_raises(Errno::ENOENT) do
+        File.open(string_or_pathname('foo'), File::WRONLY)
+      end
     end
   end
 
   def test_creates_files_in_read_write_truncate_mode
-    File.open('foo', 'w+')
-    assert File.exist?('foo')
+    perform_with_both_string_paths_and_pathnames do
+      File.open(path = string_or_pathname('foo'), 'w+')
+      assert File.exist?(path)
+      FileUtils.rm(path)
+    end
   end
 
   def test_creates_files_in_append_write_only
-    File.open('foo', 'a')
-    assert File.exist?('foo')
+    perform_with_both_string_paths_and_pathnames do
+      File.open(path = string_or_pathname('foo'), 'a')
+      assert File.exist?(path)
+      FileUtils.rm(path)
+    end
   end
 
   def test_creates_files_in_append_read_write
-    File.open('foo', 'a+')
-    assert File.exist?('foo')
+    perform_with_both_string_paths_and_pathnames do
+      File.open(path = string_or_pathname('foo'), 'a+')
+      assert File.exist?(path)
+      FileUtils.rm(path)
+    end
   end
 
   def test_file_in_write_only_raises_error_when_reading
-    FileUtils.touch('foo')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.touch(string_or_pathname('foo'))
 
-    f = File.open('foo', 'w')
+      f = File.open(string_or_pathname('foo'), 'w')
 
-    assert_raises(IOError) do
-      f.read
+      assert_raises(IOError) do
+        f.read
+      end
     end
   end
 
   def test_file_in_write_mode_truncates_existing_file
-    File.open('foo', 'w') { |f| f << 'contents' }
-    File.open('foo', 'w')
-    assert_equal '', File.read('foo')
+    perform_with_both_string_paths_and_pathnames do
+      File.open(path = string_or_pathname('foo'), 'w') { |f| f << 'contents' }
+      File.open(path, 'w')
+      assert_equal '', File.read(path)
+      FileUtils.rm(path)
+    end
   end
 
   def test_file_in_read_write_truncation_mode_truncates_file
-    File.open('foo', 'w') { |f| f << 'foo' }
-    File.open('foo', 'w+')
-    assert_equal '', File.read('foo')
+    perform_with_both_string_paths_and_pathnames do
+      File.open(path = string_or_pathname('foo'), 'w') { |f| f << 'foo' }
+      File.open(path, 'w+')
+      assert_equal '', File.read(path)
+      FileUtils.rm(path)
+    end
   end
 
   def test_can_read_file_including_dollar
-    File.write('$foo', 'foo')
-    assert_equal 'foo', File.read('$foo')
+    perform_with_both_string_paths_and_pathnames do
+      File.write(path = string_or_pathname('$foo'), 'foo')
+      assert_equal 'foo', File.read(path)
+      FileUtils.rm(path)
+    end
   end
 
   def test_file_in_append_write_only_raises_error_when_reading
-    FileUtils.touch('foo')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.touch(path = string_or_pathname('foo'))
 
-    f = File.open('foo', 'a')
+      f = File.open(path, 'a')
 
-    assert_raises(IOError) do
-      f.read
+      assert_raises(IOError) do
+        f.read
+      end
     end
   end
 
   def test_can_read_files_once_written
-    path = 'file.txt'
-    File.open(path, 'w') do |f|
-      f.write 'Yatta!'
-    end
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('file.txt')
+      File.open(path, 'w') do |f|
+        f.write 'Yatta!'
+      end
 
-    assert_equal 'Yatta!', File.read(path)
+      assert_equal 'Yatta!', File.read(path)
+      FileUtils.rm(path)
+    end
   end
 
   def test_file_read_accepts_hashes
-    path = 'file.txt'
-    File.open(path, 'w') do |f|
-      f.write 'Yatta!'
-    end
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('file.txt')
+      File.open(path, 'w') do |f|
+        f.write 'Yatta!'
+      end
 
-    # nothing raised
-    File.read(path, mode: 'r:UTF-8:-')
+      # nothing raised
+      File.read(path, mode: 'r:UTF-8:-')
+      FileUtils.rm(path)
+    end
   end
 
   def test_file_read_respects_args
-    path = 'file.txt'
-    File.open(path, 'w') do |f|
-      f.write 'Yatta!'
-    end
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('file.txt')
+      File.open(path, 'w') do |f|
+        f.write 'Yatta!'
+      end
 
-    assert_equal 'Ya', File.read(path, 2)
-    assert_equal 'at', File.read(path, 2, 1)
-    assert_equal 'atta!', File.read(path, nil, 1)
+      assert_equal 'Ya', File.read(path, 2)
+      assert_equal 'at', File.read(path, 2, 1)
+      assert_equal 'atta!', File.read(path, nil, 1)
+      FileUtils.rm(path)
+    end
   end
 
   def test_can_write_to_files
-    path = 'file.txt'
-    File.open(path, 'w') do |f|
-      f << 'Yada Yada'
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('file.txt')
+      File.open(path, 'w') do |f|
+        f << 'Yada Yada'
+      end
+      assert_equal 'Yada Yada', File.read(path)
+      FileUtils.rm(path)
     end
-    assert_equal 'Yada Yada', File.read(path)
   end
 
   def test_raises_error_when_opening_with_binary_mode_only
-    assert_raises ArgumentError do
-      File.open('/foo', 'b')
+    perform_with_both_string_paths_and_pathnames do
+      assert_raises ArgumentError do
+        File.open(string_or_pathname('/foo'), 'b')
+      end
     end
   end
 
   def test_can_open_file_in_binary_mode
-    File.open('foo', 'wb') { |x| x << 'a' }
-    assert_equal 'a', File.read('foo')
+    perform_with_both_string_paths_and_pathnames do
+      File.open(path = string_or_pathname('foo'), 'wb') { |x| x << 'a' }
+      assert_equal 'a', File.read(path)
+      FileUtils.rm(path)
+    end
   end
 
   def test_can_chunk_io_when_reading
-    FileUtils.mkdir_p '/path/to'
-    path = '/path/to/file.txt'
-    File.open(path, 'w') do |f|
-      f << 'Yada Yada'
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p string_or_pathname('/path/to')
+      path = string_or_pathname('/path/to/file.txt')
+      File.open(path, 'w') do |f|
+        f << 'Yada Yada'
+      end
+      file = File.new(path, 'r')
+      assert_equal 'Yada', file.read(4)
+      assert_equal ' Yada', file.read(5)
+      assert_equal '', file.read
+      file.rewind
+      assert_equal 'Yada Yada', file.read
+      FileUtils.rm(path)
     end
-    file = File.new(path, 'r')
-    assert_equal 'Yada', file.read(4)
-    assert_equal ' Yada', file.read(5)
-    assert_equal '', file.read
-    file.rewind
-    assert_equal 'Yada Yada', file.read
   end
 
   def test_can_get_size_of_files
-    path = 'file.txt'
-    File.open(path, 'w') do |f|
-      f << 'Yada Yada'
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('file.txt')
+      File.open(path, 'w') do |f|
+        f << 'Yada Yada'
+      end
+      assert_equal 9, File.size(path)
+      FileUtils.rm(path)
     end
-    assert_equal 9, File.size(path)
   end
 
   def test_can_get_correct_size_for_files_with_multibyte_characters
-    path = 'file.txt'
-    File.open(path, 'wb') do |f|
-      f << "Y\xC3\xA1da"
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('file.txt')
+      File.open(path, 'wb') do |f|
+        f << "Y\xC3\xA1da"
+      end
+      assert_equal 5, File.size(path)
+      FileUtils.rm(path)
     end
-    assert_equal 5, File.size(path)
   end
 
   def test_can_get_correct_size_for_empty_directory
-    Dir.mkdir '/foo'
-    assert_equal 64, File.size?('/foo')
+    perform_with_both_string_paths_and_pathnames do
+      Dir.mkdir(dir = string_or_pathname('/foo'))
+      assert_equal 64, File.size?(dir)
+      FileUtils.rmdir(dir)
+    end
   end
 
   def test_can_get_correct_size_for_parent_directory
-    FileUtils.mkdir_p '/foo/bar'
-    assert_equal 96, File.size?('/foo')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(string_or_pathname('/foo/bar'))
+      assert_equal 96, File.size?(dir = string_or_pathname('/foo'))
+      FileUtils.rmtree(dir)
+    end
   end
 
   def test_can_get_correct_size_for_grandparent_directory
-    FileUtils.mkdir_p '/foo/bar/baz'
-    assert_equal 96, File.size?('/foo')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p string_or_pathname('/foo/bar/baz')
+      assert_equal 96, File.size?(dir = string_or_pathname('/foo'))
+      FileUtils.rmtree(dir)
+    end
   end
 
   def test_can_get_correct_size_for_grandparent_directory_with_files
-    FileUtils.mkdir_p '/foo/bar/baz'
-    File.open('/foo/a.txt', 'w')
-    File.open('/foo/bar/b.txt', 'w')
-    assert_equal 128, File.size?('/foo')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p string_or_pathname('/foo/bar/baz')
+      File.open('/foo/a.txt', 'w')
+      File.open('/foo/bar/b.txt', 'w')
+      assert_equal 128, File.size?(dir = string_or_pathname('/foo'))
+      FileUtils.rmtree(dir)
+    end
   end
 
   def test_can_check_if_file_has_size?
-    path = 'file.txt'
-    File.open(path, 'w') do |f|
-      f << 'Yada Yada'
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('file.txt')
+      File.open(path, 'w') do |f|
+        f << 'Yada Yada'
+      end
+      assert_equal 9, File.size?(path)
+      assert_nil File.size?(string_or_pathname('other.txt'))
+      FileUtils.rm(path)
     end
-    assert_equal 9, File.size?(path)
-    assert_nil File.size?('other.txt')
   end
 
   def test_can_check_size_of_empty_file
-    path = 'file.txt'
-    File.open(path, 'w') do |f|
-      f << ''
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('file.txt')
+      File.open(path, 'w') do |f|
+        f << ''
+      end
+      assert_nil File.size?(string_or_pathname('file.txt'))
+      FileUtils.rm(path)
     end
-    assert_nil File.size?('file.txt')
   end
 
   def test_can_check_size_of_directory
-    Dir.mkdir '/foo'
-    assert_equal 64, File.size?('/foo')
+    perform_with_both_string_paths_and_pathnames do
+      Dir.mkdir(path = string_or_pathname('/foo'))
+      assert_equal 64, File.size?(path)
+      FileUtils.rm(path)
+    end
   end
 
   def test_zero_on_empty_file
-    path = 'file.txt'
-    File.open(path, 'w') do |f|
-      f << ''
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('file.txt')
+      File.open(path, 'w') do |f|
+        f << ''
+      end
+      assert_equal true, File.zero?(path)
+      FileUtils.rm(path)
     end
-    assert_equal true, File.zero?(path)
   end
 
   def test_zero_on_non_empty_file
-    path = 'file.txt'
-    File.open(path, 'w') do |f|
-      f << 'Not empty'
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('file.txt')
+      File.open(path, 'w') do |f|
+        f << 'Not empty'
+      end
+      assert_equal false, File.zero?(path)
+      FileUtils.rm(path)
     end
-    assert_equal false, File.zero?(path)
   end
 
   def test_zero_on_non_existent_file
-    path = 'file_does_not_exist.txt'
-    assert_equal false, File.zero?(path)
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('file_does_not_exist.txt')
+      assert_equal false, File.zero?(path)
+    end
   end
 
   if RUBY_VERSION >= '2.4'
     def test_empty_on_empty_file
-      path = 'file.txt'
-      File.open(path, 'w') do |f|
-        f << ''
+      perform_with_both_string_paths_and_pathnames do
+        path = string_or_pathname('file.txt')
+        File.open(path, 'w') do |f|
+          f << ''
+        end
+        assert_equal true, File.empty?(path)
+        FileUtils.rm(path)
       end
-      assert_equal true, File.empty?(path)
     end
 
     def test_empty_on_non_empty_file
-      path = 'file.txt'
-      File.open(path, 'w') do |f|
-        f << 'Not empty'
+      perform_with_both_string_paths_and_pathnames do
+        path = string_or_pathname('file.txt')
+        File.open(path, 'w') do |f|
+          f << 'Not empty'
+        end
+        assert_equal false, File.empty?(path)
+        FileUtils.rm(path)
       end
-      assert_equal false, File.empty?(path)
     end
 
     def test_empty_on_non_existent_file
-      path = 'file_does_not_exist.txt'
-      assert_equal false, File.empty?(path)
+      perform_with_both_string_paths_and_pathnames do
+        path = string_or_pathname('file_does_not_exist.txt')
+        assert_equal false, File.empty?(path)
+      end
     end
   else
     def test_file_empty_not_implemented
@@ -703,253 +947,342 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_raises_error_on_mtime_if_file_does_not_exist
-    assert_raises Errno::ENOENT do
-      File.mtime('/path/to/file.txt')
+    perform_with_both_string_paths_and_pathnames do
+      assert_raises Errno::ENOENT do
+        File.mtime(string_or_pathname('/path/to/file.txt'))
+      end
     end
   end
 
   def test_can_set_mtime_on_new_file_touch_with_param
-    time = Time.new(2002, 10, 31, 2, 2, 2, '+02:00')
-    FileUtils.touch('foo.txt', mtime: time)
+    perform_with_both_string_paths_and_pathnames do
+      time = Time.new(2002, 10, 31, 2, 2, 2, '+02:00')
+      FileUtils.touch(path = string_or_pathname('foo.txt'), mtime: time)
 
-    assert_equal File.mtime('foo.txt'), time
+      assert_equal File.mtime(path), time
+      FileUtils.rm(path)
+    end
   end
 
   def test_can_set_mtime_on_existing_file_touch_with_param
-    FileUtils.touch('foo.txt')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.touch(path = string_or_pathname('foo.txt'))
 
-    time = Time.new(2002, 10, 31, 2, 2, 2, '+02:00')
-    FileUtils.touch('foo.txt', mtime: time)
+      time = Time.new(2002, 10, 31, 2, 2, 2, '+02:00')
+      FileUtils.touch(path, mtime: time)
 
-    assert_equal File.mtime('foo.txt'), time
+      assert_equal File.mtime(path), time
+    end
   end
 
   def test_can_return_mtime_on_existing_file
-    path = 'file.txt'
-    File.open(path, 'w') do |f|
-      f << ''
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('file.txt')
+      File.open(path, 'w') do |f|
+        f << ''
+      end
+      assert File.mtime(path).is_a?(Time)
+      FileUtils.rm(path)
     end
-    assert File.mtime('file.txt').is_a?(Time)
   end
 
   def test_raises_error_on_ctime_if_file_does_not_exist
-    assert_raises Errno::ENOENT do
-      File.ctime('file.txt')
+    perform_with_both_string_paths_and_pathnames do
+      assert_raises Errno::ENOENT do
+        File.ctime(string_or_pathname('file.txt'))
+      end
     end
   end
 
   def test_can_return_ctime_on_existing_file
-    File.open('foo', 'w') { |f| f << 'some content' }
-    assert File.ctime('foo').is_a?(Time)
+    perform_with_both_string_paths_and_pathnames do
+      File.open(path = string_or_pathname('foo'), 'w') { |f| f << 'some content' }
+      assert File.ctime(path).is_a?(Time)
+      FileUtils.rm(path)
+    end
   end
 
   def test_raises_error_on_atime_if_file_does_not_exist
-    assert_raises Errno::ENOENT do
-      File.atime('file.txt')
+    perform_with_both_string_paths_and_pathnames do
+      assert_raises Errno::ENOENT do
+        File.atime(string_or_pathname('file.txt'))
+      end
     end
   end
 
   def test_can_return_atime_on_existing_file
-    File.open('foo', 'w') { |f| f << 'some content' }
-    assert File.atime('foo').is_a?(Time)
+    perform_with_both_string_paths_and_pathnames do
+      File.open(path = string_or_pathname('foo'), 'w') { |f| f << 'some content' }
+      assert File.atime(path).is_a?(Time)
+      FileUtils.rm(path)
+    end
   end
 
   def test_ctime_mtime_and_atime_are_equal_for_new_files
-    FileUtils.touch('foo')
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('foo')
+      FileUtils.touch(path)
 
-    ctime = File.ctime('foo')
-    mtime = File.mtime('foo')
-    atime = File.atime('foo')
-    assert ctime.is_a?(Time)
-    assert mtime.is_a?(Time)
-    assert atime.is_a?(Time)
-    assert_equal ctime, mtime
-    assert_equal ctime, atime
+      ctime = File.ctime(path)
+      mtime = File.mtime(path)
+      atime = File.atime(path)
+      assert ctime.is_a?(Time)
+      assert mtime.is_a?(Time)
+      assert atime.is_a?(Time)
+      assert_equal ctime, mtime
+      assert_equal ctime, atime
 
-    File.open('foo', 'r') do |f|
-      assert_equal ctime, f.ctime
-      assert_equal mtime, f.mtime
-      assert_equal atime, f.atime
+      File.open(path, 'r') do |f|
+        assert_equal ctime, f.ctime
+        assert_equal mtime, f.mtime
+        assert_equal atime, f.atime
+      end
+
+      FileUtils.rm(path)
     end
   end
 
   def test_ctime_mtime_and_atime_are_equal_for_new_directories
-    FileUtils.mkdir_p('foo')
-    ctime = File.ctime('foo')
-    mtime = File.mtime('foo')
-    atime = File.atime('foo')
-    assert ctime.is_a?(Time)
-    assert mtime.is_a?(Time)
-    assert atime.is_a?(Time)
-    assert_equal ctime, mtime
-    assert_equal ctime, atime
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('foo')
+      FileUtils.mkdir_p(path)
+      ctime = File.ctime(path)
+      mtime = File.mtime(path)
+      atime = File.atime(path)
+      assert ctime.is_a?(Time)
+      assert mtime.is_a?(Time)
+      assert atime.is_a?(Time)
+      assert_equal ctime, mtime
+      assert_equal ctime, atime
+      FileUtils.rmdir(path)
+    end
   end
 
   def test_file_ctime_is_equal_to_file_stat_ctime
-    File.open('foo', 'w') { |f| f << 'some content' }
-    assert_equal File.stat('foo').ctime, File.ctime('foo')
+    perform_with_both_string_paths_and_pathnames do
+      File.open(path = string_or_pathname('foo'), 'w') { |f| f << 'some content' }
+      assert_equal File.stat(path).ctime, File.ctime(path)
+      FileUtils.rm(path)
+    end
   end
 
   def test_directory_ctime_is_equal_to_directory_stat_ctime
-    FileUtils.mkdir_p('foo')
-    assert_equal File.stat('foo').ctime, File.ctime('foo')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(path = string_or_pathname('foo'))
+      assert_equal File.stat(path).ctime, File.ctime(path)
+      FileUtils.rmdir(path)
+    end
   end
 
   def test_file_mtime_is_equal_to_file_stat_mtime
-    File.open('foo', 'w') { |f| f << 'some content' }
-    assert_equal File.stat('foo').mtime, File.mtime('foo')
+    perform_with_both_string_paths_and_pathnames do
+      File.open(path = string_or_pathname('foo'), 'w') { |f| f << 'some content' }
+      assert_equal File.stat(path).mtime, File.mtime(path)
+      FileUtils.rm(path)
+    end
   end
 
   def test_directory_mtime_is_equal_to_directory_stat_mtime
-    FileUtils.mkdir_p('foo')
-    assert_equal File.stat('foo').mtime, File.mtime('foo')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(path = string_or_pathname('foo'))
+      assert_equal File.stat(path).mtime, File.mtime(path)
+      FileUtils.rmdir(path)
+    end
   end
 
   def test_file_atime_is_equal_to_file_stat_atime
-    File.open('foo', 'w') { |f| f << 'some content' }
-    assert_equal File.stat('foo').atime, File.atime('foo')
+    perform_with_both_string_paths_and_pathnames do
+      File.open(path = string_or_pathname('foo'), 'w') { |f| f << 'some content' }
+      assert_equal File.stat(path).atime, File.atime(path)
+      FileUtils.rm(path)
+    end
   end
 
   def test_directory_atime_is_equal_to_directory_stat_atime
-    FileUtils.mkdir_p('foo')
-    assert_equal File.stat('foo').atime, File.atime('foo')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(path = string_or_pathname('foo'))
+      assert_equal File.stat(path).atime, File.atime(path)
+      FileUtils.rmdir(path)
+    end
   end
 
   def test_utime_raises_error_if_path_does_not_exist
-    assert_raises Errno::ENOENT do
-      File.utime(Time.now, Time.now, '/path/to/file.txt')
+    perform_with_both_string_paths_and_pathnames do
+      assert_raises Errno::ENOENT do
+        File.utime(Time.now, Time.now, string_or_pathname('/path/to/file.txt'))
+      end
     end
   end
 
   def test_can_call_utime_on_an_existing_file
-    time = Time.now - 300 # Not now
-    path = 'file.txt'
-    File.open(path, 'w') do |f|
-      f << ''
-    end
-    File.utime(time, time, path)
-    assert_equal time, File.mtime('file.txt')
-    assert_equal time, File.atime('file.txt')
-  end
-
-  def test_utime_returns_number_of_paths
-    path1, path2 = 'file.txt', 'another_file.txt'
-    [path1, path2].each do |path|
+    perform_with_both_string_paths_and_pathnames do
+      time = Time.now - 300 # Not now
+      path = string_or_pathname('file.txt')
       File.open(path, 'w') do |f|
         f << ''
       end
+      File.utime(time, time, path)
+      assert_equal time, File.mtime(path)
+      assert_equal time, File.atime(path)
+      FileUtils.rm(path)
     end
-    assert_equal 2, File.utime(Time.now, Time.now, path1, path2)
+  end
+
+  def test_utime_returns_number_of_paths
+    perform_with_both_string_paths_and_pathnames do
+      path1, path2 = string_or_pathname('file.txt'), string_or_pathname('another_file.txt')
+      [path1, path2].each do |path|
+        File.open(path, 'w') do |f|
+          f << ''
+        end
+      end
+      assert_equal 2, File.utime(Time.now, Time.now, path1, path2)
+      FileUtils.rm(path1, path2)
+    end
   end
 
   def test_file_a_time_updated_when_file_is_read
-    old_atime = Time.now - 300
+    perform_with_both_string_paths_and_pathnames do
+      old_atime = Time.now - 300
 
-    path = 'file.txt'
-    File.open(path, 'w') do |f|
-      f << 'Hello'
+      path = string_or_pathname('file.txt')
+      File.open(path, 'w') do |f|
+        f << 'Hello'
+      end
+
+      File.utime(old_atime, File.mtime(path), path)
+
+      assert_equal File.atime(path), old_atime
+      File.read(path)
+      assert File.atime(path) != old_atime
+      FileUtils.rm(path)
     end
-
-    File.utime(old_atime, File.mtime(path), path)
-
-    assert_equal File.atime(path), old_atime
-    File.read(path)
-    assert File.atime(path) != old_atime
   end
 
   def test_can_read_with_File_readlines
-    path = 'file.txt'
-    File.open(path, 'w') do |f|
-      f.puts 'Yatta!', 'Gatta!'
-      f.puts ['woot', 'toot']
-    end
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('file.txt')
+      File.open(path, 'w') do |f|
+        f.puts 'Yatta!', 'Gatta!'
+        f.puts ['woot', 'toot']
+      end
 
-    assert_equal ["Yatta!\n", "Gatta!\n", "woot\n", "toot\n"], File.readlines(path)
+      assert_equal ["Yatta!\n", "Gatta!\n", "woot\n", "toot\n"], File.readlines(path)
+      FileUtils.rm(path)
+    end
   end
 
   def test_can_read_with_File_readlines_and_only_empty_lines
-    path = 'file.txt'
-    File.open(path, 'w') do |f|
-      f.write "\n"
-    end
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('file.txt')
+      File.open(path, 'w') do |f|
+        f.write "\n"
+      end
 
-    assert_equal ["\n"], File.readlines(path)
+      assert_equal ["\n"], File.readlines(path)
+      FileUtils.rm(path)
+    end
   end
 
   def test_can_read_with_File_readlines_and_new_lines
-    path = 'file.txt'
-    File.open(path, 'w') do |f|
-      f.write "this\nis\na\ntest\n"
-    end
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('file.txt')
+      File.open(path, 'w') do |f|
+        f.write "this\nis\na\ntest\n"
+      end
 
-    assert_equal ["this\n", "is\n", "a\n", "test\n"], File.readlines(path)
+      assert_equal ["this\n", "is\n", "a\n", "test\n"], File.readlines(path)
+      FileUtils.rm(path)
+    end
   end
 
   def test_can_read_with_File_foreach
-    path = 'file.txt'
-    File.open(path, 'w') do |f|
-      f.puts ['flub', 'dub', 'crub']
-    end
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('file.txt')
+      File.open(path, 'w') do |f|
+        f.puts ['flub', 'dub', 'crub']
+      end
 
-    read_lines = []
-    File.foreach(path) { |line| read_lines << line }
-    assert_equal ["flub\n", "dub\n", "crub\n"], read_lines
+      read_lines = []
+      File.foreach(path) { |line| read_lines << line }
+      assert_equal ["flub\n", "dub\n", "crub\n"], read_lines
+      FileUtils.rm(path)
+    end
   end
 
   def test_File_foreach_returns_iterator
-    path = 'file.txt'
-    File.open(path, 'w') do |f|
-      f.puts ['flub', 'dub', 'shrub']
-    end
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('file.txt')
+      File.open(path, 'w') do |f|
+        f.puts ['flub', 'dub', 'shrub']
+      end
 
-    read_lines = File.foreach(path).to_a
-    assert_equal ["flub\n", "dub\n", "shrub\n"], read_lines
+      read_lines = File.foreach(path).to_a
+      assert_equal ["flub\n", "dub\n", "shrub\n"], read_lines
+      FileUtils.rm(path)
+    end
   end
 
   def test_file_ftype_is_equal_to_file_lstat_ftype
-    File.open('foo', 'w') { |f| f << 'some content' }
-    FileUtils.ln_s('foo', 'bar')
-    assert_equal File.stat('bar').ftype, File.ftype('bar')
+    perform_with_both_string_paths_and_pathnames do
+      File.open(path = string_or_pathname('foo'), 'w') { |f| f << 'some content' }
+      FileUtils.ln_s(path, link = string_or_pathname('bar'))
+      assert_equal File.stat(link).ftype, File.ftype(link)
+      FileUtils.rm(link)
+      FileUtils.rm(path)
+    end
   end
 
   def test_File_close_disallows_further_access
-    path = 'file.txt'
-    file = File.open(path, 'w')
-    file.write 'Yada'
-    file.close
-    assert_raises IOError do
-      file.read
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('file.txt')
+      file = File.open(path, 'w')
+      file.write 'Yada'
+      file.close
+      assert_raises IOError do
+        file.read
+      end
+      FileUtils.rm(path)
     end
   end
 
   def test_File_close_disallows_further_writes
-    path = 'file.txt'
-    file = File.open(path, 'w')
-    file.write 'Yada'
-    file.close
-    assert_raises IOError do
-      file << 'foo'
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('file.txt')
+      file = File.open(path, 'w')
+      file.write 'Yada'
+      file.close
+      assert_raises IOError do
+        file << 'foo'
+      end
+      FileUtils.rm(path)
     end
   end
 
   def test_can_read_from_file_objects
-    path = 'file.txt'
-    File.open(path, 'w') do |f|
-      f.write 'Yatta!'
-    end
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('file.txt')
+      File.open(path, 'w') do |f|
+        f.write 'Yatta!'
+      end
 
-    assert_equal 'Yatta!', File.new(path).read
+      assert_equal 'Yatta!', File.new(path).read
+      FileUtils.rm(path)
+    end
   end
 
   def test_can_read_nil_from_binary
-    path = 'file.txt'
-    File.open(path, 'w') do |f|
-      f.write 'Yatta!'
-    end
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('file.txt')
+      File.open(path, 'w') do |f|
+        f.write 'Yatta!'
+      end
 
-    f = File.new(path, 'rb')
-    assert_equal 'Yatta!', f.read(1000)
-    assert_nil f.read(1000)
+      f = File.new(path, 'rb')
+      assert_equal 'Yatta!', f.read(1000)
+      assert_nil f.read(1000)
+      FileUtils.rm(path)
+    end
   end
 
   def test_file_object_has_default_external_encoding
@@ -966,7 +1299,10 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_file_object_initialization_with_mode_in_hash_parameter
-    File.open('file.txt', mode: 'w') { |f| f.write 'Yatta!' }
+    perform_with_both_string_paths_and_pathnames do
+      File.open(path = string_or_pathname('file.txt'), mode: 'w') { |f| f.write 'Yatta!' }
+      FileUtils.rm(path)
+    end
   end
 
   def test_file_object_initialization_with_brackets_in_filename
@@ -993,47 +1329,58 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_file_read_errors_appropriately
-    assert_raises Errno::ENOENT do
-      File.read('anything')
+    perform_with_both_string_paths_and_pathnames do
+      assert_raises Errno::ENOENT do
+        File.read(string_or_pathname('anything'))
+      end
     end
   end
 
   def test_file_read_errors_on_directory
-    FileUtils.mkdir_p('a_directory')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(path = string_or_pathname('a_directory'))
 
-    assert_raises Errno::EISDIR do
-      File.read('a_directory')
+      assert_raises Errno::EISDIR do
+        File.read(path)
+      end
     end
   end
 
   def test_knows_files_are_files
-    path = 'file.txt'
-    File.open(path, 'w') do |f|
-      f.write 'Yatta!'
-    end
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('file.txt')
+      File.open(path, 'w') do |f|
+        f.write 'Yatta!'
+      end
 
-    assert File.file?(path)
+      assert File.file?(path)
+      FileUtils.rm(path)
+    end
   end
 
   def test_size_returns_size
-    first_file = 'first.txt'
-    File.open(first_file, 'w') do |f|
-      f.write '12345678'
+    perform_with_both_string_paths_and_pathnames do
+      first_file = string_or_pathname('first.txt')
+      File.open(first_file, 'w') do |f|
+        f.write '12345678'
+      end
+
+      assert_equal File.size?(first_file), 8
+
+      File.open(first_file, 'w') do |f|
+        f.write 'abcd'
+      end
+
+      assert_equal File.size?(first_file), 4
+
+      second_file = string_or_pathname('second.txt')
+      File.open(second_file, 'w') do |f|
+        f.write '1'
+      end
+      assert_equal File.size?(second_file), 1
+      FileUtils.rm(first_file)
+      FileUtils.rm(second_file)
     end
-
-    assert_equal File.size?(first_file), 8
-
-    File.open(first_file, 'w') do |f|
-      f.write 'abcd'
-    end
-
-    assert_equal File.size?(first_file), 4
-
-    second_file = 'second.txt'
-    File.open(second_file, 'w') do |f|
-      f.write '1'
-    end
-    assert_equal File.size?(second_file), 1
   end
 
   def test_File_io_returns_self
@@ -1057,11 +1404,15 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_knows_non_existent_files_arent_files
-    assert_equal RealFile.file?('does/not/exist.txt'), File.file?('does/not/exist.txt')
+    perform_with_both_string_paths_and_pathnames do
+      assert_equal RealFile.file?(string_or_pathname('does/not/exist.txt')), File.file?(string_or_pathname('does/not/exist.txt'))
+    end
   end
 
   def test_executable_returns_false_for_non_existent_files
-    refute File.executable?('/does/not/exist')
+    perform_with_both_string_paths_and_pathnames do
+      refute File.executable?(string_or_pathname('/does/not/exist'))
+    end
   end
 
   def groupname_of_id(gid)
@@ -1071,90 +1422,101 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_can_chown_files
-    good = 'file.txt'
-    bad = 'nofile.txt'
-    File.open(good, 'w') { |f| f.write 'foo' }
-    username = Etc.getpwuid(Process.uid).name
-    groupname = groupname_of_id(Process.gid)
+    perform_with_both_string_paths_and_pathnames do
+      good = string_or_pathname('file.txt')
+      bad = string_or_pathname('nofile.txt')
+      File.open(good, 'w') { |f| f.write 'foo' }
+      username = Etc.getpwuid(Process.uid).name
+      groupname = groupname_of_id(Process.gid)
 
-    out = FileUtils.chown(1337, 1338, good, verbose: true)
-    assert_equal [good], out
-    assert_equal File.stat(good).uid, 1337
-    assert_equal File.stat(good).gid, 1338
-    assert_raises(Errno::ENOENT) do
-      FileUtils.chown(username, groupname, bad, verbose: true)
-    end
+      out = FileUtils.chown(1337, 1338, good, verbose: true)
+      assert_equal [good], out
+      assert_equal File.stat(good).uid, 1337
+      assert_equal File.stat(good).gid, 1338
+      assert_raises(Errno::ENOENT) do
+        FileUtils.chown(username, groupname, bad, verbose: true)
+      end
 
-    assert_equal [good], FileUtils.chown(username, groupname, good)
-    assert_equal File.stat(good).uid, Process.uid
-    assert_equal File.stat(good).gid, Process.gid
-    assert_raises(Errno::ENOENT) do
-      FileUtils.chown(username, groupname, bad)
-    end
+      assert_equal [good], FileUtils.chown(username, groupname, good)
+      assert_equal File.stat(good).uid, Process.uid
+      assert_equal File.stat(good).gid, Process.gid
+      assert_raises(Errno::ENOENT) do
+        FileUtils.chown(username, groupname, bad)
+      end
 
-    assert_equal [good], FileUtils.chown(username, groupname, [good])
-    assert_equal File.stat(good).uid, Process.uid
-    assert_equal File.stat(good).gid, Process.gid
-    assert_raises(Errno::ENOENT) do
-      FileUtils.chown(username, groupname, [good, bad])
-    end
+      assert_equal [good], FileUtils.chown(username, groupname, [good])
+      assert_equal File.stat(good).uid, Process.uid
+      assert_equal File.stat(good).gid, Process.gid
+      assert_raises(Errno::ENOENT) do
+        FileUtils.chown(username, groupname, [good, bad])
+      end
 
-    # FileUtils.chown with nil user and nil group should not change anything
-    FileUtils.chown(username, groupname, good)
-    assert_equal File.stat(good).uid, Process.uid
-    assert_equal File.stat(good).gid, Process.gid
-    assert_equal [good], FileUtils.chown(nil, nil, [good])
-    assert_equal File.stat(good).uid, Process.uid
-    assert_equal File.stat(good).gid, Process.gid
-    assert_raises(Errno::ENOENT) do
-      FileUtils.chown(nil, nil, [good, bad])
+      # FileUtils.chown with nil user and nil group should not change anything
+      FileUtils.chown(username, groupname, good)
+      assert_equal File.stat(good).uid, Process.uid
+      assert_equal File.stat(good).gid, Process.gid
+      assert_equal [good], FileUtils.chown(nil, nil, [good])
+      assert_equal File.stat(good).uid, Process.uid
+      assert_equal File.stat(good).gid, Process.gid
+      assert_raises(Errno::ENOENT) do
+        FileUtils.chown(nil, nil, [good, bad])
+      end
+
+      FileUtils.rm(good)
     end
   end
 
   def test_can_chown_R_files
-    username = Etc.getpwuid(Process.uid).name
-    groupname = groupname_of_id(Process.gid)
-    FileUtils.mkdir_p '/path/'
-    File.open('/path/foo', 'w') { |f| f.write 'foo' }
-    File.open('/path/foobar', 'w') { |f| f.write 'foo' }
-    assert_equal ['/path'], FileUtils.chown_R(username, groupname, '/path')
-    ['/path', '/path/foo', '/path/foobar'].each do |f|
-      assert_equal File.stat(f).uid, Process.uid
-      assert_equal File.stat(f).gid, Process.gid
+    perform_with_both_string_paths_and_pathnames do
+      username = Etc.getpwuid(Process.uid).name
+      groupname = groupname_of_id(Process.gid)
+      FileUtils.mkdir_p(dir = string_or_pathname('/path/'))
+      File.open(foo = string_or_pathname('/path/foo'), 'w') { |f| f.write 'foo' }
+      File.open(foobar = string_or_pathname('/path/foobar'), 'w') { |f| f.write 'foo' }
+      assert_equal [dir], FileUtils.chown_R(username, groupname, dir)
+      [dir, foo, foobar].each do |f|
+        assert_equal File.stat(f).uid, Process.uid
+        assert_equal File.stat(f).gid, Process.gid
+      end
+      FileUtils.rmtree(dir)
     end
   end
 
   def test_can_chmod_files
-    good = 'file.txt'
-    bad = 'nofile.txt'
-    FileUtils.touch(good)
+    perform_with_both_string_paths_and_pathnames do
+      good = string_or_pathname('file.txt')
+      bad = string_or_pathname('nofile.txt')
+      FileUtils.touch(good)
 
-    assert_equal [good], FileUtils.chmod(0o600, good, verbose: true)
-    assert_equal File.stat(good).mode, 0o100600
-    assert_equal File.executable?(good), false
-    assert_raises(Errno::ENOENT) do
-      FileUtils.chmod(0o600, bad)
+      assert_equal [good], FileUtils.chmod(0o600, good, verbose: true)
+      assert_equal File.stat(good).mode, 0o100600
+      assert_equal File.executable?(good), false
+      assert_raises(Errno::ENOENT) do
+        FileUtils.chmod(0o600, bad)
+      end
+
+      assert_equal [good], FileUtils.chmod(0o666, good)
+      assert_equal File.stat(good).mode, 0o100666
+      assert_raises(Errno::ENOENT) do
+        FileUtils.chmod(0o666, bad)
+      end
+
+      assert_equal [good], FileUtils.chmod(0o644, [good])
+      assert_equal File.stat(good).mode, 0o100644
+      assert_raises(Errno::ENOENT) do
+        FileUtils.chmod(0o644, bad)
+      end
+
+      assert_equal [good], FileUtils.chmod(0o744, [good])
+      assert_equal File.executable?(good), true
+
+      # This behaviour is unimplemented, the spec below is only to show that it
+      # is a deliberate YAGNI omission.
+      assert_equal [good], FileUtils.chmod(0o477, [good])
+      assert_equal File.executable?(good), false
+
+      FileUtils.rm(good)
     end
-
-    assert_equal [good], FileUtils.chmod(0o666, good)
-    assert_equal File.stat(good).mode, 0o100666
-    assert_raises(Errno::ENOENT) do
-      FileUtils.chmod(0o666, bad)
-    end
-
-    assert_equal [good], FileUtils.chmod(0o644, [good])
-    assert_equal File.stat(good).mode, 0o100644
-    assert_raises(Errno::ENOENT) do
-      FileUtils.chmod(0o644, bad)
-    end
-
-    assert_equal [good], FileUtils.chmod(0o744, [good])
-    assert_equal File.executable?(good), true
-
-    # This behaviour is unimplemented, the spec below is only to show that it
-    # is a deliberate YAGNI omission.
-    assert_equal [good], FileUtils.chmod(0o477, [good])
-    assert_equal File.executable?(good), false
   end
 
   def test_symbolic_chmod_mode
@@ -1233,30 +1595,40 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_symbolic_chmod_mode_raises_argument_error_when_flags_are_not_rwx
-    file_name = 'test.txt'
-    FileUtils.touch file_name
-    assert_raises ArgumentError do
-      FileUtils.chmod('=rwxt', file_name)
-    end
+    perform_with_both_string_paths_and_pathnames do
+      file_name = string_or_pathname('test.txt')
+      FileUtils.touch file_name
+      assert_raises ArgumentError do
+        FileUtils.chmod('=rwxt', file_name)
+      end
 
-    directory_name = 'dir/'
-    Dir.mkdir directory_name
-    assert_raises ArgumentError do
-      FileUtils.chmod('g=tru', directory_name)
+      directory_name = string_or_pathname('dir/')
+      Dir.mkdir directory_name
+      assert_raises ArgumentError do
+        FileUtils.chmod('g=tru', directory_name)
+      end
+
+      FileUtils.rm(file_name)
+      FileUtils.rmdir(directory_name)
     end
   end
 
   def test_symbolic_chmod_mode_raises_argument_error_when_groups_are_not_ugo
-    file_name = 'test.txt'
-    FileUtils.touch file_name
-    assert_raises ArgumentError do
-      FileUtils.chmod('ugto=rwx', file_name)
-    end
+    perform_with_both_string_paths_and_pathnames do
+      file_name = string_or_pathname('test.txt')
+      FileUtils.touch file_name
+      assert_raises ArgumentError do
+        FileUtils.chmod('ugto=rwx', file_name)
+      end
 
-    directory_name = 'dir/'
-    Dir.mkdir directory_name
-    assert_raises ArgumentError do
-      FileUtils.chmod('ugobt=r', directory_name)
+      directory_name = string_or_pathname('dir/')
+      Dir.mkdir directory_name
+      assert_raises ArgumentError do
+        FileUtils.chmod('ugobt=r', directory_name)
+      end
+
+      FileUtils.rm(file_name)
+      FileUtils.rmdir(directory_name)
     end
   end
 
@@ -1317,15 +1689,23 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_copy_entry
-    FileUtils.mkdir_p '/path'
-    File.open('/path/foo', 'w') { |f| f.write 'foo' }
-    File.open('/path/foobar', 'w') { |f| f.write 'foo' }
-    FileUtils.mkdir_p '/path/bar'
-    File.open('/path/bar/baz', 'w') { |f| f.write 'foo' }
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(dir = string_or_pathname('/path'))
+      File.open(string_or_pathname('/path/foo'), 'w') { |f| f.write 'foo' }
+      File.open(string_or_pathname('/path/foobar'), 'w') { |f| f.write 'foo' }
+      FileUtils.mkdir_p(string_or_pathname('/path/bar'))
+      File.open(string_or_pathname('/path/bar/baz'), 'w') { |f| f.write 'foo' }
 
-    FileUtils.copy_entry '/path', '/copied_path'
+      FileUtils.copy_entry(dir, copied_path = string_or_pathname('/copied_path'))
 
-    assert_equal ['/copied_path/bar', '/copied_path/bar/baz', '/copied_path/foo', '/copied_path/foobar'], Dir.glob('/copied_path/**/*')
+      assert_equal ['/copied_path/bar',
+                    '/copied_path/bar/baz',
+                    '/copied_path/foo',
+                    '/copied_path/foobar'], Dir.glob('/copied_path/**/*')
+
+      FileUtils.rmtree(copied_path)
+      FileUtils.rmtree(dir)
+    end
   end
 
   def test_dir_globs_paths
@@ -1378,31 +1758,44 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_file_utils_cp_allows_verbose_option
-    File.open('foo', 'w') { |f| f << 'TEST' }
-    assert_equal("cp foo bar\n", capture_stderr { FileUtils.cp 'foo', 'bar', verbose: true })
+    perform_with_both_string_paths_and_pathnames do
+      File.open(path = string_or_pathname('foo'), 'w') { |f| f << 'TEST' }
+      assert_equal("cp foo bar\n", capture_stderr { FileUtils.cp path, string_or_pathname('bar'), verbose: true })
+    end
   end
 
   def test_file_utils_cp_allows_noop_option
-    File.open('foo', 'w') { |f| f << 'TEST' }
-    FileUtils.cp 'foo', 'bar', noop: true
-    refute File.exist?('bar'), 'does not actually copy'
+    perform_with_both_string_paths_and_pathnames do
+      File.open(path = string_or_pathname('foo'), 'w') { |f| f << 'TEST' }
+      FileUtils.cp(path, string_or_pathname('bar'), noop: true)
+      refute File.exist?(string_or_pathname('bar')), 'does not actually copy'
+      FileUtils.rm(path)
+    end
   end
 
   def test_file_utils_cp_raises_on_invalid_option
-    assert_raises ArgumentError do
-      FileUtils.cp 'foo', 'bar', whatisthis: "I don't know"
+    perform_with_both_string_paths_and_pathnames do
+      assert_raises ArgumentError do
+        FileUtils.cp(string_or_pathname('foo'), string_or_pathname('bar'), whatisthis: "I don't know")
+      end
     end
   end
 
   def test_file_utils_cp_r_allows_verbose_option
-    FileUtils.touch '/foo'
-    assert_equal("cp -r /foo /bar\n", capture_stderr { FileUtils.cp_r '/foo', '/bar', verbose: true })
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.touch(path = string_or_pathname('/foo'))
+      assert_equal("cp -r /foo /bar\n", capture_stderr { FileUtils.cp_r(path, string_or_pathname('/bar'), verbose: true) })
+      FileUtils.rm('/bar')
+    end
   end
 
   def test_file_utils_cp_r_allows_noop_option
-    FileUtils.touch '/foo'
-    FileUtils.cp_r '/foo', '/bar', noop: true
-    refute File.exist?('/bar'), 'does not actually copy'
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.touch(path = string_or_pathname('/foo'))
+      FileUtils.cp_r(path, string_or_pathname('/bar'), noop: true)
+      refute File.exist?(string_or_pathname('/bar')), 'does not actually copy'
+      FileUtils.rm(path)
+    end
   end
 
   def test_dir_glob_handles_root
@@ -1477,39 +1870,53 @@ class FakeFSTest < Minitest::Test
 
   if RUBY_VERSION >= '2.4'
     def test_dir_empty_on_empty_directory
-      dir_path = 'an-empty-dir'
-      FileUtils.mkdir dir_path
+      perform_with_both_string_paths_and_pathnames do
+        dir_path = string_or_pathname('an-empty-dir')
+        FileUtils.mkdir dir_path
 
-      assert_equal true, Dir.empty?(dir_path)
+        assert_equal true, Dir.empty?(dir_path)
+        FileUtils.rmdir(dir_path)
+      end
     end
 
     def test_dir_empty_on_directory_with_subdirectory
-      parent = 'parent'
-      child = 'child'
-      path = File.join(parent, child)
-      FileUtils.mkdir_p path
+      perform_with_both_string_paths_and_pathnames do
+        parent = string_or_pathname('parent')
+        child = string_or_pathname('child')
+        path = File.join(parent, child)
+        FileUtils.mkdir_p path
 
-      assert_equal false, Dir.empty?(parent)
+        assert_equal false, Dir.empty?(parent)
+        FileUtils.rmtree(parent)
+      end
     end
 
     def test_dir_empty_on_directory_with_file
-      dir_path = 'a-non-empty-dir'
-      FileUtils.mkdir dir_path
-      file_path = File.join(dir_path, 'file.txt')
-      FileUtils.touch(file_path)
+      perform_with_both_string_paths_and_pathnames do
+        dir_path = string_or_pathname('a-non-empty-dir')
+        FileUtils.mkdir dir_path
+        file_path = File.join(dir_path, string_or_pathname('file.txt'))
+        FileUtils.touch(file_path)
 
-      assert_equal false, Dir.empty?(dir_path)
+        assert_equal false, Dir.empty?(dir_path)
+        FileUtils.rmtree(dir_path)
+      end
     end
 
     def test_dir_empty_on_nonexistent_path
-      assert_raises(Errno::ENOENT) { Dir.empty?('/not/a/real/dir/') }
+      perform_with_both_string_paths_and_pathnames do
+        assert_raises(Errno::ENOENT) { Dir.empty?(string_or_pathname('/not/a/real/dir/')) }
+      end
     end
 
     def test_dir_empty_on_file
-      path = 'file.txt'
-      FileUtils.touch(path)
+      perform_with_both_string_paths_and_pathnames do
+        path = string_or_pathname('file.txt')
+        FileUtils.touch(path)
 
-      assert_equal false, Dir.empty?(path)
+        assert_equal false, Dir.empty?(path)
+        FileUtils.rm(path)
+      end
     end
   else
     def test_dir_empty_not_implemented
@@ -1636,43 +2043,48 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_chdir_changes_directories_like_a_boss
-    # I know memes!
-    FileUtils.mkdir_p '/path'
-    assert_equal '/', FakeFS::FileSystem.fs.name
-    assert_equal [], Dir.glob('/path/*')
-    Dir.chdir '/path' do
-      File.open('foo', 'w') { |f| f.write 'foo' }
-      File.open('foobar', 'w') { |f| f.write 'foo' }
+    perform_with_both_string_paths_and_pathnames do
+      # I know memes!
+      FileUtils.mkdir_p(path = string_or_pathname('/path'))
+      assert_equal '/', FakeFS::FileSystem.fs.name
+      assert_equal [], Dir.glob('/path/*')
+      Dir.chdir path do
+        File.open(string_or_pathname('foo'), 'w') { |f| f.write 'foo' }
+        File.open(string_or_pathname('foobar'), 'w') { |f| f.write 'foo' }
+      end
+
+      assert_equal '/', FakeFS::FileSystem.fs.name
+      assert_equal(['/path/foo', '/path/foobar'], Dir.glob('/path/*').sort)
+
+      c = nil
+      Dir.chdir path do
+        c = File.open(string_or_pathname('foo'), 'r') { |f| f.read }
+      end
+
+      assert_equal 'foo', c
+      FileUtils.rmtree(path)
     end
-
-    assert_equal '/', FakeFS::FileSystem.fs.name
-    assert_equal(['/path/foo', '/path/foobar'], Dir.glob('/path/*').sort)
-
-    c = nil
-    Dir.chdir '/path' do
-      c = File.open('foo', 'r') { |f| f.read }
-    end
-
-    assert_equal 'foo', c
   end
 
   def test_chdir_shouldnt_keep_us_from_absolute_paths
-    FileUtils.mkdir_p '/path'
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(path = string_or_pathname('/path'))
 
-    Dir.chdir '/path' do
-      File.open('foo', 'w') { |f| f.write 'foo' }
-      File.open('/foobar', 'w') { |f| f.write 'foo' }
+      Dir.chdir path do
+        File.open(string_or_pathname('foo'), 'w') { |f| f.write 'foo' }
+        File.open(string_or_pathname('/foobar'), 'w') { |f| f.write 'foo' }
+      end
+      assert_equal ['/path/foo'], Dir.glob('/path/*').sort
+      assert_equal ['/foobar', '/path', '/tmp'], Dir.glob('/*').sort
+
+      Dir.chdir path do
+        FileUtils.rm(string_or_pathname('foo'))
+        FileUtils.rm(string_or_pathname('/foobar'))
+      end
+
+      assert_equal [], Dir.glob('/path/*').sort
+      assert_equal ['/path', '/tmp'], Dir.glob('/*').sort
     end
-    assert_equal ['/path/foo'], Dir.glob('/path/*').sort
-    assert_equal ['/foobar', '/path', '/tmp'], Dir.glob('/*').sort
-
-    Dir.chdir '/path' do
-      FileUtils.rm('foo')
-      FileUtils.rm('/foobar')
-    end
-
-    assert_equal [], Dir.glob('/path/*').sort
-    assert_equal ['/path', '/tmp'], Dir.glob('/*').sort
   end
 
   def test_chdir_should_be_nestable
@@ -1702,53 +2114,62 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_chdir_should_flop_over_and_die_if_the_dir_doesnt_exist
-    assert_raises(Errno::ENOENT) do
-      Dir.chdir('/nope') do
-        1
+    perform_with_both_string_paths_and_pathnames do
+      assert_raises(Errno::ENOENT) do
+        Dir.chdir(string_or_pathname('/nope')) do
+          1
+        end
       end
     end
   end
 
   def test_chdir_raises_error_when_attempting_to_cd_into_a_file
-    File.open('file1', 'w') { |f| f << 'content' }
-    assert_raises(Errno::ENOTDIR) do
-      Dir.chdir('file1')
-    end
-
-    assert_raises(Errno::ENOTDIR) do
-      Dir.chdir('file1') do
-        File.open('file2', 'w') { |f| f << 'content' }
+    perform_with_both_string_paths_and_pathnames do
+      File.open(file1 = string_or_pathname('file1'), 'w') { |f| f << 'content' }
+      assert_raises(Errno::ENOTDIR) do
+        Dir.chdir(file1)
       end
+
+      assert_raises(Errno::ENOTDIR) do
+        Dir.chdir(file1) do
+          File.open(string_or_pathname('file2'), 'w') { |f| f << 'content' }
+        end
+      end
+
+      FileUtils.rm(file1)
     end
   end
 
   def test_chdir_shouldnt_lose_state_because_of_errors
-    FileUtils.mkdir_p '/path'
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(path = string_or_pathname('/path'))
 
-    Dir.chdir '/path' do
-      File.open('foo', 'w') { |f| f.write 'foo' }
-      File.open('foobar', 'w') { |f| f.write 'foo' }
-    end
-
-    begin
-      Dir.chdir('/path') do
-        raise Errno::ENOENT
+      Dir.chdir path do
+        File.open(string_or_pathname('foo'), 'w') { |f| f.write 'foo' }
+        File.open(string_or_pathname('foobar'), 'w') { |f| f.write 'foo' }
       end
-    rescue Errno::ENOENT => e # hardcore
-      'Nothing to do'
-    end
 
-    Dir.chdir('/path') do
       begin
-        Dir.chdir('nope') {}
-      rescue Errno::ENOENT => e
+        Dir.chdir(path) do
+          raise Errno::ENOENT
+        end
+      rescue Errno::ENOENT => e # hardcore
         'Nothing to do'
       end
 
-      assert_equal ['/', '/path'], FakeFS::FileSystem.dir_levels
-    end
+      Dir.chdir(path) do
+        begin
+          Dir.chdir(string_or_pathname('nope')) {}
+        rescue Errno::ENOENT => e
+          'Nothing to do'
+        end
 
-    assert_equal(['/path/foo', '/path/foobar'], Dir.glob('/path/*').sort)
+        assert_equal ['/', '/path'], FakeFS::FileSystem.dir_levels
+      end
+
+      assert_equal(['/path/foo', '/path/foobar'], Dir.glob('/path/*').sort)
+      FileUtils.rmtree(path)
+    end
   end
 
   def test_chdir_with_no_block_is_awesome
@@ -1809,11 +2230,13 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_expand_path_with_parent_dir
-    FakeFS.deactivate!
-    real = File.expand_path('other.file', __dir__)
-    FakeFS.activate!
-    fake = File.expand_path('other.file', __dir__)
-    assert_equal real, fake
+    perform_with_both_string_paths_and_pathnames do
+      FakeFS.deactivate!
+      real = File.expand_path(string_or_pathname('other.file'), __dir__)
+      FakeFS.activate!
+      fake = File.expand_path(string_or_pathname('other.file'), __dir__)
+      assert_equal real, fake
+    end
   end
 
   def test_expand_path_works_with_absolute_paths
@@ -1838,19 +2261,24 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_mv_should_raise_error_on_missing_file
-    assert_raises(Errno::ENOENT) do
-      FileUtils.mv 'blafgag', 'foo'
+    perform_with_both_string_paths_and_pathnames do
+      assert_raises(Errno::ENOENT) do
+        FileUtils.mv string_or_pathname('blafgag'), string_or_pathname('foo')
+      end
+      exception = assert_raises(Errno::ENOENT) do
+        FileUtils.mv [string_or_pathname('foo'), string_or_pathname('bar')], string_or_pathname('destdir')
+      end
+      assert_equal 'No such file or directory - foo', exception.message
     end
-    exception = assert_raises(Errno::ENOENT) do
-      FileUtils.mv ['foo', 'bar'], 'destdir'
-    end
-    assert_equal 'No such file or directory - foo', exception.message
   end
 
   def test_mv_actually_works
-    File.open('foo', 'w') { |f| f.write 'bar' }
-    FileUtils.mv 'foo', 'baz'
-    assert_equal 'bar', File.open('baz') { |f| f.read }
+    perform_with_both_string_paths_and_pathnames do
+      File.open(path = string_or_pathname('foo'), 'w') { |f| f.write 'bar' }
+      FileUtils.mv(path, baz = string_or_pathname('baz'))
+      assert_equal 'bar', File.open(baz) { |f| f.read }
+      FileUtils.rm(baz)
+    end
   end
 
   def test_mv_overwrites_existing_files
@@ -1896,17 +2324,25 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_mv_raises_when_moving_file_onto_directory
-    FileUtils.mkdir_p 'dir/stuff'
-    FileUtils.touch 'stuff'
-    assert_raises Errno::EEXIST do
-      FileUtils.mv 'stuff', 'dir'
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(string_or_pathname('dir/stuff'))
+      FileUtils.touch(stuff = string_or_pathname('stuff'))
+      assert_raises Errno::EEXIST do
+        FileUtils.mv(stuff, string_or_pathname('dir'))
+      end
+
+      FileUtils.rmtree('dir')
+      FileUtils.rm('stuff')
     end
   end
 
   def test_mv_raises_when_moving_to_non_existent_directory
-    FileUtils.touch 'stuff'
-    assert_raises Errno::ENOENT do
-      FileUtils.mv 'stuff', '/this/path/is/not/here'
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.touch(path = string_or_pathname('stuff'))
+      assert_raises Errno::ENOENT do
+        FileUtils.mv path, string_or_pathname('/this/path/is/not/here')
+      end
+      FileUtils.rm(path)
     end
   end
 
@@ -1924,9 +2360,13 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_cp_actually_works
-    File.open('foo', 'w') { |f| f.write 'bar' }
-    FileUtils.cp('foo', 'baz')
-    assert_equal 'bar', File.read('baz')
+    perform_with_both_string_paths_and_pathnames do
+      File.open(foo = string_or_pathname('foo'), 'w') { |f| f.write 'bar' }
+      FileUtils.cp(foo, baz = string_or_pathname('baz'))
+      assert_equal 'bar', File.read(baz)
+      FileUtils.rm(foo)
+      FileUtils.rm(baz)
+    end
   end
 
   def test_cp_file_into_dir
@@ -1948,12 +2388,14 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_cp_fails_on_array_of_files_into_non_directory
-    File.open('foo', 'w') { |f| f.write 'footext' }
+    perform_with_both_string_paths_and_pathnames do
+      File.open(foo = string_or_pathname('foo'), 'w') { |f| f.write 'footext' }
 
-    exception = assert_raises(Errno::ENOTDIR) do
-      FileUtils.cp(['foo'], 'baz')
+      exception = assert_raises(Errno::ENOTDIR) do
+        FileUtils.cp([foo], string_or_pathname('baz'))
+      end
+      assert_equal 'Not a directory - baz', exception.to_s
     end
-    assert_equal 'Not a directory - baz', exception.to_s
   end
 
   def test_cp_overwrites_dest_file
@@ -1965,8 +2407,10 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_cp_fails_on_no_source
-    assert_raises Errno::ENOENT do
-      FileUtils.cp('foo', 'baz')
+    perform_with_both_string_paths_and_pathnames do
+      assert_raises Errno::ENOENT do
+        FileUtils.cp(string_or_pathname('foo'), string_or_pathname('baz'))
+      end
     end
   end
 
@@ -1990,49 +2434,70 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_cp_r_should_raise_error_on_missing_file
-    assert_raises(Errno::ENOENT) do
-      FileUtils.cp_r 'blafgag', 'foo'
+    perform_with_both_string_paths_and_pathnames do
+      assert_raises(Errno::ENOENT) do
+        FileUtils.cp_r string_or_pathname('blafgag'), string_or_pathname('foo')
+      end
     end
   end
 
   def test_cp_r_handles_copying_directories
-    FileUtils.mkdir_p 'subdir'
-    Dir.chdir('subdir') { File.open('foo', 'w') { |f| f.write 'footext' } }
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(subdir = string_or_pathname('subdir'))
+      Dir.chdir(subdir) { File.open(string_or_pathname('foo'), 'w') { |f| f.write 'footext' } }
 
-    FileUtils.mkdir_p 'baz'
+      FileUtils.mkdir_p(baz = string_or_pathname('baz'))
 
-    # To a previously uncreated directory
-    FileUtils.cp_r('subdir', 'quux')
-    assert_equal 'footext', File.open('quux/foo') { |f| f.read }
+      # To a previously uncreated directory
+      FileUtils.cp_r(subdir, string_or_pathname('quux'))
+      assert_equal 'footext', File.open(string_or_pathname('quux/foo')) { |f| f.read }
 
-    # To a directory that already exists
-    FileUtils.cp_r('subdir', 'baz')
-    assert_equal 'footext', File.open('baz/subdir/foo') { |f| f.read }
+      # To a directory that already exists
+      FileUtils.cp_r(subdir, baz)
+      assert_equal 'footext', File.open(string_or_pathname('baz/subdir/foo')) { |f| f.read }
 
-    # To a subdirectory of a directory that does not exist
-    assert_raises(Errno::ENOENT) do
-      FileUtils.cp_r('subdir', 'nope/something')
+      # To a subdirectory of a directory that does not exist
+      assert_raises(Errno::ENOENT) do
+        FileUtils.cp_r(subdir, string_or_pathname('nope/something'))
+      end
+
+      FileUtils.rmtree(subdir)
+      FileUtils.rmtree(baz)
     end
   end
 
   def test_cp_r_array_of_files
-    FileUtils.mkdir_p 'subdir'
-    File.open('foo', 'w') { |f| f.write 'footext' }
-    File.open('bar', 'w') { |f| f.write 'bartext' }
-    FileUtils.cp_r(['foo', 'bar'], 'subdir')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(subdir = string_or_pathname('subdir'))
+      File.open(foo = string_or_pathname('foo'), 'w') { |f| f.write 'footext' }
+      File.open(bar = string_or_pathname('bar'), 'w') { |f| f.write 'bartext' }
+      FileUtils.cp_r([foo, bar], subdir)
 
-    assert_equal 'footext', File.open('subdir/foo') { |f| f.read }
-    assert_equal 'bartext', File.open('subdir/bar') { |f| f.read }
+      assert_equal 'footext', File.open(string_or_pathname('subdir/foo')) { |f| f.read }
+      assert_equal 'bartext', File.open(string_or_pathname('subdir/bar')) { |f| f.read }
+      FileUtils.rmtree(subdir)
+      FileUtils.rm(foo)
+      FileUtils.rm(bar)
+    end
   end
 
   def test_cp_r_array_of_directories
-    ['foo', 'bar', 'subdir'].each { |d| FileUtils.mkdir_p d }
-    File.open('foo/baz', 'w') { |f| f.write 'baztext' }
-    File.open('bar/quux', 'w') { |f| f.write 'quuxtext' }
+    perform_with_both_string_paths_and_pathnames do
+      [foo = string_or_pathname('foo'),
+       bar = string_or_pathname('bar'),
+       subdir = string_or_pathname('subdir')].each { |d| FileUtils.mkdir_p d }
 
-    FileUtils.cp_r(['foo', 'bar'], 'subdir')
-    assert_equal 'baztext', File.open('subdir/foo/baz') { |f| f.read }
-    assert_equal 'quuxtext', File.open('subdir/bar/quux') { |f| f.read }
+      File.open(string_or_pathname('foo/baz'), 'w') { |f| f.write 'baztext' }
+      File.open(string_or_pathname('bar/quux'), 'w') { |f| f.write 'quuxtext' }
+
+      FileUtils.cp_r([foo, bar], subdir)
+      assert_equal 'baztext', File.open(string_or_pathname('subdir/foo/baz')) { |f| f.read }
+      assert_equal 'quuxtext', File.open(string_or_pathname('subdir/bar/quux')) { |f| f.read }
+
+      FileUtils.rmtree(foo)
+      FileUtils.rmtree(bar)
+      FileUtils.rmtree(subdir)
+    end
   end
 
   def test_cp_r_only_copies_into_directories
@@ -2161,31 +2626,46 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_putting_a_dot_at_end_copies_the_contents
-    FileUtils.mkdir_p 'subdir'
-    Dir.chdir('subdir') { File.open('foo', 'w') { |f| f.write 'footext' } }
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(subdir = string_or_pathname('subdir'))
+      Dir.chdir(subdir) { File.open(string_or_pathname('foo'), 'w') { |f| f.write 'footext' } }
 
-    FileUtils.mkdir_p 'newdir'
-    FileUtils.cp_r 'subdir/.', 'newdir'
-    assert_equal 'footext', File.open('newdir/foo') { |f| f.read }
+      FileUtils.mkdir_p(newdir = string_or_pathname('newdir'))
+      FileUtils.cp_r(string_or_pathname('subdir/.'), newdir)
+      assert_equal 'footext', File.open(string_or_pathname('newdir/foo')) { |f| f.read }
+
+      FileUtils.rmtree subdir
+      FileUtils.rmtree newdir
+    end
   end
 
   def test_file_can_read_from_symlinks
-    File.open('first', 'w') { |f| f.write '1' }
-    FileUtils.ln_s 'first', 'one'
-    assert_equal '1', File.open('one') { |f| f.read }
+    perform_with_both_string_paths_and_pathnames do
+      File.open(first = string_or_pathname('first'), 'w') { |f| f.write '1' }
+      FileUtils.ln_s(first, one = string_or_pathname('one'))
+      assert_equal '1', File.open(one) { |f| f.read }
 
-    FileUtils.mkdir_p 'subdir'
-    File.open('subdir/nother', 'w') { |f| f.write 'works' }
-    FileUtils.ln_s 'subdir', 'new'
-    assert_equal 'works', File.open('new/nother') { |f| f.read }
+      FileUtils.mkdir_p(subdir = string_or_pathname('subdir'))
+      File.open(string_or_pathname('subdir/nother'), 'w') { |f| f.write 'works' }
+      FileUtils.ln_s(subdir, link = string_or_pathname('new'))
+      assert_equal 'works', File.open(string_or_pathname('new/nother')) { |f| f.read }
+      FileUtils.rm(link)
+      FileUtils.rmtree(subdir)
+      FileUtils.rm(one)
+      FileUtils.rm(first)
+    end
   end
 
   def test_can_symlink_through_file
-    FileUtils.touch('/foo')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.touch(foo = string_or_pathname('/foo'))
 
-    File.symlink('/foo', '/bar')
+      File.symlink(foo, bar = string_or_pathname('/bar'))
 
-    assert File.symlink?('/bar')
+      assert File.symlink?(bar)
+      FileUtils.rm(foo)
+      FileUtils.rm(bar)
+    end
   end
 
   def test_files_can_be_touched
@@ -2197,42 +2677,54 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_touch_does_not_work_if_the_dir_path_cannot_be_found
-    assert_raises(Errno::ENOENT) do
-      FileUtils.touch('this/path/should/not/be/here')
-    end
-    FileUtils.mkdir_p('subdir')
-    list = ['subdir/foo', 'nosubdir/bar']
+    perform_with_both_string_paths_and_pathnames do
+      assert_raises(Errno::ENOENT) do
+        FileUtils.touch(string_or_pathname('this/path/should/not/be/here'))
+      end
+      FileUtils.mkdir_p(string_or_pathname('subdir'))
+      list = [string_or_pathname('subdir/foo'), string_or_pathname('nosubdir/bar')]
 
-    assert_raises(Errno::ENOENT) do
-      FileUtils.touch(list)
+      assert_raises(Errno::ENOENT) do
+        FileUtils.touch(list)
+      end
     end
   end
 
   def test_extname
-    assert File.extname('test.doc') == '.doc'
+    perform_with_both_string_paths_and_pathnames do
+      assert File.extname(string_or_pathname('test.doc')) == '.doc'
+    end
   end
 
   # Directory tests
   def test_new_directory
-    FileUtils.mkdir_p('/this/path/should/be/here')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(path = string_or_pathname('/this/path/should/be/here'))
 
-    # nothing raised
-    Dir.new('/this/path/should/be/here')
+      # nothing raised
+      Dir.new(path)
+
+      FileUtils.rmtree(path)
+    end
   end
 
   def test_new_directory_does_not_work_if_dir_path_cannot_be_found
-    assert_raises(Errno::ENOENT) do
-      Dir.new('/this/path/should/not/be/here')
+    perform_with_both_string_paths_and_pathnames do
+      assert_raises(Errno::ENOENT) do
+        Dir.new(string_or_pathname('/this/path/should/not/be/here'))
+      end
     end
   end
 
   def test_directory_close
-    FileUtils.mkdir_p('/this/path/should/be/here')
-    dir = Dir.new('/this/path/should/be/here')
-    assert dir.close.nil?
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(path = string_or_pathname('/this/path/should/be/here'))
+      dir = Dir.new(path)
+      assert dir.close.nil?
 
-    assert_raises(IOError) do
-      dir.each { |_| }
+      assert_raises(IOError) do
+        dir.each { |_| }
+      end
     end
   end
 
@@ -2386,27 +2878,35 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_directory_class_delete
-    FileUtils.mkdir_p('/this/path/should/be/here')
-    Dir.delete('/this/path/should/be/here')
-    assert File.exist?('/this/path/should/be/here') == false
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(path = string_or_pathname('/this/path/should/be/here'))
+      Dir.delete(path)
+      assert File.exist?(path) == false
+    end
   end
 
   def test_directory_class_delete_does_not_act_on_non_empty_directory
     test = ['.', '..', 'file_1', 'file_2', 'file_3', 'file_4', 'file_5']
 
-    FileUtils.mkdir_p('/this/path/should/be/here')
-    test.each do |f|
-      FileUtils.touch("/this/path/should/be/here/#{f}")
-    end
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.mkdir_p(path = string_or_pathname('/this/path/should/be/here'))
+      test.each do |f|
+        FileUtils.touch(string_or_pathname("/this/path/should/be/here/#{f}"))
+      end
 
-    assert_raises(Errno::ENOTEMPTY) do
-      Dir.delete('/this/path/should/be/here')
+      assert_raises(Errno::ENOTEMPTY) do
+        Dir.delete(path)
+      end
+
+      FileUtils.rmtree(path)
     end
   end
 
   def test_directory_class_delete_does_not_work_if_dir_path_cannot_be_found
-    assert_raises(Errno::ENOENT) do
-      Dir.delete('/this/path/should/not/be/here')
+    perform_with_both_string_paths_and_pathnames do
+      assert_raises(Errno::ENOENT) do
+        Dir.delete(string_or_pathname('/this/path/should/not/be/here'))
+      end
     end
   end
 
@@ -2454,8 +2954,10 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_directory_entries_does_not_work_if_dir_path_cannot_be_found
-    assert_raises(Errno::ENOENT) do
-      Dir.delete('/this/path/should/not/be/here')
+    perform_with_both_string_paths_and_pathnames do
+      assert_raises(Errno::ENOENT) do
+        Dir.delete(string_or_pathname('/this/path/should/not/be/here'))
+      end
     end
   end
 
@@ -2574,16 +3076,22 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_directory_mkdir_not_recursive
-    assert_raises(Errno::ENOENT) do
-      Dir.mkdir('/path/does/not/exist')
+    perform_with_both_string_paths_and_pathnames do
+      assert_raises(Errno::ENOENT) do
+        Dir.mkdir(string_or_pathname('/path/does/not/exist'))
+      end
     end
   end
 
   def test_mkdir_raises_error_if_already_created
-    Dir.mkdir 'foo'
+    perform_with_both_string_paths_and_pathnames do
+      Dir.mkdir(foo = string_or_pathname('foo'))
 
-    assert_raises(Errno::EEXIST) do
-      Dir.mkdir 'foo'
+      assert_raises(Errno::EEXIST) do
+        Dir.mkdir foo
+      end
+
+      FileUtils.rmdir(foo)
     end
   end
 
@@ -2631,23 +3139,35 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_rename_renames_a_file
-    FileUtils.touch('/foo')
-    File.rename('/foo', '/bar')
-    assert File.file?('/bar')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.touch(string_or_pathname('/foo'))
+      File.rename(string_or_pathname('/foo'), string_or_pathname('/bar'))
+      assert File.file?(string_or_pathname('/bar'))
+
+      FileUtils.rm('/bar')
+    end
   end
 
   def test_rename_renames_a_symlink
-    FileUtils.touch('/file')
-    File.symlink('/file', '/symlink')
-    assert_equal File.readlink('/symlink'), '/file'
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.touch(path = string_or_pathname('/file'))
+      File.symlink(path, link = string_or_pathname('/symlink'))
+      assert_equal File.readlink(link), path
 
-    File.rename('/symlink', '/symlink2')
-    assert_equal File.readlink('/symlink2'), '/file'
+      File.rename(link, link2 = string_or_pathname('/symlink2'))
+      assert_equal File.readlink(link2), path
+
+      FileUtils.rm(link2)
+      FileUtils.rm(path)
+    end
   end
 
   def test_rename_returns
-    FileUtils.touch('/foo')
-    assert_equal 0, File.rename('/foo', '/bar')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.touch(string_or_pathname('/foo'))
+      assert_equal 0, File.rename(string_or_pathname('/foo'), string_or_pathname('/bar'))
+      FileUtils.rm('/bar')
+    end
   end
 
   def test_rename_renames_two_files
@@ -2671,44 +3191,64 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_rename_file_to_directory_raises_error
-    FileUtils.touch('/foo')
-    Dir.mkdir('/bar')
-    assert_raises(Errno::EISDIR) do
-      File.rename('/foo', '/bar')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.touch(foo = string_or_pathname('/foo'))
+      Dir.mkdir(bar = string_or_pathname('/bar'))
+      assert_raises(Errno::EISDIR) do
+        File.rename(foo, bar)
+      end
+
+      FileUtils.rm(foo)
+      FileUtils.rmdir(bar)
     end
   end
 
   def test_rename_directory_to_file_raises_error
-    Dir.mkdir('/foo')
-    FileUtils.touch('/bar')
-    assert_raises(Errno::ENOTDIR) do
-      File.rename('/foo', '/bar')
+    perform_with_both_string_paths_and_pathnames do
+      Dir.mkdir(foo = string_or_pathname('/foo'))
+      FileUtils.touch(bar = string_or_pathname('/bar'))
+
+      assert_raises(Errno::ENOTDIR) do
+        File.rename(foo, bar)
+      end
+
+      FileUtils.rmdir(foo)
     end
   end
 
   def test_rename_with_missing_source_raises_error
-    assert_raises(Errno::ENOENT) do
-      File.rename('/no_such_file', '/bar')
+    perform_with_both_string_paths_and_pathnames do
+      assert_raises(Errno::ENOENT) do
+        File.rename(string_or_pathname('/no_such_file'), string_or_pathname('/bar'))
+      end
     end
   end
 
   def test_rename_with_missing_dest_directory_raises_error
-    FileUtils.touch('/foo')
-    assert_raises(Errno::ENOENT) do
-      File.rename('/foo', '/bar/foo')
+    perform_with_both_string_paths_and_pathnames do
+      FileUtils.touch(string_or_pathname('/foo'))
+      assert_raises(Errno::ENOENT) do
+        File.rename(string_or_pathname('/foo'), string_or_pathname('/bar/foo'))
+      end
     end
   end
 
   def test_hard_link_creates_file
     FileUtils.touch('/foo')
 
-    File.link('/foo', '/bar')
-    assert File.exist?('/bar')
+    perform_with_both_string_paths_and_pathnames do
+      File.link(string_or_pathname('/foo'), string_or_pathname('/bar'))
+      assert File.exist?(bar = string_or_pathname('/bar'))
+
+      FileUtils.rm(bar)
+    end
   end
 
   def test_hard_link_with_missing_file_raises_error
-    assert_raises(Errno::ENOENT) do
-      File.link('/foo', '/bar')
+    perform_with_both_string_paths_and_pathnames do
+      assert_raises(Errno::ENOENT) do
+        File.link(string_or_pathname('/foo'), string_or_pathname('/bar'))
+      end
     end
   end
 
@@ -2716,8 +3256,10 @@ class FakeFSTest < Minitest::Test
     FileUtils.touch('/foo')
     FileUtils.touch('/bar')
 
-    assert_raises(Errno::EEXIST) do
-      File.link('/foo', '/bar')
+    perform_with_both_string_paths_and_pathnames do
+      assert_raises(Errno::EEXIST) do
+        File.link(string_or_pathname('/foo'), string_or_pathname('/bar'))
+      end
     end
   end
 
@@ -2737,8 +3279,10 @@ class FakeFSTest < Minitest::Test
   def test_hard_link_with_directory_raises_error
     Dir.mkdir '/foo'
 
-    assert_raises(Errno::EPERM) do
-      File.link('/foo', '/bar')
+    perform_with_both_string_paths_and_pathnames do
+      assert_raises(Errno::EPERM) do
+        File.link(string_or_pathname('/foo'), string_or_pathname('/bar'))
+      end
     end
   end
 
@@ -2783,17 +3327,21 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_delete_raises_error_when_first_file_does_not_exist
-    assert_raises Errno::ENOENT do
-      File.delete('/foo')
+    perform_with_both_string_paths_and_pathnames do
+      assert_raises Errno::ENOENT do
+        File.delete(string_or_pathname('/foo'))
+      end
     end
   end
 
   def test_unlink_removes_only_one_file_content
     File.open('/foo', 'w') { |f| f << 'some_content' }
-    File.link('/foo', '/bar')
 
-    File.unlink('/bar')
-    assert_equal 'some_content', File.read('/foo')
+    perform_with_both_string_paths_and_pathnames do
+      File.link(foo = string_or_pathname('/foo'), bar = string_or_pathname('/bar'))
+      File.unlink(bar)
+      assert_equal 'some_content', File.read(foo)
+    end
   end
 
   def test_link_reports_correct_stat_info_after_unlinking
@@ -2911,10 +3459,15 @@ class FakeFSTest < Minitest::Test
   # also test the File versions of these functions.
   def test_filetest_readable_can_read_user_made_files
     FileUtils.touch 'here.txt'
-    assert FileTest.readable?('here.txt'), 'files are readable'
 
-    FileUtils.mkdir 'dir'
-    assert FileTest.readable?('dir'), 'directories are readable'
+    perform_with_both_string_paths_and_pathnames do
+      assert FileTest.readable?(string_or_pathname('here.txt')), 'files are readable'
+
+      FileUtils.mkdir(dir = string_or_pathname('dir'))
+      assert FileTest.readable?(dir), 'directories are readable'
+
+      FileUtils.rmdir(dir)
+    end
   end
 
   def test_filetest_properly_reports_readable_for_files_chmoded_000
@@ -3125,10 +3678,15 @@ class FakeFSTest < Minitest::Test
 
   def test_filetest_writable_for_user_made_directories
     FileUtils.touch 'file.txt'
-    assert FileTest.writable?('file.txt'), 'files are writable'
 
-    FileUtils.mkdir 'dir'
-    assert FileTest.writable?('dir'), 'directories are writable'
+    perform_with_both_string_paths_and_pathnames do
+      assert FileTest.writable?(string_or_pathname('file.txt')), 'files are writable'
+
+      FileUtils.mkdir(dir = string_or_pathname('dir'))
+      assert FileTest.writable?(dir), 'directories are writable'
+
+      FileUtils.rmdir(dir)
+    end
   end
 
   # Since we've tested every possible chmod combination on files already,
@@ -3159,19 +3717,25 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_filetest_writable_returns_false_for_missing_files
-    refute FileTest.writable?('not-here.txt'), 'missing files are not writable'
-    refute FileTest.writable?('/no/such/dir'), 'missing directories are not writable'
+    perform_with_both_string_paths_and_pathnames do
+      refute FileTest.writable?(string_or_pathname('not-here.txt')), 'missing files are not writable'
+      refute FileTest.writable?(string_or_pathname('/no/such/dir')), 'missing directories are not writable'
+    end
   end
 
   def test_filetest_zero_returns_correct_values
-    refute FileTest.zero?('/not/a/real/directory')
+    perform_with_both_string_paths_and_pathnames do
+      refute FileTest.zero?(string_or_pathname('/not/a/real/directory'))
 
-    filepath = 'here.txt'
-    FileUtils.touch filepath
-    assert FileTest.zero?(filepath)
+      filepath = string_or_pathname('here.txt')
+      FileUtils.touch filepath
+      assert FileTest.zero?(filepath)
 
-    File.write(filepath, 'content')
-    refute FileTest.zero?(filepath)
+      File.write(filepath, 'content')
+      refute FileTest.zero?(filepath)
+
+      FileUtils.rm(filepath)
+    end
   end
 
   if RUBY_VERSION > '2.4'
@@ -3217,15 +3781,22 @@ class FakeFSTest < Minitest::Test
   def test_split
     assert File.respond_to? :split
     filename = '/this/is/what/we/expect.txt'
-    path, filename = File.split(filename)
-    assert_equal path, '/this/is/what/we'
-    assert_equal filename, 'expect.txt'
+
+    perform_with_both_string_paths_and_pathnames do
+      path, name = File.split(string_or_pathname(filename))
+
+      assert_equal path, '/this/is/what/we'
+      assert_equal name, 'expect.txt'
+    end
   end
 
   #########################
   def test_file_default_mode
     FileUtils.touch 'foo'
-    assert_equal File.stat('foo').mode, (0o100000 + 0o666 - File.umask)
+
+    perform_with_both_string_paths_and_pathnames do
+      assert_equal File.stat(string_or_pathname('foo')).mode, (0o100000 + 0o666 - File.umask)
+    end
   end
 
   def test_dir_default_mode
@@ -3241,32 +3812,48 @@ class FakeFSTest < Minitest::Test
 
   def test_file_chmod_of_file
     FileUtils.touch 'foo'
-    File.chmod 0o600, 'foo'
-    assert_equal File.stat('foo').mode, 0o100600
-    File.new('foo').chmod 0o644
-    assert_equal File.stat('foo').mode, 0o100644
+
+    perform_with_both_string_paths_and_pathnames do
+      foo = string_or_pathname('foo')
+      File.chmod 0o600, foo
+      assert_equal File.stat(foo).mode, 0o100600
+      File.new(foo).chmod 0o644
+      assert_equal File.stat(foo).mode, 0o100644
+    end
   end
 
   def test_file_chmod_of_dir
     Dir.mkdir 'bar'
-    File.chmod 0o777, 'bar'
-    assert_equal File.stat('bar').mode, 0o100777
-    File.new('bar').chmod 0o1700
-    assert_equal File.stat('bar').mode, 0o101700
+
+    perform_with_both_string_paths_and_pathnames do
+      bar = string_or_pathname('bar')
+      File.chmod 0o777, bar
+      assert_equal File.stat(bar).mode, 0o100777
+      File.new(bar).chmod 0o1700
+      assert_equal File.stat(bar).mode, 0o101700
+    end
   end
 
   def test_file_chown_of_file
     FileUtils.touch 'foo'
-    File.chown 1337, 1338, 'foo'
-    assert_equal File.stat('foo').uid, 1337
-    assert_equal File.stat('foo').gid, 1338
+
+    perform_with_both_string_paths_and_pathnames do
+      foo = string_or_pathname('foo')
+      File.chown 1337, 1338, foo
+      assert_equal File.stat(foo).uid, 1337
+      assert_equal File.stat(foo).gid, 1338
+    end
   end
 
   def test_file_chown_of_dir
     Dir.mkdir 'bar'
-    File.chown 1337, 1338, 'bar'
-    assert_equal File.stat('bar').uid, 1337
-    assert_equal File.stat('bar').gid, 1338
+
+    perform_with_both_string_paths_and_pathnames do
+      bar = string_or_pathname('bar')
+      File.chown 1337, 1338, bar
+      assert_equal File.stat(bar).uid, 1337
+      assert_equal File.stat(bar).gid, 1338
+    end
   end
 
   def test_file_chown_of_file_nil_user_group
@@ -3345,9 +3932,11 @@ class FakeFSTest < Minitest::Test
       f << "This is line one\nThis is line two\nThis is line three\nAnd so on...\n"
     end
 
-    assert_equal File.binread('testfile'), "This is line one\nThis is line two\nThis is line three\nAnd so on...\n"
-    assert_equal File.binread('testfile', 20), "This is line one\nThi"
-    assert_equal File.binread('testfile', 20, 10), "ne one\nThis is line "
+    perform_with_both_string_paths_and_pathnames do
+      assert_equal File.binread(string_or_pathname('testfile')), "This is line one\nThis is line two\nThis is line three\nAnd so on...\n"
+      assert_equal File.binread(string_or_pathname('testfile'), 20), "This is line one\nThi"
+      assert_equal File.binread(string_or_pathname('testfile'), 20, 10), "ne one\nThis is line "
+    end
   end
 
   def test_file_utils_compare_file
@@ -3364,30 +3953,41 @@ class FakeFSTest < Minitest::Test
 
     FileUtils.cp file1, file2
 
-    assert_equal FileUtils.compare_file(file1, file2), true
-    assert_equal FileUtils.compare_file(file1, file3), false
-    assert_raises Errno::ENOENT do
-      FileUtils.compare_file(file1, 'file4.txt')
+    perform_with_both_string_paths_and_pathnames do
+      path1 = string_or_pathname(file1)
+      path2 = string_or_pathname(file2)
+      path3 = string_or_pathname(file3)
+      assert_equal FileUtils.compare_file(path1, path2), true
+      assert_equal FileUtils.compare_file(path1, path3), false
+      assert_raises Errno::ENOENT do
+        FileUtils.compare_file(path1, string_or_pathname('file4.txt'))
+      end
     end
   end
 
   def test_file_utils_uptodate
-    old_file = 'old.txt'
-    new_file = 'new.txt'
-    newer_file = 'newer.txt'
+    perform_with_both_string_paths_and_pathnames do
+      old_file = string_or_pathname('old.txt')
+      new_file = string_or_pathname('new.txt')
+      newer_file = string_or_pathname('newer.txt')
 
-    FileUtils.touch(old_file)
+      FileUtils.touch(old_file)
 
-    assert_equal FileUtils.uptodate?(new_file, [old_file]), false
+      assert_equal FileUtils.uptodate?(new_file, [old_file]), false
 
-    FileUtils.touch(new_file)
+      FileUtils.touch(new_file)
 
-    assert_equal FileUtils.uptodate?(new_file, [old_file]), true
+      assert_equal FileUtils.uptodate?(new_file, [old_file]), true
 
-    FileUtils.touch(newer_file)
+      FileUtils.touch(newer_file)
 
-    assert_equal FileUtils.uptodate?(new_file, [old_file, newer_file]), false
-    assert_equal FileUtils.uptodate?(newer_file, [new_file, old_file]), true
+      assert_equal FileUtils.uptodate?(new_file, [old_file, newer_file]), false
+      assert_equal FileUtils.uptodate?(newer_file, [new_file, old_file]), true
+
+      FileUtils.rm(old_file)
+      FileUtils.rm(new_file)
+      FileUtils.rm(newer_file)
+    end
   end
 
   def test_fnmatch
@@ -3397,7 +3997,9 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_absolute_path_with_absolute_path
-    assert_equal '/foo/bar', File.absolute_path('/foo/bar')
+    perform_with_both_string_paths_and_pathnames do
+      assert_equal '/foo/bar', File.absolute_path(string_or_pathname('/foo/bar'))
+    end
   end
 
   def test_absolute_path_with_absolute_path_with_dir_name
@@ -3511,14 +4113,19 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_raises_error_on_birthtime_if_file_does_not_exist
-    assert_raises Errno::ENOENT do
-      File.birthtime('file.txt')
+    perform_with_both_string_paths_and_pathnames do
+      assert_raises Errno::ENOENT do
+        File.birthtime(string_or_pathname('file.txt'))
+      end
     end
   end
 
   def test_can_return_birthtime_on_existing_file
     File.open('foo', 'w') { |f| f << 'some content' }
-    assert File.birthtime('foo').is_a?(Time)
+
+    perform_with_both_string_paths_and_pathnames do
+      assert File.birthtime(string_or_pathname('foo')).is_a?(Time)
+    end
   end
 
   def test_file_birthtime_is_equal_to_file_stat_birthtime
@@ -3527,13 +4134,16 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_remove_entry_secure_removes_files
-    File.open('foo', 'w') { |f| f << 'some content' }
-    FileUtils.remove_entry_secure('foo', false)
-    assert File.exist?('foo') == false
+    perform_with_both_string_paths_and_pathnames do
+      foo = string_or_pathname('foo')
+      File.open(foo, 'w') { |f| f << 'some content' }
+      FileUtils.remove_entry_secure(foo, false)
+      assert File.exist?(foo) == false
 
-    File.open('foo', 'w') { |f| f << 'some content' }
-    FileUtils.remove_entry_secure('foo', true)
-    assert File.exist?('foo') == false
+      File.open(foo, 'w') { |f| f << 'some content' }
+      FileUtils.remove_entry_secure(foo, true)
+      assert File.exist?(foo) == false
+    end
   end
 
   def test_properly_calculates_ino_for_files

@@ -186,7 +186,7 @@ module FakeFS
       file = new(path, options)
 
       raise Errno::ENOENT unless file.exists?
-      raise Errno::EISDIR, path if directory?(path)
+      raise Errno::EISDIR, path.to_s if directory?(path)
 
       FileSystem.find(path).atime = Time.now
       file.seek(offset)
@@ -255,7 +255,7 @@ module FakeFS
 
     def self.delete(*file_names)
       file_names.each do |file_name|
-        raise Errno::ENOENT, file_name unless exists?(file_name)
+        raise Errno::ENOENT, file_name.to_s unless exists?(file_name)
 
         FileUtils.rm(file_name)
       end
@@ -338,7 +338,7 @@ module FakeFS
       attr_reader :birthtime
 
       def initialize(file, lstat = false)
-        raise(Errno::ENOENT, file) unless File.exist?(file)
+        raise(Errno::ENOENT, file.to_s) unless File.exist?(file)
 
         @file      = file
         @fake_file = FileSystem.find(@file)
@@ -857,7 +857,7 @@ module FakeFS
     end
 
     def check_file_existence!
-      raise Errno::ENOENT, @path unless @file
+      raise Errno::ENOENT, @path.to_s unless @file
     end
 
     def file_creation_mode?
@@ -879,7 +879,7 @@ module FakeFS
     # Create a missing file if the path is valid.
     #
     def create_missing_file
-      raise Errno::EISDIR, path if File.directory?(@path)
+      raise Errno::EISDIR, path.to_s if File.directory?(@path)
 
       return if File.exist?(@path) # Unnecessary check, probably.
       dirname = RealFile.dirname @path
@@ -887,7 +887,7 @@ module FakeFS
       unless dirname == '.'
         dir = FileSystem.find dirname
 
-        raise Errno::ENOENT, path unless dir.is_a? FakeDir
+        raise Errno::ENOENT, path.to_s unless dir.is_a? FakeDir
       end
 
       @file = FileSystem.add(path, FakeFile.new)

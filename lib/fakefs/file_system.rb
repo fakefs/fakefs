@@ -85,12 +85,12 @@ module FakeFS
 
     def chdir(dir, &blk)
       new_dir = find(dir)
-      dir_levels.push dir if blk
+      dir_levels.push dir.to_s if blk
 
-      raise Errno::ENOENT, dir unless new_dir
-      raise Errno::ENOTDIR, dir unless File.directory? new_dir
+      raise Errno::ENOENT, dir.to_s unless new_dir
+      raise Errno::ENOTDIR, dir.to_s unless File.directory? new_dir
 
-      dir_levels.push dir unless blk
+      dir_levels.push dir.to_s unless blk
       yield(dir) if blk
     ensure
       dir_levels.pop if blk
