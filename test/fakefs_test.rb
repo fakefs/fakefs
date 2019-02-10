@@ -2420,6 +2420,17 @@ class FakeFSTest < Minitest::Test
     assert Dir.exist? 'bar'
   end
 
+  def test_file_utils_cp_raises_error_on_nonexisting_target
+    FileUtils.touch('file.txt')
+    FileUtils.mkdir('bar')
+
+    perform_with_both_string_paths_and_pathnames do
+      assert_raises Errno::ENOENT do
+        FileUtils.cp(string_or_pathname('file.txt'), string_or_pathname('bar/nonexistent/file.txt'))
+      end
+    end
+  end
+
   def test_copy_file_works
     File.open('foo', 'w') { |f| f.write 'bar' }
     FileUtils.copy_file('foo', 'baz', :ignore_param_1, :ignore_param_2)
