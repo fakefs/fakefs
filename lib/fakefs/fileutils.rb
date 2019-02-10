@@ -100,6 +100,8 @@ module FakeFS
     def cp(src, dest, options = {})
       raise Errno::ENOTDIR, dest.to_s if src.is_a?(Array) && !File.directory?(dest)
 
+      raise Errno::ENOENT, dest.to_s unless File.exist?(dest) || File.exist?(File.dirname(dest))
+
       # handle `verbose' flag
       RealFileUtils.cp src, dest, options.merge(noop: true)
 
