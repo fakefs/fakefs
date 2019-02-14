@@ -526,6 +526,10 @@ module FakeFS
       RealFile.allocate.is_a?(klass)
     end
 
+    def string
+      gets(nil)
+    end
+
     def ioctl(*)
       raise NotImplementedError
     end
