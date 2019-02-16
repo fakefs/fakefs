@@ -1,4 +1,5 @@
 require_relative 'test_helper'
+require 'csv'
 
 # FakeFS tests
 class FakeFSTest < Minitest::Test
@@ -2024,8 +2025,12 @@ class FakeFSTest < Minitest::Test
     end
   end
 
-  def test_file_should_not_respond_to_string_io_unique_methods
-    uniq_string_io_methods = StringIO.instance_methods - RealFile.instance_methods
+  def test_file_should_not_respond_to_string_io_unique_methods_except_string
+    uniq_string_io_methods = (StringIO.instance_methods - RealFile.instance_methods)
+
+    # Remove `:string` because we implement a `#string` method
+    uniq_string_io_methods.delete(:string)
+
     uniq_string_io_methods.each do |method_name|
       refute File.instance_methods.include?(method_name), "File responds to #{method_name}"
     end
@@ -2040,6 +2045,36 @@ class FakeFSTest < Minitest::Test
     File.open('foo', 'w') do |f|
       refute f.is_a?(StringIO), 'File is not a StringIO'
     end
+  end
+
+  def test_can_be_read_via_csv_library
+    # Changes to how CSV's are read were introduced in Ruby 2.6.x.
+    # When parsing the CSV, `CSV::Parser` will break any non `File`
+    # object into chunks of 1024 bytes. If there's more than one chunk
+    # (i.e. file > 1024 bytes), each chunk will have `#string` invoked.
+    #
+    # In this spec, we generate a `FakeFS::File` with 1025 bytes of data,
+    # which pushes us just over the threshold of 1024 bytes. This provides
+    # an adequate test setup.
+    #
+    # We could make this number much higher than 1025. The only thing
+    # that matters is that the file is larger than 1024 bytes.
+    #
+
+    csv_rows = [
+      Array.new(171) { '1' }.join(','), # 341 bytes
+      Array.new(171) { '2' }.join(','), # 341 bytes
+      Array.new(171) { '3' }.join(','), # 341 bytes
+    ]
+
+    csv_string = csv_rows.join("\n") # 1025 total bytes = (341 characters * 3) + (2 newline characters)
+
+    File.write('test.csv', csv_string)
+
+    result = CSV.read('test.csv')
+
+    assert result.is_a?(Array)
+    assert_equal csv_rows.length, result.length
   end
 
   def test_chdir_changes_directories_like_a_boss
