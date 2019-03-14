@@ -3478,6 +3478,15 @@ class FakeFSTest < Minitest::Test
     refute FileTest.exist?('/path/to/dir')
   end
 
+  def test_filetest_executable_returns_correct_values
+    FileUtils.mkdir_p('/path/to')
+
+    path = '/path/to/file.txt'
+    File.open(path, 'w') { |f| f.write 'Yatta!' }
+
+    refute FileTest.executable?(path)
+  end
+
   def test_filetest_directory_returns_correct_values
     FileUtils.mkdir_p '/path/to/somedir'
     assert FileTest.directory?('/path/to/somedir')
@@ -3498,6 +3507,46 @@ class FakeFSTest < Minitest::Test
 
     FileUtils.mkdir_p '/path/to/somedir'
     refute FileTest.file?('/path/to/somedir')
+  end
+
+  def test_filetest_sticky_returns_correct_values
+    FileUtils.mkdir_p('/path/to')
+
+    path = '/path/to/file.txt'
+    File.open(path, 'w') { |f| f.write 'Yatta!' }
+
+    refute FileTest.sticky?(path)
+  end
+
+  def test_filetest_symlink_returns_correct_values
+    src = '/path/to/dir'
+    dst = '/path/to/sym'
+    FileUtils.mkdir_p(src)
+    FileUtils.symlink src, dst
+    assert FileTest.symlink?(dst)
+
+    FileUtils.rm_r dst
+    FileUtils.mkdir_p dst
+
+    refute FileTest.symlink?(dst)
+  end
+
+  def test_filetest_world_readable_returns_correct_values
+    FileUtils.mkdir_p('/path/to')
+
+    path = '/path/to/file.txt'
+    File.open(path, 'w') { |f| f.write 'Yatta!' }
+
+    assert FileTest.world_readable?(path) == 0o777
+  end
+
+  def test_filetest_world_writable_returns_correct_values
+    FileUtils.mkdir_p('/path/to')
+
+    path = '/path/to/file.txt'
+    File.open(path, 'w') { |f| f.write 'Yatta!' }
+
+    assert FileTest.world_writable?(path) == 0o777
   end
 
   # NOTE: FileTest.readable? and FileTest.writable? are wrappers around File.readable? and
