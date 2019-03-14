@@ -35,12 +35,12 @@ module FakeFS
       File.symlink?(file_name)
     end
 
-    def world_readable?
-      File.world_readable?
+    def world_readable?(file_name)
+      File.new(file_name).stat.world_readable?
     end
 
-    def world_writable?
-      File.world_writable?
+    def world_writable?(file_name)
+      File.new(file_name).stat.world_writable?
     end
 
     def writable?(file_name)
