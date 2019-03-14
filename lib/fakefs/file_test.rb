@@ -3,12 +3,16 @@ module FakeFS
   module FileTest
     extend self
 
-    def exist?(file_name)
-      File.exist?(file_name)
-    end
-
     def directory?(file_name)
       File.directory?(file_name)
+    end
+
+    def executable?(file_name)
+      File.executable?(file_name)
+    end
+
+    def exist?(file_name)
+      File.exist?(file_name)
     end
 
     def file?(file_name)
@@ -21,6 +25,22 @@ module FakeFS
 
     def readable?(file_name)
       File.readable?(file_name)
+    end
+
+    def sticky?(file_name)
+      File.sticky?(file_name)
+    end
+
+    def symlink?(file_name)
+      File.symlink?(file_name)
+    end
+
+    def world_readable?
+      File.world_readable?
+    end
+
+    def world_writable?
+      File.world_writable?
     end
 
     def writable?(file_name)

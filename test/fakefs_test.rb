@@ -3500,6 +3500,19 @@ class FakeFSTest < Minitest::Test
     refute FileTest.file?('/path/to/somedir')
   end
 
+  def test_filetest_symlink_returns_correct_values
+    src = '/path/to/dir'
+    dst = '/path/to/sym'
+    FileUtils.mkdir_p(src)
+    FileUtils.symlink src, dst
+    assert FileTest.symlink?(dst)
+
+    FileUtils.rm_r dst
+    FileUtils.mkdir_p dst
+
+    refute FileTest.symlink?(dst)
+  end
+
   # NOTE: FileTest.readable? and FileTest.writable? are wrappers around File.readable? and
   # File.writable? respectively. Thus, testing the FileTest versions of these functions will
   # also test the File versions of these functions.
