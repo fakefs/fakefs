@@ -94,7 +94,7 @@ class PathnameTest < Minitest::Test
   end
 
   def test_file_is_written
-    @pathname.write(@path, "some\ncontent")
+    @pathname.write("some\ncontent")
 
     assert_equal "some\ncontent", @pathname.read
   end
@@ -104,12 +104,12 @@ class PathnameTest < Minitest::Test
   end
 
   def test_pathname_size?
-    @pathname.write(@path, "some\ncontent")
+    @pathname.write("some\ncontent")
     assert_equal 12, @pathname.size?
   end
 
   def test_pathname_size
-    @pathname.write(@path, "some\ncontent")
+    @pathname.write("some\ncontent")
     assert_equal 12, @pathname.size
   end
 

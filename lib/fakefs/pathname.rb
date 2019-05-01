@@ -790,7 +790,10 @@ module FakeFS
     def write(string, *args)
       offset = args[0]
       open_args = args[1]
-      IO.write(@path, string, offset, open_args)
+      File.open(@path, open_args || 'w') do |file|
+        file.seek(offset) if offset
+        return file.write(string)
+      end
     end
   end
 
