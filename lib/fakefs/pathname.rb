@@ -787,9 +787,12 @@ module FakeFS
     end
 
     # See <tt>File.write</tt>. Returns the number of bytes written.
-    def write(path, data)
-      File.open(path, 'wb') do |file|
-        return file.write(data)
+    def write(string, *args)
+      offset = args[0]
+      open_args = args[1]
+      File.open(@path, open_args || 'w') do |file|
+        file.seek(offset) if offset
+        return file.write(string)
       end
     end
   end
