@@ -194,16 +194,15 @@ module FakeFS
         if (opts = Hash.try_convert(rest[-1]))
           opts = opts.dup if rest.pop.equal?(opts)
           max_try = opts.delete(:max_try)
-          opts = [opts]
         else
-          opts = []
+          opts = {}
         end
         tmpdir, = *rest
         tmpdir ||= self.tmpdir # rubocop:disable Style/RedundantSelf
         n = nil
         begin
           path = File.join(tmpdir, make_tmpname(basename, n))
-          yield(path, n, *opts)
+          yield(path, n, **opts)
         rescue Errno::EEXIST
           n ||= 0
           n += 1
