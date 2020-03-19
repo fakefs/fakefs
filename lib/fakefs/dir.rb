@@ -199,11 +199,7 @@ module FakeFS
           opts = []
         end
         tmpdir, = *rest
-        if $SAFE > 0 && tmpdir.tainted?
-          tmpdir = '/tmp'
-        else
-          tmpdir ||= self.tmpdir
-        end
+        tmpdir ||= self.tmpdir # rubocop:disable Style/RedundantSelf
         n = nil
         begin
           path = File.join(tmpdir, make_tmpname(basename, n))
