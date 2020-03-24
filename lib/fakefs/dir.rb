@@ -92,7 +92,7 @@ module FakeFS
     end
 
     def self.children(dirname, opts = {})
-      entries(dirname, opts) - ['.', '..']
+      entries(dirname, **opts) - ['.', '..']
     end
 
     def self.each_child(dirname, &_block)
