@@ -2188,14 +2188,14 @@ class FakeFSTest < Minitest::Test
         Dir.chdir(path) do
           raise Errno::ENOENT
         end
-      rescue Errno::ENOENT => e # hardcore
+      rescue Errno::ENOENT # hardcore
         'Nothing to do'
       end
 
       Dir.chdir(path) do
         begin
           Dir.chdir(string_or_pathname('nope')) {}
-        rescue Errno::ENOENT => e
+        rescue Errno::ENOENT
           'Nothing to do'
         end
 
