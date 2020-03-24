@@ -7,6 +7,17 @@ def act_on_real_fs(&block)
   FakeFS.without(&block)
 end
 
+module Minitest
+  class Test
+    # Minitest::Test#diff needs to write to the filesystem in order to produce
+    # the nice diffs we see when a test fails. For this to work it needs to
+    # access the real filesystem.
+    def diff(expected, actual)
+      act_on_real_fs { super(expected, actual) }
+    end
+  end
+end
+
 def capture_stderr
   real_stderr, $stderr = $stderr, StringIO.new
 
