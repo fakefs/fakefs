@@ -497,8 +497,8 @@ module FakeFS
       true
     end
 
-    def write(str)
-      val = super(str)
+    def write(*args)
+      val = super(*args)
       @file.mtime = Time.now
       val
     end
