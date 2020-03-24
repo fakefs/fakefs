@@ -16,7 +16,7 @@ end
 module FakeFS
   class << self
     def activated?
-      @activated ? true : false
+      @activated ||= false
     end
 
     # unconditionally activate

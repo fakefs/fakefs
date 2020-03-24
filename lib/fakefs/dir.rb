@@ -92,7 +92,7 @@ module FakeFS
     end
 
     def self.children(dirname, opts = {})
-      entries(dirname, opts) - ['.', '..']
+      entries(dirname, **opts) - ['.', '..']
     end
 
     def self.each_child(dirname, &_block)
@@ -202,7 +202,7 @@ module FakeFS
         n = nil
         begin
           path = File.join(tmpdir, make_tmpname(basename, n))
-          yield(path, n, **opts)
+          yield(path, n, opts)
         rescue Errno::EEXIST
           n ||= 0
           n += 1

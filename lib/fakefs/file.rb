@@ -183,7 +183,7 @@ module FakeFS
       options = args[-1].is_a?(Hash) ? args.pop : {}
       length = args.empty? ? nil : args.shift
       offset = args.empty? ? 0 : args.shift
-      file = new(path, options)
+      file = new(path, **options)
 
       raise Errno::ENOENT unless file.exists?
       raise Errno::EISDIR, path.to_s if directory?(path)
@@ -497,8 +497,8 @@ module FakeFS
       true
     end
 
-    def write(str)
-      val = super(str)
+    def write(*args)
+      val = super(*args)
       @file.mtime = Time.now
       val
     end

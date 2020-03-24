@@ -66,11 +66,11 @@ module FakeFS
     alias remove rm
 
     def rm_f(list, options = {})
-      rm(list, options.merge(force: true))
+      rm(list, **options.merge(force: true))
     end
 
     def rm_rf(list, options = {})
-      rm_r(list, options.merge(force: true))
+      rm_r(list, **options.merge(force: true))
     end
     alias rmtree rm_rf
     alias safe_unlink rm_f
@@ -103,7 +103,7 @@ module FakeFS
       raise Errno::ENOENT, dest.to_s unless File.exist?(dest) || File.exist?(File.dirname(dest))
 
       # handle `verbose' flag
-      RealFileUtils.cp src, dest, options.merge(noop: true)
+      RealFileUtils.cp src, dest, **options.merge(noop: true)
 
       # handle `noop' flag
       return if options[:noop]
@@ -145,7 +145,7 @@ module FakeFS
 
     def cp_r(src, dest, options = {})
       # handle `verbose' flag
-      RealFileUtils.cp_r src, dest, options.merge(noop: true)
+      RealFileUtils.cp_r src, dest, **options.merge(noop: true)
 
       # handle `noop' flag
       return if options[:noop]
@@ -176,7 +176,7 @@ module FakeFS
 
     def mv(src, dest, options = {})
       # handle `verbose' flag
-      RealFileUtils.mv src, dest, options.merge(noop: true)
+      RealFileUtils.mv src, dest, **options.merge(noop: true)
 
       # handle `noop' flag
       return if options[:noop]
