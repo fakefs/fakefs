@@ -5,10 +5,10 @@ require 'tempfile'
 class TempfileTest < Minitest::Test
   include FakeFS
 
-  def test_should_not_raise_error
+  def test_open_should_not_raise_error
     FakeFS do
       # nothing raised
-      FileUtils.mkdir_p('/tmp')
+      FileUtils.mkdir_p(Dir.tmpdir)
       Tempfile.open('test')
     end
   end
