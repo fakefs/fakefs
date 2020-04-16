@@ -12,4 +12,18 @@ class TempfileTest < Minitest::Test
       Tempfile.open('test')
     end
   end
+
+  def test_create_block
+    FakeFS do
+      # nothing raised
+      FileUtils.mkdir_p(Dir.tmpdir)
+      # Ruby 2.3 requires a basename
+      Tempfile.create('') do |f|
+        f.write('Hello World!')
+        f.flush
+
+        assert_equal(File.read(f.path), 'Hello World!')
+      end
+    end
+  end
 end
