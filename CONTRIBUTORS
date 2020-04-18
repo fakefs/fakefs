@@ -24,8 +24,8 @@ Toby Ovod-Everett <toby@ovod-everett.org>
 Jacob Evans <jacob@dekz.net>
 Víctor Martínez <knoopx@gmail.com>
 Mariusz Pietrzyk <wijet@wijet.pl>
-Ian Katz <ifreecarve@gmail.com>
 John Firebaugh <john.firebaugh@gmail.com>
+Ian Katz <ifreecarve@gmail.com>
 Dan Duvall <dduvall@wikimedia.org>
 Carlos Pardo <cpardo@altavistaed.com>
 AlphaHydrae <hydrae.alpha@gmail.com>
@@ -42,87 +42,89 @@ Maarten Hoogendoorn <maarten@moretea.nl>
 Jon Yurek <jyurek@thoughtbot.com>
 Jared Luxenberg <jared@jaredlux.com>
 DSIW <dsiw@dsiw-it.de>
-doc75 <github@virlet.org>
 Misha Gorodnitzky <misaka@pobox.com>
-Greg Campbell <gtcampbell@gmail.com>
+doc75 <github@virlet.org>
 Lars Gierth <lars.gierth@gmail.com>
+Greg Campbell <gtcampbell@gmail.com>
 SumLare <anohin56n@gmail.com>
 Andrew Sullivan Cant <mail@andrewsullivancant.ca>
 marano <thiagomarano@gmail.com>
 Ben Mabey <ben@benmabey.com>
 Chet Bortz <chet@bortz.co>
 Gergely Brautigam <skarlso777@gmail.com>
-Jorge Orlando Munoz <jmunoz@altavistaed.com>
 Mark <mark@amerine.net>
+Jorge Orlando Munoz <jmunoz@altavistaed.com>
 Sam Goldstein <sam@aboutus.org>
-Randall Reed, Jr <randallreedjr@gmail.com>
 Adam Alboyadjian <adam@vistahigherlearning.com>
-Rick Salevsky <rsalevsky@suse.com>
+Randall Reed, Jr <randallreedjr@gmail.com>
 Scott Petersen <petersen@centtech.com>
+Rick Salevsky <rsalevsky@suse.com>
 Roman Kříž <samnung@gmail.com>
-Matt Todd <chiology@gmail.com>
-Noah Paessel <knowuh@gmail.com>
-Ryan McGeary <ryan@mcgeary.org>
 Emil Soman <emil.soman@gmail.com>
+Noah Paessel <knowuh@gmail.com>
+Matt Todd <chiology@gmail.com>
+Ryan McGeary <ryan@mcgeary.org>
 dmathieu <42@dmathieu.com>
 Oleg Sukhodolsky <os97673@gmail.com>
 Winston Lee <lee.winston@gmail.com>
 Radek Simko <radek.simko@gmail.com>
 Grayson Wright <wright.grayson@gmail.com>
 Zequez <zequez@gmail.com>
-Damien Mathieu <damien@heroku.com>
 Gabriel de Oliveira <deoliveira.gab@gmail.com>
-jameswilding <james@jameswilding.net>
 Iain Bryson <bryson.iain@gmail.com>
+jameswilding <james@jameswilding.net>
+Damien Mathieu <damien@heroku.com>
 Ed Ruder <ed@squareup.com>
+Scott Barron <scott@elitists.net>
 Benjamin Oakes <hello@benjaminoakes.com>
 Tymon Tobolski <i@teamon.eu>
-Scott Barron <scott@elitists.net>
-Eric Daspet <eric.daspet@survol.fr>
-long-long-float <niinikazuki@yahoo.co.jp>
 ReadmeCritic <frankensteinbot@gmail.com>
+Ewoud Kohl van Wijngaarden <ewoud@kohlvanwijngaarden.nl>
+Eric Daspet <eric.daspet@survol.fr>
 Andrius Chamentauskas <andrius.chamentauskas@gmail.com>
-Xavier Shay <xavier@squareup.com>
-W. Andrew Loe III <andrew@andrewloe.com>
+long-long-float <niinikazuki@yahoo.co.jp>
 Matt Hoyle <matt@deployable.co>
+W. Andrew Loe III <andrew@andrewloe.com>
+Xavier Shay <xavier@squareup.com>
 maeve <maeve.revels@getg5.com>
-Igor Serebryany <igor.serebryany@airbnb.com>
 Nick Inhofe <nicholas.inhofe@creativedrive.com>
-Travis Herrick <travis@carbonfive.com>
-Andrew Mackenzie <andrew@mackenzie-serres.net>
-Keita Urashima <ursm@ursm.jp>
+Igor Serebryany <igor.serebryany@airbnb.com>
 rambutan <usul@usul-HP-EliteBook-8460p.(none)>
-Anton Rieder <1301152+aried3r@users.noreply.github.com>
+Keita Urashima <ursm@ursm.jp>
+Andrew Mackenzie <andrew@mackenzie-serres.net>
+Travis Herrick <travis@carbonfive.com>
 Martin Mauch <martin.mauch@gmail.com>
-David Reese <david@whatcould.com>
-Matthew Morgan <lytithwyn@gmail.com>
 andrea longhi <andrea@spaghetticode.it>
+Matthew Morgan <lytithwyn@gmail.com>
 = <gokulnath@mobme.in>
 msassak <msassak@gmail.com>
-Ash Furrow <ash@ashfurrow.com>
-Andrius Chamentauskas <sinsiliux@gmail.com>
+David Reese <david@whatcould.com>
+Anton Rieder <1301152+aried3r@users.noreply.github.com>
 timo3377 <tim.linquist@gmail.com>
-Michael Scherer <misc@zarb.org>
-Matt Rogers <mattrogers@sbcglobal.net>
+Andrius Chamentauskas <sinsiliux@gmail.com>
+Ash Furrow <ash@ashfurrow.com>
 Paolo Gianrossi <paolino.gianrossi@gmail.com>
-Donnie Tognazzini <donnie.tognazzini@appfolio.com>
+Matt Rogers <mattrogers@sbcglobal.net>
+Michael Scherer <misc@zarb.org>
 Mislav Marohnić <mislav.marohnic@gmail.com>
 Eric Mueller <nevinera@gmail.com>
+Donnie Tognazzini <donnie.tognazzini@appfolio.com>
 Bryan Hockey <bhock@umich.edu>
 Andrew Ryan <nerdrew@gmail.com>
-Rob Sanheim <rsanheim@gmail.com>
 Jacob Atzen <jatzen@gmail.com>
-Toon Willems <willemstoon@gmail.com>
-Chris Wanstrath <chris@github.com>
+Rob Sanheim <rsanheim@gmail.com>
 Chris Knadler <takeshi91k@gmail.com>
 Ryan Scott Lewis <ryanscottlewis@lewis-software.com>
+Chris Wanstrath <chris@github.com>
+Toon Willems <willemstoon@gmail.com>
+Austin Matzko <austin@pressedcode.com>
 Sven Riedel <sr@gimp.org>
-Nathaniel Bibler <git@nathanielbibler.com>
-Benjamin Quorning <bquorning@zendesk.com>
 Dane O'Connor <dane.oconnor@gmail.com>
 Yuta Shimizu <pachirel@gmail.com>
+Nathaniel Bibler <git@nathanielbibler.com>
 Dimitri John Ledkov <xnox@ubuntu.com>
-Benjamin Fleischer <github@benjaminfleischer.com>
+Benjamin Quorning <bquorning@zendesk.com>
 Maria Shaldibina <mariash@pivotallabs.com>
 Jordi Massaguer Pla <jmassaguerpla@suse.de>
+Benjamin Fleischer <github@benjaminfleischer.com>
 Vít Ondruch <vondruch@redhat.com>
