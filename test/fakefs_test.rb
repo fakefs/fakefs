@@ -4398,4 +4398,11 @@ class FakeFSTest < Minitest::Test
 
     assert deleted_file_ino == dir_ino
   end
+
+  def test_can_use_io_methods
+    File.write('a', "1\n2\n3")
+    lines = []
+    IO.foreach('a') { |l| lines << l }
+    assert_equal ["1\n", "2\n", '3'], lines
+  end
 end
