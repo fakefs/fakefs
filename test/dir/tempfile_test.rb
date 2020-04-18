@@ -5,11 +5,27 @@ require 'tempfile'
 class TempfileTest < Minitest::Test
   include FakeFS
 
-  def test_should_not_raise_error
+  def test_open_should_not_raise_error
     FakeFS do
       # nothing raised
-      FileUtils.mkdir_p('/tmp')
+      FileUtils.mkdir_p(Dir.tmpdir)
       Tempfile.open('test')
+    end
+  end
+
+  def test_create_block
+    FakeFS do
+      # nothing raised
+      FileUtils.mkdir_p(Dir.tmpdir)
+      # Ruby 2.3 requires a basename
+      Tempfile.create('') do |f|
+        assert_equal FakeFS::File, f.class
+
+        f.write 'Hello World!'
+        f.flush
+
+        assert_equal 'Hello World!', File.read(f.path)
+      end
     end
   end
 end
