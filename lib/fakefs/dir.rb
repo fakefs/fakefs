@@ -199,6 +199,8 @@ module FakeFS
         end
         tmpdir, = *rest
         tmpdir ||= self.tmpdir # rubocop:disable Style/RedundantSelf
+        Dir.mkdir(tmpdir) unless Dir.exist?(tmpdir)
+
         n = nil
         begin
           path = File.join(tmpdir, make_tmpname(basename, n))
