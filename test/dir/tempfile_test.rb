@@ -19,6 +19,8 @@ class TempfileTest < Minitest::Test
       FileUtils.mkdir_p(Dir.tmpdir)
       # Ruby 2.3 requires a basename
       Tempfile.create('') do |f|
+        assert File.exist?(f.path)
+        assert f.is_a?(FakeFS::File)
         f.write('Hello World!')
         f.flush
 

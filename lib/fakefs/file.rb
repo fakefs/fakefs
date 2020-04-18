@@ -257,14 +257,15 @@ module FakeFS
       0
     end
 
-    def self.delete(*file_names)
-      file_names.each do |file_name|
-        raise Errno::ENOENT, file_name.to_s unless exists?(file_name)
+    def self.delete(*files)
+      files.each do |file|
+        file_name = (file.is_a?(FakeFS::File) ? file.path : file.to_s)
+        raise Errno::ENOENT, file_name unless exists?(file_name)
 
         FileUtils.rm(file_name)
       end
 
-      file_names.size
+      files.size
     end
 
     class << self
@@ -527,7 +528,7 @@ module FakeFS
     end
 
     def is_a?(klass)
-      RealFile.allocate.is_a?(klass)
+      super || RealFile.is_a?(klass)
     end
 
     def string
