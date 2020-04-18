@@ -19,12 +19,12 @@ class TempfileTest < Minitest::Test
       FileUtils.mkdir_p(Dir.tmpdir)
       # Ruby 2.3 requires a basename
       Tempfile.create('') do |f|
-        assert File.exist?(f.path)
-        assert f.is_a?(FakeFS::File)
-        f.write('Hello World!')
+        assert_equal FakeFS::File, f.class
+
+        f.write 'Hello World!'
         f.flush
 
-        assert_equal(File.read(f.path), 'Hello World!')
+        assert_equal 'Hello World!', File.read(f.path)
       end
     end
   end

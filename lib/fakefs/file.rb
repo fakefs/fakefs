@@ -259,7 +259,7 @@ module FakeFS
 
     def self.delete(*files)
       files.each do |file|
-        file_name = (file.is_a?(FakeFS::File) ? file.path : file.to_s)
+        file_name = (file.class == FakeFS::File ? file.path : file.to_s)
         raise Errno::ENOENT, file_name unless exists?(file_name)
 
         FileUtils.rm(file_name)
@@ -528,7 +528,7 @@ module FakeFS
     end
 
     def is_a?(klass)
-      super || RealFile.is_a?(klass)
+      RealFile.is_a?(klass)
     end
 
     def string
