@@ -2,7 +2,6 @@ language: ruby
 cache: bundler
 
 rvm:
-  - 2.3
   - 2.4
   - 2.5
   - 2.6
@@ -22,7 +21,7 @@ matrix:
     - rvm: jruby-9.1.17.0
     - rvm: jruby-head
   include:
-    - rvm: 2.3.7 # lowest from rvm list above
+    - rvm: 2.4 # lowest from rvm list above
       env: TASK=rubocop
 
 script: bundle exec rake $TASK

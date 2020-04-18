@@ -9,11 +9,11 @@ require_relative 'test_helper'
 # FakeFs verifier test class
 class FakeFSVerifierTest < Minitest::Test
   class_mapping = {
-    RealFile       => FakeFS::File,
+    RealFile => FakeFS::File,
     RealFile::Stat => FakeFS::File::Stat,
-    RealFileUtils  => FakeFS::FileUtils,
-    RealDir        => FakeFS::Dir,
-    RealFileTest   => FakeFS::FileTest
+    RealFileUtils => FakeFS::FileUtils,
+    RealDir => FakeFS::Dir,
+    RealFileTest => FakeFS::FileTest
   }
 
   class_mapping.each do |real_class, fake_class|

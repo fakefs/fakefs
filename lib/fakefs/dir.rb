@@ -198,7 +198,7 @@ module FakeFS
           opts = {}
         end
         tmpdir, = *rest
-        tmpdir ||= self.tmpdir # rubocop:disable Style/RedundantSelf
+        tmpdir ||= self.tmpdir
         Dir.mkdir(tmpdir) unless Dir.exist?(tmpdir)
 
         n = nil
