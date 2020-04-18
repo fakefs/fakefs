@@ -109,10 +109,10 @@ module FakeFS
     if File::ALT_SEPARATOR
       SEPARATOR_LIST = "#{Regexp.quote File::ALT_SEPARATOR}" \
       "#{Regexp.quote File::SEPARATOR}".freeze
-      SEPARATOR_PAT = /[#{SEPARATOR_LIST}]/
+      SEPARATOR_PAT = /[#{SEPARATOR_LIST}]/.freeze
     else
       SEPARATOR_LIST = (Regexp.quote File::SEPARATOR).to_s.freeze
-      SEPARATOR_PAT = /#{Regexp.quote File::SEPARATOR}/
+      SEPARATOR_PAT = /#{Regexp.quote File::SEPARATOR}/.freeze
     end
 
     # Return a pathname which the extension of the basename is substituted by
@@ -442,9 +442,9 @@ module FakeFS
     def chop_basename(path)
       base = File.basename(path)
       if /\A#{SEPARATOR_PAT}?\z/o =~ base
-        return nil
+        nil
       else
-        return path[0, path.rindex(base)], base
+        [path[0, path.rindex(base)], base]
       end
     end
 

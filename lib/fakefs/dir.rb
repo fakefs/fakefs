@@ -85,14 +85,14 @@ module FakeFS
       FileSystem.delete(string)
     end
 
-    def self.entries(dirname, _opts = {})
+    def self.entries(dirname, _options = nil)
       _check_for_valid_file(dirname)
 
       Dir.new(dirname).map { |file| File.basename(file) }
     end
 
-    def self.children(dirname, opts = {})
-      entries(dirname, **opts) - ['.', '..']
+    def self.children(dirname, _options = nil)
+      entries(dirname) - ['.', '..']
     end
 
     def self.each_child(dirname, &_block)
@@ -198,7 +198,9 @@ module FakeFS
           opts = {}
         end
         tmpdir, = *rest
-        tmpdir ||= self.tmpdir # rubocop:disable Style/RedundantSelf
+        tmpdir ||= self.tmpdir
+        Dir.mkdir(tmpdir) unless Dir.exist?(tmpdir)
+
         n = nil
         begin
           path = File.join(tmpdir, make_tmpname(basename, n))

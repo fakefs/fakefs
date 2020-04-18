@@ -2064,7 +2064,7 @@ class FakeFSTest < Minitest::Test
     csv_rows = [
       Array.new(171) { '1' }.join(','), # 341 bytes
       Array.new(171) { '2' }.join(','), # 341 bytes
-      Array.new(171) { '3' }.join(','), # 341 bytes
+      Array.new(171) { '3' }.join(',') # 341 bytes
     ]
 
     csv_string = csv_rows.join("\n") # 1025 total bytes = (341 characters * 3) + (2 newline characters)

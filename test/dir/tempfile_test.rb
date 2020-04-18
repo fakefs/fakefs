@@ -15,8 +15,6 @@ class TempfileTest < Minitest::Test
 
   def test_create_block
     FakeFS do
-      # nothing raised
-      FileUtils.mkdir_p(Dir.tmpdir)
       # Ruby 2.3 requires a basename
       Tempfile.create('') do |f|
         assert_equal FakeFS::File, f.class

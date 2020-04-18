@@ -1,6 +1,6 @@
 AllCops:
   DisplayCopNames: true
-  TargetRubyVersion: 2.3
+  TargetRubyVersion: 2.4
   Exclude:
     - files/**/*
     - templates/**/*
@@ -13,7 +13,7 @@ Metrics/ClassLength:
   Enabled: false
 Metrics/ModuleLength:
   Enabled: false
-Metrics/LineLength:
+Layout/LineLength:
   Max: 120
   Exclude:
     - test/**/*
@@ -40,9 +40,6 @@ Naming/MethodName:
 Security/Eval:
   Enabled: false
 
-Performance/StringReplacement:
-  Enabled: false
-
 Style/ParallelAssignment:
   Enabled: false
 Style/ModuleFunction:
@@ -65,3 +62,20 @@ Style/FrozenStringLiteralComment:
   Enabled: false # TODO: enable
 Style/CommentedKeyword:
   Enabled: false # TODO: enable
+Style/ExponentialNotation:
+  Enabled: true
+Style/HashEachMethods:
+  Enabled: true
+Style/HashTransformKeys:
+  Enabled: true
+Style/HashTransformValues:
+  Enabled: true
+
+Layout/EmptyLineAfterGuardClause:
+  Enabled: false
+Layout/SpaceAroundMethodCallOperator:
+  Enabled: true
+Lint/RaiseException:
+  Enabled: true
+Lint/StructNewOverride:
+  Enabled: true
