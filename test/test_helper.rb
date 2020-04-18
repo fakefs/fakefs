@@ -1,7 +1,6 @@
 require 'bundler/setup'
 require 'fakefs/safe'
-require 'minitest/autorun'
-require 'minitest/rg'
+require 'maxitest/autorun'
 
 def act_on_real_fs(&block)
   FakeFS.without(&block)
