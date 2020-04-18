@@ -66,11 +66,11 @@ module FakeFS
     alias remove rm
 
     def rm_f(list, options = {})
-      rm(list, **options.merge(force: true))
+      rm(list, options.merge(force: true))
     end
 
     def rm_rf(list, options = {})
-      rm_r(list, **options.merge(force: true))
+      rm_r(list, options.merge(force: true))
     end
     alias rmtree rm_rf
     alias safe_unlink rm_f
