@@ -4400,10 +4400,10 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_file_is_a_io
-    assert FakeFS::File.open("/foo", "a").is_a?(IO)
+    assert FakeFS::File.open('/foo', 'a').is_a?(IO)
   end
 
   def test_file_is_not_something_else
-    refute FakeFS::File.open("/foo", "a").is_a?(Integer)
+    refute FakeFS::File.open('/foo', 'a').is_a?(Integer)
   end
 end
