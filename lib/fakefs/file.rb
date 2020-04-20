@@ -528,7 +528,7 @@ module FakeFS
     end
 
     def is_a?(klass)
-      RealFile.is_a?(klass)
+      RealFile.allocate.is_a?(klass)
     end
 
     def string

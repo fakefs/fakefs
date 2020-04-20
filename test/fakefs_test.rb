@@ -4398,4 +4398,12 @@ class FakeFSTest < Minitest::Test
 
     assert deleted_file_ino == dir_ino
   end
+
+  def test_file_is_a_io
+    assert FakeFS::File.open("/foo", "a").is_a?(IO)
+  end
+
+  def test_file_is_not_something_else
+    refute FakeFS::File.open("/foo", "a").is_a?(Integer)
+  end
 end
