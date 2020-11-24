@@ -159,14 +159,6 @@ FakeFS::File.class_eval do
 end
 ```
 
-[MockFS](http://mockfs.rubyforge.org/) comparison
-----------------------------------
-
-FakeFS provides a test suite and works with symlinks. It's also strictly a
-test-time dependency: your actual library does not need to use or know about
-FakeFS.
-
-
 Caveats
 -------
 
