@@ -231,6 +231,8 @@ module FakeFS
       end
 
       if (target = FileSystem.find(source))
+        return 0 if source == dest
+
         if target.is_a?(FakeFS::FakeSymlink)
           File.symlink(target.target, dest)
         else
