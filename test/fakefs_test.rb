@@ -3220,7 +3220,23 @@ class FakeFSTest < Minitest::Test
     FileUtils.touch('/foo')
     FileUtils.touch('/bar')
     File.rename('/foo', '/bar')
+    assert !File.exist?('/foo')
+    assert File.exist?('/bar')
     assert File.file?('/bar')
+  end
+
+  def test_rename_file_to_itself
+    FileUtils.touch('/foo')
+    File.rename('/foo', '/foo')
+    assert File.exist?('/foo')
+    assert File.file?('/foo')
+  end
+
+  def test_rename_non_existing_file_to_itself_raises_error
+    assert_raises(Errno::ENOENT) do
+      File.rename('/foo', '/foo')
+    end
+    assert !File.exist?('/foo')
   end
 
   def test_rename_renames_a_directories
