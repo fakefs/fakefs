@@ -1,4 +1,4 @@
-FakeFS [![build status](https://travis-ci.org/fakefs/fakefs.svg?branch=master)](https://travis-ci.org/fakefs/fakefs)
+FakeFS [![build status](https://github.com/fakefs/fakefs/workflows/jobs/badge.svg)](https://github.com/fakefs/fakefs/actions?query=branch%3Amaster)
 ======
 
 Mocking calls to FileUtils or File means tightly coupling tests with the implementation.
@@ -202,7 +202,7 @@ Meta
 * Code: `git clone git://github.com/fakefs/fakefs.git`
 * Home: <https://github.com/fakefs/fakefs>
 * Bugs: <https://github.com/fakefs/fakefs/issues>
-* Test: <https://travis-ci.org/fakefs/fakefs>
+* Test: <https://github.com/fakefs/fakefs/actions?query=branch%3Amaster>
 * Gems: <https://rubygems.org/gems/fakefs>
 
 [0]: https://help.github.com/forking/

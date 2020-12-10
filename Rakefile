@@ -17,7 +17,7 @@ end
 require 'rubocop/rake_task'
 RuboCop::RakeTask.new(:rubocop)
 
-task default: File.read('.travis.yml').scan(/TASK=(\w+)/).flatten
+task default: [:test, :spec, :rubocop]
 
 desc 'Update contributors'
 task :update_contributors do

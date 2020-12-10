@@ -79,3 +79,7 @@ Lint/RaiseException:
   Enabled: true
 Lint/StructNewOverride:
   Enabled: true
+Style/SymbolArray:
+  EnforcedStyle: brackets
+Style/StringLiterals:
+  Enabled: false
