@@ -197,11 +197,11 @@ module FakeFS
       file.read(length)
     end
 
-    def self.readlines(path)
+    def self.readlines(path, options = {})
       file = new(path)
       if file.exists?
         FileSystem.find(path).atime = Time.now
-        file.readlines
+        options[:chomp] ? file.readlines.map(&:chomp) : file.readlines
       else
         raise Errno::ENOENT
       end

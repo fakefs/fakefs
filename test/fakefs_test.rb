@@ -1197,6 +1197,18 @@ class FakeFSTest < Minitest::Test
     end
   end
 
+  def test_can_read_with_File_readlines_with_chomp
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname('file.txt')
+      File.open(path, 'w') do |f|
+        f.write "this\nis\na\ntest\n"
+      end
+
+      assert_equal ["this", "is", "a", "test"], File.readlines(path, chomp: true)
+      FileUtils.rm(path)
+    end
+  end
+
   def test_can_read_with_File_foreach
     perform_with_both_string_paths_and_pathnames do
       path = string_or_pathname('file.txt')
