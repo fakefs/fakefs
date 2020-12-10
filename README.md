@@ -1,4 +1,4 @@
-FakeFS [![build status](https://github.com/fakefs/fakefs/workflows/jobs/badge.svg)](https://github.com/fakefs/fakefs/actions?query=branch%3Amaster)
+FakeFS [![build status](https://github.com/fakefs/fakefs/workflows/CI/badge.svg)](https://github.com/fakefs/fakefs/actions?query=branch%3Amaster)
 ======
 
 Mocking calls to FileUtils or File means tightly coupling tests with the implementation.
