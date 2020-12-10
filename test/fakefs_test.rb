@@ -1204,7 +1204,7 @@ class FakeFSTest < Minitest::Test
         f.write "this\nis\na\ntest\n"
       end
 
-      assert_equal ["this", "is", "a", "test"], File.readlines(path, chomp: true)
+      assert_equal ['this', 'is', 'a', 'test'], File.readlines(path, chomp: true)
       FileUtils.rm(path)
     end
   end
