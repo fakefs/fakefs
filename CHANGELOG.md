@@ -1,4 +1,7 @@
 ## Next
+
+## 1.3.1
+
 - Fix `Dir.glob` fails to return correct matches when a path contains plus sign(s)
 
 ## 1.2.3
