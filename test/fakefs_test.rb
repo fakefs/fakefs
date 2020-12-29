@@ -1846,6 +1846,22 @@ class FakeFSTest < Minitest::Test
     assert_equal ['/tmp/python-2.7.8', '/tmp/python-3.4.1'], Dir.glob('/tmp/python-[0-9]*')
   end
 
+  def test_dir_glob_plus_sign_in_dir_name
+    FileUtils.mkdir_p '/abc+cde/python-3.4.1'
+    FileUtils.mkdir_p '/abc+cde/python-2.7.8'
+    Dir.chdir('/abc+cde') do
+      assert_equal ['python-2.7.8', 'python-3.4.1'], Dir.glob('**/*')
+    end
+  end
+
+  def test_dir_glob_plus_signs_in_dir_name
+    FileUtils.mkdir_p '/abc+cde+123/python-3.4.1'
+    FileUtils.mkdir_p '/abc+cde+123/python-2.7.8'
+    Dir.chdir('/abc+cde+123') do
+      assert_equal ['python-2.7.8', 'python-3.4.1'], Dir.glob('**/*')
+    end
+  end
+
   def test_dir_glob_respects_fnm_dotmatch
     File.open('/file', 'w') { |f| f << 'content' }
     File.open('/.file_hidden', 'w') { |f| f << 'content' }

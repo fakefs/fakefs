@@ -120,11 +120,13 @@ module FakeFS
     def self.glob(pattern, flags = 0, &block)
       matches_for_pattern = lambda do |matcher|
         [FileSystem.find(matcher, flags, true) || []].flatten.map do |e|
-          if Dir.pwd.match(%r{\A/?\z}) ||
-             !e.to_s.match(%r{\A#{Dir.pwd}/?})
+          pwd = Dir.pwd
+          pwd_regex = %r{\A#{pwd.gsub('+') { '\+' }}/?}
+          if pwd.match(%r{\A/?\z}) ||
+             !e.to_s.match(pwd_regex)
             e.to_s
           else
-            e.to_s.match(%r{\A#{Dir.pwd}/?}).post_match
+            e.to_s.match(pwd_regex).post_match
           end
         end.sort
       end
