@@ -117,9 +117,9 @@ module FakeFS
       Dir.open(dirname) { |file| yield file }
     end
 
-    def self.glob(pattern, flags = 0, &block)
+    def self.glob(pattern, flags = 0, match = true, &block)
       matches_for_pattern = lambda do |matcher|
-        [FileSystem.find(matcher, flags, true) || []].flatten.map do |e|
+        [FileSystem.find(matcher, flags, match) || []].flatten.map do |e|
           pwd = Dir.pwd
           pwd_regex = %r{\A#{pwd.gsub('+') { '\+' }}/?}
           if pwd.match(%r{\A/?\z}) ||
