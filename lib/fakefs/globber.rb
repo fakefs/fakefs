@@ -63,20 +63,21 @@ module FakeFS
     def regexp(pattern, find_flags = 0, gave_char_class = false)
       pattern = pattern.to_s
 
+      # Escape .+?*()$ characters unless already escaped.
       regex_body =
         pattern
-        .gsub('.', '\.')
-        .gsub('+') { '\+' }
-        .gsub('?', '.')
-        .gsub('*', '.*')
-        .gsub('(', '\(')
-        .gsub(')', '\)')
-        .gsub('$', '\$')
+        .gsub(/(?<!\\)\./, '\.')
+        .gsub(/(?<!\\)\+/) { '\+' }
+        .gsub(/(?<!\\)\?/, '.')
+        .gsub(/(?<!\\)\*/, '.*')
+        .gsub(/(?<!\\)\(/, '\(')
+        .gsub(/(?<!\\)\)/, '\)')
+        .gsub(/(?<!\\)\$/, '\$')
 
-      # unless we're expecting character class contructs in regexes, escape all brackets
-      # since if we're expecting them, the string should already be properly escaped
+      # Unless we're expecting character class contructs in regexes, escape all brackets
+      # since if we're expecting them, the string should already be properly escaped.
       unless gave_char_class
-        regex_body = regex_body.gsub('[', '\[').gsub(']', '\]')
+        regex_body = regex_body.gsub(/(?<!\\)([\[\]])/, '\\\\\1')
       end
 
       # This matches nested braces and attempts to do something correct most of the time

@@ -45,4 +45,12 @@ class GlobberTest < Minitest::Test
   def test_regexp_accepts_nested_brace_groups_with_plus
     assert_equal(/\Aa(\.(b)|)(\.(c)|)(\+()|)(\.(d|e|f)|)\Z/.to_s, FakeFS::Globber.regexp('a{.{b},}{.{c},}{+{},}{.{d,e,f},}').to_s)
   end
+
+  def test_regexp_accepts_special_characters
+    assert_equal(%r{\A/a/\[b\]/\(c\)\Z}.to_s, FakeFS::Globber.regexp('/a/[b]/(c)').to_s)
+  end
+
+  def test_regexp_accepts_already_escaped_special_characters
+    assert_equal(%r{\A/a/\[b\]/\(c\)\Z}.to_s, FakeFS::Globber.regexp('/a/\[b\]/\(c\)').to_s)
+  end
 end
