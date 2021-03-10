@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ruby: [ '2.4', '2.5', '2.6', '2.7', 'jruby-head' ]
+        ruby: [ '2.4', '2.5', '2.6', '2.7', '3.0', 'jruby-head' ]
         task: [test, spec]
         include:
         # run rubocop against lowest supported ruby
