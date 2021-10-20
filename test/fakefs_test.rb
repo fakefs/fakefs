@@ -1820,7 +1820,7 @@ class FakeFSTest < Minitest::Test
 
   def test_dir_glob_takes_optional_flags
     FileUtils.touch '/foo'
-    assert_equal Dir.glob('/*', 0), ['/foo', '/tmp']
+    assert_equal ['/foo', '/tmp'], Dir.glob('/*', 0)
   end
 
   def test_dir_glob_handles_recursive_globs
