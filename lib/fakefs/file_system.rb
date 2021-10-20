@@ -20,12 +20,12 @@ module FakeFS
       fs.entries
     end
 
-    def find(path, find_flags = 0, gave_char_class = false)
-      parts = path_parts(normalize_path(path))
+    def find(path, find_flags = 0, gave_char_class = false, dir: nil)
+      parts = path_parts(normalize_path(path, dir: dir))
       return fs if parts.empty? # '/'
 
       entries = Globber.expand(path).flat_map do |pattern|
-        parts = path_parts(normalize_path(pattern))
+        parts = path_parts(normalize_path(pattern, dir: dir))
         find_recurser(fs, parts, find_flags, gave_char_class).flatten
       end
 
@@ -100,11 +100,13 @@ module FakeFS
       Globber.path_components(path)
     end
 
-    def normalize_path(path)
+    def normalize_path(path, dir: nil)
       if Pathname.new(path).absolute?
         RealFile.expand_path(path)
       else
-        parts = dir_levels + [path]
+        dir ||= dir_levels
+        dir = Array(dir)
+        parts = dir + [path]
         RealFile.expand_path(parts.reduce do |base, part|
                                Pathname(base) + part
                              end.to_s)
