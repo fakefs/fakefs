@@ -117,7 +117,7 @@ module FakeFS
       Dir.open(dirname) { |file| yield file }
     end
 
-    def self.glob(pattern, flags = 0, &block)
+    def self.glob(pattern, _flags = 0, flags: _flags, &block) # rubocop:disable Lint/UnderscorePrefixedVariableName
       matches_for_pattern = lambda do |matcher|
         [FileSystem.find(matcher, flags, true) || []].flatten.map do |e|
           pwd = Dir.pwd
