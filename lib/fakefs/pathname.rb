@@ -909,11 +909,11 @@ module FakeFS
   # Pathname class
   class Pathname # * Dir *
     # See <tt>Dir.glob</tt>.  Returns or yields Pathname objects.
-    def self.glob(*args) # :yield: pathname
+    def self.glob(*args, **opts) # :yield: pathname
       if block_given?
-        Dir.glob(*args) { |f| yield new(f) }
+        Dir.glob(*args, **opts) { |f| yield new(f) }
       else
-        Dir.glob(*args).map { |f| new(f) }
+        Dir.glob(*args, **opts).map { |f| new(f) }
       end
     end
 
