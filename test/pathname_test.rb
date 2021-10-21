@@ -113,6 +113,31 @@ class PathnameTest < Minitest::Test
     assert_equal 12, @pathname.size
   end
 
+  def test_pathname_glob
+    FileUtils.mkdir(@pathname)
+    FileUtils.touch(@pathname.join('.zero'))
+    FileUtils.touch(@pathname.join('one'))
+    FileUtils.touch(@pathname.join('two'))
+    assert_equal [Pathname.new('/foo/one'), Pathname.new('/foo/two')], @pathname.glob('*')
+  end
+
+  def test_pathname_glob_takes_flags
+    FileUtils.mkdir(@pathname)
+    FileUtils.touch(@pathname.join('.zero'))
+    FileUtils.touch(@pathname.join('one'))
+    FileUtils.touch(@pathname.join('two'))
+    assert_equal [Pathname.new('/foo/.zero'), Pathname.new('/foo/one'), Pathname.new('/foo/two')], @pathname.glob('*', File::FNM_DOTMATCH)
+  end
+
+  def test_pathname_glob_block
+    FileUtils.mkdir(@pathname)
+    FileUtils.touch(@pathname.join('one'))
+    FileUtils.touch(@pathname.join('two'))
+    result = []
+    @pathname.glob('*') { |pathname| result << pathname }
+    assert_equal [Pathname.new('/foo/one'), Pathname.new('/foo/two')], result
+  end
+
   if RUBY_VERSION > '2.4'
     def test_pathname_empty_on_empty_directory
       Dir.mkdir(@path)

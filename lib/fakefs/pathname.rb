@@ -953,6 +953,14 @@ module FakeFS
     def opendir(&block) # :yield: dir
       Dir.open(@path, &block)
     end
+
+    def glob(pattern, flags = 0)
+      if block_given?
+        Dir.glob(pattern, flags: flags, base: self) { |f| yield join(f) }
+      else
+        Dir.glob(pattern, flags: flags, base: self).map { |f| join(f) }
+      end
+    end
   end
 
   # Pathname class
