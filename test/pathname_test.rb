@@ -113,6 +113,73 @@ class PathnameTest < Minitest::Test
     assert_equal 12, @pathname.size
   end
 
+  def test_pathname_glob
+    FileUtils.mkdir(@pathname)
+    FileUtils.touch(@pathname.join('.zero'))
+    FileUtils.touch(@pathname.join('one'))
+    FileUtils.touch(@pathname.join('two'))
+    assert_equal [Pathname.new('/foo/one'), Pathname.new('/foo/two')], @pathname.glob('*')
+  end
+
+  def test_pathname_glob_takes_flags
+    FileUtils.mkdir(@pathname)
+    FileUtils.touch(@pathname.join('.zero'))
+    FileUtils.touch(@pathname.join('one'))
+    FileUtils.touch(@pathname.join('two'))
+    assert_equal [Pathname.new('/foo/.zero'), Pathname.new('/foo/one'), Pathname.new('/foo/two')], @pathname.glob('*', File::FNM_DOTMATCH)
+  end
+
+  def test_pathname_glob_block
+    FileUtils.mkdir(@pathname)
+    FileUtils.touch(@pathname.join('one'))
+    FileUtils.touch(@pathname.join('two'))
+    result = []
+    @pathname.glob('*') { |pathname| result << pathname }
+    assert_equal [Pathname.new('/foo/one'), Pathname.new('/foo/two')], result
+  end
+
+  def test_pathname_glob_class_method
+    FileUtils.mkdir(@pathname)
+    FileUtils.touch(@pathname.join('.zero'))
+    FileUtils.touch(@pathname.join('one'))
+    FileUtils.touch(@pathname.join('two'))
+    assert_equal [Pathname.new('/foo/one'), Pathname.new('/foo/two')], Pathname.glob(@pathname.join('*'))
+  end
+
+  def test_pathname_glob_class_method_block
+    FileUtils.mkdir(@pathname)
+    FileUtils.touch(@pathname.join('one'))
+    FileUtils.touch(@pathname.join('two'))
+    result = []
+    Pathname.glob(@pathname.join('*')) { |pathname| result << pathname }
+    assert_equal [Pathname.new('/foo/one'), Pathname.new('/foo/two')], result
+  end
+
+  def test_pathname_glob_class_method_flags
+    FileUtils.mkdir(@pathname)
+    FileUtils.touch(@pathname.join('.zero'))
+    FileUtils.touch(@pathname.join('one'))
+    FileUtils.touch(@pathname.join('two'))
+    assert_equal [Pathname.new('/foo/.zero'), Pathname.new('/foo/one'), Pathname.new('/foo/two')], Pathname.glob(@pathname.join('*'), File::FNM_DOTMATCH)
+  end
+
+  def test_pathname_glob_class_method_flags_as_keyword
+    FileUtils.mkdir(@pathname)
+    FileUtils.touch(@pathname.join('.zero'))
+    FileUtils.touch(@pathname.join('one'))
+    FileUtils.touch(@pathname.join('two'))
+    assert_equal [Pathname.new('/foo/.zero'), Pathname.new('/foo/one'), Pathname.new('/foo/two')], Pathname.glob(@pathname.join('*'), flags: File::FNM_DOTMATCH)
+  end
+
+  def test_pathname_glob_class_method_takes_base
+    FileUtils.mkdir_p @pathname.join('bar')
+    FileUtils.touch @pathname.join('bar', 'one')
+    FileUtils.touch @pathname.join('bar', 'two')
+    Dir.chdir(@pathname) do
+      assert_equal [Pathname.new('one'), Pathname.new('two')], Pathname.glob('*', base: 'bar')
+    end
+  end
+
   if RUBY_VERSION > '2.4'
     def test_pathname_empty_on_empty_directory
       Dir.mkdir(@path)

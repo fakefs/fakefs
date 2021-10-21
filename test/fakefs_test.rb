@@ -1819,8 +1819,22 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_dir_glob_takes_optional_flags
-    FileUtils.touch '/foo'
-    assert_equal Dir.glob('/*', 0), ['/foo', '/tmp']
+    FileUtils.touch '/.foo'
+    assert_equal ['/.foo', '/tmp'], Dir.glob('/*', File::FNM_DOTMATCH)
+  end
+
+  def test_dir_glob_takes_optional_flags_as_keyword
+    FileUtils.touch '/.foo'
+    assert_equal ['/.foo', '/tmp'], Dir.glob('/*', flags: File::FNM_DOTMATCH)
+  end
+
+  def test_dir_glob_takes_base
+    FileUtils.mkdir_p '/foo/bar'
+    FileUtils.touch '/foo/bar/one'
+    FileUtils.touch '/foo/bar/two'
+    Dir.chdir('/foo') do
+      assert_equal ['one', 'two'], Dir.glob('*', base: 'bar')
+    end
   end
 
   def test_dir_glob_handles_recursive_globs

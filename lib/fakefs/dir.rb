@@ -117,10 +117,10 @@ module FakeFS
       Dir.open(dirname) { |file| yield file }
     end
 
-    def self.glob(pattern, flags = 0, &block)
+    def self.glob(pattern, _flags = 0, flags: _flags, base: nil, &block) # rubocop:disable Lint/UnderscorePrefixedVariableName
+      pwd = FileSystem.normalize_path(base || Dir.pwd)
       matches_for_pattern = lambda do |matcher|
-        [FileSystem.find(matcher, flags, true) || []].flatten.map do |e|
-          pwd = Dir.pwd
+        [FileSystem.find(matcher, flags, true, dir: pwd) || []].flatten.map do |e|
           pwd_regex = %r{\A#{pwd.gsub('+') { '\+' }}/?}
           if pwd.match(%r{\A/?\z}) ||
              !e.to_s.match(pwd_regex)
