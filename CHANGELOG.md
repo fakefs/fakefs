@@ -1,9 +1,12 @@
 ## Next
 
+## 1.4.0
+
+- Pathnam#glob + glob flags support
+
 ## 1.3.2
 
 - Fix passed in escaped characters to not get doube-escaped
-
 
 ## 1.3.1
 
