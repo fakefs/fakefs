@@ -9,13 +9,15 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ruby: [ '2.4', '2.5', '2.6', '2.7', '3.0', '3.1', 'ruby-head', 'jruby-head' ]
+        ruby: ['2.4', '2.5', '2.6', '2.7', '3.0', '3.1', 'ruby-head', 'jruby-head']
         task: [test, spec]
         include:
         # run rubocop against lowest supported ruby
         - os: ubuntu-latest
           ruby: '2.4'
           task: rubocop
+    # do not crash the build when latest fails (since it is a moving target)
+    continue-on-error: ${{ contains(matrix.ruby, '-head') }}
     name: ${{ matrix.ruby }} rake ${{ matrix.task }}
     steps:
     - uses: actions/checkout@v2
