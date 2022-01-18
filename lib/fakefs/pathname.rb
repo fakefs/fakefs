@@ -1035,6 +1035,6 @@ module FakeFS
 
   # Pathname class
   class Pathname
-    undef =~
+    undef =~ if respond_to?(:=~)
   end
 end
