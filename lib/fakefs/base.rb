@@ -2,6 +2,7 @@ RealFile            = File
 RealFileTest        = FileTest
 RealFileUtils       = FileUtils
 RealDir             = Dir
+RealIO              = IO
 RealPathname        = Pathname
 
 def RealPathname(*args)
@@ -20,7 +21,7 @@ module FakeFS
     end
 
     # unconditionally activate
-    def activate!
+    def activate!(io_mocks: false)
       Object.class_eval do
         remove_const(:Dir)
         remove_const(:File)
@@ -33,6 +34,12 @@ module FakeFS
         const_set(:FileUtils, FakeFS::FileUtils)
         const_set(:FileTest,  FakeFS::FileTest)
         const_set(:Pathname,  FakeFS::Pathname)
+
+        if io_mocks
+          remove_const(:IO)
+          const_set(:IO, ::FakeFS::IO)
+        end
+
         ::FakeFS::Kernel.hijack!
       end
 
@@ -48,12 +55,14 @@ module FakeFS
         remove_const(:File)
         remove_const(:FileTest)
         remove_const(:FileUtils)
+        remove_const(:IO)
         remove_const(:Pathname)
 
         const_set(:Dir,       RealDir)
         const_set(:File,      RealFile)
         const_set(:FileTest,  RealFileTest)
         const_set(:FileUtils, RealFileUtils)
+        const_set(:IO,        RealIO)
         const_set(:Pathname,  RealPathname)
         ::FakeFS::Kernel.unhijack!
       end
