@@ -331,6 +331,11 @@ module FakeFS
       File.read(file, length, offset, mode: 'rb:ASCII-8BIT')
     end
 
+    def self.binwrite(file, content, offset = nil)
+      mode = offset ? 'r+b:ASCII-8BIT' : 'wb:ASCII-8BIT'
+      File.write(file, content, offset, mode: mode)
+    end
+
     def self.fnmatch?(pattern, path, flags = 0)
       RealFile.fnmatch?(pattern, path, flags)
     end
