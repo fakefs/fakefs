@@ -4247,6 +4247,8 @@ class FakeFSTest < Minitest::Test
 
     File.write('foo', 'bar', 3)
     assert_equal File.read('foo'), 'foobar'
+    File.write('foo', 'baz', 3)
+    assert_equal File.read('foo'), 'foobaz'
   end
 
   def test_can_read_binary_data_in_binary_mode
