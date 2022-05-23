@@ -4091,6 +4091,47 @@ class FakeFSTest < Minitest::Test
     end
   end
 
+  def test_file_binwrite_write_content_in_file
+    perform_with_both_string_paths_and_pathnames do
+      target = string_or_pathname('testfile')
+      ::File.binwrite(target, "This is line one\nThis is line two\nThis is line three\nAnd so on...\n")
+      assert_equal File.binread(target), "This is line one\nThis is line two\nThis is line three\nAnd so on...\n"
+    end
+  end
+
+  def test_file_binwrite_returns_the_length_written
+    assert_equal File.binwrite('testfile', '0123456789'), 10
+  end
+
+  def test_file_binwrite_truncate_if_offset_is_not_given
+    perform_with_both_string_paths_and_pathnames do
+      target = string_or_pathname('testfile')
+      File.write(target, 'foobar')
+      File.binwrite(target, 'baz')
+      assert_equal File.binread(target), 'baz'
+    end
+  end
+
+  def test_file_binwrite_truncate_if_offset_is_nil
+    perform_with_both_string_paths_and_pathnames do
+      target = string_or_pathname('testfile')
+      File.write(target, 'foo')
+      File.binwrite(target, 'bar', nil)
+      assert_equal File.binread(target), 'bar'
+    end
+  end
+
+  def test_file_binwrite_writes_at_offset_and_does_not_truncate
+    perform_with_both_string_paths_and_pathnames do
+      target = string_or_pathname('testfile')
+      File.write(target, 'foo')
+      File.binwrite(target, 'bar', 3)
+      assert_equal File.binread(target), 'foobar'
+      File.binwrite(target, 'baz', 3)
+      assert_equal File.binread(target), 'foobaz'
+    end
+  end
+
   def test_file_utils_compare_file
     file1 = 'file1.txt'
     file2 = 'file2.txt'
