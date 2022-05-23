@@ -663,7 +663,7 @@ module FakeFS
 
     def self.write(filename, contents, offset = nil, open_args = {})
       offset, open_args = nil, offset if offset.is_a?(Hash)
-      mode = offset ? 'a' : 'w'
+      mode = offset ? 'r+' : 'w'
       if open_args.any?
         if open_args[:open_args]
           args = [filename, *open_args[:open_args]]
