@@ -174,8 +174,8 @@ module FakeFS
       RealFile.basename(*args)
     end
 
-    def self.dirname(path)
-      RealFile.dirname(path)
+    def self.dirname(*args)
+      RealFile.dirname(*args)
     end
 
     def self.readlink(path)
