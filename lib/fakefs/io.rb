@@ -2,6 +2,11 @@ module FakeFS
   # FakeFS IO class inherit root IO
   # Only minimal mocks are provided as IO may be used by ruby's internals
   class IO < ::IO
+    # Redirects ::IO.binread to ::FakeFS::File.read
+    def self.binread(*args, **keywords)
+      ::FakeFS::File.read(*args, **keywords)
+    end
+
     # Redirects ::IO.read to ::FakeFS::File.read
     def self.read(*args, **keywords)
       ::FakeFS::File.read(*args, **keywords)
