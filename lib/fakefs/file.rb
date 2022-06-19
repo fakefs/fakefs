@@ -624,7 +624,10 @@ module FakeFS
     end
 
     def binmode?
-      raise NotImplementedError
+      @mode.is_a?(String) && (
+        @mode.include?('b') ||
+        @mode.include?('binary')
+      ) && !@mode.include?('bom')
     end
 
     def close_on_exec=(_bool)
@@ -702,7 +705,7 @@ module FakeFS
 
     def read(length = nil, buf = '')
       read_buf = super(length, buf)
-      if binary_mode?
+      if binmode?
         read_buf&.force_encoding('ASCII-8BIT')
       else
         read_buf&.force_encoding(Encoding.default_external)
@@ -867,13 +870,6 @@ module FakeFS
 
     def check_modes!
       StringIO.new('', @mode)
-    end
-
-    def binary_mode?
-      @mode.is_a?(String) && (
-        @mode.include?('b') ||
-        @mode.include?('binary')
-      ) && !@mode.include?('bom')
     end
 
     def check_file_existence!
