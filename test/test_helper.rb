@@ -42,7 +42,7 @@ module Minitest
 
     def teardown
       return if !FakeFS.activated?
-      FakeFs.deactivate!
+      FakeFS.deactivate!
       flunk "always deactivate FakeFs after test run"
     end
   end
