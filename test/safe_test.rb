@@ -128,4 +128,41 @@ class SafeTest < Minitest::Test
 
     refute FakeFS.activated?
   end
+
+  def test_FakeFS_activate_method_stubs_File_class_but_not_IO
+    old_file = ::File
+    old_io = ::IO
+
+    ::FakeFS.activate!
+
+    refute_equal old_file, ::File
+    assert_equal old_io, ::IO
+  ensure
+    ::FakeFS.deactivate!
+  end
+
+  def test_FakeFS_activate_method_stubs_IO_class_if_explicity_asked
+    old_file = ::File
+    old_io = ::IO
+
+    ::FakeFS.activate!(io_mocks: true)
+
+    refute_equal old_file, ::File
+    refute_equal old_io, ::IO
+  ensure
+    ::FakeFS.deactivate!
+  end
+
+  def test_FakeFS_deactivate_restore_original_File_and_IO_classes
+    old_file = ::File
+    old_io = ::IO
+
+    ::FakeFS.activate!(io_mocks: true)
+    ::FakeFS.deactivate!
+
+    assert_equal old_file, ::File
+    assert_equal old_io, ::IO
+  ensure
+    ::FakeFS.deactivate!
+  end
 end

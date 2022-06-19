@@ -71,6 +71,23 @@ FakeFS do
 end
 ```
 
+Mocking IO methods
+------------------
+
+The IO class is the very basis for all Input and Output in Ruby, not only simple File reading/writting operations.
+To avoid breaking critical components, the fakefs gem is not mocking IO methods by default.
+
+However you can enable some very simple mocks using an explicit optin keyword:
+
+``` ruby
+
+require 'fakefs/safe'
+
+FakeFS.activate!(io_mocks: true)
+# your code
+FakeFS.deactivate!
+```
+
 Rails
 -----
 
