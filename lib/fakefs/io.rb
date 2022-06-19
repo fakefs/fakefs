@@ -4,7 +4,7 @@ module FakeFS
   class IO < ::IO
     # Redirects ::IO.binread to ::FakeFS::File.read
     def self.binread(*args, **keywords)
-      ::FakeFS::File.read(*args, **keywords)
+      ::FakeFS::File.binread(*args, **keywords)
     end
 
     # Redirects ::IO.read to ::FakeFS::File.read
