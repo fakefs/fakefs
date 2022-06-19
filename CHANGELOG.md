@@ -1,5 +1,13 @@
 ## Next
 
+## 1.6.0
+
+- Add File#binmode?
+
+## 1.5.0
+
+- Add File#binwrite
+
 ## 1.4.0
 
 - Pathnam#glob + glob flags support
