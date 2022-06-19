@@ -1,7 +1,7 @@
 module FakeFS
   # Version module
   module Version
-    VERSION = '1.6.0'.freeze
+    VERSION = '1.7.0'.freeze
 
     def self.to_s
       VERSION

@@ -1,5 +1,9 @@
 ## Next
 
+## 1.7.0
+
+- Add .activate supports io_mocks
+
 ## 1.6.0
 
 - Add File#binmode?
