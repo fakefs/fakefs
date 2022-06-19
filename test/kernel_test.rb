@@ -3,12 +3,9 @@ require_relative 'test_helper'
 # Kernel test class
 class KernelTest < Minitest::Test
   include FakeFS
-  def setup
-    FakeFS.deactivate!
-  end
 
   def teardown
-    FakeFS.activate!
+    FakeFS.deactivate!
   end
 
   def test_can_exec_normally
