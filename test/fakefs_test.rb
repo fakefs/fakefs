@@ -4189,6 +4189,15 @@ class FakeFSTest < Minitest::Test
     end
   end
 
+  def test_binmode
+    File.open('foo', 'w') do |f|
+      assert_equal false, f.binmode?
+    end
+    File.open('foo', 'wb') do |f|
+      assert_equal true, f.binmode?
+    end
+  end
+
   def test_to_path
     File.open('foo', 'w') do |f|
       assert_equal 'foo', f.to_path
