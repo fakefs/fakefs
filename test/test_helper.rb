@@ -39,5 +39,9 @@ module Minitest
     def real_file_sandbox_path
       File.expand_path(File.join(File.dirname(__FILE__), '..', 'test_sandbox'))
     end
+
+    def teardown
+      refute FakeFS.activated?
+    end
   end
 end
