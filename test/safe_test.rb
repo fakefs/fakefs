@@ -2,12 +2,8 @@ require_relative 'test_helper'
 
 # FakeFS safe test class
 class SafeTest < Minitest::Test
-  def setup
-    FakeFS.deactivate!
-  end
-
   def teardown
-    FakeFS.activate!
+    FakeFS.deactivate!
   end
 
   def test_FakeFS_activated_is_accurate
