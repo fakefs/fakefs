@@ -574,7 +574,7 @@ module FakeFS
     end
 
     def readpartial(*)
-      raise NotImplementedError
+      super
     end
 
     def atime
