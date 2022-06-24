@@ -89,6 +89,41 @@ class SafeTest < Minitest::Test
     assert FakeFS.activated?
   end
 
+  def test_FakeFS_method_stubs_File_class_but_not_IO
+    old_file = ::File
+    old_io = ::IO
+
+    FakeFS do
+      refute_equal old_file, ::File
+      assert_equal old_io, ::IO
+    end
+  end
+
+  def test_FakeFS_method_stubs_IO_class_if_explicity_asked
+    old_file = ::File
+    old_io = ::IO
+
+    FakeFS(io_mocks: true) do
+      refute_equal old_file, ::File
+      refute_equal old_io, ::IO
+    end
+  end
+
+  def test_FakeFS_method_restore_original_File_and_IO_classes_on_return
+    old_file = ::File
+    old_io = ::IO
+
+    FakeFS(io_mocks: true) {}
+
+    assert_equal old_file, ::File
+    assert_equal old_io, ::IO
+  end
+
+  def test_FakeFS_method_fails_if_FakeFS_already_activated_with_io_mocks
+    FakeFS.activate!(io_mocks: true)
+    assert_raises(FakeFS::ActivationError) { FakeFS {} }
+  end
+
   def test_FakeFS_method_can_be_nested
     FakeFS do
       assert FakeFS.activated?
@@ -101,6 +136,36 @@ class SafeTest < Minitest::Test
     refute FakeFS.activated?
   end
 
+  def test_FakeFS_method_can_be_nested_with_io_mocks
+    FakeFS(io_mocks: true) do
+      assert FakeFS.activated?
+      FakeFS(io_mocks: true) do
+        assert FakeFS.activated?
+      end
+      assert FakeFS.activated?
+    end
+
+    refute FakeFS.activated?
+  end
+
+  def test_FakeFS_method_can_not_be_nested_with_different_io_mocks_param
+    assert_raises(FakeFS::ActivationError) do
+      FakeFS(io_mocks: false) do
+        assert FakeFS.activated?
+        FakeFS(io_mocks: true) {}
+      end
+    end
+    refute FakeFS.activated?
+
+    assert_raises(FakeFS::ActivationError) do
+      FakeFS(io_mocks: true) do
+        assert FakeFS.activated?
+        FakeFS(io_mocks: false) {}
+      end
+    end
+    refute FakeFS.activated?
+  end
+
   def test_FakeFS_method_can_be_nested_with_FakeFS_without
     FakeFS do
       assert FakeFS.activated?
@@ -108,6 +173,14 @@ class SafeTest < Minitest::Test
         refute FakeFS.activated?
       end
       assert FakeFS.activated?
+    end
+    FakeFS(io_mocks: true) do
+      assert FakeFS.activated?
+      FakeFS.without do
+        refute FakeFS.activated?
+      end
+      assert FakeFS.activated?
+      assert FakeFS.activated?(desired_io_mocks_state: true)
     end
 
     refute FakeFS.activated?

@@ -86,6 +86,11 @@ require 'fakefs/safe'
 FakeFS.activate!(io_mocks: true)
 # your code
 FakeFS.deactivate!
+
+#or
+FakeFS(io_mocks: true) do
+  # your code
+end
 ```
 
 Rails

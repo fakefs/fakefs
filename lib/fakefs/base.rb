@@ -15,13 +15,27 @@ end
 
 # FakeFS module
 module FakeFS
+  class ActivationError < StandardError
+    def initialize(current_state, required_state)
+      states = current_state ? %i[without with] : %i[with without]
+      super <<~ERROR
+        Unable to activate #{states[0]} IO mocks as FakeFS is already activated #{states[1]}
+      ERROR
+    end
+  end
+
   class << self
-    def activated?
+    def activated?(desired_io_mocks_state: nil)
       @activated ||= false
+      @io_mocked ||= false
+
+      @activated && (desired_io_mocks_state.nil? || desired_io_mocks_state == @io_mocked)
     end
 
     # unconditionally activate
     def activate!(io_mocks: false)
+      raise ActivationError.new(@io_mocked, io_mocks) if activated? && @io_mocked != io_mocks
+
       Object.class_eval do
         remove_const(:Dir)
         remove_const(:File)
@@ -43,6 +57,7 @@ module FakeFS
         ::FakeFS::Kernel.hijack!
       end
 
+      @io_mocked = io_mocks
       @activated = true
 
       true
@@ -67,6 +82,7 @@ module FakeFS
         ::FakeFS::Kernel.unhijack!
       end
 
+      @io_mocked = false
       @activated = false
 
       true
@@ -78,18 +94,18 @@ module FakeFS
     end
 
     # present a fresh new fake filesystem to the block
-    def with_fresh(&block)
+    def with_fresh(io_mocks: false, &block)
       clear!
-      with(&block)
+      with(io_mocks: io_mocks, &block)
     end
 
     # present the fake filesystem to the block
-    def with
-      if activated?
+    def with(io_mocks: false)
+      if activated?(desired_io_mocks_state: io_mocks)
         yield
       else
         begin
-          activate!
+          activate!(io_mocks: io_mocks)
           yield
         ensure
           deactivate!
@@ -102,18 +118,19 @@ module FakeFS
       if !activated?
         yield
       else
+        io_mocked = @io_mocked
         begin
           deactivate!
           yield
         ensure
-          activate!
+          activate!(io_mocks: io_mocked)
         end
       end
     end
   end
 end
 
-def FakeFS(&block)
+def FakeFS(io_mocks: false, &block)
   return ::FakeFS unless block
-  ::FakeFS.with(&block)
+  ::FakeFS.with(io_mocks: io_mocks, &block)
 end
