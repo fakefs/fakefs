@@ -4316,6 +4316,21 @@ class FakeFSTest < Minitest::Test
     assert_equal "\x00\x00\x00\x03\x00\x03\x00\xA3\x00\x00\x00y\x00\x00\x00\x00\x00".force_encoding('ASCII-8BIT'), File.binread('foo')
   end
 
+  def test_can_use_readpartial
+    ::File.open('foo', 'wb+') do |f|
+      assert_equal '', f.readpartial(0)
+      f << 'abcde'
+      assert_equal '', f.readpartial(0)
+      assert_raises(::EOFError) { f.readpartial(1) }
+      f.seek(0)
+      assert_equal '', f.readpartial(0)
+      assert_equal 'a', f.readpartial(1)
+      assert_equal 'bc', f.readpartial(2)
+      assert_equal 'de', f.readpartial(3)
+      assert_raises(::EOFError) { f.readpartial(1) }
+    end
+  end
+
   def test_raises_error_on_birthtime_if_file_does_not_exist
     perform_with_both_string_paths_and_pathnames do
       assert_raises Errno::ENOENT do
