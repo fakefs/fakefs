@@ -15,26 +15,27 @@ end
 
 # FakeFS module
 module FakeFS
+  # Activation error - due to conflict on activation settings
   class ActivationError < StandardError
-    def initialize(current_state, required_state)
-      states = current_state ? %i[without with] : %i[with without]
+    def initialize(current_state)
+      requested, current = current_state ? [:without, :with] : [:with, :without]
       super <<~ERROR
-        Unable to activate #{states[0]} IO mocks as FakeFS is already activated #{states[1]}
+        Unable to activate #{requested} IO mocks as FakeFS is already activated #{current}
       ERROR
     end
   end
 
   class << self
-    def activated?(desired_io_mocks_state: nil)
+    def activated?(io_mocks: nil)
       @activated ||= false
       @io_mocked ||= false
 
-      @activated && (desired_io_mocks_state.nil? || desired_io_mocks_state == @io_mocked)
+      @activated && (io_mocks.nil? || io_mocks == @io_mocked)
     end
 
     # unconditionally activate
     def activate!(io_mocks: false)
-      raise ActivationError.new(@io_mocked, io_mocks) if activated? && @io_mocked != io_mocks
+      raise ActivationError, @io_mocked if activated? && @io_mocked != io_mocks
 
       Object.class_eval do
         remove_const(:Dir)
@@ -101,7 +102,7 @@ module FakeFS
 
     # present the fake filesystem to the block
     def with(io_mocks: false)
-      if activated?(desired_io_mocks_state: io_mocks)
+      if activated?(io_mocks: io_mocks)
         yield
       else
         begin
@@ -118,12 +119,12 @@ module FakeFS
       if !activated?
         yield
       else
-        io_mocked = @io_mocked
+        io_mocks = @io_mocked
         begin
           deactivate!
           yield
         ensure
-          activate!(io_mocks: io_mocked)
+          activate!(io_mocks: io_mocks)
         end
       end
     end

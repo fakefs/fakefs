@@ -180,7 +180,7 @@ class SafeTest < Minitest::Test
         refute FakeFS.activated?
       end
       assert FakeFS.activated?
-      assert FakeFS.activated?(desired_io_mocks_state: true)
+      assert FakeFS.activated?(io_mocks: true)
     end
 
     refute FakeFS.activated?
