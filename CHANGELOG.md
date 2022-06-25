@@ -1,5 +1,9 @@
 ## Next
 
+## 1.8.0
+
+- Support ::File#readpartial
+
 ## 1.7.0
 
 - Add .activate supports io_mocks
