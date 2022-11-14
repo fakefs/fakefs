@@ -155,7 +155,7 @@ FakeFS do
   FakeFS::FileSystem.clone(config)
   expect(File.read("#{config}/foo.yml")).to include("original-content-of-foo")
 
-  File.write("#{config}/foo.yml"), "NEW")
+  File.write("#{config}/foo.yml", "NEW")
   expect(File.read("#{config}/foo.yml")).to eq "NEW"
 end
 ```
