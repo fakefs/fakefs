@@ -2031,7 +2031,8 @@ class FakeFSTest < Minitest::Test
     # omit methods from io/wait
     :nread, :pwrite, :pread,
     :ready?,
-    :wait, :wait_readable, :wait_writable
+    :wait, :wait_readable, :wait_writable, :wait_priority,
+    :timeout, :timeout=
   ].freeze
 
   OMITTED_JRUBY_FILE_METHODS = [
