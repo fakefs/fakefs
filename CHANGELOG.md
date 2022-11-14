@@ -1,5 +1,10 @@
 ## Next
 
+## 1.9.0
+
+- Support ruby 3.2
+- Drop support for EOL Rubies (2.4/2.5/2.6)
+
 ## 1.8.0
 
 - Support ::File#readpartial
