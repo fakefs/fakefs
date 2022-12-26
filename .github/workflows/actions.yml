@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ruby: ['2.7', '3.0', '3.1', 'ruby-head', 'jruby-head']
+        ruby: ['2.7', '3.0', '3.1', '3.2', 'ruby-head', 'jruby-head']
         task: [test, spec]
         include:
         # run rubocop against lowest supported ruby
@@ -20,7 +20,7 @@ jobs:
     continue-on-error: ${{ contains(matrix.ruby, '-head') }}
     name: ${{ matrix.ruby }} rake ${{ matrix.task }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     # actions/setup-ruby did not support truffle or bundler caching
     - uses: ruby/setup-ruby@v1
       with:
