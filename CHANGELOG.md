@@ -1,5 +1,9 @@
 ## Next
 
+## 2.0.0
+
+- Drop `.exists?` in favor of `.exist?`
+
 ## 1.9.0
 
 - Support ruby 3.2
