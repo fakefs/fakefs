@@ -51,7 +51,7 @@ module FakeFS
     end
 
     class << self
-      alias exists? exist?
+      alias exists? exist? if RUBY_VERSION < "3.2.0"
 
       def identical?(one_path, another_path)
         FileSystem.find(one_path) == FileSystem.find(another_path)
@@ -74,7 +74,7 @@ module FakeFS
     end
 
     def self.mtime(path)
-      if exists?(path)
+      if exist?(path)
         FileSystem.find(path).mtime
       else
         raise Errno::ENOENT
@@ -82,7 +82,7 @@ module FakeFS
     end
 
     def self.ctime(path)
-      if exists?(path)
+      if exist?(path)
         FileSystem.find(path).ctime
       else
         raise Errno::ENOENT
@@ -90,7 +90,7 @@ module FakeFS
     end
 
     def self.atime(path)
-      if exists?(path)
+      if exist?(path)
         FileSystem.find(path).atime
       else
         raise Errno::ENOENT
@@ -99,7 +99,7 @@ module FakeFS
 
     def self.utime(atime, mtime, *paths)
       paths.each do |path|
-        if exists?(path)
+        if exist?(path)
           FileSystem.find(path).atime = atime
           FileSystem.find(path).mtime = mtime
         else
@@ -119,11 +119,11 @@ module FakeFS
     end
 
     def self.size?(path)
-      size(path) if exists?(path) && !size(path).zero?
+      size(path) if exist?(path) && !size(path).zero?
     end
 
     def self.zero?(path)
-      exists?(path) && size(path) == 0
+      exist?(path) && size(path) == 0
     end
 
     if RUBY_VERSION >= '2.4'
@@ -249,8 +249,8 @@ module FakeFS
 
     def self.link(source, dest)
       raise Errno::EPERM, "#{source} or #{dest}" if directory?(source)
-      raise Errno::ENOENT, "#{source} or #{dest}" unless exists?(source)
-      raise Errno::EEXIST, "#{source} or #{dest}" if exists?(dest)
+      raise Errno::ENOENT, "#{source} or #{dest}" unless exist?(source)
+      raise Errno::EEXIST, "#{source} or #{dest}" if exist?(dest)
 
       source = FileSystem.find(source)
       dest = FileSystem.add(dest, source.entry.clone)
@@ -262,7 +262,7 @@ module FakeFS
     def self.delete(*files)
       files.each do |file|
         file_name = (file.class == FakeFS::File ? file.path : file.to_s)
-        raise Errno::ENOENT, file_name unless exists?(file_name)
+        raise Errno::ENOENT, file_name unless exist?(file_name)
 
         FileUtils.rm(file_name)
       end
@@ -692,7 +692,7 @@ module FakeFS
     end
 
     def self.birthtime(path)
-      if exists?(path)
+      if exist?(path)
         FileSystem.find(path).birthtime
       else
         raise Errno::ENOENT

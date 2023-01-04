@@ -66,7 +66,7 @@ module FakeFS
       glob pattern
     end
 
-    def self.exists?(path)
+    def self.exist?(path)
       File.exist?(path) && File.directory?(path)
     end
 
@@ -279,7 +279,7 @@ module FakeFS
       alias getwd pwd
       alias rmdir delete
       alias unlink delete
-      alias exist? exists?
+      alias exists? exist? if RUBY_VERSION < "3.2.0"
     end
   end
 end
