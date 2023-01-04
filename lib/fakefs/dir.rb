@@ -279,7 +279,6 @@ module FakeFS
       alias getwd pwd
       alias rmdir delete
       alias unlink delete
-      alias exists? exist? if RUBY_VERSION < "3.2.0"
     end
   end
 end

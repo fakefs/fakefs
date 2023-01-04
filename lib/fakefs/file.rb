@@ -51,8 +51,6 @@ module FakeFS
     end
 
     class << self
-      alias exists? exist? if RUBY_VERSION < "3.2.0"
-
       def identical?(one_path, another_path)
         FileSystem.find(one_path) == FileSystem.find(another_path)
       end
