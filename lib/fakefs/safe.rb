@@ -1,5 +1,6 @@
 require 'fileutils'
 require 'pathname'
+require 'fakefs/pry'
 require 'fakefs/base'
 require 'fakefs/fake/file'
 require 'fakefs/fake/dir'
