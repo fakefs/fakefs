@@ -1,5 +1,9 @@
 ## Next
 
+## 2.1.0
+
+- Add fakefs/pry to be able to use pry after activating fakefs
+
 ## 2.0.0
 
 - Drop `.exists?` in favor of `.exist?`
