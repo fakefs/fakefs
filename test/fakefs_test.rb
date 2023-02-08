@@ -3205,13 +3205,12 @@ class FakeFSTest < Minitest::Test
       FileUtils.touch("/this/path/should/be/here/#{f}")
     end
 
-    yielded = []
-    Dir.open('/this/path/should/be/here') do |dir|
-      yielded << dir
+    children = Dir.open('/this/path/should/be/here') do |dir|
+      dir.children
     end
 
-    assert yielded.size == test.size
-    test.each { |t| assert yielded.include?(t) }
+    assert children.size == test.size
+    test.each { |t| assert children.include?(t) }
   end
 
   def test_directory_exists

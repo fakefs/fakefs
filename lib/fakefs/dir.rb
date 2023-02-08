@@ -37,6 +37,10 @@ module FakeFS
       end
     end
 
+    def children
+      each.to_a
+    end
+
     def pos
       @pointer
     end
@@ -96,9 +100,11 @@ module FakeFS
     end
 
     def self.each_child(dirname, &_block)
-      Dir.open(dirname) do |file|
-        next if ['.', '..'].include?(file)
-        yield file
+      Dir.open(dirname) do |dir|
+        dir.each do |file|
+          next if ['.', '..'].include?(file)
+          yield file
+        end
       end
     end
 
@@ -114,7 +120,11 @@ module FakeFS
     end
 
     def self.foreach(dirname, &_block)
-      Dir.open(dirname) { |file| yield file }
+      Dir.open(dirname) do |dir|
+        dir.each do |file|
+          yield file
+        end
+      end
     end
 
     def self.glob(pattern, _flags = 0, flags: _flags, base: nil, &block) # rubocop:disable Lint/UnderscorePrefixedVariableName
@@ -152,10 +162,13 @@ module FakeFS
     end
 
     def self.open(string, &_block)
+      dir = Dir.new(string)
       if block_given?
-        Dir.new(string).each { |file| yield(file) }
+        result = yield(dir)
+        dir.close
+        result
       else
-        Dir.new(string)
+        dir
       end
     end
 
