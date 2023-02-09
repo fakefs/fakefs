@@ -46,7 +46,7 @@ module FakeFS
         referent = File.expand_path(File.readlink(path), File.dirname(path))
         exist?(referent)
       else
-        !FileSystem.find(path).nil?
+        !FileSystem.find_verbatim(path).nil?
       end
     end
 
@@ -493,7 +493,7 @@ module FakeFS
     def initialize(path, mode = READ_ONLY, _perm = nil)
       @path = path
       @mode = mode.is_a?(Hash) ? (mode[:mode] || READ_ONLY) : mode
-      @file = FileSystem.find(path)
+      @file = FileSystem.find_verbatim(path)
       @autoclose = true
 
       check_modes!

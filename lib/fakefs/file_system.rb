@@ -20,6 +20,22 @@ module FakeFS
       fs.entries
     end
 
+    def find_verbatim(path, dir: nil)
+      parts = path_parts(normalize_path(path, dir: dir))
+      return fs if parts.empty? # '/'
+
+      entries = [path].flat_map do |pattern|
+        parts = path_parts(normalize_path(pattern, dir: dir))
+        find_recurser_verbatim(fs, parts).flatten
+      end
+
+      case entries.length
+      when 0 then nil
+      when 1 then entries.first
+      else entries
+      end
+    end
+
     def find(path, find_flags = 0, gave_char_class = false, dir: nil)
       parts = path_parts(normalize_path(path, dir: dir))
       return fs if parts.empty? # '/'
@@ -118,6 +134,21 @@ module FakeFS
     end
 
     private
+
+    def find_recurser_verbatim(dir, parts, find_flags = 0, gave_char_class = false)
+      return [] unless dir.respond_to? :[]
+      pattern, *parts = parts
+      matches =
+        [pattern].flat_map do |subpattern|
+          dir.entries.find{|e| e.name == subpattern}
+        end
+
+      if parts.empty? # we're done recursing
+        matches
+      else
+        matches.map { |entry| find_recurser_verbatim(entry, parts, find_flags, gave_char_class) }
+      end
+    end
 
     def find_recurser(dir, parts, find_flags = 0, gave_char_class = false)
       return [] unless dir.respond_to? :[]

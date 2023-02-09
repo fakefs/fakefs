@@ -616,6 +616,28 @@ class FakeFSTest < Minitest::Test
       end
     end
   end
+require 'pry';
+  def test_globs_in_exist
+    perform_with_both_string_paths_and_pathnames do
+      # require 'pry'; binding.pry
+      Dir.mkdir(string_or_pathname("a"))
+      File.write(string_or_pathname("a/1.txt"), "a");
+      assert_equal File.exist?("**/*.txt"), false
+      assert_equal File.exist?("a/1.txt"), true
+
+      # otherwise the second pass of perform_with_both_string_paths_and_pathnames fails with
+      # Errno::EEXIST: File exists - a
+      FakeFS::FileSystem.clear
+    end
+  end
+
+  def test_special_chars_in_paths
+    perform_with_both_string_paths_and_pathnames do
+      path = string_or_pathname("{}.txt")
+      File.write(path, "a")
+      assert_equal File.exist?(path), true
+    end
+  end
 
   def test_creates_files_in_write_only_mode
     perform_with_both_string_paths_and_pathnames do
