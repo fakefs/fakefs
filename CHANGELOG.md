@@ -1,5 +1,9 @@
 ## Next
 
+## 2.2.0
+
+- Fix Dir.open with yield issue
+
 ## 2.1.0
 
 - Add fakefs/pry to be able to use pry after activating fakefs
