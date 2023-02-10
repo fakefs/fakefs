@@ -20,13 +20,12 @@ module FakeFS
       fs.entries
     end
 
-    def find_verbatim(path, dir: nil)
+    def find(path, dir: nil)
       parts = path_parts(normalize_path(path, dir: dir))
       return fs if parts.empty? # '/'
 
-      find_recurser_verbatim(fs, parts)
+      find_recurser(fs, parts)
     end
-    alias_method :find, :find_verbatim
 
     def find_with_glob(path, find_flags = 0, gave_char_class = false, dir: nil)
       parts = path_parts(normalize_path(path, dir: dir))
@@ -34,7 +33,7 @@ module FakeFS
 
       entries = Globber.expand(path).flat_map do |pattern|
         parts = path_parts(normalize_path(pattern, dir: dir))
-        find_recurser(fs, parts, find_flags, gave_char_class).flatten
+        find_with_glob_recurser(fs, parts, find_flags, gave_char_class).flatten
       end
 
       case entries.length
@@ -127,7 +126,7 @@ module FakeFS
 
     private
 
-    def find_recurser_verbatim(dir, parts, find_flags = 0, gave_char_class = false)
+    def find_recurser(dir, parts, find_flags = 0, gave_char_class = false)
       return nil unless dir.respond_to? :[]
       head, *parts = parts
       match = dir.entries.find { |e| e.name == head }
@@ -135,11 +134,11 @@ module FakeFS
       if parts.empty? # we're done recursing
         match
       else
-        find_recurser_verbatim(match, parts, find_flags, gave_char_class)
+        find_recurser(match, parts, find_flags, gave_char_class)
       end
     end
 
-    def find_recurser(dir, parts, find_flags = 0, gave_char_class = false)
+    def find_with_glob_recurser(dir, parts, find_flags = 0, gave_char_class = false)
       return [] unless dir.respond_to? :[]
       pattern, *parts = parts
       matches =
@@ -169,7 +168,7 @@ module FakeFS
       if parts.empty? # we're done recursing
         matches
       else
-        matches.map { |entry| find_recurser(entry, parts, find_flags, gave_char_class) }
+        matches.map { |entry| find_with_glob_recurser(entry, parts, find_flags, gave_char_class) }
       end
     end
 
