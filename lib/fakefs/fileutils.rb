@@ -232,7 +232,7 @@ module FakeFS
       list = Array(list)
       list.each do |file|
         chown(user, group, file)
-        [FileSystem.find("#{file}/**/**")].flatten.each do |f|
+        [FileSystem.find_with_glob("#{file}/**/**")].flatten.each do |f|
           chown(user, group, f.to_s)
         end
       end
@@ -255,7 +255,7 @@ module FakeFS
       list = Array(list)
       list.each do |file|
         chmod(mode, file)
-        [FileSystem.find("#{file}/**/**")].flatten.each do |f|
+        [FileSystem.find_with_glob("#{file}/**/**")].flatten.each do |f|
           chmod(mode, f.to_s)
         end
       end

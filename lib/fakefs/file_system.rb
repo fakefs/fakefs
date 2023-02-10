@@ -35,8 +35,9 @@ module FakeFS
       else entries
       end
     end
+    alias_method :find, :find_verbatim
 
-    def find(path, find_flags = 0, gave_char_class = false, dir: nil)
+    def find_with_glob(path, find_flags = 0, gave_char_class = false, dir: nil)
       parts = path_parts(normalize_path(path, dir: dir))
       return fs if parts.empty? # '/'
 
