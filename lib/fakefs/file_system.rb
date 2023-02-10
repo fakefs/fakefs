@@ -20,6 +20,7 @@ module FakeFS
       fs.entries
     end
 
+    # Finds files/directories using the exact path, without expanding globs.
     def find(path, dir: nil)
       parts = path_parts(normalize_path(path, dir: dir))
       return fs if parts.empty? # '/'
@@ -27,6 +28,7 @@ module FakeFS
       find_recurser(fs, parts)
     end
 
+    # Finds files/directories expanding globs.
     def find_with_glob(path, find_flags = 0, gave_char_class = false, dir: nil)
       parts = path_parts(normalize_path(path, dir: dir))
       return fs if parts.empty? # '/'
