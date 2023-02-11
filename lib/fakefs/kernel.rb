@@ -32,8 +32,8 @@ module FakeFS
     end
 
     hijack :open do |*args, &block|
-      if args.first.start_with? '|'
-        # This is a system command
+      # This is a system command     or   we're inside IRB internals
+      if args.first.start_with?('|') || self.class.to_s.start_with?("IRB::")
         ::FakeFS::Kernel.captives[:original][:open].call(*args, &block)
       else
         name = args.shift
