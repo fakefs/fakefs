@@ -620,7 +620,7 @@ class FakeFSTest < Minitest::Test
   def test_globs_in_exist
     perform_with_both_string_paths_and_pathnames do
       Dir.mkdir(string_or_pathname("a"))
-      File.write(string_or_pathname("a/1.txt"), "a");
+      File.write(string_or_pathname("a/1.txt"), "a")
       assert_equal File.exist?("**/*.txt"), false
       assert_equal File.exist?("a/1.txt"), true
 
