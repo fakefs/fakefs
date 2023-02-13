@@ -2053,7 +2053,15 @@ class FakeFSTest < Minitest::Test
     :nread, :pwrite, :pread,
     :ready?,
     :wait, :wait_readable, :wait_writable, :wait_priority,
-    :timeout, :timeout=
+    :timeout, :timeout=,
+
+    # omit methods from io/console required by irb
+    :check_winsize_changed,
+    :clear_screen,
+    :console_mode, :console_mode=,
+    :cursor_down, :cursor_left, :cursor_right, :cursor_up,
+    :erase_line, :erase_screen,
+    :goto_column, :scroll_backward, :scroll_forward
   ].freeze
 
   OMITTED_JRUBY_FILE_METHODS = [
