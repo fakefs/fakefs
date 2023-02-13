@@ -1,5 +1,13 @@
 ## Next
 
+## 2.4.0
+
+- Add fakefs/irb to be able to use irb after activating fakefs
+
+## 2.3.0
+
+- Fix find globbing bug
+
 ## 2.2.0
 
 - Fix Dir.open with yield issue
