@@ -51,4 +51,9 @@ class KernelTest < Minitest::Test
     out = open("|echo 'foo'")
     assert_equal "foo\n", out.gets
   end
+
+  def test_kernel_open_can_handle_kwargs_after_deactivation
+    FakeFS.deactivate!
+    open('/dev/null', autoclose: true)
+  end
 end
