@@ -1,5 +1,8 @@
 ## Next
 
+## 2.5.0
+- Ensure separation of positional/kwargs for Kernel.open
+
 ## 2.4.0
 
 - Add fakefs/irb to be able to use irb after activating fakefs
