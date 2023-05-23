@@ -18,8 +18,8 @@ module FakeFS
     def self.unhijack!
       captives[:original].each do |name, _prc|
         ::Kernel.send(:remove_method, name.to_sym)
-        ::Kernel.send(:define_method, name.to_sym, proc do |*args, &block|
-          ::FakeFS::Kernel.captives[:original][name].call(*args, &block)
+        ::Kernel.send(:define_method, name.to_sym, proc do |*args, **kwargs, &block|
+          ::FakeFS::Kernel.captives[:original][name].call(*args, **kwargs, &block)
         end)
         ::Kernel.send(:private, name.to_sym)
       end
