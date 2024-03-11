@@ -19,4 +19,12 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake', '>= 10.3'
   spec.add_development_dependency 'rspec', '~> 3.1'
   spec.add_development_dependency 'rubocop', '~> 0.82.0'
+
+  # It is good practice to have all deps listed, they will appear in the Gemfile.lock and allow reproducible builds
+  # For an unknown reason the github CI does not like when "pathname" is added
+  spec.add_runtime_dependency 'english'
+  spec.add_runtime_dependency 'fileutils'
+  spec.add_runtime_dependency 'find'
+  spec.add_runtime_dependency 'irb'
+  spec.add_runtime_dependency 'stringio'
 end
