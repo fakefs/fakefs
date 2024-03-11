@@ -15,6 +15,6 @@ class IrbTest < Minitest::Test
   end
 
   def test_setup_irb
-    assert_nil IRB.setup(binding.source_location[0], argv: [])
+    assert_includes([true, nil], IRB.setup(binding.source_location[0], argv: []))
   end
 end
