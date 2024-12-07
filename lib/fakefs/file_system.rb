@@ -56,7 +56,11 @@ module FakeFS
       assert_dir d
       object.name = parts.last
       object.parent = d
-      d[parts.last] ||= object
+      if object.is_a? FakeDir
+        d[parts.last] ||= object
+      else
+        d[parts.last] = object
+      end
     end
 
     # copies directories and files from the real filesystem
