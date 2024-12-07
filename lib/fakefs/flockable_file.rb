@@ -27,7 +27,7 @@ module FakeFS
         int_mode = mode.to_int
 
         unless int_mode.is_a?(Integer)
-          raise TypeError, "can't convert Object to Integer (#{mode.class}#to_int gives #{int_mode.class})"
+          raise TypeError, "can't convert #{mode.class} to Integer (#{mode.class}#to_int gives #{int_mode.class})"
         end
         mode = int_mode
       end
