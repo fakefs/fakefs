@@ -25,7 +25,7 @@ module FakeFS
         raise TypeError, "no implicit conversion of #{mode.class} into Integer" unless mode.respond_to?(:to_int)
         int_mode = mode.to_int
 
-        raise TypeError, "can't convert Object to Integer (#{mode.class}#to_int gives #{int_mode.class})" unless int_mode.is_a?(Integer)
+        raise TypeError, "can't convert #{mode.class} to Integer (#{mode.class}#to_int gives #{int_mode.class})" unless int_mode.is_a?(Integer)
         mode = int_mode
       end
       # In fact, real implementation may not fail on `flock 11111` - but fails with `f1.flock 11111111` - or may fail
