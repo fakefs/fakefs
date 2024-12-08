@@ -3256,9 +3256,11 @@ class FakeFSTest < Minitest::Test
 
   def test_rename_renames_a_file
     perform_with_both_string_paths_and_pathnames do
-      FileUtils.touch(string_or_pathname('/foo'))
+      File.write(string_or_pathname('/foo'), 'content')
       File.rename(string_or_pathname('/foo'), string_or_pathname('/bar'))
       assert File.file?(string_or_pathname('/bar'))
+      refute File.file?(string_or_pathname('/foo'))
+      assert_equal 'content', File.read(string_or_pathname('/bar'))
 
       FileUtils.rm('/bar')
     end
@@ -3287,11 +3289,11 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_rename_renames_two_files
-    FileUtils.touch('/foo')
-    FileUtils.touch('/bar')
+    File.write('/foo', "foo")
+    File.write('/bar', "bar")
     File.rename('/foo', '/bar')
-    assert !File.exist?('/foo')
-    assert File.exist?('/bar')
+    refute File.exist?('/foo')
+    assert_equal "foo", File.read('/bar')
     assert File.file?('/bar')
   end
 
@@ -3311,8 +3313,10 @@ class FakeFSTest < Minitest::Test
 
   def test_rename_renames_a_directories
     Dir.mkdir('/foo')
+    File.write '/foo/file', 'content'
     File.rename('/foo', '/bar')
     assert File.directory?('/bar')
+    assert_equal 'content', File.read('/bar/file')
   end
 
   def test_rename_renames_two_directories
