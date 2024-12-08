@@ -197,6 +197,7 @@ module FakeFS
       symlink.target
     end
 
+    # todo: support open_key_args
     def self.read(path, *args)
       options = args[-1].is_a?(Hash) ? args.pop : {}
       length = args.empty? ? nil : args.shift
@@ -551,8 +552,9 @@ module FakeFS
         end
       end
       @fmode ||= create_fmode(@oflags)
+      @fmode = extract_binmode(opts, @fmode)
 
-      # TODO: extract_binmode && rb_io_ext_int_to_encs, parse_mode_enc
+      # TODO: rb_io_ext_int_to_encs, parse_mode_enc
       # UPD: Looks like we don't need that with our pretty StringIO hack
 
       @autoclose = true
@@ -737,31 +739,34 @@ module FakeFS
 
     def advise(_advice, _offset = 0, _len = 0); end
 
-    def self.write(filename, contents, offset = nil, open_args = {})
-      offset, open_args = nil, offset if offset.is_a?(Hash)
+    def self.write(filename, contents, offset = nil, **open_args)
       mode = offset ? 'r+' : 'w'
-      if open_args.any?
-        if open_args[:open_args]
-          args = [filename, *open_args[:open_args]]
+      if open_args[:open_args]
+        # see open_key_args
+        # todo: foreach, readlines, read also use it
+        # Treat a final argument as keywords if it is a hash, and not as keywords otherwise.
+        open_args = open_args[:open_args]
+        if open_args.last.is_a?(Hash)
+          args = open_args[0...-1]
+          opt = open_args.last
         else
-          mode = open_args[:mode] || mode
-          args = [filename, mode, open_args]
+          args = open_args
+          opt = {}
         end
       else
-        args = [filename, mode]
+        args = [open_args.delete(:mode) || mode]
+        opt = open_args
       end
       if offset
-        open(*args) do |f| # rubocop:disable Security/Open
+        open(filename, *args, **opt) do |f| # rubocop:disable Security/Open
           f.seek(offset)
           f.write(contents)
         end
       else
-        open(*args) do |f| # rubocop:disable Security/Open
-          f << contents
+        open(filename, *args, **opt) do |f| # rubocop:disable Security/Open
+          f.write(contents)
         end
       end
-
-      contents.length
     end
 
     def self.birthtime(path)
@@ -930,6 +935,31 @@ module FakeFS
     private_class_method :get_perms_for_group, :set_perms_for_group
 
     private
+
+    def extract_binmode(opts, fmode)
+      textmode = opts[:textmode]
+      unless textmode.nil?
+        raise ArgumentError, "textmode specified twice" if fmode & FMODE_TEXTMODE != 0
+        raise ArgumentError, "both textmode and binmode specified" if fmode & FMODE_BINMODE != 0
+
+        # yep, false has no effect here, but still causes ArgumentError
+        fmode |= FMODE_TEXTMODE if textmode
+      end
+
+      binmode = opts[:binmode]
+      unless binmode.nil?
+        raise ArgumentError, "binmode specified twice" if fmode & FMODE_BINMODE != 0
+        raise ArgumentError, "both textmode and binmode specified" if fmode & FMODE_TEXTMODE != 0
+
+        fmode |= FMODE_BINMODE if binmode
+      end
+
+      if fmode & FMODE_BINMODE != 0 && fmode & FMODE_TEXTMODE != 0
+        raise ArgumentError, "both textmode and binmode specified"
+      end
+
+      fmode
+    end
 
     def create_fmode(oflags)
       # rb_io_oflags_fmode

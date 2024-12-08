@@ -491,6 +491,33 @@ class FakeFSTest < Minitest::Test
     end
   end
 
+  def test_write_returns_length
+    assert_equal 2, File.write('filename', 'hi')
+    assert_equal 2, File.write('filename', 'hi', 8)
+    assert_equal 8, File.write('filename', 'hi', encoding: Encoding::UTF_32LE)
+    skip 'raises "ASCII incompatible encoding needs binmode"'
+    # IO.open validates encoding, but IO.write seems to bypass this check
+    # not possible to do that with StringIO
+    assert_equal 8, File.write('filename', 'hi', 2, encoding: Encoding::UTF_32LE)
+  end
+
+  # Taken from ruby specs
+  def test_uses_an_open_args_option
+    assert_equal 2, File.write('filename', 'hi', open_args: ["w"])
+    assert_equal 8, File.write('filename', 'hi', open_args: ["w", {encoding: Encoding::UTF_32LE}])
+    assert_equal 8, File.write('filename', 'hi', open_args: ["w", nil, {encoding: Encoding::UTF_32LE}])
+    assert_equal 8, File.write('filename', 'hi', open_args: ["w", nil, {encoding: Encoding::UTF_32LE}])
+  end
+
+  def test_disregards_other_options_if_open_args_is_given
+    # first, test regular call
+    assert_equal 8, File.write('filename', 'hi', 2, mode: "w", encoding: Encoding::UTF_32LE)
+    assert_equal "\u0000\u0000h\u0000\u0000\u0000i\u0000\u0000\u0000", File.read('filename')
+    # encoding and mode are ignored
+    assert_equal 2, File.write('filename', 'hi', 2, mode: "r", encoding: Encoding::UTF_32LE, open_args: ["w"])
+    assert_equal "\0\0hi", File.read('filename')
+  end
+
   def test_raises_ENOENT_trying_to_create_files_in_nonexistent_dir
     perform_with_both_string_paths_and_pathnames do
       path = string_or_pathname('/path/to/file.txt')
@@ -4265,9 +4292,70 @@ class FakeFSTest < Minitest::Test
     File.open('foo', 'wb') do |f|
       assert_equal true, f.binmode?
     end
+    File.open('foo', 'w', binmode: true) do |f|
+      assert_equal true, f.binmode?
+    end
     File.open('foo', 'w:binary') do |f|
       assert_equal false, f.binmode?
     end
+  end
+
+  def test_open_encoding
+    File.open('foo', 'w:UTF-32LE') do |f|
+      assert_equal 8, f.write('hi')
+    end
+    File.open('foo') do |f|
+      assert_equal "h\u0000\u0000\u0000i\u0000\u0000\u0000", f.read
+    end
+    assert_raises ArgumentError do
+      # ASCII incompatible encoding needs binmode
+      File.open('foo', 'r:UTF-32LE')
+    end
+    File.open('foo', 'rb:UTF-32LE') do |f|
+      assert_equal 'hi'.encode('UTF-32LE'), f.read
+    end
+    File.open('foo', 'r:UTF-32LE', binmode: true) do |f|
+      assert_equal 'hi'.encode('UTF-32LE'), f.read
+    end
+  end
+
+  def test_open_encoding_kw
+    File.open('foo', 'w', encoding: Encoding::UTF_32LE) do |f|
+      assert_equal 8, f.write('hi')
+    end
+    File.open('foo') do |f|
+      assert_equal "h\u0000\u0000\u0000i\u0000\u0000\u0000", f.read
+    end
+    assert_raises ArgumentError do
+      # ASCII incompatible encoding needs binmode
+      File.open('foo', 'r', encoding: Encoding::UTF_32LE)
+    end
+    File.open('foo', 'rb', encoding: Encoding::UTF_32LE) do |f|
+      assert_equal 'hi'.encode(Encoding::UTF_32LE), f.read
+    end
+    File.open('foo', binmode: true, encoding: Encoding::UTF_32LE) do |f|
+      assert_equal 'hi'.encode(Encoding::UTF_32LE), f.read
+    end
+  end
+
+  def test_read_write_encoding
+    assert_equal 8, File.write('foo', 'hi', mode: 'w:UTF-32LE')
+    assert_equal "h\u0000\u0000\u0000i\u0000\u0000\u0000", File.read('foo')
+    assert_raises ArgumentError do
+      File.read('foo', mode: 'r:UTF-32LE')
+    end
+    assert_equal 'hi'.encode('UTF-32LE'), File.read('foo', mode: 'rb:UTF-32LE')
+    assert_equal 'hi'.encode('UTF-32LE'), File.read('foo', binmode: true, mode: 'r:UTF-32LE')
+  end
+
+  def test_read_write_encoding_kw
+    assert_equal 8, File.write('foo', 'hi', mode: 'w', encoding: Encoding::UTF_32LE)
+    assert_equal "h\u0000\u0000\u0000i\u0000\u0000\u0000", File.read('foo')
+    assert_raises ArgumentError do
+      File.read('foo', encoding: Encoding::UTF_32LE)
+    end
+    assert_equal 'hi'.encode('UTF-32LE'), File.read('foo', mode: 'rb', encoding: Encoding::UTF_32LE)
+    assert_equal 'hi'.encode('UTF-32LE'), File.read('foo', binmode: true, encoding: Encoding::UTF_32LE)
   end
 
   def test_to_path
