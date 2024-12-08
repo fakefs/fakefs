@@ -4303,6 +4303,63 @@ class FakeFSTest < Minitest::Test
     end
   end
 
+  def test_exclusive_works
+    File.open('exclusive', 'wx')
+    FileUtils.rm('exclusive')
+    File.open('exclusive', File::EXCL | File::WRONLY | File::CREAT)
+    FileUtils.rm('exclusive')
+    File.open('exclusive', File::EXCL | File::CREAT)
+    FileUtils.rm('exclusive')
+    # Reading newly created file is nonsense
+    assert_raises(ArgumentError) do
+      File.open('exclusive', 'rx', flags: File::CREAT)
+    end
+    # Same nonsense, but no validation here
+    File.open('exclusive', File::EXCL | File::RDONLY | File::CREAT)
+    FileUtils.rm('exclusive')
+    # Truncating is nonsense too, but it's allowed
+    File.open('exclusive', File::EXCL | File::WRONLY | File::CREAT | File::TRUNC)
+    FileUtils.rm('exclusive')
+    # Same as appending
+    File.open('exclusive', File::EXCL | File::WRONLY | File::CREAT | File::APPEND)
+    FileUtils.rm('exclusive')
+    assert_raises(ArgumentError) do
+      File.open('exclusive', 'x')
+    end
+    assert_raises(ArgumentError) do
+      File.open('exclusive', 'rx')
+    end
+  end
+
+  def test_exclusive_does_not_do_sanity_check
+    assert_raises(Errno::ENOENT) do
+      File.open('exclusive', flags: File::EXCL)
+    end
+    assert_raises(Errno::ENOENT) do
+      # Nonsence without File::CREAT
+      File.open('exclusive', File::EXCL)
+    end
+    assert_raises(Errno::ENOENT) do
+      File.open('exclusive', File::RDONLY, flags: File::EXCL)
+    end
+    assert_raises(Errno::ENOENT) do
+      File.open('exclusive', 'r', flags: File::EXCL)
+    end
+  end
+
+  def test_exclusive_checks_for_file_existence
+    FileUtils.touch('exclusive')
+    assert_raises(Errno::EEXIST) do
+      File.open('exclusive', 'w', flags: File::EXCL)
+    end
+    assert_raises(Errno::EEXIST) do
+      File.open('exclusive', 'wx')
+    end
+    assert_raises(Errno::EEXIST) do
+      File.open('exclusive', File::WRONLY | File::EXCL | File::CREAT)
+    end
+  end
+
   def test_open_encoding
     File.open('foo', 'w:UTF-32LE') do |f|
       assert_equal 8, f.write('hi')
