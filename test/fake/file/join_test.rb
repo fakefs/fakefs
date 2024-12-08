@@ -8,6 +8,7 @@ class FakeFileJoinTest < Minitest::Test
 
   def teardown
     FakeFS.deactivate!
+    FakeFS::FileSystem.clear
   end
 
   [

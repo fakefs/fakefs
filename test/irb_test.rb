@@ -12,6 +12,7 @@ class IrbTest < Minitest::Test
 
   def teardown
     FakeFS.deactivate!
+    FakeFS::FileSystem.clear
   end
 
   def test_setup_irb

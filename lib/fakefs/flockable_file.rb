@@ -27,18 +27,22 @@ module FakeFS
         int_mode = mode.to_int
 
         unless int_mode.is_a?(Integer)
-          raise TypeError, "can't convert Object to Integer (#{mode.class}#to_int gives #{int_mode.class})"
+          raise TypeError, "can't convert #{mode.class} to Integer (#{mode.class}#to_int gives #{int_mode.class})"
         end
         mode = int_mode
       end
 
-      # real implementation may not fail on `flock 11111` - but fails with `f1.flock 11111111` - or may fail
-      # with another error - `f1.flock 1111111111111` gives `integer 1111111111111 too big to convert to `int'
-      # but I think it's safer to allow only documented modes.
+      # In fact, real implementation may not fail on `flock 11111` -
+      # - but fails with `f1.flock 11111111` - or may fail
+      # with another error - `f1.flock 1111111111111` gives
+      # `integer 1111111111111 too big to convert to `int' (RangeError)`
+      # - but I think it's safer to allow only documented modes.
       unless FAKE_FS_ALLOWED_FLOCK_MODES.include?(mode)
         # real exception
         # Invalid argument @ rb_file_flock - filepath (Errno::EINVAL)
-        raise Errno::EINVAL.new(@path, 'rb_file_flock')
+        # raise Errno::EINVAL.new(@path, 'rb_file_flock')
+        # represents it better, but fails on JRuby
+        raise Errno::EINVAL, @path
       end
       0
     end

@@ -9,6 +9,7 @@ class FileSysWriteTest < Minitest::Test
 
   def teardown
     FakeFS.deactivate!
+    FakeFS::FileSystem.clear
   end
 
   def test_returns_one_byte_when_written

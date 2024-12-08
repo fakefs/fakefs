@@ -4,6 +4,7 @@ require_relative 'test_helper'
 class SafeTest < Minitest::Test
   def teardown
     FakeFS.deactivate!
+    FakeFS::FileSystem.clear
   end
 
   def test_FakeFS_activated_is_accurate

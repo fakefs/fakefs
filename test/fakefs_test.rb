@@ -20,6 +20,7 @@ class FakeFSTest < Minitest::Test
 
   def teardown
     FakeFS.deactivate!
+    FakeFS::FileSystem.clear
 
     act_on_real_fs do
       FileUtils.rm_rf(real_file_sandbox)
@@ -489,6 +490,33 @@ class FakeFSTest < Minitest::Test
       assert File.writable?(path)
       FileUtils.rm(path)
     end
+  end
+
+  def test_write_returns_length
+    assert_equal 2, File.write('filename', 'hi')
+    assert_equal 2, File.write('filename', 'hi', 8)
+    assert_equal 8, File.write('filename', 'hi', encoding: Encoding::UTF_32LE)
+    skip 'raises "ASCII incompatible encoding needs binmode"'
+    # IO.open validates encoding, but IO.write seems to bypass this check
+    # not possible to do that with StringIO
+    assert_equal 8, File.write('filename', 'hi', 2, encoding: Encoding::UTF_32LE)
+  end
+
+  # Taken from ruby specs
+  def test_uses_an_open_args_option
+    assert_equal 2, File.write('filename', 'hi', open_args: ['w'])
+    assert_equal 8, File.write('filename', 'hi', open_args: ['w', { encoding: Encoding::UTF_32LE }])
+    assert_equal 8, File.write('filename', 'hi', open_args: ['w', nil, { encoding: Encoding::UTF_32LE }])
+    assert_equal 8, File.write('filename', 'hi', open_args: ['w', nil, { encoding: Encoding::UTF_32LE }])
+  end
+
+  def test_disregards_other_options_if_open_args_is_given
+    # first, test regular call
+    assert_equal 8, File.write('filename', 'hi', 2, mode: "w", encoding: Encoding::UTF_32LE)
+    assert_equal "\u0000\u0000h\u0000\u0000\u0000i\u0000\u0000\u0000", File.read('filename')
+    # encoding and mode are ignored
+    assert_equal 2, File.write('filename', 'hi', 2, mode: "r", encoding: Encoding::UTF_32LE, open_args: ["w"])
+    assert_equal "\0\0hi", File.read('filename')
   end
 
   def test_raises_ENOENT_trying_to_create_files_in_nonexistent_dir
@@ -1340,13 +1368,12 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_file_object_initialization_with_brackets_in_filename
-    skip 'TODO'
-
     filename = 'bracket[1](2).txt'
     expected_contents = 'Yokudekimashita'
     # nothing raised
     File.open(filename, mode: 'w') { |f| f.write expected_contents.to_s }
-    the_file = Dir['/*']
+    # /tmp is explicitly created
+    the_file = Dir['/*'] - ['/tmp']
     assert_equal the_file.length, 1
     assert_equal the_file[0], "/#{filename}"
     contents = File.open("/#{filename}").read
@@ -4269,6 +4296,81 @@ class FakeFSTest < Minitest::Test
     end
     File.open('foo', 'wb') do |f|
       assert_equal true, f.binmode?
+    end
+    File.open('foo', 'w:binary') do |f|
+      assert_equal false, f.binmode?
+    end
+    File.open('foo', 'w', binmode: true) do |f|
+      assert_equal true, f.binmode?
+    end
+    File.open('foo', File::WRONLY | File::CREAT | File::TRUNC, binmode: true) do |f|
+      assert_equal true, f.binmode?
+    end
+  end
+
+  def test_open_encoding
+    File.open('foo', 'w:UTF-32LE') do |f|
+      assert_equal 8, f.write('hi')
+    end
+    File.open('foo') do |f|
+      assert_equal "h\u0000\u0000\u0000i\u0000\u0000\u0000", f.read
+    end
+    File.open('foo', 'rb:UTF-32LE') do |f|
+      assert_equal 'hi'.encode('UTF-32LE'), f.read
+    end
+    File.open('foo', 'r:UTF-32LE', binmode: true) do |f|
+      assert_equal 'hi'.encode('UTF-32LE'), f.read
+    end
+
+    skip 'Encoding is not supported natively by StringIO' if RUBY_PLATFORM == "java"
+    assert_raises ArgumentError do
+      # ASCII incompatible encoding needs binmode
+      File.open('foo', 'r:UTF-32LE')
+    end
+  end
+
+  def test_open_encoding_kw
+    File.open('foo', 'w', encoding: Encoding::UTF_32LE) do |f|
+      assert_equal 8, f.write('hi')
+    end
+    File.open('foo') do |f|
+      assert_equal "h\u0000\u0000\u0000i\u0000\u0000\u0000", f.read
+    end
+    File.open('foo', 'rb', encoding: Encoding::UTF_32LE) do |f|
+      assert_equal 'hi'.encode(Encoding::UTF_32LE), f.read
+    end
+    File.open('foo', binmode: true, encoding: Encoding::UTF_32LE) do |f|
+      assert_equal 'hi'.encode(Encoding::UTF_32LE), f.read
+    end
+
+    skip 'Encoding is not supported natively by StringIO' if RUBY_PLATFORM == "java"
+    assert_raises ArgumentError do
+      # ASCII incompatible encoding needs binmode
+      File.open('foo', 'r', encoding: Encoding::UTF_32LE)
+    end
+  end
+
+  def test_read_write_encoding
+    assert_equal 8, File.write('foo', 'hi', mode: 'w:UTF-32LE')
+    assert_equal "h\u0000\u0000\u0000i\u0000\u0000\u0000", File.read('foo')
+    assert_equal 'hi'.encode('UTF-32LE'), File.read('foo', mode: 'rb:UTF-32LE')
+    assert_equal 'hi'.encode('UTF-32LE'), File.read('foo', binmode: true, mode: 'r:UTF-32LE')
+
+    skip 'Encoding is not supported natively by StringIO' if RUBY_PLATFORM == "java"
+    assert_raises ArgumentError do
+      File.read('foo', mode: 'r:UTF-32LE')
+    end
+  end
+
+  def test_read_write_encoding_kw
+    assert_equal 8, File.write('foo', 'hi', mode: 'w', encoding: Encoding::UTF_32LE)
+    assert_equal "h\u0000\u0000\u0000i\u0000\u0000\u0000", File.read('foo')
+    assert_equal 'hi'.encode('UTF-32LE'), File.read('foo', mode: 'rb', encoding: Encoding::UTF_32LE)
+    assert_equal 'hi'.encode('UTF-32LE'), File.read('foo', binmode: true, encoding: Encoding::UTF_32LE)
+
+    skip 'Encoding is not supported natively by StringIO' if RUBY_PLATFORM == "java"
+    assert_raises ArgumentError do
+      File.read('foo', encoding: Encoding::UTF_32LE)
     end
   end
 
