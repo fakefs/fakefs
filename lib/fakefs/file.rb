@@ -1022,7 +1022,7 @@ module FakeFS
         when 'x'
           raise ArgumentError, "invalid access mode #{mode}" unless access_mode == 'w'
 
-          fmode |= File::EXCL
+          fmode |= FMODE_EXCL
         else
           raise ArgumentError, "invalid access mode #{mode}"
         end
