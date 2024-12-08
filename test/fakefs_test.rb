@@ -1340,13 +1340,12 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_file_object_initialization_with_brackets_in_filename
-    skip 'TODO'
-
     filename = 'bracket[1](2).txt'
     expected_contents = 'Yokudekimashita'
     # nothing raised
     File.open(filename, mode: 'w') { |f| f.write expected_contents.to_s }
-    the_file = Dir['/*']
+    # /tmp is explicitly created
+    the_file = Dir['/*'] - ['/tmp']
     assert_equal the_file.length, 1
     assert_equal the_file[0], "/#{filename}"
     contents = File.open("/#{filename}").read
@@ -4265,6 +4264,9 @@ class FakeFSTest < Minitest::Test
     end
     File.open('foo', 'wb') do |f|
       assert_equal true, f.binmode?
+    end
+    File.open('foo', 'w:binary') do |f|
+      assert_equal false, f.binmode?
     end
   end
 
