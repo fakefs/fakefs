@@ -503,10 +503,10 @@ class FakeFSTest < Minitest::Test
 
   # Taken from ruby specs
   def test_uses_an_open_args_option
-    assert_equal 2, File.write('filename', 'hi', open_args: ["w"])
-    assert_equal 8, File.write('filename', 'hi', open_args: ["w", {encoding: Encoding::UTF_32LE}])
-    assert_equal 8, File.write('filename', 'hi', open_args: ["w", nil, {encoding: Encoding::UTF_32LE}])
-    assert_equal 8, File.write('filename', 'hi', open_args: ["w", nil, {encoding: Encoding::UTF_32LE}])
+    assert_equal 2, File.write('filename', 'hi', open_args: ['w'])
+    assert_equal 8, File.write('filename', 'hi', open_args: ['w', { encoding: Encoding::UTF_32LE }])
+    assert_equal 8, File.write('filename', 'hi', open_args: ['w', nil, { encoding: Encoding::UTF_32LE }])
+    assert_equal 8, File.write('filename', 'hi', open_args: ['w', nil, { encoding: Encoding::UTF_32LE }])
   end
 
   def test_disregards_other_options_if_open_args_is_given
