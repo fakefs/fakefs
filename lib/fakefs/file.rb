@@ -12,7 +12,24 @@ module FakeFS
       APPEND_READ_WRITE   = 'a+'.freeze
     ].freeze
 
+    FMODE_READABLE = 0x00000001
+    FMODE_WRITABLE = 0x00000002
+    FMODE_READWRITE = (FMODE_READABLE | FMODE_WRITABLE)
+    FMODE_BINMODE = 0x00000004
+    FMODE_APPEND = 0x00000040
+    FMODE_CREATE = 0x00000080
+    FMODE_EXCL = 0x00000400
+    FMODE_TRUNC = 0x00000800
+    FMODE_TEXTMODE = 0x00001000
+
+    TEXT_MODES = {
+      'r' => FMODE_READABLE,
+      'w' => FMODE_WRITABLE | FMODE_TRUNC | FMODE_CREATE,
+      'a' => FMODE_WRITABLE | FMODE_APPEND | FMODE_CREATE
+    }.freeze
+
     FILE_CREATION_MODES = (MODES - [READ_ONLY, READ_WRITE]).freeze
+    FILE_ACCESS_MODE = (RealFile::RDONLY | RealFile::WRONLY | RealFile::RDWR)
 
     MODE_BITMASK = (
       RealFile::RDONLY |
@@ -23,11 +40,10 @@ module FakeFS
       RealFile::EXCL |
       RealFile::NONBLOCK |
       RealFile::TRUNC |
+      RealFile::BINARY |
       (RealFile.const_defined?(:NOCTTY) ? RealFile::NOCTTY : 0) |
       (RealFile.const_defined?(:SYNC) ? RealFile::SYNC : 0)
     )
-
-    FILE_CREATION_BITMASK = RealFile::CREAT
 
     def self.extname(path)
       RealFile.extname(path)
@@ -490,17 +506,78 @@ module FakeFS
 
     attr_reader :path
 
-    def initialize(path, mode = READ_ONLY, _perm = nil)
+    def initialize(path, mode = nil, _perm = nil, **opts)
       @path = path
-      @mode = mode.is_a?(Hash) ? (mode[:mode] || READ_ONLY) : mode
-      @file = FileSystem.find(path)
+      @file = FileSystem.find(@path)
+      # real rb_scan_open_args - and rb_io_extract_modeenc - is much more complex
+      raise ArgumentError, 'mode specified twice' unless mode.nil? || opts[:mode].nil?
+      mode_opt = mode.nil? ? opts[:mode] : mode
+      # see vmode_handle
+      if mode_opt.nil?
+        @oflags = RealFile::RDONLY
+      elsif mode_opt.respond_to?(:to_int) && (intmode = mode_opt.to_int).instance_of?(Integer)
+        @oflags = intmode
+      else
+        unless mode_opt.is_a?(String)
+          unless mode_opt.respond_to?(:to_str)
+            raise TypeError, "no implicit conversion of #{mode_opt.class} into String"
+          end
+
+          strmode = mode_opt.to_str
+          unless strmode.is_a?(String)
+            raise TypeError, "can't convert #{mode_opt.class} to String " \
+              "(#{mode_opt.class}#to_str gives #{strmode.class})"
+          end
+
+          mode_opt = strmode
+        end
+
+        @oflags, @fmode = parse_strmode_oflags(mode_opt)
+      end
+      unless opts[:flags].nil?
+        if opts[:flags].is_a?(Integer)
+          @oflags |= opts[:flags]
+        elsif opts[:flags].respond_to?(:to_int)
+          intflags = opts[:flags].to_int
+          unless intflags.instance_of?(Integer)
+            raise TypeError, "can't convert #{opts[:flags].class} to Integer " \
+              "(#{opts[:flags].class}#to_int gives #{intflags.class})"
+          end
+
+          @oflags |= intflags
+          @fmode = create_fmode(@oflags)
+        else
+          raise TypeError, "no implicit conversion of #{opts[:flags].class} into Integer"
+        end
+      end
+      @fmode ||= create_fmode(@oflags)
+
+      # TODO: extract_binmode && rb_io_ext_int_to_encs, parse_mode_enc
+      # UPD: Looks like we don't need that with our pretty StringIO hack
+
       @autoclose = true
-
-      check_modes!
-
       file_creation_mode? ? create_missing_file : check_file_existence!
+      # StringIO changes enciding of the underlying string to binary
+      # when binary data is written if it's opened in binary mode,
+      # so content might have binary encoding. StringIO also switches to
+      # binary mode if its string have binary encoding, but it might not
+      # be what we want, so insteed we use encoding parsed after super call
+      # and force set it back.
 
-      super(@file.content, @mode)
+      # truncate doesn't work
+      @file.content.force_encoding(Encoding.default_external)
+      super(@file.content, mode, **opts)
+
+      # super('', mode, **opts)
+      # ext_enc = self.external_encoding
+      # # because it is explicitly removed
+      # StringIO.instance_method(:string=).bind(self).call(@file.content)
+      # self.set_encoding(ext_enc)
+
+      # StringIO is wrtable and readable by default, so we need to disable it
+      # but maybe it was explicitly disabled by opts
+      close_write if @fmode & FMODE_WRITABLE == 0 && !StringIO.instance_method(:closed_write?).bind(self).call
+      close_read if @fmode & FMODE_READABLE == 0 && !StringIO.instance_method(:closed_read?).bind(self).call
     end
 
     def exists?
@@ -622,10 +699,8 @@ module FakeFS
     end
 
     def binmode?
-      @mode.is_a?(String) && (
-        @mode.include?('b') ||
-        @mode.include?('binary')
-      ) && !@mode.include?('bom')
+      # File.open('test_mode', mode: 'w:binary').binmode? # => false
+      @fmode & FMODE_BINMODE != 0
     end
 
     def close_on_exec=(_bool)
@@ -699,16 +774,6 @@ module FakeFS
 
     def birthtime
       self.class.birthtime(@path)
-    end
-
-    def read(length = nil, buf = '')
-      read_buf = super(length, buf)
-      if binmode?
-        read_buf&.force_encoding('ASCII-8BIT')
-      else
-        read_buf&.force_encoding(Encoding.default_external)
-      end
-      read_buf
     end
 
     def self.convert_symbolic_chmod_to_absolute(new_mode, current_mode)
@@ -832,7 +897,7 @@ module FakeFS
       elsif assignment_mode == '-'
         current_group_mode & ~chmod_perm_num
       else
-        raise ArguementError "Unknown assignment mode #{assignment_mode}"
+        raise ArgumentError, "Unknown assignment mode #{assignment_mode}"
       end
     end
 
@@ -866,8 +931,70 @@ module FakeFS
 
     private
 
-    def check_modes!
-      StringIO.new('', @mode)
+    def create_fmode(oflags)
+      # rb_io_oflags_fmode
+      fmode = 0
+      case oflags & FILE_ACCESS_MODE
+      when RealFile::RDONLY
+        fmode = FMODE_READABLE
+      when RealFile::WRONLY
+        fmode = FMODE_WRITABLE
+      when RealFile::RDWR
+        fmode = FMODE_READWRITE
+      end
+      fmode |= FMODE_APPEND if (oflags & RealFile::APPEND) != 0
+      fmode |= FMODE_TRUNC if (oflags & RealFile::TRUNC) != 0
+      fmode |= FMODE_CREATE if (oflags & RealFile::CREAT) != 0
+      fmode |= FMODE_EXCL if (oflags & RealFile::EXCL) != 0
+      fmode |= FMODE_BINMODE if (oflags & RealFile::BINARY) != 0
+      fmode
+    end
+
+    def parse_strmode_oflags(mode)
+      # rb_io_modestr_fmode
+      access_mode = mode[0]
+      mode_modificators = mode[1..-1].split(':', 2).first
+      fmode = TEXT_MODES[access_mode]
+      raise ArgumentError, "invalid access mode #{mode}" unless fmode
+
+      mode_modificators&.each_char do |m|
+        case m
+        when 'b'
+          fmode |= FMODE_BINMODE
+        when 't'
+          fmode |= FMODE_TEXTMODE
+        when '+'
+          fmode |= FMODE_READWRITE
+        when 'x'
+          raise ArgumentError, "invalid access mode #{mode}" unless access_mode == 'w'
+
+          fmode |= File::EXCL
+        else
+          raise ArgumentError, "invalid access mode #{mode}"
+        end
+      end
+      if (fmode & FMODE_BINMODE).nonzero? && (fmode & FMODE_TEXTMODE).nonzero?
+        raise ArgumentError, "invalid access mode #{mode}"
+      end
+
+      # rb_io_fmode_oflags
+      oflags = 0
+      case fmode & FMODE_READWRITE
+      when FMODE_READABLE
+        oflags |= RealFile::RDONLY
+      when FMODE_WRITABLE
+        oflags |= RealFile::WRONLY
+      when FMODE_READWRITE
+        oflags |= RealFile::RDWR
+      end
+
+      oflags |= RealFile::APPEND if (fmode & FMODE_APPEND).nonzero?
+      oflags |= RealFile::TRUNC if (fmode & FMODE_TRUNC).nonzero?
+      oflags |= RealFile::CREAT if (fmode & FMODE_CREATE).nonzero?
+      oflags |= RealFile::EXCL if (fmode & FMODE_EXCL).nonzero?
+      oflags |= RealFile::BINARY if (fmode & FMODE_BINMODE).nonzero?
+
+      [oflags, fmode]
     end
 
     def check_file_existence!
@@ -875,27 +1002,21 @@ module FakeFS
     end
 
     def file_creation_mode?
-      mode_in?(FILE_CREATION_MODES) || mode_in_bitmask?(FILE_CREATION_BITMASK)
+      mode_in?(RealFile::CREAT)
     end
 
-    def mode_in?(list)
-      if @mode.respond_to?(:include?)
-        list.any? do |element|
-          @mode.include?(element)
-        end
-      end
-    end
-
-    def mode_in_bitmask?(mask)
-      (@mode & mask) != 0 if @mode.is_a?(Integer)
+    def mode_in?(mask)
+      (@oflags & mask) != 0
     end
 
     # Create a missing file if the path is valid.
     #
     def create_missing_file
-      raise Errno::EISDIR, path.to_s if File.directory?(@path)
-
-      return if File.exist?(@path) # Unnecessary check, probably.
+      if @file
+        raise Errno::EEXIST, @path.to_s if mode_in?(RealFile::EXCL)
+        raise Errno::EISDIR, path.to_s if File.directory?(@path)
+        return
+      end
       dirname = RealFile.dirname @path
 
       unless dirname == '.'

@@ -32,9 +32,11 @@ module FakeFS
         mode = int_mode
       end
 
-      # real implementation may not fail on `flock 11111` - but fails with `f1.flock 11111111` - or may fail
-      # with another error - `f1.flock 1111111111111` gives `integer 1111111111111 too big to convert to `int'
-      # but I think it's safer to allow only documented modes.
+      # In fact, real implementation may not fail on `flock 11111` -
+      # - but fails with `f1.flock 11111111` - or may fail
+      # with another error - `f1.flock 1111111111111` gives
+      # `integer 1111111111111 too big to convert to `int' (RangeError)`
+      # - but I think it's safer to allow only documented modes.
       unless FAKE_FS_ALLOWED_FLOCK_MODES.include?(mode)
         # real exception
         # Invalid argument @ rb_file_flock - filepath (Errno::EINVAL)

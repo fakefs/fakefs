@@ -1,7 +1,7 @@
 require_relative '../test_helper'
 
 # File stat test class
-class FileStatTest < Minitest::Test
+class FileFlockTest < Minitest::Test
   include FakeFS
 
   class ValidMode
