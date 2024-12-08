@@ -197,7 +197,7 @@ module FakeFS
       symlink.target
     end
 
-    # todo: support open_key_args
+    # TODO: support open_key_args
     def self.read(path, *args)
       options = args[-1].is_a?(Hash) ? args.pop : {}
       length = args.empty? ? nil : args.shift
