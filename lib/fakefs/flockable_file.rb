@@ -21,7 +21,9 @@ module FakeFS
     def flock(mode)
       # all successful calls - even UN - seem to return 0
       unless mode.is_a?(Integer)
-        raise TypeError, "no implicit conversion of #{mode.class} into Integer" unless mode.respond_to?(:to_int)
+        unless mode.respond_to?(:to_int)
+          raise TypeError, "no implicit conversion of #{mode.class} into Integer"
+        end
         int_mode = mode.to_int
 
         unless int_mode.is_a?(Integer)

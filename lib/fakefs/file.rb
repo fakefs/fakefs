@@ -31,6 +31,7 @@ module FakeFS
     FILE_CREATION_MODES = (MODES - [READ_ONLY, READ_WRITE]).freeze
     FILE_ACCESS_MODE = (RealFile::RDONLY | RealFile::WRONLY | RealFile::RDWR)
 
+    # copied from https://github.com/ruby/ruby/blob/v2_7_8/include/ruby/io.h#L108
     MODE_BITMASK = (
       RealFile::RDONLY |
       RealFile::WRONLY |
@@ -563,9 +564,6 @@ module FakeFS
       @fmode ||= create_fmode(@oflags)
       @fmode = extract_binmode(opts, @fmode)
 
-      # TODO: rb_io_ext_int_to_encs, parse_mode_enc
-      # UPD: Looks like we don't need that with our pretty StringIO hack
-
       @autoclose = true
       file_creation_mode? ? create_missing_file : check_file_existence!
       # StringIO changes enciding of the underlying string to binary
@@ -601,12 +599,6 @@ module FakeFS
       else
         super(@file.content, mode, **opts)
       end
-
-      # super('', mode, **opts)
-      # ext_enc = self.external_encoding
-      # # because it is explicitly removed
-      # StringIO.instance_method(:string=).bind(self).call(@file.content)
-      # self.set_encoding(ext_enc)
 
       # StringIO is wrtable and readable by default, so we need to disable it
       # but maybe it was explicitly disabled by opts

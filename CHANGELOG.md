@@ -1,5 +1,13 @@
 ## Next
 
+## 2.7.0
+- add param flags for File.open
+- fix File::EXCL flag
+
+## 2.6.0
+- fix rename not changing content
+- add experimental flock
+
 ## 2.5.0
 - Ensure separation of positional/kwargs for Kernel.open
 
