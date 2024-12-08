@@ -40,7 +40,9 @@ module FakeFS
       unless FAKE_FS_ALLOWED_FLOCK_MODES.include?(mode)
         # real exception
         # Invalid argument @ rb_file_flock - filepath (Errno::EINVAL)
-        raise Errno::EINVAL.new(@path, 'rb_file_flock')
+        # raise Errno::EINVAL.new(@path, 'rb_file_flock')
+        # represents it better, but fails on JRuby
+        raise Errno::EINVAL, @path
       end
       0
     end

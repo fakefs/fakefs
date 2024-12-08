@@ -507,11 +507,20 @@ module FakeFS
 
     attr_reader :path
 
-    def initialize(path, mode = nil, _perm = nil, **opts)
+    def initialize(path, *args)
+      # unable to pass args otherwise on jruby, it may cause false passes on MRI, though
+      # because explicit hash isn't supported
+      opts = args.last.is_a?(Hash) ? args.pop : {}
+      if args.size > 2
+        raise ArgumentError, "wrong number of arguments (given #{args.size + 1}, expected 1..3)"
+      end
+      mode, _perm = args
+
       @path = path
       @file = FileSystem.find(@path)
       # real rb_scan_open_args - and rb_io_extract_modeenc - is much more complex
       raise ArgumentError, 'mode specified twice' unless mode.nil? || opts[:mode].nil?
+
       mode_opt = mode.nil? ? opts[:mode] : mode
       # see vmode_handle
       if mode_opt.nil?
@@ -568,7 +577,30 @@ module FakeFS
 
       # truncate doesn't work
       @file.content.force_encoding(Encoding.default_external)
-      super(@file.content, mode, **opts)
+      # StringIO.new 'content', nil, **{} # works in MRI, but fails in JRuby
+      # but File.open 'filename', nil, **{} is ok both in MRI and JRuby
+
+      # JRuby StringIO doesn't support kwargs without mode
+      #  StringIO.new "buff", encoding: 'binary' # work on MRI, fails on JRuby
+      if RUBY_PLATFORM == "java"
+        # other opts aren't supported
+        super(@file.content, mode_opt || 'r')
+        binmode if binmode? # Looks like it doesn't care about 'b'
+        mode_opt_str = mode_opt.is_a?(String) ? mode_opt : ''
+        raise ArgumentError, 'encoding specified twice' if mode_opt_str[':'] && opts[:encoding]
+
+        # Might raise where real File just warns
+        str_encoding = mode_opt_str.split(':')[1] # internal encoding is ignored anyway
+        if opts[:encoding]
+          set_encoding(opts[:encoding])
+        elsif str_encoding && str_encoding != ''
+          set_encoding(str_encoding)
+        elsif opts[:binmode]
+          set_encoding(Encoding::BINARY)
+        end
+      else
+        super(@file.content, mode, **opts)
+      end
 
       # super('', mode, **opts)
       # ext_enc = self.external_encoding
