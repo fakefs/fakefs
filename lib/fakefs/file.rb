@@ -31,6 +31,7 @@ module FakeFS
     FILE_CREATION_MODES = (MODES - [READ_ONLY, READ_WRITE]).freeze
     FILE_ACCESS_MODE = (RealFile::RDONLY | RealFile::WRONLY | RealFile::RDWR)
 
+    # copied from https://github.com/ruby/ruby/blob/v2_7_8/include/ruby/io.h#L108
     MODE_BITMASK = (
       RealFile::RDONLY |
       RealFile::WRONLY |
