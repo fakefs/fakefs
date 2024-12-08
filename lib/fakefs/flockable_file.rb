@@ -31,6 +31,7 @@ module FakeFS
         end
         mode = int_mode
       end
+
       # In fact, real implementation may not fail on `flock 11111` -
       # - but fails with `f1.flock 11111111` - or may fail
       # with another error - `f1.flock 1111111111111` gives
