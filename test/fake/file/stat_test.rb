@@ -9,6 +9,7 @@ class FakeFileStatTest < Minitest::Test
 
   def teardown
     FakeFS.deactivate!
+    FakeFS::FileSystem.clear
   end
 
   def test_calling_stat_should_create_a_new_file_stat_object

@@ -9,6 +9,7 @@ class FakeFileSysSeekTest < Minitest::Test
 
   def teardown
     FakeFS.deactivate!
+    FakeFS::FileSystem.clear
   end
 
   def test_should_seek_to_position

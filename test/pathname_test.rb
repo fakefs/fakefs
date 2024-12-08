@@ -14,6 +14,7 @@ class PathnameTest < Minitest::Test
 
   def teardown
     FakeFS.deactivate!
+    FakeFS::FileSystem.clear
   end
 
   def test_filetest_exists_returns_correct_value
