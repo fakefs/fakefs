@@ -1,5 +1,8 @@
 require 'bundler/setup'
 require 'fakefs/safe'
+# explicitly required, as it's not required by default, so tests don't depend on whether it was loaded
+require 'fakefs/flockable_file'
+
 require 'maxitest/autorun'
 
 module Minitest
