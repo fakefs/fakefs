@@ -6,6 +6,7 @@ class KernelTest < Minitest::Test
 
   def teardown
     FakeFS.deactivate!
+    FakeFS::FileSystem.clear
   end
 
   def test_can_exec_normally

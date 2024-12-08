@@ -20,6 +20,7 @@ class FakeFSTest < Minitest::Test
 
   def teardown
     FakeFS.deactivate!
+    FakeFS::FileSystem.clear
 
     act_on_real_fs do
       FileUtils.rm_rf(real_file_sandbox)
