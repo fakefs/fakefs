@@ -1,5 +1,8 @@
 ## Next
 
+## 2.7.1
+- fix fix File::EXCL flag usage
+
 ## 2.7.0
 - add param flags for File.open
 - fix File::EXCL flag
