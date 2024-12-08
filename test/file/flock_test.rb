@@ -12,7 +12,7 @@ class FileStatTest < Minitest::Test
 
   class InvalidMode
     def to_int
-      10000000
+      10_000_000
     end
   end
 
@@ -27,10 +27,9 @@ class FileStatTest < Minitest::Test
   end
 
   def test_invalid_flock
-    obj = ''
     File.open('file', 'w') do |f|
       assert_raises(Errno::EINVAL) do
-        f.flock(1000000000)
+        f.flock(1_000_000_000)
       end
       assert_raises(Errno::EINVAL) do
         f.flock(InvalidMode.new)

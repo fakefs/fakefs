@@ -128,7 +128,6 @@ describe "my spec" do
 end
 ```
 
-
 FakeFs --- `TypeError: superclass mismatch for class File`
 --------------
 
@@ -168,12 +167,21 @@ yourself on the equivalent FakeFS classes. For example,
 [FileMagic](https://rubygems.org/gems/ruby-filemagic) adds `File#content_type`.
 A fake version can be provided as follows:
 
-``` ruby
+```ruby
 FakeFS::File.class_eval do
   def content_type
     'fake/file'
   end
 end
+```
+
+File.lock
+---------
+
+Warning: experimental and might break if you obtain more that one flock per file using different descriptors
+
+```ruby
+require 'fakefs/flockable_file'
 ```
 
 Caveats
