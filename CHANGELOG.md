@@ -1,5 +1,9 @@
 ## Next
 
+## 2.6.0
+- fix rename not changing content
+- add experimental flock
+
 ## 2.5.0
 - Ensure separation of positional/kwargs for Kernel.open
 
