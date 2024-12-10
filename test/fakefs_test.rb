@@ -1945,6 +1945,13 @@ class FakeFSTest < Minitest::Test
     assert_equal 3, yielded.size
   end
 
+  def test_dir_glob_with_sort_false
+    FileUtils.touch('foo')
+    FileUtils.touch('bar')
+
+    assert_equal Dir.glob('*', sort: false), ['/tmp', '/foo', '/bar']
+  end
+
   def test_copy_with_subdirectory
     FileUtils.mkdir_p '/one/two/three/'
     FileUtils.mkdir_p '/onebis/two/three/'
