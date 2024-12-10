@@ -127,7 +127,7 @@ module FakeFS
       end
     end
 
-    def self.glob(pattern, _flags = 0, flags: _flags, base: nil, &block) # rubocop:disable Lint/UnderscorePrefixedVariableName
+    def self.glob(pattern, _flags = 0, flags: _flags, base: nil, sort: true, &block) # rubocop:disable Lint/UnderscorePrefixedVariableName
       pwd = FileSystem.normalize_path(base || Dir.pwd)
       matches_for_pattern = lambda do |matcher|
         [FileSystem.find_with_glob(matcher, flags, true, dir: pwd) || []].flatten.map do |e|
@@ -138,8 +138,10 @@ module FakeFS
           else
             e.to_s.match(pwd_regex).post_match
           end
-        end.sort
+        end
       end
+
+      matches_for_pattern.sort! if sort
 
       files =
         if pattern.is_a?(Array)
