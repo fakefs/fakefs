@@ -1,5 +1,8 @@
 ## Next
 
+## 2.8.0
+- support sort: false for Dir.glob
+
 ## 2.7.1
 - fix fix File::EXCL flag usage
 
