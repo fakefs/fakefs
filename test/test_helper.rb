@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'bundler/setup'
 require 'fakefs/safe'
 # explicitly required, as it's not required by default, so tests don't depend on whether it was loaded

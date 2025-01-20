@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require './lib/fakefs/version'
 
 Gem::Specification.new do |spec|
@@ -14,7 +16,9 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '>= 3.0.0'
   spec.add_development_dependency 'bump'
+  spec.add_development_dependency 'csv'
   spec.add_development_dependency 'maxitest'
+  spec.add_development_dependency 'mutex_m'
   spec.add_development_dependency 'pry'
   spec.add_development_dependency 'rake'
   spec.add_development_dependency 'rspec'

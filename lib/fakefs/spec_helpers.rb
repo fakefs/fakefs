@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # FakeFS::SpecHelpers provides a simple macro for RSpec example
 # groups to turn FakeFS on and off.
 # To use it simply require 'fakefs/spec_helpers', then include

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Define Pry class if it's not defined. Useful if pry
 # is required after loading FakeFS
 ::Pry = Class.new unless defined?(::Pry)

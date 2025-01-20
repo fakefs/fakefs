@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Figure out what's missing from fakefs
 #
 # USAGE

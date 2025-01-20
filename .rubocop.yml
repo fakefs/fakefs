@@ -65,8 +65,6 @@ Style/IfUnlessModifier:
   Enabled: false
 Style/SpecialGlobalVars:
   EnforcedStyle: use_perl_names
-Style/FrozenStringLiteralComment:
-  Enabled: false # TODO: enable
 Style/CommentedKeyword:
   Enabled: false # TODO: enable
 Style/ExponentialNotation:

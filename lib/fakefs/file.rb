@@ -1,15 +1,17 @@
+# frozen_string_literal: true
+
 require 'stringio'
 
 module FakeFS
   # FakeFS File class inherit StringIO
   class File < StringIO
     MODES = [
-      READ_ONLY           = 'r'.freeze,
-      READ_WRITE          = 'r+'.freeze,
-      WRITE_ONLY          = 'w'.freeze,
-      READ_WRITE_TRUNCATE = 'w+'.freeze,
-      APPEND_WRITE_ONLY   = 'a'.freeze,
-      APPEND_READ_WRITE   = 'a+'.freeze
+      READ_ONLY           = 'r',
+      READ_WRITE          = 'r+',
+      WRITE_ONLY          = 'w',
+      READ_WRITE_TRUNCATE = 'w+',
+      APPEND_WRITE_ONLY   = 'a',
+      APPEND_READ_WRITE   = 'a+'
     ].freeze
 
     FMODE_READABLE = 0x00000001
@@ -573,7 +575,9 @@ module FakeFS
       # and force set it back.
 
       # truncate doesn't work
-      @file.content.force_encoding(Encoding.default_external)
+      unless @file.is_a?(FakeFS::FakeDir)
+        @file.content = @file.content.dup.force_encoding(Encoding.default_external)
+      end
       # StringIO.new 'content', nil, **{} # works in MRI, but fails in JRuby
       # but File.open 'filename', nil, **{} is ok both in MRI and JRuby
 

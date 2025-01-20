@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'test_helper'
 require 'csv'
 
@@ -2088,6 +2090,7 @@ class FakeFSTest < Minitest::Test
     :ready?,
     :wait, :wait_readable, :wait_writable, :wait_priority,
     :timeout, :timeout=,
+    :ttyname,
 
     # omit methods from io/console required by irb
     :check_winsize_changed,
@@ -4502,17 +4505,17 @@ class FakeFSTest < Minitest::Test
 
   def test_can_read_binary_data_in_binary_mode
     File.open('foo', 'wb') { |f| f << "\u0000\u0000\u0000\u0003\u0000\u0003\u0000\xA3\u0000\u0000\u0000y\u0000\u0000\u0000\u0000\u0000" }
-    assert_equal "\x00\x00\x00\x03\x00\x03\x00\xA3\x00\x00\x00y\x00\x00\x00\x00\x00".force_encoding('ASCII-8BIT'), File.open('foo', 'rb').read
+    assert_equal "\x00\x00\x00\x03\x00\x03\x00\xA3\x00\x00\x00y\x00\x00\x00\x00\x00".dup.force_encoding('ASCII-8BIT'), File.open('foo', 'rb').read
   end
 
   def test_can_read_binary_data_in_non_binary_mode
     File.open('foo_non_bin', 'wb') { |f| f << "\u0000\u0000\u0000\u0003\u0000\u0003\u0000\xA3\u0000\u0000\u0000y\u0000\u0000\u0000\u0000\u0000" }
-    assert_equal "\x00\x00\x00\x03\x00\x03\x00\xA3\x00\x00\x00y\x00\x00\x00\x00\x00".force_encoding('UTF-8'), File.open('foo_non_bin', 'r').read
+    assert_equal "\x00\x00\x00\x03\x00\x03\x00\xA3\x00\x00\x00y\x00\x00\x00\x00\x00".dup.force_encoding('UTF-8'), File.open('foo_non_bin', 'r').read
   end
 
   def test_can_read_binary_data_using_binread
     File.open('foo', 'wb') { |f| f << "\u0000\u0000\u0000\u0003\u0000\u0003\u0000\xA3\u0000\u0000\u0000y\u0000\u0000\u0000\u0000\u0000" }
-    assert_equal "\x00\x00\x00\x03\x00\x03\x00\xA3\x00\x00\x00y\x00\x00\x00\x00\x00".force_encoding('ASCII-8BIT'), File.binread('foo')
+    assert_equal "\x00\x00\x00\x03\x00\x03\x00\xA3\x00\x00\x00y\x00\x00\x00\x00\x00".dup.force_encoding('ASCII-8BIT'), File.binread('foo')
   end
 
   def test_can_use_readpartial
