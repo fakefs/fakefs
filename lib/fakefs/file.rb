@@ -362,8 +362,7 @@ module FakeFS
 
     # FakeFS Stat class
     class Stat
-      attr_reader :ctime, :mtime, :atime, :mode, :uid, :gid
-      attr_reader :birthtime
+      attr_reader :ctime, :mtime, :atime, :mode, :uid, :gid, :birthtime
 
       def initialize(file, lstat = false)
         raise(Errno::ENOENT, file.to_s) unless File.exist?(file)

@@ -6,6 +6,8 @@ AllCops:
     - templates/**/*
     - etc/**/*
     - vendor/**/*
+  NewCops: disable # TODO: enable and fix
+  SuggestExtensions: false
 
 Metrics/MethodLength:
   Enabled: false
@@ -35,9 +37,13 @@ Naming/PredicateName:
     - lib/fakefs/file.rb
 Naming/MethodName:
   Enabled: false
+Naming/VariableNumber:
+  Enabled: false
 
 # TODO: only test ?
 Security/Eval:
+  Enabled: false
+Security/Open: # need it for tests
   Enabled: false
 
 Style/ParallelAssignment:
@@ -70,6 +76,18 @@ Style/HashTransformKeys:
   Enabled: true
 Style/HashTransformValues:
   Enabled: true
+Style/PerlBackrefs: # requires English package
+  Enabled: false
+Style/SlicingWithRange:
+  Enabled: false # TODO: enable
+Style/StringConcatenation:
+  Enabled: false
+Style/OptionalBooleanParameter:
+  Enabled: false # TODO: enable
+Style/ExplicitBlockArgument:
+  Enabled: false # TODO: enable
+Style/SoleNestedConditional:
+  Enabled: false
 
 Layout/EmptyLineAfterGuardClause:
   Enabled: false
