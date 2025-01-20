@@ -48,5 +48,12 @@ module Minitest
       FakeFS.deactivate!
       flunk "always deactivate FakeFs after test run"
     end
+
+    def silence_warnings
+      old_verbose, $VERBOSE = $VERBOSE, nil
+      yield
+    ensure
+      $VERBOSE = old_verbose
+    end
   end
 end

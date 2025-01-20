@@ -16,7 +16,7 @@ module FakeFS
     end
 
     def self.unhijack!
-      captives[:original].each do |name, _prc|
+      captives[:original].each_key do |name|
         ::Kernel.send(:remove_method, name.to_sym)
         ::Kernel.send(:define_method, name.to_sym, proc do |*args, **kwargs, &block|
           ::FakeFS::Kernel.captives[:original][name].call(*args, **kwargs, &block)

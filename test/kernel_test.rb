@@ -10,14 +10,18 @@ class KernelTest < Minitest::Test
   end
 
   def test_can_exec_normally
-    out = open("|echo 'foo'")
-    assert_equal "foo\n", out.gets
+    silence_warnings do
+      out = open("|echo 'foo'")
+      assert_equal "foo\n", out.gets
+    end
   end
 
   def test_fake_kernel_can_create_subprocesses
     FakeFS do
-      out = open("|echo 'foo'")
-      assert_equal "foo\n", out.gets
+      silence_warnings do
+        out = open("|echo 'foo'")
+        assert_equal "foo\n", out.gets
+      end
     end
   end
 
@@ -49,8 +53,10 @@ class KernelTest < Minitest::Test
   end
 
   def test_can_exec_normally2
-    out = open("|echo 'foo'")
-    assert_equal "foo\n", out.gets
+    silence_warnings do
+      out = open("|echo 'foo'")
+      assert_equal "foo\n", out.gets
+    end
   end
 
   def test_kernel_open_can_handle_kwargs_after_deactivation

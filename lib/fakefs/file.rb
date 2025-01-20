@@ -277,7 +277,7 @@ module FakeFS
 
     def self.delete(*files)
       files.each do |file|
-        file_name = (file.class == FakeFS::File ? file.path : file.to_s)
+        file_name = (file.instance_of?(FakeFS::File) ? file.path : file.to_s)
         raise Errno::ENOENT, file_name unless exist?(file_name)
 
         FileUtils.rm(file_name)
@@ -905,9 +905,9 @@ module FakeFS
       # note we multiply by 7 since the group num is 1, and octal represents digits 1-7 and we want all 3 bits
       current_group_mode = current_file_mode & (group_num * 7)
       if group_num == 0o100
-        current_group_mode = current_group_mode >> 6
+        current_group_mode >>= 6
       elsif group_num == 0o10
-        current_group_mode = current_group_mode >> 3
+        current_group_mode >>= 3
       end
 
       current_group_mode

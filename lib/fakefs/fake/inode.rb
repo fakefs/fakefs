@@ -25,8 +25,7 @@ module FakeFS
     end
 
     def assign_inode_num
-      if (@inode_num = self.class.freed_inodes.shift)
-      else
+      unless (@inode_num = self.class.freed_inodes.shift)
         @inode_num = self.class.next_inode_num
         self.class.next_inode_num += 1
       end

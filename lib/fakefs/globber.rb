@@ -15,7 +15,7 @@ module FakeFS
         case level
         when 0
           case chr
-          when '{' # rubocop:disable Lint/EmptyWhen
+          when '{'
             # noop
           else
             part << chr
@@ -25,7 +25,7 @@ module FakeFS
           when ','
             result << part
             part = ''
-          when '}' # rubocop:disable Lint/EmptyWhen
+          when '}'
             # noop
           else
             part << chr

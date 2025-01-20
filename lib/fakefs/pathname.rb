@@ -109,10 +109,10 @@ module FakeFS
     if File::ALT_SEPARATOR
       SEPARATOR_LIST = "#{Regexp.quote File::ALT_SEPARATOR}" \
       "#{Regexp.quote File::SEPARATOR}".freeze
-      SEPARATOR_PAT = /[#{SEPARATOR_LIST}]/.freeze
+      SEPARATOR_PAT = /[#{SEPARATOR_LIST}]/
     else
       SEPARATOR_LIST = (Regexp.quote File::SEPARATOR).to_s.freeze
-      SEPARATOR_PAT = /#{Regexp.quote File::SEPARATOR}/.freeze
+      SEPARATOR_PAT = /#{Regexp.quote File::SEPARATOR}/
     end
 
     # Return a pathname which the extension of the basename is substituted by
@@ -483,7 +483,8 @@ module FakeFS
       while (r = chop_basename(pre))
         pre, base = r
         case base
-        when '.' # rubocop:disable Lint/EmptyWhen
+        when '.'
+          # ignored
         when '..'
           names.unshift base
         else

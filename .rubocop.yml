@@ -43,8 +43,9 @@ Naming/VariableNumber:
 # TODO: only test ?
 Security/Eval:
   Enabled: false
-Security/Open: # need it for tests
-  Enabled: false
+Security/Open:
+  Exclude:
+  - test/**/*
 
 Style/ParallelAssignment:
   Enabled: false
