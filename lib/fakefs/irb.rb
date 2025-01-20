@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'irb'
 
 # Make the original file system classes available in IRB.

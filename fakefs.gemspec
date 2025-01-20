@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require './lib/fakefs/version'
 
 Gem::Specification.new do |spec|
@@ -12,11 +14,13 @@ Gem::Specification.new do |spec|
 
   spec.files         = `git ls-files lib README.md LICENSE`.split($/)
 
-  spec.required_ruby_version = '>= 2.7.0'
-  spec.add_development_dependency 'bump', '~> 0.5.3'
-  spec.add_development_dependency 'maxitest', '~> 3.6'
+  spec.required_ruby_version = '>= 3.0.0'
+  spec.add_development_dependency 'bump'
+  spec.add_development_dependency 'csv'
+  spec.add_development_dependency 'maxitest'
+  spec.add_development_dependency 'mutex_m'
   spec.add_development_dependency 'pry'
-  spec.add_development_dependency 'rake', '>= 10.3'
-  spec.add_development_dependency 'rspec', '~> 3.1'
-  spec.add_development_dependency 'rubocop', '~> 0.82.0'
+  spec.add_development_dependency 'rake'
+  spec.add_development_dependency 'rspec'
+  spec.add_development_dependency 'rubocop', '~> 1.70.0' # locked down to prevent random new validations
 end

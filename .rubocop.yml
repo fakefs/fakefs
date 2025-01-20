@@ -1,11 +1,13 @@
 AllCops:
   DisplayCopNames: true
-  TargetRubyVersion: 2.7
+  TargetRubyVersion: 3.0
   Exclude:
     - files/**/*
     - templates/**/*
     - etc/**/*
     - vendor/**/*
+  NewCops: disable # TODO: enable and fix
+  SuggestExtensions: false
 
 Metrics/MethodLength:
   Enabled: false
@@ -35,10 +37,15 @@ Naming/PredicateName:
     - lib/fakefs/file.rb
 Naming/MethodName:
   Enabled: false
+Naming/VariableNumber:
+  Enabled: false
 
 # TODO: only test ?
 Security/Eval:
   Enabled: false
+Security/Open:
+  Exclude:
+  - test/**/*
 
 Style/ParallelAssignment:
   Enabled: false
@@ -58,8 +65,6 @@ Style/IfUnlessModifier:
   Enabled: false
 Style/SpecialGlobalVars:
   EnforcedStyle: use_perl_names
-Style/FrozenStringLiteralComment:
-  Enabled: false # TODO: enable
 Style/CommentedKeyword:
   Enabled: false # TODO: enable
 Style/ExponentialNotation:
@@ -70,6 +75,18 @@ Style/HashTransformKeys:
   Enabled: true
 Style/HashTransformValues:
   Enabled: true
+Style/PerlBackrefs: # requires English package
+  Enabled: false
+Style/SlicingWithRange:
+  Enabled: false # TODO: enable
+Style/StringConcatenation:
+  Enabled: false
+Style/OptionalBooleanParameter:
+  Enabled: false # TODO: enable
+Style/ExplicitBlockArgument:
+  Enabled: false # TODO: enable
+Style/SoleNestedConditional:
+  Enabled: false
 
 Layout/EmptyLineAfterGuardClause:
   Enabled: false

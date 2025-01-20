@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module FakeFS
   # Inode class
   class FakeInode
@@ -10,14 +12,11 @@ module FakeFS
       assign_inode_num
     end
 
-    attr_accessor :content
-    attr_accessor :links
-    attr_accessor :inode_num
+    attr_accessor :content, :links, :inode_num
 
     # please see: http://iacobson.net/beware-of-ruby-class-variables/
     class << self
-      attr_accessor :freed_inodes
-      attr_accessor :next_inode_num
+      attr_accessor :freed_inodes, :next_inode_num
 
       # This method should only be used for tests
       # When called, it will reset the current inode information of the FakeFS
@@ -28,8 +27,7 @@ module FakeFS
     end
 
     def assign_inode_num
-      if (@inode_num = self.class.freed_inodes.shift)
-      else
+      unless (@inode_num = self.class.freed_inodes.shift)
         @inode_num = self.class.next_inode_num
         self.class.next_inode_num += 1
       end

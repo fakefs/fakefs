@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module FakeFS
   # Handles globbing for FakeFS.
   module Globber
@@ -8,14 +10,14 @@ module FakeFS
 
       return [pattern] if pattern[0] != '{' || pattern[-1] != '}'
 
-      part = ''
+      part = +''
       result = []
 
       each_char_with_levels pattern, '{', '}' do |chr, level|
         case level
         when 0
           case chr
-          when '{' # rubocop:disable Lint/EmptyWhen
+          when '{'
             # noop
           else
             part << chr
@@ -24,8 +26,8 @@ module FakeFS
           case chr
           when ','
             result << part
-            part = ''
-          when '}' # rubocop:disable Lint/EmptyWhen
+            part = +''
+          when '}'
             # noop
           else
             part << chr
@@ -43,13 +45,13 @@ module FakeFS
     def path_components(pattern)
       pattern = pattern.to_s
 
-      part = ''
+      part = +''
       result = []
 
       each_char_with_levels pattern, '{', '}' do |chr, level|
         if level == 0 && chr == File::SEPARATOR
           result << part
-          part = ''
+          part = +''
         else
           part << chr
         end

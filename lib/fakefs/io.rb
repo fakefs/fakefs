@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module FakeFS
   # FakeFS IO class inherit root IO
   # Only minimal mocks are provided as IO may be used by ruby's internals

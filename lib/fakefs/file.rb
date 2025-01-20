@@ -1,15 +1,17 @@
+# frozen_string_literal: true
+
 require 'stringio'
 
 module FakeFS
   # FakeFS File class inherit StringIO
   class File < StringIO
     MODES = [
-      READ_ONLY           = 'r'.freeze,
-      READ_WRITE          = 'r+'.freeze,
-      WRITE_ONLY          = 'w'.freeze,
-      READ_WRITE_TRUNCATE = 'w+'.freeze,
-      APPEND_WRITE_ONLY   = 'a'.freeze,
-      APPEND_READ_WRITE   = 'a+'.freeze
+      READ_ONLY           = 'r',
+      READ_WRITE          = 'r+',
+      WRITE_ONLY          = 'w',
+      READ_WRITE_TRUNCATE = 'w+',
+      APPEND_WRITE_ONLY   = 'a',
+      APPEND_READ_WRITE   = 'a+'
     ].freeze
 
     FMODE_READABLE = 0x00000001
@@ -277,7 +279,7 @@ module FakeFS
 
     def self.delete(*files)
       files.each do |file|
-        file_name = (file.class == FakeFS::File ? file.path : file.to_s)
+        file_name = (file.instance_of?(FakeFS::File) ? file.path : file.to_s)
         raise Errno::ENOENT, file_name unless exist?(file_name)
 
         FileUtils.rm(file_name)
@@ -362,8 +364,7 @@ module FakeFS
 
     # FakeFS Stat class
     class Stat
-      attr_reader :ctime, :mtime, :atime, :mode, :uid, :gid
-      attr_reader :birthtime
+      attr_reader :ctime, :mtime, :atime, :mode, :uid, :gid, :birthtime
 
       def initialize(file, lstat = false)
         raise(Errno::ENOENT, file.to_s) unless File.exist?(file)
@@ -574,7 +575,9 @@ module FakeFS
       # and force set it back.
 
       # truncate doesn't work
-      @file.content.force_encoding(Encoding.default_external)
+      unless @file.is_a?(FakeFS::FakeDir)
+        @file.content = @file.content.dup.force_encoding(Encoding.default_external)
+      end
       # StringIO.new 'content', nil, **{} # works in MRI, but fails in JRuby
       # but File.open 'filename', nil, **{} is ok both in MRI and JRuby
 
@@ -906,9 +909,9 @@ module FakeFS
       # note we multiply by 7 since the group num is 1, and octal represents digits 1-7 and we want all 3 bits
       current_group_mode = current_file_mode & (group_num * 7)
       if group_num == 0o100
-        current_group_mode = current_group_mode >> 6
+        current_group_mode >>= 6
       elsif group_num == 0o10
-        current_group_mode = current_group_mode >> 3
+        current_group_mode >>= 3
       end
 
       current_group_mode

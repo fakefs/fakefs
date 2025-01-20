@@ -1,8 +1,9 @@
+# frozen_string_literal: true
+
 module FakeFS
   # Fake file class
   class FakeFile
-    attr_accessor :name, :parent, :mtime, :atime, :mode, :uid, :gid
-    attr_reader :ctime, :birthtime
+    attr_accessor :name, :parent, :mtime, :atime, :mode, :uid, :gid, :ctime, :birthtime, :inode
 
     def initialize(name = nil, parent = nil)
       @name      = name
@@ -16,8 +17,6 @@ module FakeFS
       @uid       = Process.uid
       @gid       = Process.gid
     end
-
-    attr_accessor :inode
 
     def content
       @inode.content

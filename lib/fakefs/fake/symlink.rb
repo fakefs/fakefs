@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module FakeFS
   # Fake symlink class
   class FakeSymlink
@@ -29,7 +31,7 @@ module FakeFS
 
     private
 
-    def method_missing(*args, &block) # rubocop:disable Style/MethodMissingSuper
+    def method_missing(*args, &block)
       entry.send(*args, &block)
     end
   end

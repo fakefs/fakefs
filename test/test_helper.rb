@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'bundler/setup'
 require 'fakefs/safe'
 # explicitly required, as it's not required by default, so tests don't depend on whether it was loaded
@@ -47,6 +49,13 @@ module Minitest
       return unless FakeFS.activated?
       FakeFS.deactivate!
       flunk "always deactivate FakeFs after test run"
+    end
+
+    def silence_warnings
+      old_verbose, $VERBOSE = $VERBOSE, nil
+      yield
+    ensure
+      $VERBOSE = old_verbose
     end
   end
 end
