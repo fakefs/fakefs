@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
 
   spec.files         = `git ls-files lib README.md LICENSE`.split($/)
 
-  spec.required_ruby_version = '>= 2.7.0'
+  spec.required_ruby_version = '>= 3.0.0'
   spec.add_development_dependency 'bump', '~> 0.5.3'
   spec.add_development_dependency 'maxitest', '~> 3.6'
   spec.add_development_dependency 'pry'
