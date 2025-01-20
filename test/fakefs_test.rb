@@ -2179,7 +2179,11 @@ class FakeFSTest < Minitest::Test
 
     File.write('test.csv', csv_string)
 
-    result = CSV.read('test.csv')
+    result = begin
+      CSV.read('test.csv')
+    rescue ArgumentError # "unknown encoding name - bom|utf-8"
+      defined?(JRUBY_VERSION) ? skip : raise
+    end
 
     assert result.is_a?(Array)
     assert_equal csv_rows.length, result.length
