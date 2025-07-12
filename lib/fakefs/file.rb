@@ -48,6 +48,9 @@ module FakeFS
       (RealFile.const_defined?(:SYNC) ? RealFile::SYNC : 0)
     )
 
+    DEFAULT_DIR_SIZE = 64
+    DIR_ENTRY_SIZE = 32
+
     def self.extname(path)
       RealFile.extname(path)
     end
@@ -91,36 +94,28 @@ module FakeFS
     end
 
     def self.mtime(path)
-      if exist?(path)
-        FileSystem.find(path).mtime
-      else
-        raise Errno::ENOENT
-      end
+      file_node = FileSystem.find(path)
+      file_node ? file_node.mtime : (raise Errno::ENOENT, "No such file or directory - #{path}")
     end
 
     def self.ctime(path)
-      if exist?(path)
-        FileSystem.find(path).ctime
-      else
-        raise Errno::ENOENT
-      end
+      file_node = FileSystem.find(path)
+      file_node ? file_node.ctime : (raise Errno::ENOENT, "No such file or directory - #{path}")
     end
 
     def self.atime(path)
-      if exist?(path)
-        FileSystem.find(path).atime
-      else
-        raise Errno::ENOENT
-      end
+      file_node = FileSystem.find(path)
+      file_node ? file_node.atime : (raise Errno::ENOENT, "No such file or directory - #{path}")
     end
 
     def self.utime(atime, mtime, *paths)
       paths.each do |path|
-        if exist?(path)
-          FileSystem.find(path).atime = atime
-          FileSystem.find(path).mtime = mtime
+        file_node = FileSystem.find(path)
+        if file_node
+          file_node.atime = atime
+          file_node.mtime = mtime
         else
-          raise Errno::ENOENT
+          raise Errno::ENOENT, "No such file or directory - #{path}"
         end
       end
 
@@ -129,7 +124,7 @@ module FakeFS
 
     def self.size(path)
       if directory?(path)
-        64 + (32 * FileSystem.find(path).entries.size)
+        DEFAULT_DIR_SIZE + (DIR_ENTRY_SIZE * FileSystem.find(path).entries.size)
       else
         read(path).bytesize
       end
