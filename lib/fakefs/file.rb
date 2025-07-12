@@ -63,28 +63,13 @@ module FakeFS
       RealFile.path(file)
     end
 
-    # Check if a file or directory exists at the given path.
-    # Handles symlinks by following them to their target.
-    # Returns false for nil/empty paths or when any error occurs.
-    #
-    # @param path [String, Pathname] The file path to check
-    # @return [Boolean] true if the file exists, false otherwise
     def self.exist?(path)
-      return false if path.nil? || path.to_s.empty?
-
-      path_str = path.to_s
-      if File.symlink?(path_str)
-        begin
-          referent = File.expand_path(File.readlink(path_str), File.dirname(path_str))
-          exist?(referent)
-        rescue StandardError
-          false
-        end
+      if File.symlink?(path)
+        referent = File.expand_path(File.readlink(path), File.dirname(path))
+        exist?(referent)
       else
-        !FileSystem.find(path_str).nil?
+        !FileSystem.find(path).nil?
       end
-    rescue StandardError
-      false
     end
 
     class << self
