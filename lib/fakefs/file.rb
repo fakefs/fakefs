@@ -93,19 +93,14 @@ module FakeFS
       File.lstat(path).writable?
     end
 
-    def self.mtime(path)
-      file_node = FileSystem.find(path)
-      file_node ? file_node.mtime : (raise Errno::ENOENT, "No such file or directory - #{path}")
-    end
-
-    def self.ctime(path)
-      file_node = FileSystem.find(path)
-      file_node ? file_node.ctime : (raise Errno::ENOENT, "No such file or directory - #{path}")
-    end
-
-    def self.atime(path)
-      file_node = FileSystem.find(path)
-      file_node ? file_node.atime : (raise Errno::ENOENT, "No such file or directory - #{path}")
+    [:mtime, :ctime, :atime].each do |time_method|
+      define_singleton_method(time_method) do |path|
+        if (file_node = FileSystem.find(path))
+          file_node.send(time_method)
+        else
+          raise Errno::ENOENT, "No such file or directory - #{path}"
+        end
+      end
     end
 
     def self.utime(atime, mtime, *paths)
