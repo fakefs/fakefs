@@ -3267,7 +3267,7 @@ class FakeFSTest < Minitest::Test
   end
 
   def test_directory_open_block
-    test = ['.', '..', 'file_1', 'file_2', 'file_3', 'file_4', 'file_5']
+    test = ['file_1', 'file_2', 'file_3', 'file_4', 'file_5']
 
     FileUtils.mkdir_p('/this/path/should/be/here')
 
@@ -3278,7 +3278,7 @@ class FakeFSTest < Minitest::Test
     children = Dir.open('/this/path/should/be/here') do |dir|
       dir.children
     end
-
+      
     assert children.size == test.size
     test.each { |t| assert children.include?(t) }
   end
