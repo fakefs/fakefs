@@ -1,5 +1,8 @@
 ## Next
 
+## 3.0.1
+- fix dir children to not include . and ..
+
 ## 3.0.0
 - ruby 3.4 ready with frozen strings
 
