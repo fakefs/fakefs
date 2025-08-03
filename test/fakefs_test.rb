@@ -3278,7 +3278,7 @@ class FakeFSTest < Minitest::Test
     children = Dir.open('/this/path/should/be/here') do |dir|
       dir.children
     end
-      
+
     assert children.size == test.size
     test.each { |t| assert children.include?(t) }
   end

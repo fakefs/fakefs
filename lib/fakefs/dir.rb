@@ -40,7 +40,7 @@ module FakeFS
     end
 
     def children
-      each.reject { |entry_name| entry_name == '.' || entry_name == '..' }.to_a
+      each.to_a - ['.', '..']
     end
 
     def pos
