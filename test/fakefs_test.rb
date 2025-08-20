@@ -2687,6 +2687,41 @@ class FakeFSTest < Minitest::Test
     assert_equal ['/path/bar/bar'], Dir['/path/bar/*']
   end
 
+  def test_cp_r_updates_time_unless_preserve_is_false
+    [
+      { preserve: nil, assertion: method(:refute_equal) },
+      { preserve: true, assertion: method(:assert_equal) },
+      { preserve: false, assertion: method(:refute_equal) }
+    ].each do |test|
+      test => { preserve:, assertion: }
+
+      FakeFS::with_fresh do
+        FileUtils.mkdir_p '/source/subdir'
+        File.write('/source/foo', 'foo')
+        File.write('/source/subdir/subfile', 'subfile')
+
+        FileUtils.mkdir '/dest'
+        File.write('/dest/baz', 'baz')
+        atime = File.atime('/dest/baz')
+        mtime = File.mtime('/dest/baz')
+
+        sleep 0.001
+        FileUtils.cp_r '/source/.', '/dest', { preserve: }
+
+        [ 'foo', 'subdir/subfile' ].each { |filename| 
+          source_name = File.join '/source', filename
+          dest_name = File.join '/dest', filename
+          assertion.call File.atime(source_name), File.atime(dest_name), "atime for #{filename} with preserve=#{test[:preserve]}"
+          assertion.call File.mtime(source_name), File.mtime(dest_name), "mtime for #{filename} with preserve=#{test[:preserve]}"
+        }
+        
+        # Check that pre-existing files are not changed:
+        assert_equal atime, File.atime('/dest/baz')
+        assert_equal mtime, File.mtime('/dest/baz')
+      end
+    end
+  end
+
   def test_clone_clones_normal_files
     act_on_real_fs do
       File.open(real_file_sandbox('foo'), 'w') do |f|
