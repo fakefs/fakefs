@@ -2695,7 +2695,7 @@ class FakeFSTest < Minitest::Test
     ].each do |test|
       test => { preserve:, assertion: }
 
-      FakeFS::with_fresh do
+      FakeFS.with_fresh do
         FileUtils.mkdir_p '/source/subdir'
         File.write('/source/foo', 'foo')
         File.write('/source/subdir/subfile', 'subfile')
@@ -2706,15 +2706,15 @@ class FakeFSTest < Minitest::Test
         mtime = File.mtime('/dest/baz')
 
         sleep 0.001
-        FileUtils.cp_r '/source/.', '/dest', { preserve: }
+        FileUtils.cp_r '/source/.', '/dest', { preserve: preserve }
 
-        [ 'foo', 'subdir/subfile' ].each { |filename| 
+        ['foo', 'subdir/subfile'].each do |filename|
           source_name = File.join '/source', filename
           dest_name = File.join '/dest', filename
           assertion.call File.atime(source_name), File.atime(dest_name), "atime for #{filename} with preserve=#{test[:preserve]}"
           assertion.call File.mtime(source_name), File.mtime(dest_name), "mtime for #{filename} with preserve=#{test[:preserve]}"
-        }
-        
+        end
+
         # Check that pre-existing files are not changed:
         assert_equal atime, File.atime('/dest/baz')
         assert_equal mtime, File.mtime('/dest/baz')

@@ -164,11 +164,11 @@ module FakeFS
         # This last bit is a total abuse and should be thought hard
         # about and cleaned up.
         if new_dir
-          if src.to_s[-2..-1] == '/.'            
-            dir.entries.each do |f| 
+          if src.to_s[-2..-1] == '/.'
+            dir.entries.each do |f|
               copy = f.clone(new_dir)
               walk_hierarchy(copy, &update_times) unless options[:preserve]
-              new_dir[f.name] = copy              
+              new_dir[f.name] = copy
             end
           else
             copy = dir.entry.clone(new_dir)
@@ -176,7 +176,7 @@ module FakeFS
             new_dir[dir.name] = copy
           end
         else
-          copy = dir.entry.clone              
+          copy = dir.entry.clone
           walk_hierarchy(copy, &update_times) unless options[:preserve]
           new_dir = FileSystem.add(dest, copy)
         end
@@ -315,10 +315,12 @@ module FakeFS
       true
     end
 
+    private
+
     # Walks through the file system hierarchy recursively, starting from the given entry,
     # and calls the given block with it.
-    # If no block is given, returns an Enumerator.                                                                                   
-    private def walk_hierarchy(entry, &block) 
+    # If no block is given, returns an Enumerator.
+    def walk_hierarchy(entry, &block)
       return to_enum(__method__, entry) unless block_given?
 
       yield entry
