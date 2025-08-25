@@ -160,16 +160,25 @@ module FakeFS
         raise Errno::EEXIST, dest.to_s if new_dir && !File.directory?(dest)
         raise Errno::ENOENT, dest.to_s if !new_dir && !FileSystem.find(dest.to_s + '/../')
 
+        update_times = proc { |f| f.atime = f.mtime = Time.now }
         # This last bit is a total abuse and should be thought hard
         # about and cleaned up.
         if new_dir
           if src.to_s[-2..-1] == '/.'
-            dir.entries.each { |f| new_dir[f.name] = f.clone(new_dir) }
+            dir.entries.each do |f|
+              copy = f.clone(new_dir)
+              walk_hierarchy(copy, &update_times) unless options[:preserve]
+              new_dir[f.name] = copy
+            end
           else
-            new_dir[dir.name] = dir.entry.clone(new_dir)
+            copy = dir.entry.clone(new_dir)
+            walk_hierarchy(copy, &update_times) unless options[:preserve]
+            new_dir[dir.name] = copy
           end
         else
-          FileSystem.add(dest, dir.entry.clone)
+          copy = dir.entry.clone
+          walk_hierarchy(copy, &update_times) unless options[:preserve]
+          new_dir = FileSystem.add(dest, copy)
         end
       end
 
@@ -304,6 +313,20 @@ module FakeFS
         end
       end
       true
+    end
+
+    private
+
+    # Walks through the file system hierarchy recursively, starting from the given entry,
+    # and calls the given block with it.
+    # If no block is given, returns an Enumerator.
+    def walk_hierarchy(entry, &block)
+      return to_enum(__method__, entry) unless block_given?
+
+      yield entry
+      if entry.is_a? FakeDir
+        entry.entries.each { |child| walk_hierarchy(child, &block) }
+      end
     end
   end
 end
