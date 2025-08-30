@@ -3253,6 +3253,11 @@ class FakeFSTest < Minitest::Test
     end
   end
 
+  def test_mkdir_p_of_root_does_not_cause_faulty_entries
+    FileUtils.mkdir_p '/'
+    refute_includes FakeFS::FileSystem.fs.entries.map(&:name), nil
+  end
+
   def test_directory_open
     test = ['.', '..', 'file_1', 'file_2', 'file_3', 'file_4', 'file_5']
 
