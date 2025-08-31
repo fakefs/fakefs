@@ -56,6 +56,9 @@ module FakeFS
       end
 
       assert_dir d
+      # Short-circuit if added path is file system root, to avoid adding nil-name fs entries:
+      return fs if parts.empty?
+
       object.name = parts.last
       object.parent = d
       if object.is_a? FakeDir
