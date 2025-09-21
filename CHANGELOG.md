@@ -1,7 +1,10 @@
 ## Next
 
-## 3.0.3
+## 3.0.4
 - fix: readlink on non-existent target not raising ENOENT
+
+## 3.0.3
+- fix: mkdir_p '/' inserts nil-name entries into the file system
 
 ## 3.0.2
 - fix: atime/mtime of copied entities in cp_r based on preserve option
