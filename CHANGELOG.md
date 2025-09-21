@@ -1,5 +1,11 @@
 ## Next
 
+## 3.0.3
+- fix: readlink on non-existent target not raising ENOENT
+
+## 3.0.2
+- fix: atime/mtime of copied entities in cp_r based on preserve option
+
 ## 3.0.1
 - fix dir children to not include . and ..
 
