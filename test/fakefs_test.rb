@@ -3392,6 +3392,12 @@ class FakeFSTest < Minitest::Test
     assert !File.exist?('/foo')
   end
 
+  def test_readlink_non_existent_raises_ENOENT
+    assert_raises(Errno::ENOENT) do
+      File.readlink('does_not_exist')
+    end
+  end
+
   def test_rename_renames_a_directories
     Dir.mkdir('/foo')
     File.write '/foo/file', 'content'
