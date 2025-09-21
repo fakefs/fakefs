@@ -187,6 +187,7 @@ module FakeFS
 
     def self.readlink(path)
       symlink = FileSystem.find(path)
+      raise Errno::ENOENT unless symlink
       symlink.target
     end
 
