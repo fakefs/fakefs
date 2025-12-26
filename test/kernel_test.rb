@@ -12,6 +12,7 @@ class KernelTest < Minitest::Test
   end
 
   def test_can_exec_normally
+    skip if RUBY_VERSION >= '4.0'
     silence_warnings do
       out = open("|echo 'foo'")
       assert_equal "foo\n", out.gets
@@ -19,6 +20,7 @@ class KernelTest < Minitest::Test
   end
 
   def test_fake_kernel_can_create_subprocesses
+    skip if RUBY_VERSION >= '4.0'
     FakeFS do
       silence_warnings do
         out = open("|echo 'foo'")
@@ -55,6 +57,7 @@ class KernelTest < Minitest::Test
   end
 
   def test_can_exec_normally2
+    skip if RUBY_VERSION >= '4.0'
     silence_warnings do
       out = open("|echo 'foo'")
       assert_equal "foo\n", out.gets
