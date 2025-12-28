@@ -72,6 +72,14 @@ class PathnameTest < Minitest::Test
     assert_equal 'ASCII-8BIT', @pathname.binread.encoding.name
   end
 
+  def test_io_binwrite
+    bytes_written = @pathname.binwrite("some\ncontent")
+
+    assert_equal 12, bytes_written
+    assert_equal "some\ncontent", @pathname.binread
+    assert_equal 'ASCII-8BIT', @pathname.binread.encoding.name
+  end
+
   def test_io_readlines_returns_array_of_lines
     File.write(@path, "one\ntwo\nthree\n")
 
@@ -183,41 +191,51 @@ class PathnameTest < Minitest::Test
     end
   end
 
-  if RUBY_VERSION > '2.4'
-    def test_pathname_empty_on_empty_directory
-      Dir.mkdir(@path)
+  def test_pathname_empty_on_empty_directory
+    Dir.mkdir(@path)
 
-      assert_equal true, @pathname.empty?
-    end
+    assert_equal true, @pathname.empty?
+  end
 
-    def test_pathname_empty_on_non_empty_directory
-      Dir.mkdir(@path)
-      file_path = File.join(@path, 'a_file.txt')
-      FileUtils.touch(file_path)
+  def test_pathname_empty_on_non_empty_directory
+    Dir.mkdir(@path)
+    file_path = File.join(@path, 'a_file.txt')
+    FileUtils.touch(file_path)
 
-      assert_equal false, @pathname.empty?
-    end
+    assert_equal false, @pathname.empty?
+  end
 
-    def test_pathname_empty_on_empty_file
-      File.write(@path, '')
+  def test_pathname_empty_on_empty_file
+    File.write(@path, '')
 
-      assert_equal true, @pathname.empty?
-    end
+    assert_equal true, @pathname.empty?
+  end
 
-    def test_pathname_empty_on_non_empty_file
-      File.write(@path, "some\ncontent")
+  def test_pathname_empty_on_non_empty_file
+    File.write(@path, "some\ncontent")
 
-      assert_equal false, @pathname.empty?
-    end
+    assert_equal false, @pathname.empty?
+  end
 
-    def test_pathname_empty_on_nonexistent_path
-      refute @pathname.exist?
+  def test_pathname_empty_on_nonexistent_path
+    refute @pathname.exist?
 
-      assert_equal false, @pathname.empty?
-    end
-  else
-    def test_pathname_empty_not_implemented
-      assert_equal false, Pathname.instance_methods.include?(:empty?)
-    end
+    assert_equal false, @pathname.empty?
+  end
+
+  def test_path
+    assert_raises(NoMethodError, "is protected") { @pathname.path }
+    assert_equal @pathname.send(:path), @path
+  end
+
+  def test_implements_all_methods
+    FakeFS.deactivate!
+    real = ::Pathname.instance_methods(false)
+    FakeFS.activate!
+    fake = Pathname.instance_methods(false)
+    todo = [:birthtime, :lutime]
+    deprecated = [:untaint, :taint]
+    missing = real - fake - todo - deprecated
+    assert_equal [], missing
   end
 end

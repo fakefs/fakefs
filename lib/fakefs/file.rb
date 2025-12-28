@@ -133,10 +133,8 @@ module FakeFS
       exist?(path) && size(path) == 0
     end
 
-    if RUBY_VERSION >= '2.4'
-      class << self
-        alias empty? zero?
-      end
+    class << self
+      alias empty? zero?
     end
 
     def self.const_missing(name)
