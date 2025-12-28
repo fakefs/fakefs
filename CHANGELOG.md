@@ -1,5 +1,8 @@
 ## Next
 
+## 3.2.0
+- fix irb being needed
+
 ## 3.1.0
 - Pathname#path and Pathname#binwrite
 
