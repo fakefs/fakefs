@@ -72,6 +72,14 @@ class PathnameTest < Minitest::Test
     assert_equal 'ASCII-8BIT', @pathname.binread.encoding.name
   end
 
+  def test_io_binwrite
+    bytes_written = @pathname.binwrite("some\ncontent")
+
+    assert_equal 12, bytes_written
+    assert_equal "some\ncontent", @pathname.binread
+    assert_equal 'ASCII-8BIT', @pathname.binread.encoding.name
+  end
+
   def test_io_readlines_returns_array_of_lines
     File.write(@path, "one\ntwo\nthree\n")
 
@@ -213,5 +221,21 @@ class PathnameTest < Minitest::Test
     refute @pathname.exist?
 
     assert_equal false, @pathname.empty?
+  end
+
+  def test_path
+    assert_raises(NoMethodError, "is protected") { @pathname.path }
+    assert_equal @pathname.send(:path), @path
+  end
+
+  def test_implements_all_methods
+    FakeFS.deactivate!
+    real = ::Pathname.instance_methods(false)
+    FakeFS.activate!
+    fake = Pathname.instance_methods(false)
+    todo = [:birthtime, :lutime]
+    deprecated = [:untaint, :taint]
+    missing = real - fake - todo - deprecated
+    assert_equal [], missing
   end
 end

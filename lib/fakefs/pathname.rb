@@ -438,6 +438,12 @@ module FakeFS
       end
     end
 
+    protected
+
+    def path
+      to_s
+    end
+
     private
 
     # chop_basename(path) -> [pre-basename, basename] or nil
@@ -635,6 +641,11 @@ module FakeFS
     # or the first +N+ if specified.
     def binread(*args)
       File.binread(@path, *args)
+    end
+
+    # See <tt>File.binwrite</tt>. Returns the number of bytes written.
+    def binwrite(string, *args)
+      File.binwrite(@path, string, *args)
     end
 
     # See <tt>IO.readlines</tt>.  Returns all the lines from the file.
