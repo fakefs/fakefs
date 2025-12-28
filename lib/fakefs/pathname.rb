@@ -1023,15 +1023,13 @@ module FakeFS
 
     alias delete unlink
 
-    if RUBY_VERSION > '2.4'
-      # Checks if a file or directory is empty, using
-      # <tt>FileTest.empty?</tt> or <tt>Dir.empty?</tt> as necessary.
-      def empty?
-        if File.directory? @path
-          Dir.empty? @path
-        else
-          FileTest.empty? @path
-        end
+    # Checks if a file or directory is empty, using
+    # <tt>FileTest.empty?</tt> or <tt>Dir.empty?</tt> as necessary.
+    def empty?
+      if File.directory? @path
+        Dir.empty? @path
+      else
+        FileTest.empty? @path
       end
     end
   end

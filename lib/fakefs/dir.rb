@@ -110,14 +110,12 @@ module FakeFS
       end
     end
 
-    if RUBY_VERSION >= '2.4'
-      def self.empty?(dirname)
-        _check_for_valid_file(dirname)
-        if File.directory?(dirname)
-          Dir.new(dirname).count <= 2
-        else
-          false
-        end
+    def self.empty?(dirname)
+      _check_for_valid_file(dirname)
+      if File.directory?(dirname)
+        Dir.new(dirname).count <= 2
+      else
+        false
       end
     end
 

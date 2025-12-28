@@ -53,10 +53,8 @@ module FakeFS
       File.zero?(file_name)
     end
 
-    if RUBY_VERSION > '2.4'
-      class << self
-        alias empty? zero?
-      end
+    class << self
+      alias empty? zero?
     end
   end
 end
