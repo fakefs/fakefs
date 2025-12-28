@@ -1,5 +1,8 @@
 ## Next
 
+## 3.1.0
+- Pathname#path and Pathname#binwrite
+
 ## 3.0.4
 - fix: readlink on non-existent target not raising ENOENT
 
