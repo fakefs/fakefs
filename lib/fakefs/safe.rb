@@ -3,7 +3,7 @@
 require 'fileutils'
 require 'pathname'
 require 'fakefs/pry'
-require 'fakefs/irb'
+require 'fakefs/irb' if Gem::Specification.find_all_by_name("irb").any?
 require 'fakefs/base'
 require 'fakefs/fake/file'
 require 'fakefs/fake/dir'
