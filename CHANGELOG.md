@@ -14,6 +14,7 @@
 
 ## 3.0.2
 - fix: atime/mtime of copied entities in cp_r based on preserve option
+- Drop support for EOL Rubies (2.7/3.0/3.1)
 
 ## 3.0.1
 - fix dir children to not include . and ..
