@@ -438,8 +438,8 @@ module FakeFS
       end
     end
 
-    protected
-
+    # not `protected` on purpose since that breaks Rails.root.join even though
+    # the original Pathname has a protected path
     def path
       to_s
     end

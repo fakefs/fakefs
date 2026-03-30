@@ -223,9 +223,8 @@ class PathnameTest < Minitest::Test
     assert_equal false, @pathname.empty?
   end
 
-  def test_path
-    assert_raises(NoMethodError, "is protected") { @pathname.path }
-    assert_equal @pathname.send(:path), @path
+  def test_path_is_not_protected
+    assert_equal @pathname.path, @path
   end
 
   def test_implements_all_methods
