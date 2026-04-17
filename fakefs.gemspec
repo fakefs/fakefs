@@ -15,9 +15,11 @@ Gem::Specification.new do |spec|
   spec.files         = `git ls-files lib README.md LICENSE`.split($/)
 
   spec.required_ruby_version = '>= 3.2.0' # sync with .github/workflows/test.yml and .rubocop.yml
+
+  spec.add_runtime_dependency 'irb', '< 2'
+
   spec.add_development_dependency 'bump'
   spec.add_development_dependency 'csv'
-  spec.add_development_dependency 'irb'
   spec.add_development_dependency 'maxitest'
   spec.add_development_dependency 'mutex_m'
   spec.add_development_dependency 'pry'
